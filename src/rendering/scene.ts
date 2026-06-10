@@ -1,10 +1,12 @@
 import type { Mat2, Vec2 } from '../math/types';
 import type { Camera } from './camera';
+import { drawFigures, drawPointField, drawVectorField } from './drawDeform';
 import { drawDeterminant } from './drawDeterminant';
 import type { EigenDisplay } from './drawEigen';
 import { drawEigenStructure } from './drawEigen';
 import { drawBaseGrid, drawTransformedGrid } from './drawGrid';
 import { drawBasisVectors, drawCustomVectors } from './drawShapes';
+import type { Polyline } from './figures';
 
 /** Which layers are visible. Lives here because it is part of the scene spec. */
 export interface ShowFlags {
@@ -38,6 +40,15 @@ export interface Scene {
   eigen: EigenDisplay | null;
   /** User-placed test vectors (drawn with their images under the matrix). */
   customVectors: Vec2[];
+  /** Module B layers (null when the deformation module is not active). */
+  deform: DeformScene | null;
+}
+
+export interface DeformScene {
+  figures: Polyline[];
+  pointField: boolean;
+  vectorField: boolean;
+  denseGrid: boolean;
 }
 
 export function drawScene(ctx: CanvasRenderingContext2D, cam: Camera, scene: Scene, ui: UiState): void {
@@ -47,13 +58,22 @@ export function drawScene(ctx: CanvasRenderingContext2D, cam: Camera, scene: Sce
     drawBaseGrid(ctx, cam, scene.show.axisNumbers);
   }
   if (scene.show.transformedGrid) {
-    drawTransformedGrid(ctx, cam, scene.matrix, { minor: false });
+    drawTransformedGrid(ctx, cam, scene.matrix, { minor: scene.deform?.denseGrid ?? false });
+  }
+  if (scene.deform?.pointField) {
+    drawPointField(ctx, cam, scene.matrix);
   }
   if (scene.show.determinant) {
     drawDeterminant(ctx, cam, scene.matrix, scene.show.labels);
   }
+  if (scene.deform && scene.deform.figures.length > 0) {
+    drawFigures(ctx, cam, scene.matrix, scene.deform.figures);
+  }
   if (scene.show.eigenvectors && scene.eigen) {
     drawEigenStructure(ctx, cam, scene.matrix, scene.eigen, scene.show.labels);
+  }
+  if (scene.deform?.vectorField) {
+    drawVectorField(ctx, cam, scene.matrix);
   }
   if (scene.customVectors.length > 0) {
     drawCustomVectors(ctx, cam, scene.matrix, scene.customVectors, scene.show.labels);

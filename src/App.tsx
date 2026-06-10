@@ -2,6 +2,7 @@ import { useMemo, useReducer } from 'react';
 import { AnimationControls } from './components/AnimationControls';
 import { CanvasStage } from './components/CanvasStage';
 import { CompositionPanel } from './components/CompositionPanel';
+import { DeformPanel } from './components/DeformPanel';
 import { EigenPanel } from './components/EigenPanel';
 import { InfoPanel } from './components/InfoPanel';
 import { MatrixInput } from './components/MatrixInput';
@@ -9,26 +10,47 @@ import { PresetBar } from './components/PresetBar';
 import { VectorPanel } from './components/VectorPanel';
 import { eigen2 } from './math/eigen';
 import { rankInfo } from './math/kernel';
+import { catFigure, circleFigure, squareFigure, type Polyline } from './rendering/figures';
 import type { Scene, ShowFlags } from './rendering/scene';
-import { displayedMatrix, initialState, reducer } from './state/store';
+import { displayedMatrix, initialState, reducer, type FigureId } from './state/store';
 import { useAnimationTicker } from './state/useAnimationTicker';
+
+// Figures are static geometry — build them once.
+const FIGURES: Record<FigureId, Polyline[]> = {
+  none: [],
+  square: squareFigure(),
+  circle: circleFigure(),
+  cat: catFigure(),
+};
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   useAnimationTicker(state.playing, dispatch);
   const displayed = displayedMatrix(state);
+  const isDeform = state.module === 'deform';
 
   // Eigenstructure and rank belong to the *target* matrix: its eigendirections
   // stay invariant along the whole linear animation path.
   const eigen = useMemo(() => eigen2(state.target), [state.target]);
   const rank = useMemo(() => rankInfo(state.target), [state.target]);
 
+  // Module B hides the analysis layers to keep the focus on the deformation.
+  const show: ShowFlags = isDeform ? { ...state.show, determinant: false, eigenvectors: false } : state.show;
+
   const scene: Scene = {
     matrix: displayed,
-    show: state.show,
+    show,
     interactive: true,
-    eigen: state.show.eigenvectors ? { eigen, rank } : null,
-    customVectors: state.customVectors,
+    eigen: !isDeform && state.show.eigenvectors ? { eigen, rank } : null,
+    customVectors: isDeform ? [] : state.customVectors,
+    deform: isDeform
+      ? {
+          figures: FIGURES[state.deform.figure],
+          pointField: state.deform.pointField,
+          vectorField: state.deform.vectorField,
+          denseGrid: state.deform.denseGrid,
+        }
+      : null,
   };
 
   const toggle = (key: keyof ShowFlags) => dispatch({ type: 'toggleShow', key });
@@ -39,8 +61,24 @@ export default function App() {
         <h1 className="app-title">
           <span className="accent">Linear</span> Transformation Lab
         </h1>
+        <nav className="module-tabs" aria-label="Module">
+          <button
+            className={`module-tab${!isDeform ? ' active' : ''}`}
+            onClick={() => dispatch({ type: 'setModule', module: 'lab' })}
+          >
+            Matrix lab
+          </button>
+          <button
+            className={`module-tab${isDeform ? ' active' : ''}`}
+            onClick={() => dispatch({ type: 'setModule', module: 'deform' })}
+          >
+            Deformation of space
+          </button>
+        </nav>
         <div className="header-hint">
-          drag the î / ĵ tips · type in the matrix · scroll = zoom · drag background = pan · Shift = snap to 0.5
+          {isDeform
+            ? 'feel it: drag î/ĵ, scrub t, watch space flow · scroll = zoom'
+            : 'drag the î/ĵ tips · type in the matrix · scroll = zoom · drag background = pan · Shift = snap to 0.5'}
         </div>
       </header>
       <main className="app-main">
@@ -65,15 +103,18 @@ export default function App() {
 
           <AnimationControls state={state} dispatch={dispatch} />
 
-          <InfoPanel target={state.target} displayed={displayed} inProgress={state.t < 1} />
+          {isDeform ? (
+            <DeformPanel state={state} dispatch={dispatch} />
+          ) : (
+            <>
+              <InfoPanel target={state.target} displayed={displayed} inProgress={state.t < 1} />
+              <EigenPanel eigen={eigen} rank={rank} />
+              <CompositionPanel state={state} dispatch={dispatch} />
+              <VectorPanel state={state} displayed={displayed} dispatch={dispatch} />
+            </>
+          )}
 
-          <EigenPanel eigen={eigen} rank={rank} />
-
-          <CompositionPanel state={state} dispatch={dispatch} />
-
-          <VectorPanel state={state} displayed={displayed} dispatch={dispatch} />
-
-          <details className="panel-section" open>
+          <details className="panel-section">
             <summary>View</summary>
             <div className="panel-section-body">
               <Check label="Reference grid" checked={state.show.baseGrid} onChange={() => toggle('baseGrid')} />
@@ -88,23 +129,27 @@ export default function App() {
                 checked={state.show.basisVectors}
                 onChange={() => toggle('basisVectors')}
               />
-              <Check
-                label="Determinant parallelogram"
-                checked={state.show.determinant}
-                onChange={() => toggle('determinant')}
-              />
-              <Check
-                label="Eigenvectors, kernel & image"
-                checked={state.show.eigenvectors}
-                onChange={() => toggle('eigenvectors')}
-              />
+              {!isDeform && (
+                <>
+                  <Check
+                    label="Determinant parallelogram"
+                    checked={state.show.determinant}
+                    onChange={() => toggle('determinant')}
+                  />
+                  <Check
+                    label="Eigenvectors, kernel & image"
+                    checked={state.show.eigenvectors}
+                    onChange={() => toggle('eigenvectors')}
+                  />
+                </>
+              )}
               <Check label="Labels" checked={state.show.labels} onChange={() => toggle('labels')} />
             </div>
           </details>
         </aside>
         <CanvasStage
           scene={scene}
-          tool={state.tool}
+          tool={isDeform ? 'transform' : state.tool}
           onDragBasis={(which, to) => dispatch({ type: 'dragBasis', which, to })}
           onAddVector={(v) => dispatch({ type: 'addVector', v })}
         />
