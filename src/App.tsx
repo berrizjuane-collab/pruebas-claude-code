@@ -1,9 +1,12 @@
 import { useMemo, useReducer } from 'react';
 import { AnimationControls } from './components/AnimationControls';
 import { CanvasStage } from './components/CanvasStage';
+import { CompositionPanel } from './components/CompositionPanel';
 import { EigenPanel } from './components/EigenPanel';
 import { InfoPanel } from './components/InfoPanel';
 import { MatrixInput } from './components/MatrixInput';
+import { PresetBar } from './components/PresetBar';
+import { VectorPanel } from './components/VectorPanel';
 import { eigen2 } from './math/eigen';
 import { rankInfo } from './math/kernel';
 import type { Scene, ShowFlags } from './rendering/scene';
@@ -25,6 +28,7 @@ export default function App() {
     show: state.show,
     interactive: true,
     eigen: state.show.eigenvectors ? { eigen, rank } : null,
+    customVectors: state.customVectors,
   };
 
   const toggle = (key: keyof ShowFlags) => dispatch({ type: 'toggleShow', key });
@@ -57,11 +61,17 @@ export default function App() {
             </div>
           </details>
 
+          <PresetBar dispatch={dispatch} />
+
           <AnimationControls state={state} dispatch={dispatch} />
 
           <InfoPanel target={state.target} displayed={displayed} inProgress={state.t < 1} />
 
           <EigenPanel eigen={eigen} rank={rank} />
+
+          <CompositionPanel state={state} dispatch={dispatch} />
+
+          <VectorPanel state={state} displayed={displayed} dispatch={dispatch} />
 
           <details className="panel-section" open>
             <summary>View</summary>
@@ -96,6 +106,7 @@ export default function App() {
           scene={scene}
           tool={state.tool}
           onDragBasis={(which, to) => dispatch({ type: 'dragBasis', which, to })}
+          onAddVector={(v) => dispatch({ type: 'addVector', v })}
         />
       </main>
     </div>

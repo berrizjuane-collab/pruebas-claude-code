@@ -1,10 +1,10 @@
-import type { Mat2 } from '../math/types';
+import type { Mat2, Vec2 } from '../math/types';
 import type { Camera } from './camera';
 import { drawDeterminant } from './drawDeterminant';
 import type { EigenDisplay } from './drawEigen';
 import { drawEigenStructure } from './drawEigen';
 import { drawBaseGrid, drawTransformedGrid } from './drawGrid';
-import { drawBasisVectors } from './drawShapes';
+import { drawBasisVectors, drawCustomVectors } from './drawShapes';
 
 /** Which layers are visible. Lives here because it is part of the scene spec. */
 export interface ShowFlags {
@@ -36,6 +36,8 @@ export interface Scene {
   interactive: boolean;
   /** Eigenstructure + rank of the target matrix (null hides the layer). */
   eigen: EigenDisplay | null;
+  /** User-placed test vectors (drawn with their images under the matrix). */
+  customVectors: Vec2[];
 }
 
 export function drawScene(ctx: CanvasRenderingContext2D, cam: Camera, scene: Scene, ui: UiState): void {
@@ -52,6 +54,9 @@ export function drawScene(ctx: CanvasRenderingContext2D, cam: Camera, scene: Sce
   }
   if (scene.show.eigenvectors && scene.eigen) {
     drawEigenStructure(ctx, cam, scene.matrix, scene.eigen, scene.show.labels);
+  }
+  if (scene.customVectors.length > 0) {
+    drawCustomVectors(ctx, cam, scene.matrix, scene.customVectors, scene.show.labels);
   }
   if (scene.show.basisVectors) {
     drawBasisVectors(ctx, cam, scene.matrix, {

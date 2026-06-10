@@ -1,6 +1,7 @@
-import { columnI, columnJ } from '../math/mat2';
+import { apply, columnI, columnJ } from '../math/mat2';
 import type { Mat2, Vec2 } from '../math/types';
 import { COLORS } from '../theme';
+import { fmt } from '../utils/format';
 import type { Camera } from './camera';
 import { worldToScreen } from './camera';
 
@@ -76,6 +77,61 @@ export function drawLabel(
   ctx.fillStyle = color;
   ctx.fillText(text, screenPos.x, screenPos.y);
   ctx.restore();
+}
+
+const SUBSCRIPTS = '₀₁₂₃₄₅₆₇₈₉';
+const sub = (n: number) =>
+  n <= 9 ? SUBSCRIPTS[n] : String(n).split('').map((d) => SUBSCRIPTS[Number(d)]).join('');
+
+/**
+ * User-placed vectors: the faint dashed arrow is the input v, the bright one
+ * is its image M(t)·v, and the dotted connector shows the trip in between.
+ * During the animation the bright arrow rides the deformation live.
+ */
+export function drawCustomVectors(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  m: Mat2,
+  vectors: Vec2[],
+  labels: boolean,
+): void {
+  const origin = { x: 0, y: 0 };
+  vectors.forEach((v, idx) => {
+    const out = apply(m, v);
+    drawArrow(ctx, cam, origin, v, {
+      color: 'rgba(230, 233, 240, 0.55)',
+      width: 1.5,
+      dash: [5, 4],
+      headPx: 8,
+    });
+
+    const sv = worldToScreen(cam, v);
+    const so = worldToScreen(cam, out);
+    if (Math.hypot(so.x - sv.x, so.y - sv.y) > 6) {
+      ctx.save();
+      ctx.strokeStyle = COLORS.customVector;
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 4]);
+      ctx.beginPath();
+      ctx.moveTo(sv.x, sv.y);
+      ctx.lineTo(so.x, so.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    drawArrow(ctx, cam, origin, out, { color: COLORS.customVector, width: 2.5 });
+
+    if (labels) {
+      const name = `v${sub(idx + 1)}`;
+      drawLabel(ctx, { x: sv.x + 12, y: sv.y - 12 }, name, 'rgba(230, 233, 240, 0.75)', {
+        font: '12px ui-sans-serif, system-ui, sans-serif',
+      });
+      drawLabel(ctx, { x: so.x + 14, y: so.y - 14 }, `M${name} = (${fmt(out.x)}, ${fmt(out.y)})`, COLORS.customVector, {
+        font: '12px ui-sans-serif, system-ui, sans-serif',
+      });
+    }
+  });
 }
 
 export interface BasisOptions {

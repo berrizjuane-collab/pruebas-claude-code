@@ -5,6 +5,8 @@ import { fmt, parseNumeric } from '../utils/format';
 export interface MatrixInputProps {
   value: Mat2;
   onChange: (m: Mat2) => void;
+  /** Small cells, no legend — for secondary matrices (composition slots). */
+  compact?: boolean;
 }
 
 /**
@@ -13,19 +15,21 @@ export interface MatrixInputProps {
  * Edits apply live while typing (valid numbers commit immediately), and the
  * cells follow external changes — e.g. dragging the vector tips — when idle.
  */
-export function MatrixInput({ value, onChange }: MatrixInputProps) {
+export function MatrixInput({ value, onChange, compact = false }: MatrixInputProps) {
   return (
     <div>
-      <div className="matrix-input">
+      <div className={`matrix-input${compact ? ' compact' : ''}`}>
         <Cell value={value.a} colClass="col-i" label="a (row 1, col 1) — x-coordinate where î lands" onCommit={(v) => onChange({ ...value, a: v })} />
         <Cell value={value.b} colClass="col-j" label="b (row 1, col 2) — x-coordinate where ĵ lands" onCommit={(v) => onChange({ ...value, b: v })} />
         <Cell value={value.c} colClass="col-i" label="c (row 2, col 1) — y-coordinate where î lands" onCommit={(v) => onChange({ ...value, c: v })} />
         <Cell value={value.d} colClass="col-j" label="d (row 2, col 2) — y-coordinate where ĵ lands" onCommit={(v) => onChange({ ...value, d: v })} />
       </div>
-      <div className="matrix-legend">
-        <span className="i">■ column 1 = new î</span>
-        <span className="j">■ column 2 = new ĵ</span>
-      </div>
+      {!compact && (
+        <div className="matrix-legend">
+          <span className="i">■ column 1 = new î</span>
+          <span className="j">■ column 2 = new ĵ</span>
+        </div>
+      )}
     </div>
   );
 }
