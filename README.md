@@ -10,6 +10,7 @@ npm test                      # unit tests for the algebra layer
 npm run build                 # typecheck + production build
 ```
 
+
 ---
 
 ## Plan
@@ -67,14 +68,38 @@ assemble state into a `Scene` and forward pointer gestures back to the store.
 
 ### Milestones (one commit each, app runnable after every one)
 
-- **M0** scaffolding, dark canvas with reference grid, axes, pan/zoom
-- **M1** pure algebra layer + unit tests
-- **M2** basis vectors î/ĵ, editable matrix, bidirectional dragging, deforming grid
-- **M3** identity→A animation with easing; determinant as area (sign = orientation)
-- **M4** eigenvalues/eigenvectors incl. complex/repeated; kernel & image when singular
-- **M5** presets; composition with visible non-commutativity; custom vectors
-- **M6** Module B: live dense deformation, figures, vector field, time scrubbing
-- *(extension, deliberately out of scope here: 3D with three.js)*
+- ✅ **M0** scaffolding, dark canvas with reference grid, axes, pan/zoom
+- ✅ **M1** pure algebra layer + unit tests
+- ✅ **M2** basis vectors î/ĵ, editable matrix, bidirectional dragging, deforming grid
+- ✅ **M3** identity→A animation with easing; determinant as area (sign = orientation)
+- ✅ **M4** eigenvalues/eigenvectors incl. complex/repeated; kernel & image when singular
+- ✅ **M5** presets; composition with visible non-commutativity; custom vectors
+- ✅ **M6** Module B: live dense deformation, figures, vector field, time scrubbing
+- *(extensions deliberately left for later: 3D with three.js, SVD / polar decomposition
+  view, GIF export — the 2D core and its correctness came first)*
+
+## Using the app
+
+| Action | How |
+| --- | --- |
+| Edit the matrix | type in the cells (live), ↑/↓ steps ±0.1 (Shift: ±1), fractions like `3/4` accepted |
+| …or drag | grab the î / ĵ arrow tips on the canvas (Shift snaps to 0.5) |
+| Animate I → A | **▶ Animate** button, or load any preset; scrub with the *t* slider |
+| Interpolation path | Auto / Linear / Rotational selector — note under it explains the choice |
+| Camera | scroll = zoom (cursor-anchored), drag background = pan, Reset view button |
+| Compose | Composition section: fill A and B, **▶ A then B** vs **▶ B then A**, swap, compare B·A vs A·B |
+| Test vectors | Custom vectors → place by clicking; bright arrow = image, follows the animation |
+| Feel the deformation | switch to **Deformation of space**: figures (square/circle/kitten), point field, displacement arrows, dense grid — all live |
+
+## Verification (acceptance criteria → where satisfied)
+
+1. *Drag î ↔ matrix updates, and vice versa* — `dragBasis` writes column 1; inputs retarget the arrows live.
+2. *Displayed det = drawn parallelogram area, sign = orientation* — both read the same `det(M(t))`; negative dets hatch the parallelogram and flag the flip.
+3. *Eigenvectors don't change direction during animation* — guaranteed analytically on the linear path: `((1−t)I + tA)v = ((1−t)+tλ)v`; marker arrows ride the lines.
+4. *Singular matrix flattens the plane, kernel drawn* — grid families collapse onto the image line (capped bundles); kernel pink/dashed with a collapsing arrow, image violet.
+5. *A∘B vs B∘A differ and match the product* — `multiply` is unit-tested; the panel shows both products and an explicit commute/doesn't-commute callout.
+6. *90° rotation animates as a rotation* — Auto path uses the log-spiral/`exp(t·log A)` interpolation for similarities; unit test pins `rotationalLerp(I, R(90°), ½) = R(45°)` and `det ≡ 1` along the path.
+7. *Single command, no console errors* — `npm install && npm run dev`; CI-grade check via `npm run build` (strict tsc) + `npm test` (37 tests).
 
 ### Mathematical notes
 

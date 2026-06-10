@@ -6,13 +6,17 @@ function trimZeros(s: string): string {
   return t === '-0' ? '0' : t;
 }
 
-/** Plain-text formatting: short decimals, scientific for extreme magnitudes. */
+/** Plain-text formatting: short decimals, scientific for extreme magnitudes.
+ * Magnitudes below 1e-12 display as 0 — they are floating-point dust (e.g.
+ * cos(90°) = 6.1e-17), not information. */
 export function fmt(x: number, digits = 2): string {
   if (Number.isNaN(x)) return 'NaN';
   if (!Number.isFinite(x)) return x > 0 ? '∞' : '−∞';
   const ax = Math.abs(x);
-  if (ax !== 0 && (ax >= 1e5 || ax < 10 ** -(digits + 1))) {
-    return trimZeros(x.toExponential(2)).replace(/e\+?(-?\d+)/, 'e$1');
+  if (ax < 1e-12) return '0';
+  if (ax >= 1e5 || ax < 10 ** -(digits + 1)) {
+    const [mant, exp] = x.toExponential(2).split('e');
+    return `${trimZeros(mant)}e${Number(exp)}`;
   }
   return trimZeros(x.toFixed(digits));
 }
@@ -22,7 +26,8 @@ export function texNum(x: number, digits = 2): string {
   if (Number.isNaN(x)) return '\\mathrm{NaN}';
   if (!Number.isFinite(x)) return x > 0 ? '\\infty' : '-\\infty';
   const ax = Math.abs(x);
-  if (ax !== 0 && (ax >= 1e5 || ax < 10 ** -(digits + 1))) {
+  if (ax < 1e-12) return '0';
+  if (ax >= 1e5 || ax < 10 ** -(digits + 1)) {
     const [mant, exp] = x.toExponential(2).split('e');
     return `${trimZeros(mant)} \\times 10^{${Number(exp)}}`;
   }
