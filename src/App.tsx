@@ -1,13 +1,21 @@
+import { useReducer } from 'react';
 import { CanvasStage } from './components/CanvasStage';
-import type { Scene } from './rendering/scene';
-
-const IDENTITY = { a: 1, b: 0, c: 0, d: 1 };
+import { InfoPanel } from './components/InfoPanel';
+import { MatrixInput } from './components/MatrixInput';
+import type { Scene, ShowFlags } from './rendering/scene';
+import { displayedMatrix, initialState, reducer } from './state/store';
 
 export default function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const displayed = displayedMatrix(state);
+
   const scene: Scene = {
-    matrix: IDENTITY,
-    show: { baseGrid: true, axisNumbers: true },
+    matrix: displayed,
+    show: state.show,
+    interactive: true,
   };
+
+  const toggle = (key: keyof ShowFlags) => dispatch({ type: 'toggleShow', key });
 
   return (
     <div className="app">
@@ -15,14 +23,64 @@ export default function App() {
         <h1 className="app-title">
           <span className="accent">Linear</span> Transformation Lab
         </h1>
-        <div className="header-hint">Milestone 0 — grid &amp; camera. Drag to pan, scroll to zoom.</div>
+        <div className="header-hint">
+          drag the î / ĵ tips · type in the matrix · scroll = zoom · drag background = pan · Shift = snap to 0.5
+        </div>
       </header>
       <main className="app-main">
         <aside className="side-panel">
-          <p className="hint">Controls arrive in the next milestones.</p>
+          <details className="panel-section" open>
+            <summary>Matrix A</summary>
+            <div className="panel-section-body">
+              <MatrixInput value={state.target} onChange={(m) => dispatch({ type: 'setTarget', matrix: m })} />
+              <p className="hint">
+                The <strong>columns</strong> of A are the landing spots of î and ĵ — drag the arrow tips and watch
+                the columns change; type values and watch the arrows move.
+              </p>
+              <div className="btn-row">
+                <button className="btn" onClick={() => dispatch({ type: 'reset' })}>
+                  Reset to identity
+                </button>
+              </div>
+            </div>
+          </details>
+
+          <InfoPanel displayed={displayed} />
+
+          <details className="panel-section" open>
+            <summary>View</summary>
+            <div className="panel-section-body">
+              <Check label="Reference grid" checked={state.show.baseGrid} onChange={() => toggle('baseGrid')} />
+              <Check label="Axis numbers" checked={state.show.axisNumbers} onChange={() => toggle('axisNumbers')} />
+              <Check
+                label="Transformed grid"
+                checked={state.show.transformedGrid}
+                onChange={() => toggle('transformedGrid')}
+              />
+              <Check
+                label="Basis vectors î, ĵ"
+                checked={state.show.basisVectors}
+                onChange={() => toggle('basisVectors')}
+              />
+              <Check label="Labels" checked={state.show.labels} onChange={() => toggle('labels')} />
+            </div>
+          </details>
         </aside>
-        <CanvasStage scene={scene} />
+        <CanvasStage
+          scene={scene}
+          tool={state.tool}
+          onDragBasis={(which, to) => dispatch({ type: 'dragBasis', which, to })}
+        />
       </main>
     </div>
+  );
+}
+
+function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) {
+  return (
+    <label className="check">
+      <input type="checkbox" checked={checked} onChange={onChange} />
+      {label}
+    </label>
   );
 }

@@ -1,6 +1,9 @@
+import { columnI, columnJ, length, scale } from '../math/mat2';
+import type { Mat2, Vec2 } from '../math/types';
 import { COLORS } from '../theme';
 import type { Camera } from './camera';
-import { niceGridStep, visibleWorldRect, worldToScreen } from './camera';
+import { niceGridStep, viewRadius, visibleWorldRect, worldToScreen } from './camera';
+import { clipLineToRect } from './clip';
 
 /** Format an axis tick label without floating point noise (0.30000004 → "0.3"). */
 function tickLabel(value: number, step: number): string {
@@ -66,6 +69,117 @@ function drawLineFamily(
     ctx.lineTo(cam.width, sy);
   }
   ctx.stroke();
+}
+
+/* ------------------------- transformed grid ------------------------- */
+
+export interface TransformedGridOptions {
+  /** Also draw 1/5-step minor lines (used by the deformation module). */
+  minor: boolean;
+}
+
+/**
+ * The image of the square grid under the matrix M. Linearity is what makes
+ * this drawable exactly: the pre-image line x = k (all points (k, s)) maps to
+ * { k·col1 + s·col2 }, i.e. a *straight* line through k·col1 with direction
+ * col2 — so we draw genuine lines, never approximated polylines. Parallel,
+ * evenly spaced lines stay parallel and evenly spaced; only the two
+ * directions change. When M becomes singular both families collapse onto the
+ * image line, which is exactly how "flattening the plane" should look.
+ */
+export function drawTransformedGrid(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  m: Mat2,
+  opts: TransformedGridOptions,
+): void {
+  const step = niceGridStep(cam.pixelsPerUnit);
+  const c1 = columnI(m);
+  const c2 = columnJ(m);
+
+  if (opts.minor && step * cam.pixelsPerUnit >= 55) {
+    const minorStep = step / 5;
+    drawTransformedFamily(ctx, cam, c1, c2, minorStep, COLORS.gridTransformedMinor, 1, false);
+    drawTransformedFamily(ctx, cam, c2, c1, minorStep, COLORS.gridTransformedMinor, 1, false);
+  }
+
+  // Family of pre-image vertical lines x = k·step: points k·step·c1, direction c2.
+  drawTransformedFamily(ctx, cam, c1, c2, step, COLORS.gridTransformed, 1.1, true);
+  // Family of pre-image horizontal lines y = k·step: points k·step·c2, direction c1.
+  drawTransformedFamily(ctx, cam, c2, c1, step, COLORS.gridTransformed, 1.1, true);
+}
+
+const MAX_LINES_PER_FAMILY = 220;
+
+function drawTransformedFamily(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  anchorCol: Vec2, // line k passes through k·step·anchorCol
+  dirCol: Vec2, // …and runs along this direction
+  step: number,
+  color: string,
+  width: number,
+  emphasizeAxis: boolean,
+): void {
+  const dirLen = length(dirCol);
+  // Direction collapsed to zero: each "line" degenerates to a point. The other
+  // family (or the kernel/image overlay) carries the visual information.
+  if (dirLen < 1e-12) return;
+
+  const rect = visibleWorldRect(cam, 8);
+  const R = viewRadius(cam) + 8 / cam.pixelsPerUnit;
+
+  // Signed distance of line k from the view center, measured along the unit
+  // normal n̂ = perp(dir)/|dir|:  d(k) = k·u − v.
+  const nx = -dirCol.y / dirLen;
+  const ny = dirCol.x / dirLen;
+  const u = step * (anchorCol.x * nx + anchorCol.y * ny); // spacing = |u| = step·|det|/|dir|
+  const v = cam.center.x * nx + cam.center.y * ny;
+
+  let k0: number;
+  let k1: number;
+  if (Math.abs(u) * MAX_LINES_PER_FAMILY < 2 * R) {
+    // Near-singular: lines are (almost) on top of each other. Draw a capped
+    // bundle around the line closest to the view center.
+    const kc = Math.abs(u) < 1e-300 ? 0 : Math.round(v / u);
+    k0 = kc - MAX_LINES_PER_FAMILY / 2;
+    k1 = kc + MAX_LINES_PER_FAMILY / 2;
+  } else {
+    const lo = (v - R) / u;
+    const hi = (v + R) / u;
+    k0 = Math.ceil(Math.min(lo, hi));
+    k1 = Math.floor(Math.max(lo, hi));
+  }
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  for (let k = k0; k <= k1; k++) {
+    if (emphasizeAxis && k === 0) continue; // drawn separately below
+    const seg = clipLineToRect(scale(anchorCol, k * step), dirCol, rect);
+    if (!seg) continue;
+    const p0 = worldToScreen(cam, seg[0]);
+    const p1 = worldToScreen(cam, seg[1]);
+    ctx.moveTo(p0.x, p0.y);
+    ctx.lineTo(p1.x, p1.y);
+  }
+  ctx.stroke();
+
+  if (emphasizeAxis && 0 >= k0 && 0 <= k1) {
+    // The image of the axis itself: slightly stronger, so the transformed
+    // frame stays readable inside the lattice.
+    const seg = clipLineToRect({ x: 0, y: 0 }, dirCol, rect);
+    if (seg) {
+      ctx.lineWidth = width * 1.9;
+      ctx.beginPath();
+      const p0 = worldToScreen(cam, seg[0]);
+      const p1 = worldToScreen(cam, seg[1]);
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.stroke();
+    }
+  }
+
 }
 
 function drawAxisNumbers(
