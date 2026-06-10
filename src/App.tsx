@@ -1,12 +1,15 @@
 import { useReducer } from 'react';
+import { AnimationControls } from './components/AnimationControls';
 import { CanvasStage } from './components/CanvasStage';
 import { InfoPanel } from './components/InfoPanel';
 import { MatrixInput } from './components/MatrixInput';
 import type { Scene, ShowFlags } from './rendering/scene';
 import { displayedMatrix, initialState, reducer } from './state/store';
+import { useAnimationTicker } from './state/useAnimationTicker';
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  useAnimationTicker(state.playing, dispatch);
   const displayed = displayedMatrix(state);
 
   const scene: Scene = {
@@ -45,7 +48,9 @@ export default function App() {
             </div>
           </details>
 
-          <InfoPanel displayed={displayed} />
+          <AnimationControls state={state} dispatch={dispatch} />
+
+          <InfoPanel target={state.target} displayed={displayed} inProgress={state.t < 1} />
 
           <details className="panel-section" open>
             <summary>View</summary>
@@ -61,6 +66,11 @@ export default function App() {
                 label="Basis vectors î, ĵ"
                 checked={state.show.basisVectors}
                 onChange={() => toggle('basisVectors')}
+              />
+              <Check
+                label="Determinant parallelogram"
+                checked={state.show.determinant}
+                onChange={() => toggle('determinant')}
               />
               <Check label="Labels" checked={state.show.labels} onChange={() => toggle('labels')} />
             </div>

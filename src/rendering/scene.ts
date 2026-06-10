@@ -1,5 +1,6 @@
 import type { Mat2 } from '../math/types';
 import type { Camera } from './camera';
+import { drawDeterminant } from './drawDeterminant';
 import { drawBaseGrid, drawTransformedGrid } from './drawGrid';
 import { drawBasisVectors } from './drawShapes';
 
@@ -41,6 +42,9 @@ export function drawScene(ctx: CanvasRenderingContext2D, cam: Camera, scene: Sce
   }
   if (scene.show.transformedGrid) {
     drawTransformedGrid(ctx, cam, scene.matrix, { minor: false });
+  }
+  if (scene.show.determinant) {
+    drawDeterminant(ctx, cam, scene.matrix, scene.show.labels);
   }
   if (scene.show.basisVectors) {
     drawBasisVectors(ctx, cam, scene.matrix, {
