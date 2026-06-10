@@ -1,8 +1,11 @@
-import { useReducer } from 'react';
+import { useMemo, useReducer } from 'react';
 import { AnimationControls } from './components/AnimationControls';
 import { CanvasStage } from './components/CanvasStage';
+import { EigenPanel } from './components/EigenPanel';
 import { InfoPanel } from './components/InfoPanel';
 import { MatrixInput } from './components/MatrixInput';
+import { eigen2 } from './math/eigen';
+import { rankInfo } from './math/kernel';
 import type { Scene, ShowFlags } from './rendering/scene';
 import { displayedMatrix, initialState, reducer } from './state/store';
 import { useAnimationTicker } from './state/useAnimationTicker';
@@ -12,10 +15,16 @@ export default function App() {
   useAnimationTicker(state.playing, dispatch);
   const displayed = displayedMatrix(state);
 
+  // Eigenstructure and rank belong to the *target* matrix: its eigendirections
+  // stay invariant along the whole linear animation path.
+  const eigen = useMemo(() => eigen2(state.target), [state.target]);
+  const rank = useMemo(() => rankInfo(state.target), [state.target]);
+
   const scene: Scene = {
     matrix: displayed,
     show: state.show,
     interactive: true,
+    eigen: state.show.eigenvectors ? { eigen, rank } : null,
   };
 
   const toggle = (key: keyof ShowFlags) => dispatch({ type: 'toggleShow', key });
@@ -52,6 +61,8 @@ export default function App() {
 
           <InfoPanel target={state.target} displayed={displayed} inProgress={state.t < 1} />
 
+          <EigenPanel eigen={eigen} rank={rank} />
+
           <details className="panel-section" open>
             <summary>View</summary>
             <div className="panel-section-body">
@@ -71,6 +82,11 @@ export default function App() {
                 label="Determinant parallelogram"
                 checked={state.show.determinant}
                 onChange={() => toggle('determinant')}
+              />
+              <Check
+                label="Eigenvectors, kernel & image"
+                checked={state.show.eigenvectors}
+                onChange={() => toggle('eigenvectors')}
               />
               <Check label="Labels" checked={state.show.labels} onChange={() => toggle('labels')} />
             </div>

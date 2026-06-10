@@ -1,6 +1,8 @@
 import type { Mat2 } from '../math/types';
 import type { Camera } from './camera';
 import { drawDeterminant } from './drawDeterminant';
+import type { EigenDisplay } from './drawEigen';
+import { drawEigenStructure } from './drawEigen';
 import { drawBaseGrid, drawTransformedGrid } from './drawGrid';
 import { drawBasisVectors } from './drawShapes';
 
@@ -32,6 +34,8 @@ export interface Scene {
   show: ShowFlags;
   /** Whether basis-vector tips are draggable (drawn with handle rings). */
   interactive: boolean;
+  /** Eigenstructure + rank of the target matrix (null hides the layer). */
+  eigen: EigenDisplay | null;
 }
 
 export function drawScene(ctx: CanvasRenderingContext2D, cam: Camera, scene: Scene, ui: UiState): void {
@@ -45,6 +49,9 @@ export function drawScene(ctx: CanvasRenderingContext2D, cam: Camera, scene: Sce
   }
   if (scene.show.determinant) {
     drawDeterminant(ctx, cam, scene.matrix, scene.show.labels);
+  }
+  if (scene.show.eigenvectors && scene.eigen) {
+    drawEigenStructure(ctx, cam, scene.matrix, scene.eigen, scene.show.labels);
   }
   if (scene.show.basisVectors) {
     drawBasisVectors(ctx, cam, scene.matrix, {
