@@ -1,0 +1,1064 @@
+<title>Gargantua · Agujero negro interactivo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#04070C;
+    --glass:rgba(9,15,24,.62);
+    --glass-brd:rgba(125,165,195,.14);
+    --ink:#E9EEF4; --ink2:#93A6B4; --ink3:#5C7284;
+    --amber:#F0A94B; --amber-deep:#C4832A;
+    --cyan:#5FD0E4;  --cyan-deep:#2E9BB4;
+    --warn:#FF7A66;
+    --font-d:"Helvetica Neue",Helvetica,"Segoe UI",Arial,sans-serif;
+    --font-m:ui-monospace,"SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-d);font-size:13px;
+       -webkit-font-smoothing:antialiased}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+  #gl.drag{cursor:grabbing}
+
+  /* ——— capa de etiquetas 3D ——— */
+  #labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+  .mk{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;cursor:help;
+      display:flex;align-items:center;gap:7px;opacity:0;transition:opacity .5s}
+  .mk.show{opacity:1}
+  .mk i{width:7px;height:7px;border-radius:50%;border:1px solid var(--cyan);
+        background:rgba(95,208,228,.15);box-shadow:0 0 8px rgba(95,208,228,.7);flex:none}
+  .mk b{font-weight:400;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+        color:var(--cyan);text-shadow:0 0 6px rgba(0,0,0,.9);white-space:nowrap}
+
+  /* ——— vidrio ——— */
+  .panel{position:fixed;background:var(--glass);border:1px solid var(--glass-brd);
+         border-radius:10px;backdrop-filter:blur(16px) saturate(1.25);
+         -webkit-backdrop-filter:blur(16px) saturate(1.25);
+         box-shadow:0 10px 40px rgba(0,0,0,.55), inset 0 1px 0 rgba(180,215,235,.07);
+         z-index:20}
+  .phead{display:flex;align-items:center;justify-content:space-between;gap:10px;
+         padding:10px 14px;cursor:pointer;user-select:none}
+  .phead h2{margin:0;font-size:10px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;
+            color:var(--ink3)}
+  .phead .chev{color:var(--ink3);font-size:10px;transition:transform .25s}
+  .panel.closed .chev{transform:rotate(-90deg)}
+  .pbody{padding:2px 14px 13px;max-height:min(52vh,470px);overflow-y:auto;overscroll-behavior:contain}
+  .panel.closed .pbody{display:none}
+  .pbody::-webkit-scrollbar{width:8px}
+  .pbody::-webkit-scrollbar-thumb{background:rgba(125,165,195,.18);border-radius:4px}
+
+  /* ——— cabecera ——— */
+  #hd{position:fixed;top:18px;left:20px;z-index:25;pointer-events:none}
+  #hd .eyebrow{font-size:9px;letter-spacing:.42em;text-transform:uppercase;color:var(--ink3)}
+  #hd h1{margin:4px 0 2px;font-size:clamp(22px,3.4vw,32px);font-weight:200;letter-spacing:.05em;
+         color:var(--ink);text-shadow:0 0 24px rgba(240,169,75,.25)}
+  #hd .sub{font-size:11px;color:var(--ink2);letter-spacing:.04em}
+  #presets{display:flex;gap:6px;margin-top:12px;pointer-events:auto;flex-wrap:wrap}
+  #hint{margin-top:10px;font-size:10px;color:var(--ink3);letter-spacing:.08em}
+
+  .chip{appearance:none;border:1px solid var(--glass-brd);background:var(--glass);
+        color:var(--ink2);font:inherit;font-size:10.5px;letter-spacing:.12em;
+        padding:5px 11px;border-radius:999px;cursor:pointer;
+        backdrop-filter:blur(10px);transition:color .2s,border-color .2s,box-shadow .2s}
+  .chip:hover{color:var(--ink)}
+  .chip.on{color:var(--amber);border-color:rgba(240,169,75,.55);
+           box-shadow:0 0 12px rgba(240,169,75,.22), inset 0 0 8px rgba(240,169,75,.08)}
+  .chip:focus-visible,button:focus-visible,input:focus-visible{outline:1px solid var(--cyan);outline-offset:2px}
+
+  /* ——— ficha (izquierda) ——— */
+  #ficha{top:190px;left:20px;width:308px}
+  .row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;
+       border-bottom:1px solid rgba(125,165,195,.08)}
+  .row:last-child{border-bottom:none}
+  .row .k{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);
+          padding-top:2px;flex:none}
+  .row .v{font-family:var(--font-m);font-size:12px;color:var(--ink);text-align:right;
+          font-variant-numeric:tabular-nums;line-height:1.45;min-width:0}
+  .row .v small{display:block;color:var(--ink2);font-size:10.5px}
+  .fnote{margin-top:10px;font-size:10.5px;line-height:1.55;color:var(--ink2)}
+  .fnote em{color:var(--amber);font-style:normal}
+  .caveat{margin-top:8px;font-size:9.5px;line-height:1.5;color:var(--ink3)}
+
+  /* ——— telemetría (derecha) ——— */
+  #tele{top:18px;right:20px;width:296px}
+  #tele .row{flex-direction:column;align-items:flex-start;gap:3px}
+  #tele .v{font-size:13px;text-align:left}
+  .big{font-size:16px !important;color:var(--amber) !important;text-shadow:0 0 12px rgba(240,169,75,.35)}
+  .tag{display:inline-block;font-size:8.5px;letter-spacing:.14em;padding:2px 7px;border-radius:999px;
+       border:1px solid;vertical-align:2px;margin-left:6px}
+  .tag.ok{color:var(--cyan);border-color:rgba(95,208,228,.4)}
+  .tag.warn{color:var(--amber);border-color:rgba(240,169,75,.45)}
+  .tag.crit{color:var(--warn);border-color:rgba(255,122,102,.45)}
+
+  /* ——— consola inferior ——— */
+  #console{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:30;
+           display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;justify-content:center;
+           padding:10px 18px;max-width:min(96vw,1040px)}
+  .cgroup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+  .glabel{font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink3);margin-right:2px}
+  .ibtn{appearance:none;border:1px solid var(--glass-brd);background:rgba(20,30,44,.5);
+        width:30px;height:30px;border-radius:8px;cursor:pointer;color:var(--ink);
+        display:flex;align-items:center;justify-content:center;padding:0}
+  .ibtn:hover{border-color:rgba(95,208,228,.5)}
+  .ibtn svg{display:block}
+  input[type=range]{appearance:none;-webkit-appearance:none;width:110px;height:22px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:rgba(125,165,195,.35);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+        background:var(--amber);margin-top:-5px;box-shadow:0 0 8px rgba(240,169,75,.6)}
+  input[type=range]::-moz-range-track{height:2px;background:rgba(125,165,195,.35)}
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;border:none;border-radius:50%;background:var(--amber)}
+  .val{font-family:var(--font-m);font-size:11px;color:var(--ink2);min-width:38px;
+       font-variant-numeric:tabular-nums}
+  #fps{font-family:var(--font-m);font-size:10px;color:var(--ink3);min-width:52px;text-align:right;
+       font-variant-numeric:tabular-nums}
+
+  /* ——— cajón de gráficas ——— */
+  #charts{top:18px;right:20px;bottom:78px;width:min(430px,94vw);z-index:40;
+          display:flex;flex-direction:column;transform:translateX(calc(100% + 30px));
+          transition:transform .45s cubic-bezier(.22,.8,.24,1)}
+  #charts.open{transform:none}
+  #charts .pbody{max-height:none;flex:1;display:flex;flex-direction:column;gap:16px}
+  .chart{flex:none}
+  .chwrap{position:relative}
+  .chhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px}
+  .chhead h3{margin:0;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2)}
+  .chhead .read{font-family:var(--font-m);font-size:10.5px;color:var(--cyan);
+                font-variant-numeric:tabular-nums;min-height:14px;text-align:right}
+  .chart canvas{width:100%;height:150px;display:block;border-radius:6px;background:rgba(4,8,14,.45)}
+  .chnote{font-size:9.5px;color:var(--ink3);margin-top:4px;line-height:1.45}
+
+  /* ——— tooltip educativo ——— */
+  #tip{position:fixed;z-index:60;max-width:280px;padding:11px 13px;border-radius:9px;
+       background:rgba(7,12,20,.92);border:1px solid rgba(95,208,228,.3);
+       box-shadow:0 8px 30px rgba(0,0,0,.6);font-size:11.5px;line-height:1.55;color:var(--ink);
+       opacity:0;pointer-events:none;transition:opacity .18s;backdrop-filter:blur(8px)}
+  #tip.show{opacity:1}
+  #tip b{display:block;font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;
+         color:var(--cyan);margin-bottom:5px;font-weight:500}
+
+  #nogl{position:fixed;inset:0;display:none;place-items:center;z-index:100;background:var(--bg);
+        text-align:center;padding:30px;line-height:1.7;color:var(--ink2)}
+
+  @media (max-width:1180px){ #ficha{width:272px} #tele{width:262px} }
+  @media (max-width:900px){
+    #hd{left:14px;top:12px;right:14px}
+    #hd .eyebrow{display:none}
+    #hint{display:none}
+    #ficha{left:14px;top:184px;bottom:auto;width:min(300px,88vw)}
+    #tele{right:14px;top:132px;width:min(272px,80vw)}
+    #console{left:8px;right:8px;bottom:8px;transform:none;max-width:none;padding:8px 10px;gap:6px 14px}
+    #charts{right:0;left:0;top:auto;bottom:0;width:100%;height:72vh;border-radius:14px 14px 0 0;
+            transform:translateY(105%)}
+    #charts.open{transform:none}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important}
+  }
+</style>
+
+<canvas id="gl"></canvas>
+<div id="labels"></div>
+
+<header id="hd">
+  <div class="eyebrow">Observatorio relativista · geometría de Schwarzschild</div>
+  <h1 id="objName">Gargantua</h1>
+  <div class="sub" id="objSub">—</div>
+  <div id="presets" role="tablist" aria-label="Objeto"></div>
+  <div id="hint">Arrastra para orbitar &nbsp;·&nbsp; rueda / pellizco para acercarte al horizonte</div>
+</header>
+
+<aside id="ficha" class="panel">
+  <div class="phead" data-collapse="ficha"><h2>Ficha del objeto</h2><span class="chev">▼</span></div>
+  <div class="pbody">
+    <div class="row"><span class="k">Masa</span><span class="v" id="fMass">—</span></div>
+    <div class="row"><span class="k">Radio r<sub>s</sub> = 2GM/c²</span><span class="v" id="fRs">—</span></div>
+    <div class="row"><span class="k">ISCO (3 r<sub>s</sub>)</span><span class="v" id="fIsco">—</span></div>
+    <div class="row"><span class="k">Sombra desde la Tierra</span><span class="v wrap" id="fShadow">—</span></div>
+    <div class="row"><span class="k">T. disco (pico)</span><span class="v" id="fTemp">—</span></div>
+    <div class="row"><span class="k">L. de Eddington</span><span class="v" id="fLedd">—</span></div>
+    <div class="row"><span class="k">L. observada</span><span class="v wrap" id="fLobs">—</span></div>
+    <div class="row"><span class="k">Distancia</span><span class="v wrap" id="fDist">—</span></div>
+    <div class="fnote" id="fCompare">—</div>
+    <div class="caveat">Render en geometría de Schwarzschild (espín 0); M87* y Gargantua son
+      agujeros de Kerr en la realidad/ficción. El color del disco (T ∝ r<sup>−3/4</sup>) está
+      mapeado al rango visible: el gas real emite sobre todo en UV y rayos X.
+      La geometría en unidades de r<sub>s</sub> es idéntica para toda masa — al cambiar de objeto
+      cambia la <em>escala física</em>, no la forma.</div>
+  </div>
+</aside>
+
+<aside id="tele" class="panel">
+  <div class="phead" data-collapse="tele"><h2>Telemetría — tu posición</h2><span class="chev">▼</span></div>
+  <div class="pbody">
+    <div class="row"><span class="k">Distancia al centro</span><span class="v" id="tDist">—</span></div>
+    <div class="row"><span class="k">Dilatación temporal</span><span class="v big" id="tDil">—</span></div>
+    <div class="row"><span class="k">Por cada hora aquí…</span><span class="v" id="tHour">—</span></div>
+    <div class="row"><span class="k">V. de escape</span><span class="v" id="tVesc">—</span></div>
+    <div class="row"><span class="k">V. orbital circular</span><span class="v" id="tVorb">—</span></div>
+    <div class="fnote" id="tNote">—</div>
+  </div>
+</aside>
+
+<section id="charts" class="panel">
+  <div class="phead" id="chartsHead"><h2>Gráficas · física del objeto</h2><span class="chev" id="chartsClose" style="cursor:pointer">✕</span></div>
+  <div class="pbody">
+    <div class="chart chwrap">
+      <div class="chhead"><h3>Dilatación temporal vs. radio</h3><span class="read" id="r1"></span></div>
+      <canvas id="c1"></canvas>
+      <div class="chnote">Δt<sub>∞</sub>/Δt = 1/√(1 − r<sub>s</sub>/r) para un observador estático — diverge a ∞ en el horizonte.</div>
+    </div>
+    <div class="chart chwrap">
+      <div class="chhead"><h3>Velocidad orbital vs. radio</h3><span class="read" id="r2"></span></div>
+      <canvas id="c2"></canvas>
+      <div class="chnote">v/c = √(r<sub>s</sub>/2(r−r<sub>s</sub>)). En la ISCO el gas orbita a 0,5 c; bajo 3 r<sub>s</sub> las órbitas son inestables y en 1,5 r<sub>s</sub> solo orbita la luz.</div>
+    </div>
+    <div class="chart chwrap">
+      <div class="chhead"><h3>Temperatura del disco vs. radio</h3><span class="read" id="r3"></span></div>
+      <canvas id="c3"></canvas>
+      <div class="chnote">Disco delgado: T ∝ r<sup>−3/4</sup>(1−√(r<sub>in</sub>/r))<sup>1/4</sup>. Pico en r ≈ 1,36 r<sub>in</sub>. Discos de agujeros más masivos son más fríos (T ∝ M<sup>−1/4</sup>).</div>
+    </div>
+    <div class="chart chwrap">
+      <div class="chhead"><h3>Comparación de masas</h3><span class="read"></span></div>
+      <canvas id="c4"></canvas>
+      <div class="chnote">Escala logarítmica, en masas solares. El objeto activo se resalta en ámbar.</div>
+    </div>
+  </div>
+</section>
+
+<footer id="console" class="panel">
+  <div class="cgroup">
+    <span class="glabel">Tiempo</span>
+    <button class="ibtn" id="btnPlay" aria-label="Pausar">
+      <svg id="icoPause" width="10" height="12" viewBox="0 0 10 12"><rect width="3" height="12" fill="#E9EEF4"/><rect x="7" width="3" height="12" fill="#E9EEF4"/></svg>
+      <svg id="icoPlay" width="11" height="12" viewBox="0 0 11 12" style="display:none"><path d="M0 0 L11 6 L0 12 Z" fill="#E9EEF4"/></svg>
+    </button>
+    <input type="range" id="speed" min="0" max="3" step="0.05" value="1" aria-label="Velocidad del disco">
+    <span class="val" id="speedVal">1,0×</span>
+    <button class="chip" id="btnSlow" title="Cámara lenta">0,1×</button>
+  </div>
+  <div class="cgroup">
+    <span class="glabel">Capas</span>
+    <button class="chip on" id="tgLens">Lente</button>
+    <button class="chip on" id="tgDisk">Disco</button>
+    <button class="chip on" id="tgJets">Jets</button>
+    <button class="chip on" id="tgRing" title="Anillo de fotones">Fotones</button>
+    <button class="chip on" id="tgLabels">Etiquetas</button>
+  </div>
+  <div class="cgroup">
+    <span class="glabel">Calidad</span>
+    <button class="chip on" id="qAuto">Auto</button>
+    <button class="chip" id="qHigh">Alta</button>
+    <button class="chip" id="qEco">Eco</button>
+  </div>
+  <div class="cgroup">
+    <button class="chip" id="btnCharts">Gráficas</button>
+    <span id="fps">— fps</span>
+  </div>
+</footer>
+
+<div id="tip" role="tooltip"></div>
+<div id="nogl"><div><b>WebGL no disponible.</b><br>Este visor necesita aceleración gráfica (WebGL 1/2) para integrar las geodésicas en tiempo real.</div></div>
+
+<script>
+'use strict';
+/* ═════════════════════════ 1 · FÍSICA Y DATOS ═════════════════════════ */
+const G=6.674e-11, C=2.99792458e8, MSUN=1.989e30, AU=1.496e11, RSUN=6.957e8;
+
+const PRESETS=[
+ {id:'sgra',name:'Sagitario A*',sub:'Centro de la Vía Láctea',mass:4.297e6,
+  dist:'26 700 años luz',shadow:'52 μas · medido por el EHT (2022)',
+  lumObs:'~10²⁹ W — quiescente (10⁻⁹ L<sub>Edd</sub>)',tvis:7200,
+  note:'El agujero negro de nuestra galaxia. Hoy está casi en ayuno: su disco es tenue comparado con el que ves aquí.'},
+ {id:'m87',name:'M87*',sub:'Galaxia elíptica M87 · Virgo',mass:6.5e9,
+  dist:'55 millones de años luz',shadow:'42 μas · primera imagen de la historia (EHT 2019)',
+  lumObs:'~10³⁶ W en el jet relativista',tvis:6000,
+  note:'Su jet se extiende 5 000 años luz. Activa la capa «Jets» para verlo a escala.'},
+ {id:'ton',name:'TON 618',sub:'Cuásar hiperluminoso · z = 2,22',mass:6.6e10,
+  dist:'~10 800 millones de años luz',shadow:'≈ 4 μas (no resuelto)',
+  lumObs:'4 × 10⁴⁰ W ≈ 10¹⁴ soles',tvis:5200,
+  note:'Uno de los agujeros negros más masivos conocidos. Su horizonte tragaría 11 sistemas solares puestos en fila.'},
+ {id:'garg',name:'Gargantua',sub:'Ficticio · «Interstellar» (2014)',mass:1.0e8,
+  dist:'Ficción — a 10 000 millones de años luz',shadow:'—',
+  lumObs:'— (disco anémico en la película)',tvis:6300,
+  note:'Kip Thorne lo modeló como un agujero de Kerr casi extremo (a ≈ 0,999) para que 1 h en Miller = 7 años. Aquí se muestra sin espín.'}
+];
+
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup=n=>String(n).split('').map(c=>c==='-'?'⁻':SUP[+c]).join('');
+const num=(x,d=0)=>x.toLocaleString('es-ES',{maximumFractionDigits:d,minimumFractionDigits:d});
+function sci(x,d=2){const e=Math.floor(Math.log10(Math.abs(x)));const m=x/10**e;
+  return m.toFixed(d).replace('.',',')+' × 10'+sup(e);}
+
+function derive(p){
+  const Mkg=p.mass*MSUN;
+  const rs=2*G*Mkg/(C*C);              // m
+  const isco=3*rs;
+  const Tpk=2.0e7*Math.pow(p.mass,-0.25); // K, disco delgado ~Eddington
+  const Ledd=1.26e31*p.mass;           // W
+  const tcross=2*rs/C;                 // s, luz cruzando el diámetro
+  return {Mkg,rs,isco,Tpk,Ledd,tcross};
+}
+function fmtTime(s){
+  if(s<120)return num(s,0)+' s'; if(s<7200)return num(s/60,1)+' min';
+  if(s<172800)return num(s/3600,1)+' h'; return num(s/86400,1)+' días';
+}
+function comparison(rs){
+  const au=rs/AU;
+  if(au<0.5)  return num(rs/RSUN,0)+' veces el radio del Sol';
+  if(au<25)   return num(au,1)+' × la órbita de la Tierra';
+  return num(au/39.5,0)+' × la órbita de Plutón';
+}
+
+/* ═════════════════════════ 2 · WEBGL ═════════════════════════ */
+const canvas=document.getElementById('gl');
+let gl=canvas.getContext('webgl2',{antialias:false,alpha:false,depth:false,stencil:false,powerPreference:'high-performance'});
+const isGL2=!!gl;
+if(!gl) gl=canvas.getContext('webgl',{antialias:false,alpha:false,depth:false,stencil:false,powerPreference:'high-performance'});
+if(!gl){document.getElementById('nogl').style.display='grid';throw new Error('no webgl');}
+
+let hdrType=null;
+if(isGL2){ if(gl.getExtension('EXT_color_buffer_float')) hdrType=gl.HALF_FLOAT; }
+else{
+  const e=gl.getExtension('OES_texture_half_float');
+  const lin=gl.getExtension('OES_texture_half_float_linear');
+  if(e&&lin) hdrType=e.HALF_FLOAT_OES;
+}
+
+const VS=`attribute vec2 aPos;varying vec2 vUv;
+void main(){vUv=aPos*0.5+0.5;gl_Position=vec4(aPos,0.0,1.0);}`;
+
+/* ——— shader principal: geodésicas nulas de Schwarzschild (r_s = 1) ——— */
+const FS_MAIN=`
+precision highp float;
+varying vec2 vUv;
+uniform vec2 uRes;
+uniform float uTime;
+uniform vec3 uCamPos,uCamFwd,uCamRight,uCamUp;
+uniform float uTanFov,uSteps;
+uniform float uLens,uDiskOn,uJetsOn,uRingOn;
+uniform float uTvis,uDiskIn,uDiskOut;
+
+float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
+float hash13(vec3 p3){p3=fract(p3*0.1031);p3+=dot(p3,p3.zyx+31.32);return fract((p3.x+p3.y)*p3.z);}
+vec3 hash33(vec3 p3){p3=fract(p3*vec3(0.1031,0.1030,0.0973));p3+=dot(p3,p3.yxz+33.33);return fract((p3.xxy+p3.yxx)*p3.zyx);}
+float noise2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+  return mix(mix(hash12(i),hash12(i+vec2(1.0,0.0)),f.x),mix(hash12(i+vec2(0.0,1.0)),hash12(i+vec2(1.0,1.0)),f.x),f.y);}
+float fbm2(vec2 p){float v=0.0,a=0.5;for(int i=0;i<4;i++){v+=a*noise2(p);p=p*2.13+vec2(11.3,7.7);a*=0.5;}return v;}
+float noise3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+  float a=mix(hash13(i),hash13(i+vec3(1.0,0.0,0.0)),f.x);
+  float b=mix(hash13(i+vec3(0.0,1.0,0.0)),hash13(i+vec3(1.0,1.0,0.0)),f.x);
+  float c=mix(hash13(i+vec3(0.0,0.0,1.0)),hash13(i+vec3(1.0,0.0,1.0)),f.x);
+  float d=mix(hash13(i+vec3(0.0,1.0,1.0)),hash13(i+vec3(1.0,1.0,1.0)),f.x);
+  return mix(mix(a,b,f.y),mix(c,d,f.y),f.z);}
+float fbm3(vec3 p){float v=0.0,a=0.5;for(int i=0;i<4;i++){v+=a*noise3(p);p=p*2.07+13.1;a*=0.5;}return v;}
+
+/* locus de Planck (ajuste de Tanner Helland), T en Kelvin */
+vec3 blackbody(float T){
+  T=clamp(T,1000.0,40000.0);float t=T/100.0;vec3 c;
+  c.r=t<=66.0?1.0:clamp(1.292936*pow(t-60.0,-0.1332047),0.0,1.0);
+  c.g=t<=66.0?clamp(0.3900816*log(t)-0.6318414,0.0,1.0):clamp(1.1298909*pow(t-60.0,-0.0755148),0.0,1.0);
+  c.b=t>=66.0?1.0:(t<=19.0?0.0:clamp(0.5432068*log(t-10.0)-1.1962541,0.0,1.0));
+  return c;
+}
+
+/* campo estelar + Vía Láctea procedurales, muestreados con la dirección FINAL
+   del rayo curvado -> el fondo se distorsiona alrededor del agujero */
+vec3 background(vec3 d){
+  vec3 col=vec3(0.0);
+  vec3 gn=normalize(vec3(0.36,0.78,0.51));
+  float band=exp(-pow(abs(dot(d,gn))*4.4,1.9));
+  float neb=fbm3(d*4.0+7.0);
+  float neb2=fbm3(d*9.0-3.0);
+  vec3 mw=(vec3(0.10,0.13,0.20)+vec3(0.26,0.16,0.08)*neb2)*band*(0.30+1.6*neb*neb);
+  float dust=fbm3(d*6.5+vec3(21.0));
+  mw*=1.0-0.8*band*smoothstep(0.42,0.7,dust);
+  col+=mw*0.35;
+  /* estrellas: pocas celdas ocupadas, puntos compactos */
+  for(int i=0;i<3;i++){
+    float sc=mix(52.0,150.0,float(i)*0.5);
+    vec3 g=d*sc;
+    vec3 id=floor(g);
+    vec3 rnd=hash33(id);
+    if(rnd.z>0.80){
+      vec3 sp=id+0.25+0.5*rnd;
+      float ds=length(g-sp);
+      float sz=180.0+520.0*rnd.x;
+      float br=pow((rnd.z-0.80)*5.0,6.0)*3.2+0.06;
+      vec3 tint=mix(vec3(0.62,0.75,1.0),vec3(1.0,0.82,0.62),rnd.y*rnd.y);
+      col+=exp(-ds*ds*sz)*br*tint;
+    }
+  }
+  return col;
+}
+
+/* emisión del disco en un cruce del plano ecuatorial */
+vec4 diskShade(vec3 hit,vec3 vdir){
+  float rd=length(hit.xz);
+  /* T ∝ r^-3/4 (1-sqrt(rin/r))^1/4, normalizada a pico=1 en r≈1.36·rin */
+  float q=clamp(1.0-sqrt(uDiskIn/rd),0.0,1.0);
+  float tprof=pow(uDiskIn/rd,0.75)*pow(q,0.25)/0.488;
+  /* órbita circular relativista: β = sqrt(r_s / 2(r−r_s)) → 0.5c en la ISCO */
+  float beta=clamp(sqrt(0.5/max(rd-1.0,0.35)),0.0,0.93);
+  float gam=1.0/sqrt(1.0-beta*beta);
+  vec3 tangent=normalize(vec3(-hit.z,0.0,hit.x));
+  float cosA=dot(tangent,-normalize(vdir));
+  float dopp=1.0/(gam*(1.0-beta*cosA));      /* beaming Doppler */
+  float gred=sqrt(max(1.0-1.0/rd,0.0));      /* redshift gravitacional */
+  float g=dopp*gred;
+  /* turbulencia con rotación diferencial kepleriana Ω ∝ r^-3/2 */
+  float w=0.9*pow(rd,-1.5)*uTime;
+  float cw=cos(w),sw=sin(w);
+  vec2 rp=vec2(cw*hit.x+sw*hit.z,-sw*hit.x+cw*hit.z);
+  float n=fbm2(rp*1.9)*0.65+fbm2(rp*5.7)*0.35;
+  n=n*n*1.6;
+  float bands=0.82+0.18*sin(rd*9.0+(n-0.5)*5.0);
+  float ein=smoothstep(uDiskIn,uDiskIn+0.5,rd);
+  float eout=1.0-smoothstep(uDiskOut-4.0,uDiskOut,rd);
+  float dens=clamp((0.30+1.1*n)*bands,0.0,1.4)*ein*eout;
+  float alpha=clamp(dens*1.15,0.0,1.0);
+  float Tobs=clamp(uTvis*tprof*g,1200.0,30000.0);
+  float lum=(0.22+tprof*1.35)*pow(max(g,0.1),3.0)*(0.45+dens);
+  return vec4(blackbody(Tobs)*min(lum,4.5)*0.70,alpha);
+}
+
+vec3 trace(vec2 ndc){
+  vec3 dir=normalize(uCamFwd+2.0*uTanFov*(ndc.x*uCamRight+ndc.y*uCamUp));
+  vec3 p=uCamPos, v=dir, prev=p;
+  /* momento angular del fotón (conservado); uLens=0 → rayos rectos */
+  vec3 cr=cross(p,v);
+  float h2=uLens>0.5?dot(cr,cr):0.0;
+  vec3 col=vec3(0.0), jets=vec3(0.0);
+  float trans=1.0, ring=0.0;
+  float escR=max(length(p)*1.6,34.0);
+  bool captured=false,escaped=false;
+  float camY=normalize(uCamPos).y;
+  for(int i=0;i<220;i++){
+    if(float(i)>=uSteps)break;
+    float r2=dot(p,p);float r=sqrt(r2);
+    if(r<1.0){captured=true;break;}
+    if(r>escR&&dot(p,v)>0.0){escaped=true;break;}
+    float dt=clamp(0.09*r,0.030,2.4);
+    if(r<4.0)dt*=0.55;
+    /* geodésica nula de Schwarzschild (forma vectorial): a = -3/2 h² p / r⁵ */
+    vec3 acc=-1.5*h2*p/(r2*r2*r);
+    v+=acc*dt;
+    prev=p;
+    p+=v*dt;
+    /* cruce del plano del disco → imágenes múltiples (efecto Gargantua) */
+    if(uDiskOn>0.5&&prev.y*p.y<0.0){
+      float f=prev.y/(prev.y-p.y);
+      vec3 hit=mix(prev,p,f);
+      float rd=length(hit.xz);
+      if(rd>uDiskIn&&rd<uDiskOut){
+        vec4 s=diskShade(hit,v);
+        col+=trans*s.rgb*s.a;
+        trans*=1.0-s.a;
+        if(trans<0.02){captured=true;break;}
+      }
+    }
+    /* esfera de fotones r=1.5: solo los rayos casi-circulares (no los que
+       caen en picado) se demoran aquí orbitando */
+    float dr=r-1.5;
+    float circ=1.0-abs(dot(p,v))/(r*max(length(v),1e-4));
+    ring+=trans*exp(-dr*dr*60.0)*circ*circ*dt;
+    /* jets bipolares volumétricos (también sufren la lente) */
+    if(uJetsOn>0.5){
+      float ay=abs(p.y);
+      if(ay>0.9&&ay<11.0){
+        float rho2=dot(p.xz,p.xz);
+        float rj=0.26+0.14*ay;
+        float core=exp(-rho2/(rj*rj)*2.2);
+        if(core>0.004){
+          float hel=0.62+0.38*sin(atan(p.z,p.x)*3.0+ay*1.9-uTime*2.6*sign(p.y));
+          float fade=exp(-ay*0.34)*smoothstep(0.9,1.6,ay);
+          float app=clamp(0.55+0.9*camY*sign(p.y),0.30,1.45);
+          jets+=trans*core*hel*fade*app*dt*vec3(0.40,0.68,1.0)*1.9;
+        }
+      }
+    }
+  }
+  if(!captured&&!escaped&&dot(p,p)<9.0)captured=true;
+  vec3 bg=captured?vec3(0.0):background(normalize(v));
+  col+=trans*bg;
+  col+=uRingOn*ring*vec3(1.0,0.88,0.66)*0.55;
+  col+=jets;
+  return col;
+}
+void main(){
+  vec2 ndc=(gl_FragCoord.xy-0.5*uRes)/uRes.y;
+  gl_FragColor=vec4(trace(ndc),1.0);
+}`;
+
+const FS_BRIGHT=`
+precision mediump float;varying vec2 vUv;
+uniform sampler2D uTex;uniform float uThresh;
+void main(){vec3 c=texture2D(uTex,vUv).rgb;
+  float l=dot(c,vec3(0.2126,0.7152,0.0722));
+  float w=max(l-uThresh,0.0)/(l+1e-4);
+  gl_FragColor=vec4(c*w,1.0);}`;
+
+const FS_BLUR=`
+precision mediump float;varying vec2 vUv;
+uniform sampler2D uTex;uniform vec2 uDir;
+void main(){
+  vec3 c=texture2D(uTex,vUv).rgb*0.2270270270;
+  vec2 o1=uDir*1.3846153846,o2=uDir*3.2307692308;
+  c+=(texture2D(uTex,vUv+o1).rgb+texture2D(uTex,vUv-o1).rgb)*0.3162162162;
+  c+=(texture2D(uTex,vUv+o2).rgb+texture2D(uTex,vUv-o2).rgb)*0.0702702703;
+  gl_FragColor=vec4(c,1.0);}`;
+
+const FS_COMP=`
+precision highp float;varying vec2 vUv;
+uniform sampler2D uScene,uBloom;
+uniform float uBloomAmt,uExposure,uTime;
+float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
+vec3 aces(vec3 x){return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14),0.0,1.0);}
+void main(){
+  vec2 cuv=vUv-0.5;float r2=dot(cuv,cuv);
+  vec2 ca=cuv*r2*0.022;
+  vec3 scene;
+  scene.r=texture2D(uScene,vUv+ca).r;
+  scene.g=texture2D(uScene,vUv).g;
+  scene.b=texture2D(uScene,vUv-ca).b;
+  vec3 c=scene+texture2D(uBloom,vUv).rgb*uBloomAmt;
+  c*=vec3(1.05,0.99,0.90);   /* grading cálido, look Interstellar */
+  c*=uExposure*(1.0-0.42*smoothstep(0.18,0.62,r2));
+  c=aces(c);
+  float lum=dot(c,vec3(0.2126,0.7152,0.0722));
+  c=clamp(mix(vec3(lum),c,1.22),0.0,1.0);   /* leve realce de saturación */
+  c=pow(c,vec3(0.4545));
+  c+=(hash12(gl_FragCoord.xy+fract(uTime)*61.7)-0.5)*0.007;
+  gl_FragColor=vec4(c,1.0);}`;
+
+function compile(type,src){
+  const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))
+    throw new Error('shader: '+gl.getShaderInfoLog(s));
+  return s;
+}
+function makeProg(fs,unis){
+  const pr=gl.createProgram();
+  gl.attachShader(pr,compile(gl.VERTEX_SHADER,VS));
+  gl.attachShader(pr,compile(gl.FRAGMENT_SHADER,fs));
+  gl.bindAttribLocation(pr,0,'aPos');
+  gl.linkProgram(pr);
+  if(!gl.getProgramParameter(pr,gl.LINK_STATUS))
+    throw new Error('link: '+gl.getProgramInfoLog(pr));
+  const u={};unis.forEach(n=>u[n]=gl.getUniformLocation(pr,n));
+  return {pr,u};
+}
+let pMain,pBright,pBlur,pComp;
+try{
+  pMain=makeProg(FS_MAIN,['uRes','uTime','uCamPos','uCamFwd','uCamRight','uCamUp','uTanFov','uSteps','uLens','uDiskOn','uJetsOn','uRingOn','uTvis','uDiskIn','uDiskOut']);
+  pBright=makeProg(FS_BRIGHT,['uTex','uThresh']);
+  pBlur=makeProg(FS_BLUR,['uTex','uDir']);
+  pComp=makeProg(FS_COMP,['uScene','uBloom','uBloomAmt','uExposure','uTime']);
+}catch(e){console.error(e);document.getElementById('nogl').style.display='grid';throw e;}
+
+const quad=gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER,quad);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0);
+gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+gl.disable(gl.DEPTH_TEST);gl.disable(gl.BLEND);
+
+function makeTarget(w,h){
+  const tex=gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D,tex);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  if(hdrType!==null){
+    if(isGL2)gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA16F,w,h,0,gl.RGBA,hdrType,null);
+    else gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,hdrType,null);
+  }else gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  const fb=gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER,fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);
+  const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  return {tex,fb,w,h,ok};
+}
+
+let rtScene=null,rtA=null,rtB=null;
+const DPR=()=>Math.min(window.devicePixelRatio||1,1.5);
+let renderScale=1.0;
+
+function buildTargets(){
+  const w=Math.max(2,Math.round(canvas.width*renderScale));
+  const h=Math.max(2,Math.round(canvas.height*renderScale));
+  [rtScene,rtA,rtB].forEach(rt=>{if(rt){gl.deleteTexture(rt.tex);gl.deleteFramebuffer(rt.fb);}});
+  rtScene=makeTarget(w,h);
+  if(!rtScene.ok&&hdrType!==null){hdrType=null;rtScene=makeTarget(w,h);}
+  const bw=Math.max(2,w>>1),bh=Math.max(2,h>>1);
+  rtA=makeTarget(bw,bh);rtB=makeTarget(bw,bh);
+}
+function resize(){
+  const d=DPR();
+  canvas.width=Math.round(canvas.clientWidth*d);
+  canvas.height=Math.round(canvas.clientHeight*d);
+  buildTargets();
+}
+window.addEventListener('resize',()=>{clearTimeout(resize._t);resize._t=setTimeout(resize,120);});
+
+/* ═════════════════════════ 3 · CÁMARA ORBITAL ═════════════════════════ */
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cam={
+  theta:0.85, phi:1.42,          // polar: 1.42 rad ≈ 9° sobre el plano del disco
+  dist:RM?26:110, distT:26,
+  vTheta:RM?0:0.10, vPhi:0,
+  minD:1.15, maxD:220,
+  fov:60, tanFov:Math.tan(30*Math.PI/180),
+  pos:[0,0,26], right:[1,0,0], up:[0,1,0], fwd:[0,0,-1],
+  dragging:false
+};
+function camUpdate(dt){
+  if(!cam.dragging){
+    cam.theta+=cam.vTheta*dt; cam.phi+=cam.vPhi*dt;
+    const k=Math.exp(-dt*2.2); cam.vTheta*=k; cam.vPhi*=k;
+  }
+  cam.phi=Math.min(Math.PI-0.06,Math.max(0.06,cam.phi));
+  cam.dist+=(cam.distT-cam.dist)*(1-Math.exp(-dt*6));
+  /* gran angular progresivo al acercarse: la sombra crece más deprisa que el FOV */
+  const kf=Math.min(1,Math.max(0,(8-cam.dist)/6.7));
+  cam.tanFov=Math.tan((60+58*kf)*Math.PI/360);
+  const sp=Math.sin(cam.phi),cp=Math.cos(cam.phi),st=Math.sin(cam.theta),ct=Math.cos(cam.theta);
+  cam.pos=[cam.dist*sp*ct,cam.dist*cp,cam.dist*sp*st];
+  const f=norm3([-cam.pos[0],-cam.pos[1],-cam.pos[2]]);
+  let r=cross3(f,[0,1,0]);
+  const rl=Math.hypot(r[0],r[1],r[2]);
+  r=rl<1e-4?[1,0,0]:[r[0]/rl,r[1]/rl,r[2]/rl];
+  cam.fwd=f;cam.right=r;cam.up=cross3(r,f);
+}
+const norm3=v=>{const l=Math.hypot(v[0],v[1],v[2])||1;return[v[0]/l,v[1]/l,v[2]/l];};
+const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+
+const pointers=new Map();
+let lastPinch=0;
+canvas.addEventListener('pointerdown',e=>{
+  canvas.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  cam.dragging=true;canvas.classList.add('drag');
+  cam.vTheta=0;cam.vPhi=0;
+  if(pointers.size===2){
+    const p=[...pointers.values()];
+    lastPinch=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);
+  }
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!pointers.has(e.pointerId))return;
+  const pr=pointers.get(e.pointerId);
+  const dx=e.clientX-pr.x,dy=e.clientY-pr.y;
+  pr.x=e.clientX;pr.y=e.clientY;
+  if(pointers.size===1){
+    const s=0.0052;
+    cam.theta+=dx*s; cam.phi-=dy*s;
+    cam.vTheta=dx*s*30; cam.vPhi=-dy*s*30;   // velocidad para inercia al soltar
+  }else if(pointers.size===2){
+    const p=[...pointers.values()];
+    const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);
+    if(lastPinch>0)cam.distT=clampD(cam.distT*lastPinch/d);
+    lastPinch=d;
+  }
+});
+const endPointer=e=>{
+  pointers.delete(e.pointerId);
+  if(pointers.size===0){cam.dragging=false;canvas.classList.remove('drag');}
+  lastPinch=0;
+};
+canvas.addEventListener('pointerup',endPointer);
+canvas.addEventListener('pointercancel',endPointer);
+canvas.addEventListener('wheel',e=>{
+  e.preventDefault();
+  cam.distT=clampD(cam.distT*Math.exp(e.deltaY*0.0012));
+},{passive:false});
+const clampD=d=>Math.min(cam.maxD,Math.max(cam.minD,d));
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+
+/* ═════════════════════════ 4 · ESTADO / UI ═════════════════════════ */
+const $=id=>document.getElementById(id);
+const state={
+  preset:PRESETS[3], phys:derive(PRESETS[3]),
+  speed:RM?0.35:1, paused:false,
+  lens:true, disk:true, jets:true, ring:true, labels:true,
+  quality:'auto', steps:130,
+  simTime:0
+};
+const qp=new URLSearchParams(location.search);
+if(qp.get('q')==='eco'){state.quality='eco';renderScale=0.45;state.steps=70;}
+
+function setPreset(p){
+  state.preset=p;state.phys=derive(p);
+  $('objName').textContent=p.name;
+  $('objSub').textContent=p.sub;
+  const ph=state.phys;
+  $('fMass').innerHTML=sci(p.mass,2)+' M☉<small>'+sci(ph.Mkg,2)+' kg</small>';
+  $('fRs').innerHTML=sci(ph.rs/1e3,2)+' km<small>'+(ph.rs/AU<0.01?sci(ph.rs/AU,2):num(ph.rs/AU,ph.rs/AU<10?2:0))+' UA</small>';
+  $('fIsco').innerHTML=sci(ph.isco/1e3,2)+' km';
+  $('fShadow').innerHTML=p.shadow;
+  $('fTemp').innerHTML=sci(ph.Tpk,1)+' K<small>UV extremo (disco ~Eddington)</small>';
+  $('fLedd').innerHTML=sci(ph.Ledd,1)+' W';
+  $('fLobs').innerHTML=p.lumObs;
+  $('fDist').innerHTML=p.dist;
+  $('fCompare').innerHTML='El horizonte mide <em>'+comparison(ph.rs)+'</em> — la luz tardaría '+
+    fmtTime(ph.tcross)+' en cruzar su diámetro. '+p.note;
+  document.querySelectorAll('#presets .chip').forEach(c=>c.classList.toggle('on',c.dataset.id===p.id));
+  drawAllCharts();
+}
+PRESETS.forEach(p=>{
+  const b=document.createElement('button');
+  b.className='chip';b.textContent=p.name;b.dataset.id=p.id;b.setAttribute('role','tab');
+  b.onclick=()=>setPreset(p);
+  $('presets').appendChild(b);
+});
+
+/* toggles de capas */
+function bindToggle(id,key,after){
+  $(id).onclick=()=>{state[key]=!state[key];$(id).classList.toggle('on',state[key]);if(after)after();};
+}
+bindToggle('tgLens','lens');bindToggle('tgDisk','disk');bindToggle('tgJets','jets');
+bindToggle('tgRing','ring');bindToggle('tgLabels','labels');
+
+/* tiempo */
+$('btnPlay').onclick=()=>{
+  state.paused=!state.paused;
+  $('icoPause').style.display=state.paused?'none':'block';
+  $('icoPlay').style.display=state.paused?'block':'none';
+  $('btnPlay').setAttribute('aria-label',state.paused?'Reanudar':'Pausar');
+};
+$('speed').oninput=e=>{state.speed=+e.target.value;$('speedVal').textContent=state.speed.toFixed(1).replace('.',',')+'×';};
+$('speed').value=state.speed;$('speedVal').textContent=state.speed.toFixed(1).replace('.',',')+'×';
+$('btnSlow').onclick=()=>{state.speed=0.1;$('speed').value=0.1;$('speedVal').textContent='0,1×';};
+
+/* calidad */
+function setQ(q){
+  state.quality=q;
+  ['qAuto','qHigh','qEco'].forEach(id=>$(id).classList.remove('on'));
+  if(q==='auto'){$('qAuto').classList.add('on');state.steps=130;}
+  if(q==='high'){$('qHigh').classList.add('on');state.steps=170;renderScale=1.0;buildTargets();}
+  if(q==='eco'){$('qEco').classList.add('on');state.steps=80;renderScale=0.55;buildTargets();}
+}
+$('qAuto').onclick=()=>setQ('auto');$('qHigh').onclick=()=>setQ('high');$('qEco').onclick=()=>setQ('eco');
+
+/* paneles plegables */
+document.querySelectorAll('[data-collapse]').forEach(h=>{
+  h.onclick=()=>h.parentElement.classList.toggle('closed');
+});
+if(innerWidth<900){$('ficha').classList.add('closed');$('tele').classList.add('closed');}
+
+/* cajón de gráficas */
+$('btnCharts').onclick=()=>{
+  const open=$('charts').classList.toggle('open');
+  $('btnCharts').classList.toggle('on',open);
+  if(open)requestAnimationFrame(drawAllCharts);
+};
+$('chartsClose').onclick=()=>{$('charts').classList.remove('open');$('btnCharts').classList.remove('on');};
+
+/* ═════════════════════════ 5 · ETIQUETAS 3D ═════════════════════════ */
+const LABELS=[
+ {id:'horizonte',name:'Horizonte',
+  tip:'<b>Horizonte de sucesos</b>r<sub>s</sub> = 2GM/c². Frontera de no retorno: dentro, todas las trayectorias apuntan al centro. La «sombra» que ves es mayor (≈2,6 r<sub>s</sub>) porque la lente gravitacional curva la luz a su alrededor.',
+  anchor:()=>[cam.right[0]*-1.95+cam.up[0]*-1.75,cam.right[1]*-1.95+cam.up[1]*-1.75,cam.right[2]*-1.95+cam.up[2]*-1.75]},
+ {id:'isco',name:'ISCO',
+  tip:'<b>Última órbita estable · 3 r<sub>s</sub></b>Borde interior del disco. Aquí el gas orbita al 50 % de la velocidad de la luz; más adentro ya no hay órbitas circulares estables y el material cae en espiral hacia el horizonte.',
+  anchor:()=>{const d=norm3([cam.pos[0],0,cam.pos[2]]);return[d[0]*3.1,0,d[2]*3.1];}},
+ {id:'photon',name:'Anillo de fotones',
+  tip:'<b>Anillo de fotones · 1,5 r<sub>s</sub></b>Luz atrapada en órbita casi circular en la esfera de fotones. Los fotones dan varias vueltas al agujero antes de escapar hacia tu ojo: es el filo brillante que delimita la sombra.',
+  anchor:()=>[cam.up[0]*2.62,cam.up[1]*2.62,cam.up[2]*2.62]},
+ {id:'jets',name:'Jet relativista',
+  tip:'<b>Chorros relativistas</b>Plasma lanzado a ~99 % de c y colimado por campos magnéticos retorcidos (mecanismo de Blandford–Znajek). En M87* el jet se extiende 5 000 años luz fuera de la galaxia.',
+  anchor:()=>[0,6.2,0],needs:'jets'}
+];
+const labelsDiv=$('labels'),tip=$('tip');
+LABELS.forEach(L=>{
+  const el=document.createElement('div');
+  el.className='mk';el.innerHTML='<i></i><b>'+L.name+'</b>';
+  el.addEventListener('pointerenter',()=>showTip(L,el));
+  el.addEventListener('pointerleave',hideTip);
+  el.addEventListener('click',e=>{showTip(L,el);e.stopPropagation();});
+  labelsDiv.appendChild(el);L.el=el;
+});
+document.addEventListener('click',hideTip);
+function showTip(L,el){
+  tip.innerHTML=L.tip;tip.classList.add('show');
+  const r=el.getBoundingClientRect();
+  let x=r.left+r.width+12,y=r.top-8;
+  if(x+296>innerWidth)x=r.left-296;
+  if(x<8)x=8;
+  y=Math.min(Math.max(8,y),innerHeight-tip.offsetHeight-8);
+  tip.style.left=x+'px';tip.style.top=y+'px';
+}
+function hideTip(){tip.classList.remove('show');}
+function project(w){
+  const rel=[w[0]-cam.pos[0],w[1]-cam.pos[1],w[2]-cam.pos[2]];
+  const z=rel[0]*cam.fwd[0]+rel[1]*cam.fwd[1]+rel[2]*cam.fwd[2];
+  if(z<0.4)return null;
+  const x=rel[0]*cam.right[0]+rel[1]*cam.right[1]+rel[2]*cam.right[2];
+  const y=rel[0]*cam.up[0]+rel[1]*cam.up[1]+rel[2]*cam.up[2];
+  const k=1/(2*cam.tanFov*z);
+  return[innerWidth/2+x*k*innerHeight,innerHeight/2-y*k*innerHeight];
+}
+function updateLabels(){
+  const vis=state.labels&&cam.dist>6.5;
+  LABELS.forEach(L=>{
+    const on=vis&&(!L.needs||state[L.needs]);
+    if(!on){L.el.classList.remove('show');return;}
+    const s=project(L.anchor());
+    if(!s||s[0]<40||s[0]>innerWidth-40||s[1]<40||s[1]>innerHeight-60){L.el.classList.remove('show');return;}
+    L.el.style.left=s[0]+'px';L.el.style.top=s[1]+'px';
+    L.el.classList.add('show');
+  });
+}
+
+/* ═════════════════════════ 6 · TELEMETRÍA ═════════════════════════ */
+function updateTele(){
+  const d=cam.dist, ph=state.phys;
+  const km=d*ph.rs/1e3;
+  $('tDist').innerHTML=(km>=1e5?sci(km,2):num(km,0))+' km<small>'+num(d,2)+' r<sub>s</sub> del centro</small>';
+  const F=1/Math.sqrt(1-1/d);
+  $('tDil').innerHTML='× '+(F<10?F.toFixed(4).replace('.',','):F.toFixed(1).replace('.',','));
+  const extra=(F-1)*3600;
+  $('tHour').innerHTML='pasan '+F.toFixed(4).replace('.',',')+' h lejos<small>+'+
+    (extra<120?num(extra,1)+' s':num(extra/60,1)+' min')+' por hora</small>';
+  const vesc=Math.sqrt(1/d);
+  const tagE=vesc>0.9?'crit':vesc>0.5?'warn':'ok';
+  $('tVesc').innerHTML=(vesc*100).toFixed(1).replace('.',',')+' % c<span class="tag '+tagE+'">'+
+    (vesc>0.9?'extremo':vesc>0.5?'alto':'seguro')+'</span>';
+  if(d<=1.55){
+    $('tVorb').innerHTML='— <span class="tag crit">sin órbitas</span>';
+  }else{
+    const vo=Math.sqrt(0.5/(d-1));
+    $('tVorb').innerHTML=(vo*100).toFixed(1).replace('.',',')+' % c'+
+      (d<3?' <span class="tag warn">inestable</span>':' <span class="tag ok">estable</span>');
+  }
+  $('tNote').innerHTML=d<2.4
+    ?'Estás rozando el horizonte: mirando hacia el agujero, la sombra llena todo tu campo visual — la luz del universo entero te llega comprimida en un cono a tu espalda. Para quien te observa desde lejos, tu reloj casi se detiene y tu imagen se congela y enrojece.'
+    :d<6?'Zona de gravedad extrema: por debajo de 3 r<sub>s</sub> ninguna órbita circular es estable. El campo de visión se ha abierto a gran angular.'
+    :'Factor calculado para un observador estático: Δt<sub>∞</sub>/Δt = 1/√(1 − r<sub>s</sub>/r).';
+}
+
+/* ═════════════════════════ 7 · GRÁFICAS ═════════════════════════ */
+const CH={grid:'rgba(148,170,190,.10)',axis:'rgba(148,170,190,.28)',ink:'#93A6B4',
+          ink3:'#5C7284',amber:'#C4832A',amberHi:'#F0A94B',cyan:'#2E9BB4',cyanHi:'#5FD0E4'};
+function setupCv(cv){
+  const dpr=Math.min(devicePixelRatio||1,2);
+  const W=cv.clientWidth||300,H=cv.clientHeight||150;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){
+    cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+  }
+  const ctx=cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  return{ctx,W,H};
+}
+function lineChart(cv,cfg,hoverX){
+  const{ctx,W,H}=setupCv(cv);
+  const pad={l:46,r:14,t:12,b:20},pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+  const X=x=>pad.l+(x-cfg.xmin)/(cfg.xmax-cfg.xmin)*pw;
+  const Y=y=>pad.t+ph-(Math.min(y,cfg.ymax)-cfg.ymin)/(cfg.ymax-cfg.ymin)*ph;
+  ctx.font='9.5px '+getComputedStyle(document.body).getPropertyValue('--font-m');
+  /* rejilla */
+  ctx.strokeStyle=CH.grid;ctx.lineWidth=1;ctx.fillStyle=CH.ink3;
+  cfg.yticks.forEach(t=>{
+    ctx.beginPath();ctx.moveTo(pad.l,Y(t)+.5);ctx.lineTo(W-pad.r,Y(t)+.5);ctx.stroke();
+    ctx.textAlign='right';ctx.fillText(cfg.yfmt(t),pad.l-6,Y(t)+3);
+  });
+  cfg.xticks.forEach(t=>{
+    ctx.textAlign='center';ctx.fillText(cfg.xfmt(t),X(t),H-6);
+  });
+  ctx.textAlign='left';ctx.fillText(cfg.ylab,pad.l,pad.t-2);
+  /* referencias verticales */
+  (cfg.refs||[]).forEach((rf,i)=>{
+    ctx.strokeStyle='rgba(148,170,190,.35)';ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(X(rf.x)+.5,pad.t);ctx.lineTo(X(rf.x)+.5,pad.t+ph);ctx.stroke();
+    ctx.setLineDash([]);ctx.fillStyle=CH.ink3;ctx.textAlign='left';
+    ctx.fillText(rf.label,X(rf.x)+4,pad.t+9+i*11);
+  });
+  /* curva */
+  ctx.strokeStyle=CH.amber;ctx.lineWidth=2;ctx.lineJoin='round';ctx.beginPath();
+  let first=true;
+  cfg.pts.forEach(p=>{
+    const y=Y(p[1]);
+    if(first){ctx.moveTo(X(p[0]),y);first=false;}else ctx.lineTo(X(p[0]),y);
+  });
+  ctx.stroke();
+  /* punto final */
+  const last=cfg.pts[cfg.pts.length-1];
+  ctx.fillStyle=CH.amberHi;ctx.beginPath();ctx.arc(X(last[0]),Y(last[1]),3,0,7);ctx.fill();
+  /* marcador de cámara */
+  if(cfg.cam!=null&&cfg.cam>=cfg.xmin&&cfg.cam<=cfg.xmax){
+    const cy=Y(cfg.f(cfg.cam));
+    ctx.strokeStyle=CH.cyanHi;ctx.fillStyle=CH.cyanHi;
+    ctx.beginPath();ctx.arc(X(cfg.cam),cy,3.5,0,7);ctx.fill();
+    ctx.globalAlpha=.35;ctx.beginPath();ctx.arc(X(cfg.cam),cy,7,0,7);ctx.stroke();ctx.globalAlpha=1;
+    ctx.fillStyle=CH.cyanHi;ctx.textAlign='left';
+    ctx.fillText('tú',X(cfg.cam)+9,cy+3);
+  }
+  /* crosshair de hover */
+  if(hoverX!=null&&hoverX>=cfg.xmin&&hoverX<=cfg.xmax){
+    const hy=Y(cfg.f(hoverX));
+    ctx.strokeStyle='rgba(95,208,228,.4)';
+    ctx.beginPath();ctx.moveTo(X(hoverX)+.5,pad.t);ctx.lineTo(X(hoverX)+.5,pad.t+ph);ctx.stroke();
+    ctx.fillStyle=CH.cyanHi;ctx.beginPath();ctx.arc(X(hoverX),hy,3,0,7);ctx.fill();
+  }
+  return{pad,pw,X:x=>X(x)};
+}
+function bindHover(cv,readId,getCfg,fmt){
+  const read=$(readId);
+  cv.addEventListener('pointermove',e=>{
+    const cfg=getCfg();
+    const r=cv.getBoundingClientRect();
+    const pad=46,pw=r.width-pad-14;
+    const x=cfg.xmin+(e.clientX-r.left-pad)/pw*(cfg.xmax-cfg.xmin);
+    if(x<cfg.xmin||x>cfg.xmax){read.textContent='';lineChart(cv,cfg,null);return;}
+    read.textContent=fmt(x,cfg.f(x));
+    lineChart(cv,cfg,x);
+  });
+  cv.addEventListener('pointerleave',()=>{read.textContent='';lineChart(cv,getCfg(),null);});
+}
+const fDil=r=>1/Math.sqrt(1-1/r);
+const fVorb=r=>Math.sqrt(0.5/(r-1));
+const fTemp=r=>{const q=Math.max(1-Math.sqrt(3/r),0);return state.phys.Tpk*Math.pow(3/r,0.75)*Math.pow(q,0.25)/0.488;};
+function sample(f,a,b,n){const pts=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;pts.push([x,f(x)]);}return pts;}
+function cfg1(){return{pts:sample(fDil,1.02,12,160),f:fDil,xmin:1,xmax:12,ymin:1,ymax:6,
+  yticks:[1,2,3,4,5],xticks:[1,3,6,9,12],refs:[{x:1,label:'horizonte'}],
+  yfmt:v=>'×'+v,xfmt:v=>v+' rₛ',ylab:'Δt∞ / Δt',cam:cam.dist<=12?cam.dist:null};}
+function cfg2(){return{pts:sample(fVorb,1.55,12,160),f:fVorb,xmin:1,xmax:12,ymin:0,ymax:1,
+  yticks:[0,.25,.5,.75,1],xticks:[1,3,6,9,12],
+  refs:[{x:1.5,label:'esf. fotones'},{x:3,label:'ISCO'}],
+  yfmt:v=>v.toFixed(2).replace('.',','),xfmt:v=>v+' rₛ',ylab:'v / c',cam:cam.dist<=12&&cam.dist>1.55?cam.dist:null};}
+function cfg3(){const mx=fTemp(4.08);return{pts:sample(fTemp,3.02,15,160),f:fTemp,xmin:3,xmax:15,
+  ymin:0,ymax:mx*1.12,yticks:[0,mx*0.5,mx].map(v=>Math.round(v)),
+  xticks:[3,6,9,12,15],refs:[{x:3,label:'ISCO'},{x:4.08,label:'pico'}],
+  yfmt:v=>v===0?'0':sci(v,1).replace(' × 10','e').replace('×10','e'),
+  xfmt:v=>v+' rₛ',ylab:'T (K)',cam:null};}
+bindHover($('c1'),'r1',cfg1,(x,y)=>'r = '+x.toFixed(2).replace('.',',')+' rₛ → ×'+y.toFixed(3).replace('.',','));
+bindHover($('c2'),'r2',cfg2,(x,y)=>'r = '+x.toFixed(2).replace('.',',')+' rₛ → '+(y*100).toFixed(1).replace('.',',')+' % c');
+bindHover($('c3'),'r3',cfg3,(x,y)=>'r = '+x.toFixed(1).replace('.',',')+' rₛ → '+sci(y,2)+' K');
+
+function barChart(){
+  const cv=$('c4'),{ctx,W,H}=setupCv(cv);
+  const pad={l:96,r:70,t:10,b:18},pw=W-pad.l-pad.r;
+  const lmin=6,lmax=11;
+  const X=m=>pad.l+(Math.log10(m)-lmin)/(lmax-lmin)*pw;
+  ctx.font='9.5px '+getComputedStyle(document.body).getPropertyValue('--font-m');
+  /* rejilla log */
+  for(let e=lmin;e<=lmax;e++){
+    ctx.strokeStyle=CH.grid;ctx.beginPath();
+    ctx.moveTo(X(10**e)+.5,pad.t);ctx.lineTo(X(10**e)+.5,H-pad.b);ctx.stroke();
+    ctx.fillStyle=CH.ink3;ctx.textAlign='center';ctx.fillText('10'+sup(e),X(10**e),H-5);
+  }
+  const bh=(H-pad.t-pad.b)/PRESETS.length;
+  PRESETS.forEach((p,i)=>{
+    const y=pad.t+i*bh+bh*0.22,h=bh*0.56;
+    const sel=p.id===state.preset.id;
+    ctx.fillStyle=sel?CH.amber:'#33414F';
+    const w=Math.max(X(p.mass)-pad.l,2);
+    /* barra fina con extremo redondeado */
+    ctx.beginPath();
+    const rr=Math.min(3,h/2);
+    ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+w-rr,y);ctx.arcTo(pad.l+w,y,pad.l+w,y+rr,rr);
+    ctx.lineTo(pad.l+w,y+h-rr);ctx.arcTo(pad.l+w,y+h,pad.l+w-rr,y+h,rr);
+    ctx.lineTo(pad.l,y+h);ctx.closePath();ctx.fill();
+    ctx.fillStyle=sel?'#E9EEF4':CH.ink;
+    ctx.textAlign='right';ctx.fillText(p.name,pad.l-8,y+h/2+3);
+    ctx.fillStyle=sel?CH.amberHi:CH.ink3;
+    ctx.textAlign='left';ctx.fillText(sci(p.mass,1)+' M☉',pad.l+w+6,y+h/2+3);
+  });
+}
+function drawAllCharts(){
+  if(!$('charts').classList.contains('open'))return;
+  lineChart($('c1'),cfg1(),null);
+  lineChart($('c2'),cfg2(),null);
+  lineChart($('c3'),cfg3(),null);
+  barChart();
+}
+window.addEventListener('resize',()=>setTimeout(drawAllCharts,150));
+
+/* ═════════════════════════ 8 · BUCLE PRINCIPAL ═════════════════════════ */
+resize();
+setPreset(PRESETS[3]);
+
+let last=performance.now(),emaMs=16,lastAdapt=0,lastHud=0,lastCharts=0,frames=0,fpsT=0;
+function setU(u,fn,...a){if(u!==null)fn.call(gl,u,...a);}
+
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt=Math.min((now-last)/1000,0.1);last=now;
+  emaMs=emaMs*0.93+(now-(frame._p||now))*0.07;frame._p=now;
+
+  camUpdate(dt);
+  if(!state.paused)state.simTime+=dt*state.speed;
+
+  /* — pase principal: geodésicas — */
+  gl.bindFramebuffer(gl.FRAMEBUFFER,rtScene.fb);
+  gl.viewport(0,0,rtScene.w,rtScene.h);
+  gl.useProgram(pMain.pr);
+  const u=pMain.u;
+  gl.uniform2f(u.uRes,rtScene.w,rtScene.h);
+  gl.uniform1f(u.uTime,state.simTime);
+  gl.uniform3f(u.uCamPos,...cam.pos);
+  gl.uniform3f(u.uCamFwd,...cam.fwd);
+  gl.uniform3f(u.uCamRight,...cam.right);
+  gl.uniform3f(u.uCamUp,...cam.up);
+  gl.uniform1f(u.uTanFov,cam.tanFov);
+  gl.uniform1f(u.uSteps,state.steps);
+  gl.uniform1f(u.uLens,state.lens?1:0);
+  gl.uniform1f(u.uDiskOn,state.disk?1:0);
+  gl.uniform1f(u.uJetsOn,state.jets?1:0);
+  gl.uniform1f(u.uRingOn,state.ring?1:0);
+  gl.uniform1f(u.uTvis,state.preset.tvis);
+  gl.uniform1f(u.uDiskIn,3.0);
+  gl.uniform1f(u.uDiskOut,13.0);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+
+  /* — bloom — */
+  gl.bindFramebuffer(gl.FRAMEBUFFER,rtA.fb);
+  gl.viewport(0,0,rtA.w,rtA.h);
+  gl.useProgram(pBright.pr);
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,rtScene.tex);
+  gl.uniform1i(pBright.u.uTex,0);gl.uniform1f(pBright.u.uThresh,0.72);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+
+  gl.useProgram(pBlur.pr);gl.uniform1i(pBlur.u.uTex,0);
+  const passes=[[1.0,1,0],[1.0,0,1],[2.6,1,0],[2.6,0,1]];
+  passes.forEach(([r,dx,dy])=>{
+    const src=rtA,dst=rtB;
+    gl.bindFramebuffer(gl.FRAMEBUFFER,dst.fb);
+    gl.viewport(0,0,dst.w,dst.h);
+    gl.bindTexture(gl.TEXTURE_2D,src.tex);
+    gl.uniform2f(pBlur.u.uDir,dx*r/src.w,dy*r/src.h);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+    const t=rtA.tex;rtA.tex=rtB.tex;rtB.tex=t;
+    const f=rtA.fb;rtA.fb=rtB.fb;rtB.fb=f;
+  });
+
+  /* — composición a pantalla — */
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  gl.viewport(0,0,canvas.width,canvas.height);
+  gl.useProgram(pComp.pr);
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,rtScene.tex);
+  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,rtA.tex);
+  gl.uniform1i(pComp.u.uScene,0);gl.uniform1i(pComp.u.uBloom,1);
+  gl.uniform1f(pComp.u.uBloomAmt,0.8);
+  gl.uniform1f(pComp.u.uExposure,1.18);
+  gl.uniform1f(pComp.u.uTime,now*0.001);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  gl.activeTexture(gl.TEXTURE0);
+
+  /* — HUD / etiquetas / adaptación — */
+  updateLabels();
+  if(now-lastHud>150){lastHud=now;updateTele();}
+  if(now-lastCharts>400&&$('charts').classList.contains('open')){
+    lastCharts=now;lineChart($('c1'),cfg1(),null);lineChart($('c2'),cfg2(),null);
+  }
+  frames++;fpsT+=dt;
+  if(fpsT>0.6){$('fps').textContent=Math.round(frames/fpsT)+' fps';frames=0;fpsT=0;}
+  if(state.quality==='auto'&&now-lastAdapt>1400){
+    lastAdapt=now;
+    if(emaMs>19&&renderScale>0.45){renderScale=Math.max(0.45,renderScale*0.88);buildTargets();}
+    else if(emaMs<11.5&&renderScale<1.0){renderScale=Math.min(1.0,renderScale*1.07);buildTargets();}
+  }
+}
+requestAnimationFrame(frame);
+</script>
