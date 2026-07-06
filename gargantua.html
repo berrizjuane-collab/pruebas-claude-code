@@ -1,0 +1,2370 @@
+<title>Gargantua — Agujero negro interactivo</title>
+<style>
+/* ============================================================================
+   GARGANTUA — Agujero negro interactivo
+   UI oscura sci-fi (español). Tema único y deliberado: el visor es un HUD
+   sobre el espacio profundo; no hay variante clara (la escena ES la luz).
+   Paleta:  fondo #04070d · panel rgba(8,14,24,.8) · acento cian #7fd9ff
+            ámbar disco #ffb45c · alerta #ff8a70 · texto #d9e6f2 / #8ba0b8
+   ========================================================================== */
+:root{
+  --bg:#04070d; --panel:rgba(9,15,26,.82); --panel2:rgba(6,10,18,.86);
+  --line:rgba(127,217,255,.16); --line2:rgba(127,217,255,.32);
+  --cy:#7fd9ff; --cy-dim:#4b93b5; --amber:#ffb45c; --warn:#ff8a70;
+  --tx:#d9e6f2; --tx2:#8ba0b8; --tx3:#5d7186;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Roboto Mono",monospace;
+  --sans:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+     overflow:hidden;font-size:13px;line-height:1.45;
+     -webkit-font-smoothing:antialiased}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+#gl.grabbing{cursor:grabbing}
+#nogl{position:fixed;inset:0;display:none;place-items:center;text-align:center;
+      padding:40px;color:var(--tx2)}
+
+/* ---- etiquetas 3D proyectadas -------------------------------------------- */
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;transform:translate(-50%,-140%);
+     font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+     color:var(--cy);text-shadow:0 0 6px rgba(0,0,0,.9),0 1px 2px #000;
+     white-space:nowrap;pointer-events:auto;cursor:pointer;padding:2px 6px;
+     border:1px solid transparent;border-radius:4px;user-select:none}
+.lbl small{display:block;letter-spacing:.06em;color:var(--tx2);font-size:9.5px;text-align:center}
+.lbl:hover,.lbl.hot{border-color:var(--line2);background:rgba(8,16,26,.72)}
+.lbl.sel{color:#fff;border-color:var(--cy)}
+.lbl.moon{font-size:9px;color:var(--tx2)}
+.lbl.bh{color:var(--amber);letter-spacing:.22em}
+
+/* ---- tooltip enriquecido -------------------------------------------------- */
+#tip{position:fixed;z-index:40;pointer-events:none;display:none;max-width:250px;
+     background:var(--panel2);border:1px solid var(--line2);border-radius:8px;
+     padding:9px 11px;font-size:11.5px;backdrop-filter:blur(8px);
+     box-shadow:0 10px 30px rgba(0,0,0,.6)}
+#tip .t-name{font-family:var(--mono);letter-spacing:.14em;color:var(--cy);font-size:11px}
+#tip .t-kind{color:var(--tx2);margin:1px 0 5px}
+#tip .t-row{display:flex;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:10.5px}
+#tip .t-row b{color:var(--tx);font-weight:500}
+#tip .t-warn{color:var(--warn);margin-top:5px;font-size:10.5px;line-height:1.35}
+#tip .t-hint{margin-top:6px;color:var(--cy-dim);font-size:10px;letter-spacing:.05em}
+
+/* ---- barra superior -------------------------------------------------------- */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;
+        justify-content:space-between;align-items:center;padding:10px 16px;
+        pointer-events:none}
+#topbar>*{pointer-events:auto}
+.brand{font-family:var(--mono);letter-spacing:.3em;font-size:13px;color:#fff;
+       text-shadow:0 0 14px rgba(127,217,255,.35)}
+.brand small{display:block;letter-spacing:.12em;font-size:9.5px;color:var(--tx2);margin-top:2px}
+.chips{display:flex;gap:8px;align-items:center}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--tx2);
+      background:var(--panel);border:1px solid var(--line);border-radius:20px;
+      padding:4px 10px}
+.chip b{color:var(--cy);font-weight:500}
+
+/* ---- paneles laterales ----------------------------------------------------- */
+.col{position:fixed;top:56px;bottom:150px;width:302px;z-index:15;display:flex;
+     flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;
+     padding:2px;scrollbar-width:thin;scrollbar-color:rgba(127,217,255,.25) transparent}
+.col::-webkit-scrollbar{width:6px}
+.col::-webkit-scrollbar-thumb{background:rgba(127,217,255,.2);border-radius:3px}
+#left{left:12px}
+#right{right:12px;width:288px}
+.panel{background:linear-gradient(180deg,rgba(11,19,32,.84),rgba(6,10,18,.84));
+       border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+       backdrop-filter:blur(10px);box-shadow:0 8px 26px rgba(0,0,0,.45);flex-shrink:0}
+.ptitle{margin:0 0 8px;font-size:10.5px;font-weight:600;letter-spacing:.18em;
+        color:var(--cy);display:flex;justify-content:space-between;align-items:center;
+        text-transform:uppercase}
+.ptitle .chev{transition:transform .25s;color:var(--tx3);font-size:11px}
+.panel.closed .chev{transform:rotate(-90deg)}
+.panel.closed .pbody{display:none}
+button.ghost{all:unset;cursor:pointer;display:block;width:100%}
+button.ghost:focus-visible{outline:2px solid rgba(127,217,255,.5);outline-offset:2px;border-radius:4px}
+
+.kv{display:flex;justify-content:space-between;gap:10px;padding:2.5px 0;align-items:baseline}
+.k{color:var(--tx2);font-size:11px;letter-spacing:.03em}
+.v{font-family:var(--mono);font-size:11.5px;color:#e9f3fc;text-align:right;
+   font-variant-numeric:tabular-nums;white-space:nowrap}
+.v.cy{color:var(--cy)} .v.am{color:var(--amber)} .v.wr{color:var(--warn)}
+.sep{height:1px;background:var(--line);margin:7px 0;border:0}
+.notewarn{margin:8px 0 0;padding:7px 9px;border:1px solid rgba(255,138,112,.35);
+          border-radius:7px;background:rgba(255,110,80,.07);color:var(--warn);
+          font-size:10.8px;line-height:1.4}
+.notemini{margin:7px 0 0;color:var(--tx3);font-size:10px;line-height:1.45}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;
+        vertical-align:-1px;box-shadow:0 0 8px currentColor}
+
+/* ---- botones --------------------------------------------------------------- */
+.btn{font-family:var(--sans);font-size:11px;letter-spacing:.05em;color:#cfeeff;
+     background:rgba(127,217,255,.07);border:1px solid rgba(127,217,255,.28);
+     border-radius:7px;padding:6px 10px;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:rgba(127,217,255,.16)}
+.btn:focus-visible{outline:2px solid rgba(127,217,255,.55);outline-offset:1px}
+.btn.active{background:rgba(127,217,255,.24);border-color:var(--cy);color:#fff}
+.btn.small{padding:4px 8px;font-size:10px;border-radius:6px}
+.btn.warn{border-color:rgba(255,180,92,.4);color:var(--amber)}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap}
+select.btn{appearance:none;background:rgba(127,217,255,.07) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237fd9ff'/%3E%3C/svg%3E") no-repeat right 8px center;
+     padding-right:22px;color:#cfeeff}
+select.btn option{background:#0a1220;color:var(--tx)}
+
+/* ---- interruptores de capas ------------------------------------------------ */
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.sw{display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 2px;font-size:11px;color:var(--tx2);user-select:none}
+.sw:hover{color:var(--tx)}
+.sw input{position:absolute;opacity:0;width:0;height:0}
+.sw .tk{width:26px;height:14px;border-radius:8px;background:rgba(127,217,255,.1);
+        border:1px solid rgba(127,217,255,.3);position:relative;flex-shrink:0;transition:background .15s}
+.sw .tk::after{content:"";position:absolute;top:1.5px;left:2px;width:9px;height:9px;border-radius:50%;
+        background:var(--tx3);transition:transform .15s,background .15s}
+.sw input:checked+.tk{background:rgba(127,217,255,.32)}
+.sw input:checked+.tk::after{transform:translateX(11px);background:var(--cy);box-shadow:0 0 6px var(--cy)}
+.sw input:focus-visible+.tk{outline:2px solid rgba(127,217,255,.55);outline-offset:2px}
+
+/* ---- lista sistema planetario ---------------------------------------------- */
+.prow{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;
+      cursor:pointer;border:1px solid transparent;transition:background .12s}
+.prow:hover{background:rgba(127,217,255,.07)}
+.prow.sel{border-color:var(--line2);background:rgba(127,217,255,.09)}
+.prow .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 9px currentColor}
+.prow .pi{flex:1;min-width:0}
+.prow .pn{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--tx);display:flex;gap:6px;align-items:center}
+.prow .pn .wtag{color:var(--warn);font-size:9px;letter-spacing:.05em;border:1px solid rgba(255,138,112,.4);
+      border-radius:4px;padding:0 4px}
+.prow .ps{font-size:10px;color:var(--tx3);font-family:var(--mono);margin-top:1px}
+.prow .lockb{flex-shrink:0}
+
+/* ---- sliders --------------------------------------------------------------- */
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+     background:linear-gradient(90deg,rgba(127,217,255,.5),rgba(127,217,255,.15));
+     outline:none;cursor:pointer;width:100%}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+     background:var(--cy);box-shadow:0 0 10px rgba(127,217,255,.7);border:2px solid #06222e}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--cy);border:2px solid #06222e}
+input[type=range]:focus-visible{outline:2px solid rgba(127,217,255,.55);outline-offset:4px}
+
+/* ---- barra de tiempo -------------------------------------------------------- */
+#timebar{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:25;
+         width:min(860px,calc(100vw - 24px));background:linear-gradient(180deg,rgba(11,19,32,.88),rgba(6,10,18,.9));
+         border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(12px);
+         box-shadow:0 10px 34px rgba(0,0,0,.55);padding:9px 14px 8px}
+#timebar .trow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#playBtn{width:34px;height:34px;border-radius:50%;font-size:13px;display:grid;place-items:center;flex-shrink:0}
+.tlabel{font-size:9.5px;letter-spacing:.18em;color:var(--cy);text-transform:uppercase;margin-right:2px}
+.presets{display:flex;gap:5px;flex-wrap:wrap}
+.warpwrap{display:flex;align-items:center;gap:9px;flex:1;min-width:220px}
+.warpwrap input{flex:1}
+#warpVal{font-family:var(--mono);font-size:11.5px;color:var(--amber);min-width:86px;text-align:right;font-variant-numeric:tabular-nums}
+#simTime{font-family:var(--mono);font-size:11.5px;color:var(--cy);min-width:120px;text-align:right;font-variant-numeric:tabular-nums}
+#scrub{height:14px;margin-top:7px;border-radius:5px;cursor:ew-resize;position:relative;
+       background:repeating-linear-gradient(90deg,rgba(127,217,255,.14) 0 1px,transparent 1px 12px);
+       border:1px solid rgba(127,217,255,.12)}
+#scrub::after{content:"‹ scrub fino ›";position:absolute;inset:0;display:grid;place-items:center;
+       font-size:8.5px;letter-spacing:.3em;color:var(--tx3);font-family:var(--mono)}
+#scrub:hover{border-color:var(--line2)}
+#revs{display:flex;gap:12px;margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--tx2);
+      flex-wrap:wrap;align-items:center}
+#revs .rv{display:flex;gap:5px;align-items:center;font-variant-numeric:tabular-nums}
+#revs .rv i{width:7px;height:7px;border-radius:50%;display:inline-block;font-style:normal}
+#revs .rlabel{font-size:8.5px;letter-spacing:.22em;color:var(--tx3)}
+
+/* ---- ayuda ------------------------------------------------------------------ */
+#help{position:fixed;z-index:50;right:14px;bottom:150px;width:250px;display:none}
+#help.open{display:block}
+#help .keys{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:10.5px;color:var(--tx2)}
+#help kbd{font-family:var(--mono);font-size:9.5px;background:rgba(127,217,255,.1);
+        border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:var(--cy);text-align:center}
+
+/* ---- responsivo -------------------------------------------------------------- */
+#panelToggles{display:none;gap:6px}
+@media (max-width:1120px){
+  #left,#right{width:270px}
+}
+@media (max-width:980px){
+  #panelToggles{display:flex}
+  .col{display:none;top:52px;bottom:170px;z-index:30}
+  .col.open{display:flex}
+  #left{left:8px}#right{right:8px}
+  .brand{letter-spacing:.18em;font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+
+<canvas id="gl" aria-label="Simulación 3D del agujero negro Gargantua y su sistema planetario"></canvas>
+<div id="nogl"><div><h2>WebGL 2 no disponible</h2><p>Este visor necesita un navegador con soporte WebGL 2 para renderizar la simulación relativista.</p></div></div>
+<div id="labels" aria-hidden="true"></div>
+<div id="tip" role="tooltip"></div>
+
+<header id="topbar">
+  <div class="brand">GARGANTUA<small>agujero negro de Schwarzschild · M = 1,00×10⁸ M☉</small></div>
+  <div class="chips">
+    <div id="panelToggles">
+      <button class="btn small" id="tgLeft" aria-label="Mostrar panel de información">◧ Info</button>
+      <button class="btn small" id="tgRight" aria-label="Mostrar panel de control">Control ◨</button>
+    </div>
+    <span class="chip" id="fpsChip"><b>—</b> fps</span>
+    <span class="chip" id="resChip">—</span>
+    <button class="btn small" id="helpBtn" aria-label="Mostrar atajos de teclado" title="Atajos (H)">? Atajos</button>
+  </div>
+</header>
+
+<aside id="left" class="col">
+  <section class="panel" id="fichaPanel">
+    <h2 class="ptitle">Ficha del objeto <span id="fichaTag" style="color:var(--tx3);letter-spacing:.06em"></span></h2>
+    <div class="pbody" id="fichaBody"></div>
+  </section>
+  <section class="panel" id="sysPanel">
+    <button class="ghost" id="sysToggle" aria-expanded="true">
+      <h2 class="ptitle">Sistema planetario <span class="chev">▾</span></h2>
+    </button>
+    <div class="pbody">
+      <div id="sysList"></div>
+      <p class="notemini">Distancias orbitales y física a escala real (en Rs). Radios de los cuerpos
+      exagerados ~2·10³× para que sean visibles: a escala real serían puntos sub-píxel.</p>
+    </div>
+  </section>
+</aside>
+
+<aside id="right" class="col">
+  <section class="panel" id="camPanel">
+    <h2 class="ptitle">Cámara</h2>
+    <div class="pbody">
+      <div class="btnrow" style="margin-bottom:7px">
+        <button class="btn" id="btnFree" title="Vista libre (F)">Vista Libre</button>
+        <button class="btn" id="btnGarg" title="Bloquear en Gargantua (G)">Bloquear en Gargantua</button>
+      </div>
+      <div class="btnrow" style="margin-bottom:7px">
+        <select class="btn" id="lockSel" aria-label="Bloquear la cámara en un planeta">
+          <option value="">Bloquear en planeta…</option>
+        </select>
+        <button class="btn" id="btnSystem" title="Ver todo el sistema (0)">Vista de Sistema Completo</button>
+      </div>
+      <div id="lockOpts" style="display:none">
+        <hr class="sep">
+        <div class="kv"><span class="k">Distancia de observación</span></div>
+        <div class="btnrow" style="margin:4px 0 7px">
+          <button class="btn small" data-ld="12">Amplia</button>
+          <button class="btn small" data-ld="5">Media</button>
+          <button class="btn small" data-ld="2.4">Close-up</button>
+        </div>
+        <input type="range" id="lockDist" min="1.6" max="30" step="0.1" value="5" aria-label="Distancia de observación en radios planetarios">
+        <label class="sw" style="margin-top:8px" title="La cámara se mueve con el planeta manteniendo su orientación orbital: se percibe la velocidad respecto al fondo">
+          <input type="checkbox" id="companion" checked><span class="tk"></span>
+          Modo Acompañamiento Orbital
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="telePanel">
+    <h2 class="ptitle">Telemetría — Tu posición</h2>
+    <div class="pbody" id="teleBody"></div>
+  </section>
+
+  <section class="panel">
+    <h2 class="ptitle">Capas</h2>
+    <div class="pbody layers">
+      <label class="sw"><input type="checkbox" id="layLens" checked><span class="tk"></span>Lente</label>
+      <label class="sw"><input type="checkbox" id="layDisk" checked><span class="tk"></span>Disco</label>
+      <label class="sw"><input type="checkbox" id="layJets" checked><span class="tk"></span>Jets</label>
+      <label class="sw"><input type="checkbox" id="layPhoton"><span class="tk"></span>Fotones</label>
+      <label class="sw"><input type="checkbox" id="layLabels" checked><span class="tk"></span>Etiquetas</label>
+      <label class="sw"><input type="checkbox" id="layPlanets" checked><span class="tk"></span>Planetas</label>
+      <label class="sw"><input type="checkbox" id="layMoons" checked><span class="tk"></span>Lunas</label>
+      <label class="sw"><input type="checkbox" id="layOrbits" checked><span class="tk"></span>Trayectorias</label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 class="ptitle">Calidad</h2>
+    <div class="pbody">
+      <div class="btnrow">
+        <button class="btn" data-q="auto">Auto</button>
+        <button class="btn" data-q="alta">Alta</button>
+        <button class="btn" data-q="eco">Eco</button>
+      </div>
+      <p class="notemini" id="qNote">Auto ajusta la resolución interna para mantener ~60 fps.</p>
+    </div>
+  </section>
+</aside>
+
+<footer id="timebar" aria-label="Control de tiempo">
+  <div class="trow">
+    <button class="btn" id="playBtn" aria-label="Pausar o reanudar la simulación" title="Espacio">⏸</button>
+    <span class="tlabel">Tiempo</span>
+    <div class="presets" id="warpPresets"></div>
+  </div>
+  <div class="trow" style="margin-top:7px">
+    <div class="warpwrap">
+      <span class="tlabel" style="margin:0">Warp</span>
+      <input type="range" id="warp" min="0" max="12" step="0.01" value="0" aria-label="Factor de aceleración temporal, escala logarítmica de 1 a 10¹²">
+      <span id="warpVal">×1</span>
+    </div>
+    <span id="simTime">t = 0 s</span>
+    <button class="btn small" id="resetT" title="Reiniciar el tiempo simulado">↺ t=0</button>
+  </div>
+  <div id="scrub" title="Arrastra para avanzar/retroceder el tiempo simulado (proporcional al warp)"></div>
+  <div id="revs"><span class="rlabel">REVOLUCIONES</span></div>
+</footer>
+
+<div id="help" class="panel" role="dialog" aria-label="Atajos de teclado">
+  <h2 class="ptitle">Atajos <button class="btn small" id="helpClose" aria-label="Cerrar">✕</button></h2>
+  <div class="keys">
+    <kbd>Espacio</kbd><span>pausa / reanudar</span>
+    <kbd>1–4</kbd><span>bloquear en planeta</span>
+    <kbd>G</kbd><span>bloquear en Gargantua</span>
+    <kbd>F</kbd><span>vista libre</span>
+    <kbd>0</kbd><span>vista de sistema completo</span>
+    <kbd>W A S D</kbd><span>desplazarse (vista libre)</span>
+    <kbd>Q / E</kbd><span>bajar / subir (vista libre)</span>
+    <kbd>[ / ]</kbd><span>warp − / +</span>
+    <kbd>H</kbd><span>esta ayuda</span>
+    <kbd>Esc</kbd><span>soltar bloqueo</span>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================================
+   ARQUITECTURA (todo autocontenido, sin librerías externas):
+
+   · Render en WebGL2 crudo, dos familias de pases por fotograma:
+     1) PASE AGUJERO NEGRO — un triángulo a pantalla completa cuyo fragment
+        shader integra geodésicas nulas de Schwarzschild hacia atrás desde la
+        cámara (ecuación de Binet, ver comentarios del shader). Produce:
+        sombra, anillo de fotones, disco de acreción con Doppler + corrimiento
+        gravitatorio, jets, halo y campo estelar lejano. Escribe gl_FragDepth
+        aproximado para que los planetas se compongan correctamente contra el
+        disco.
+     2) PASES DE CUERPOS — planetas, lunas, anillos, atmósferas y trayectorias
+        como mallas rasterizadas con shaders procedurales. El vertex shader
+        aplica la ecuación de la lente puntual (θ± = (β ± √(β²+4θE²))/2) para
+        desplazar la POSICIÓN APARENTE de cada vértice: los planetas se
+        distorsionan, se magnifican y generan imagen secundaria al pasar por
+        detrás del horizonte. La iluminación usa la posición REAL (la luz
+        dominante es el propio disco de acreción).
+
+   · Unidades de escena: 1 unidad = 1 Rs (radio de Schwarzschild).
+   · Módulos JS: PHYS (constantes/fórmulas GR), Body/OrbitManager (efemérides
+     keplerianas analíticas), CameraController (máquina de estados FREE /
+     LOCKED_GARGANTUA / LOCKED_PLANET / SYSTEM con transiciones suaves),
+     Renderer (recursos GL), UI (paneles/tiempo/entrada).
+   ========================================================================== */
+/* ============================================================================
+   MÓDULO GL — shaders y utilidades WebGL2
+   ========================================================================== */
+
+/* Diagnóstico accesible desde tests automatizados */
+window.__diag = { errors: [], fps: 0, frames: 0, ready: false };
+window.addEventListener("error", e => window.__diag.errors.push(String(e.message)));
+
+/* ---- Fragmentos GLSL compartidos ---------------------------------------- */
+
+/* Ruido procedural: hash + value-noise 3D + fBm + ridged + cráteres voronoi.
+   Se usa ruido de valor (barato y suficiente) con rotación de dominio entre
+   octavas para romper la anisotropía axial. */
+const GLSL_NOISE = `
+float hash1(vec3 p){
+  p = fract(p*0.31830988 + vec3(0.1,0.271,0.331));
+  p *= 17.0;
+  return fract(p.x*p.y*p.z*(p.x+p.y+p.z));
+}
+float vnoise(vec3 x){
+  vec3 i = floor(x), f = fract(x);
+  f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash1(i),               hash1(i+vec3(1,0,0)), f.x),
+                 mix(hash1(i+vec3(0,1,0)),   hash1(i+vec3(1,1,0)), f.x), f.y),
+             mix(mix(hash1(i+vec3(0,0,1)),   hash1(i+vec3(1,0,1)), f.x),
+                 mix(hash1(i+vec3(0,1,1)),   hash1(i+vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fbm(vec3 p, int oct){
+  float a = 0.5, s = 0.0;
+  for(int i=0;i<7;i++){
+    if(i>=oct) break;
+    s += a*vnoise(p);
+    p = p*2.03 + vec3(11.5,7.7,3.1);
+    a *= 0.5;
+  }
+  return s;
+}
+float ridged(vec3 p, int oct){
+  float a = 0.5, s = 0.0;
+  for(int i=0;i<7;i++){
+    if(i>=oct) break;
+    s += a*(1.0 - abs(vnoise(p)*2.0-1.0));
+    p = p*2.13 + vec3(5.2,1.3,8.4);
+    a *= 0.5;
+  }
+  return s;
+}
+/* distancia F1 a semillas voronoi 3D: base de los cráteres lunares */
+float voro(vec3 p){
+  vec3 i = floor(p), f = fract(p);
+  float d = 8.0;
+  for(int x=-1;x<=1;x++) for(int y=-1;y<=1;y++) for(int z=-1;z<=1;z++){
+    vec3 g = vec3(float(x),float(y),float(z));
+    vec3 o = vec3(hash1(i+g), hash1(i+g+7.31), hash1(i+g+3.17));
+    vec3 r = g + 0.15 + 0.7*o - f;
+    d = min(d, dot(r,r));
+  }
+  return sqrt(d);
+}
+/* rampa tipo cuerpo negro: t≈0 rojo profundo → 1 blanco → >1 azulado */
+vec3 heatColor(float t){
+  vec3 c = mix(vec3(0.12,0.015,0.0), vec3(0.9,0.22,0.04), smoothstep(0.0,0.35,t));
+  c = mix(c, vec3(1.0,0.58,0.2),   smoothstep(0.3,0.62,t));
+  c = mix(c, vec3(1.0,0.9,0.72),   smoothstep(0.55,0.95,t));
+  c = mix(c, vec3(0.85,0.93,1.0)*1.18, smoothstep(0.9,1.4,t));
+  return c;
+}
+`;
+
+/* Lente gravitatoria para mallas (planetas/lunas/anillos/órbitas).
+   Aproximación de lente puntual sobre la POSICIÓN APARENTE:
+     θE² = 2·Rs·d_LS/(d_L·d_S)   (ángulo de Einstein, Rs=1 en unidades escena)
+     θ±  = (β ± √(β² + 4θE²))/2  (ecuación de la lente: imágenes primaria/secundaria)
+   Se rota el vector cámara→vértice alejándolo del eje cámara→BH desde el
+   ángulo verdadero β hasta el aparente θ. Aplicado POR VÉRTICE produce el
+   estiramiento en arco característico cerca de la sombra. La imagen
+   secundaria (uImgSign=-1) queda acotada fuera del anillo de fotones
+   (b_ph = (3√3/2)·Rs ≈ 2,598·Rs). */
+const GLSL_LENS = `
+uniform vec3  uCamPos;
+uniform float uLensOn;
+uniform float uImgSign;
+vec3 lensDisplace(vec3 w){
+  if(uLensOn < 0.5) return w;
+  vec3 cv = w - uCamPos;  float dS = length(cv);
+  vec3 cb = -uCamPos;     float dL = length(cb);
+  if(dS < 1e-4 || dL < 1e-4) return w;
+  vec3 nv = cv/dS, nb = cb/dL;
+  float cosb = clamp(dot(nv,nb), -1.0, 1.0);
+  float beta = acos(cosb);
+  float dLS = dS*cosb - dL;              /* distancia lente→fuente proyectada */
+  float fade = smoothstep(1.15,0.35,beta) * smoothstep(0.0,4.0,dLS);
+  if(fade <= 0.001) return w;
+  float thE2 = 2.0*max(dLS,0.0)/(dL*dS);
+  float disc = sqrt(beta*beta + 4.0*thE2);
+  float theta;
+  if(uImgSign > 0.0){
+    theta = mix(beta, 0.5*(beta+disc), fade);
+  }else{
+    theta = 0.5*(beta-disc);
+    float thPh = 2.598/dL;               /* radio angular aparente del anillo de fotones */
+    theta = min(theta, -1.03*thPh);
+  }
+  vec3 axis;
+  if(beta < 1e-4){
+    axis = normalize(cross(nb, abs(nb.y)<0.9 ? vec3(0,1,0) : vec3(1,0,0)));
+  }else{
+    axis = normalize(cross(nb,nv));
+  }
+  float da = theta - beta, ca = cos(da), sa = sin(da);
+  cv = cv*ca + cross(axis,cv)*sa + axis*dot(axis,cv)*(1.0-ca);   /* Rodrigues */
+  return uCamPos + cv;
+}
+`;
+
+/* ---- PASE 1: agujero negro (triángulo a pantalla completa) --------------- */
+
+const BH_VS = `#version 300 es
+void main(){
+  vec2 p = vec2(float((gl_VertexID<<1)&2), float(gl_VertexID&2));
+  gl_Position = vec4(p*2.0-1.0, 0.0, 1.0);
+}`;
+
+/* Integrador de geodésicas nulas de Schwarzschild.
+   En unidades Rs=1 la ecuación de Binet para fotones es
+       d²u/dφ² + u = (3/2)·u²      (u = 1/r)
+   que en forma vectorial 3D equivale a la aceleración
+       a = -(3/2)·h²·r̂/r⁴  =  -1.5·h²·p/|p|⁵
+   con h = |p×v| (momento angular específico del fotón, conservado).
+   Integramos con Euler semi-implícito y paso adaptativo dt ∝ r: preciso cerca
+   de la esfera de fotones (r=1,5) y barato lejos. La sombra, el anillo de
+   fotones y las imágenes de orden superior del disco emergen SOLOS de esta
+   integración — no hay trucos de composición. */
+const BH_FS = `#version 300 es
+precision highp float;
+uniform vec2  uRes;
+uniform vec3  uCamPos;
+uniform mat3  uCamBasis;      /* columnas: right, up, forward */
+uniform float uTanHalf, uAspect;
+uniform float uTime;          /* reloj real (centelleos sutiles) */
+uniform float uDiskPhase;     /* fase de rotación del patrón del disco (limitada) */
+uniform float uLens, uDisk, uJets, uPhoton;
+uniform int   uSteps;
+uniform float uDtScale;
+uniform float uPA, uPB;       /* términos de proyección para gl_FragDepth */
+out vec4 outCol;
+${GLSL_NOISE}
+
+const float DISK_IN  = 3.0;    /* borde interno = ISCO (6GM/c² = 3 Rs) */
+const float DISK_OUT = 13.0;
+const float R_MARCH  = 34.0;   /* esfera de integración */
+
+/* Campo estelar + nebulosa a partir de la dirección de escape del fotón.
+   Determinista respecto a la dirección: el fondo se distorsiona con la lente
+   pero no "nada" al mover la cámara (las estrellas están en el infinito). */
+vec3 starfield(vec3 d){
+  vec3 col = vec3(0.0);
+  float neb  = fbm(d*3.1 + vec3(7.0), 4);
+  float neb2 = fbm(d*6.3 - vec3(3.0), 4);
+  col += vec3(0.028,0.042,0.085)*pow(neb, 2.6)*2.2
+       + vec3(0.055,0.028,0.075)*pow(neb2,3.2)*1.6;
+  vec3 gn = normalize(vec3(0.35,1.0,0.2));            /* plano galáctico inclinado */
+  float band = exp(-pow(dot(d,gn)*3.6, 2.0));
+  col += vec3(0.05,0.055,0.08)*band*(0.35+0.65*fbm(d*8.0,3));
+  for(int L=0; L<2; L++){
+    float scale = (L==0) ? 130.0 : 310.0;
+    vec3 sp = d*scale;
+    vec3 cell = floor(sp), f = fract(sp);
+    float sel = hash1(cell + 77.7);
+    float thr = (L==0) ? 0.988 : 0.962;
+    if(sel > thr){
+      vec3 o = vec3(hash1(cell), hash1(cell+13.7), hash1(cell+31.3));
+      float r = length(f - (0.2 + 0.6*o));
+      float mag = (sel-thr)/(1.0-thr);
+      float s = exp(-r*r*((L==0)?55.0:95.0)) * (0.25 + 1.75*mag*mag) * ((L==0)?1.35:0.5);
+      vec3 tint = mix(vec3(1.0,0.8,0.6), vec3(0.7,0.8,1.0), hash1(cell+51.0));
+      col += tint*s;
+    }
+  }
+  return col;
+}
+
+/* Emisión del disco en un cruce del plano ecuatorial.
+   Física aplicada:
+   · Temperatura de disco fino: T ∝ r^(−3/4) normalizada en la ISCO.
+   · Velocidad orbital del gas (coordenada): β = √(Rs/2r) → en Rs=1, β=√(1/2r).
+     En la ISCO β = 0,408c.
+   · Efecto Doppler relativista: δ = 1/(γ(1−β·cosα)). El lado que se acerca se
+     abrillanta ~δ³ (invariancia de I_ν/ν³) y se corre al azul: es la
+     asimetría característica del disco de Gargantua.
+   · Corrimiento gravitatorio: factor √(1−Rs/r) sobre la frecuencia. */
+vec4 diskShade(vec3 hit, vec3 vd){
+  float r = length(hit.xz);
+  float t01 = (r-DISK_IN)/(DISK_OUT-DISK_IN);
+  float omegaRatio = pow(DISK_IN/r, 1.5);       /* Ω ∝ r^{-3/2} (kepleriano) */
+  float phi = atan(hit.z, hit.x);
+  float ang = phi + uDiskPhase*omegaRatio;
+  float lr = log(r);
+  /* vetas espirales: ruido estirado azimutalmente y advectado por Ω(r) */
+  float n = fbm(vec3(lr*5.5, ang*1.4, lr*2.0 - ang*0.22), 5);
+  n = 0.35 + 0.65*smoothstep(0.25, 0.75, n);
+  float fil = fbm(vec3(lr*22.0, ang*4.0, 3.7), 3);            /* filamentos finos */
+  n *= 0.75 + 0.5*fil;
+
+  float temp = pow(DISK_IN/r, 0.75);
+  vec3 tangent = normalize(vec3(-hit.z, 0.0, hit.x));         /* prógrado */
+  float betaV = sqrt(0.5/r);
+  float gamma = inversesqrt(max(1.0-betaV*betaV, 1e-4));
+  float cosA = dot(tangent, -vd);                              /* hacia la cámara */
+  float dopp = 1.0/(gamma*(1.0-betaV*cosA));
+  float gred = sqrt(max(1.0-1.0/r, 0.0));
+  float shift = dopp*gred;
+
+  float edge = smoothstep(0.0,0.045,t01)*(1.0-smoothstep(0.62,1.0,t01));
+  float I = n * pow(temp,2.0) * pow(shift,3.0) * edge;
+  vec3 col = heatColor(temp*shift*1.05) * I * 3.4;
+  float alpha = clamp(I*2.6, 0.0, 1.0)*edge;
+  return vec4(col, alpha);
+}
+
+void main(){
+  vec2 ndc = (gl_FragCoord.xy/uRes)*2.0 - 1.0;
+  vec3 dir = normalize(uCamBasis*vec3(ndc.x*uTanHalf*uAspect, ndc.y*uTanHalf, 1.0));
+  float dith = hash1(vec3(gl_FragCoord.xy, fract(uTime)*13.0));  /* rompe bandas */
+
+  vec3 p = uCamPos;
+  vec3 v = dir;
+  float camR = length(p);
+
+  /* Si la cámara está fuera de la esfera de integración, avanza analíticamente
+     hasta su borde (gran ahorro en la Vista de Sistema Completo). */
+  float distToEntry = 0.0;
+  if(camR > R_MARCH){
+    float bq = dot(p,dir);
+    float cq = dot(p,p) - R_MARCH*R_MARCH;
+    float h = bq*bq - cq;
+    if(h < 0.0){
+      /* el rayo nunca entra: solo deflexión analítica de campo débil
+         α = 2/b + 15π/(16b²)  (1º y 2º orden post-newtoniano, Rs=1) */
+      float b = length(cross(p,dir));
+      vec3 outv = dir;
+      if(uLens > 0.5 && bq < 0.0){
+        float a1 = 2.0/b + 2.945/(b*b);
+        vec3 m = p + dir*(-bq);
+        vec3 ax = normalize(cross(m,dir));
+        float ca = cos(a1), sa = sin(a1);
+        outv = outv*ca + cross(ax,outv)*sa + ax*dot(ax,outv)*(1.0-ca);
+      }
+      outCol = vec4(starfield(outv), 1.0);
+      gl_FragDepth = 1.0;
+      return;
+    }
+    distToEntry = max(0.0, -bq - sqrt(h));
+    p += dir*distToEntry;
+  }
+
+  vec3 h3 = cross(p,v);
+  float h2 = dot(h3,h3);
+
+  vec3 acc = vec3(0.0);        /* radiancia acumulada (front-to-back) */
+  float A = 0.0;               /* opacidad acumulada */
+  float jetI = 0.0, jetHel = 0.0;
+  float haloI = 0.0;
+  float prevY = p.y;
+  vec3 prevP = p;
+  bool captured = false;
+  float depthDist = -1.0;      /* distancia al primer evento "opaco" */
+  float travel = distToEntry;
+
+  for(int i=0;i<420;i++){
+    if(i >= uSteps) break;
+    float r2 = dot(p,p);
+    float r = sqrt(r2);
+    if(r < 1.005){ captured = true; break; }                 /* horizonte */
+    if(r > R_MARCH+2.0 && dot(p,v) > 0.0) break;             /* escape */
+
+    float dt = clamp(uDtScale*r, uDtScale*1.2, 3.0);
+    if(i==0) dt *= 0.4 + 0.6*dith;                            /* dithering */
+
+    /* aceleración de curvatura (solo si la capa Lente está activa) */
+    if(uLens > 0.5){
+      v += (-1.5*h2/(r2*r2*r)) * p * dt;
+    }
+    prevP = p; prevY = p.y;
+    p += v*dt;
+    travel += dt*length(v);
+
+    /* --- cruce del plano del disco (detección exacta por cambio de signo) */
+    if(uDisk > 0.5 && prevY*p.y < 0.0 && A < 0.985){
+      float tc = prevY/(prevY-p.y);
+      vec3 hitP = mix(prevP, p, tc);
+      float rr = length(hitP.xz);
+      if(rr > DISK_IN && rr < DISK_OUT){
+        vec4 dcol = diskShade(hitP, normalize(v));
+        acc += (1.0-A)*dcol.rgb*dcol.a;
+        if(depthDist < 0.0 && dcol.a > 0.4) depthDist = distance(uCamPos, hitP);
+        A += (1.0-A)*dcol.a;
+      }
+    }
+    /* --- resplandor volumétrico suave alrededor del disco */
+    if(uDisk > 0.5 && r < 16.0){
+      float rr2 = dot(p.xz,p.xz);
+      if(rr2 > 5.0 && rr2 < 240.0){
+        float rr = sqrt(rr2);
+        haloI += exp(-p.y*p.y*5.0) * exp(-(rr-DISK_IN)*0.4) * dt;
+      }
+    }
+    /* --- jets relativistas bipolares: cono con hélice y pulsos de ruido */
+    if(uJets > 0.5){
+      float ay = abs(p.y);
+      if(ay > 1.1 && ay < 26.0){
+        float rad = length(p.xz);
+        float cone = 0.3 + ay*0.15;
+        float core = exp(-(rad*rad)/(cone*cone)*2.6);
+        if(core > 0.003){
+          float fadeJ = exp(-ay*0.13);
+          float helix = 0.55 + 0.45*sin(atan(p.z,p.x)*2.0 + ay*1.1 - uTime*2.6 + (p.y>0.0?0.0:3.14));
+          float pulse = 0.6 + 0.4*vnoise(vec3(rad*3.0, p.y*0.7 - uTime*3.2, 4.2));
+          jetI += core*fadeJ*helix*pulse*dt;
+          jetHel += core*fadeJ*dt*rad/cone;
+        }
+      }
+    }
+  }
+
+  vec3 bg = vec3(0.0);
+  if(!captured){
+    bg = starfield(normalize(v));
+  }
+  vec3 col = acc + (1.0-A)*bg;
+
+  /* halo térmico + jets (aditivos, teñidos por el disco / síncrotron) */
+  col += vec3(1.0,0.62,0.3)*haloI*0.055*uDisk;
+  col += (vec3(0.55,0.8,1.0)*jetI + vec3(0.5,0.35,0.9)*jetHel*0.4) * 0.16 * uJets;
+
+  /* Capa Fotones: resalte didáctico del anillo de fotones. La órbita circular
+     de fotones está en r = 1,5·Rs; vista desde lejos su parámetro de impacto
+     es b_ph = (3√3/2)·Rs ≈ 2,598·Rs (radio aparente de la sombra). */
+  if(uPhoton > 0.5){
+    float b = length(cross(uCamPos, dir));
+    float g = exp(-pow((b-2.598)/0.055, 2.0));
+    col += vec3(0.5,0.9,1.0)*g*0.7*smoothstep(0.0,4.0,dot(-uCamPos,dir));
+  }
+
+  /* viñeteado leve + tonemapping suave */
+  float vig = 1.0 - 0.28*pow(length(ndc*vec2(uAspect,1.0))*0.62, 2.2);
+  col = 1.0 - exp(-col*1.25);
+  col = pow(col, vec3(0.92)) * vig;
+
+  outCol = vec4(col, 1.0);
+
+  /* profundidad aproximada para componer los planetas contra el disco.
+     Los píxeles capturados quedan a depth=1: la lente de vértices ya impide
+     físicamente que una imagen primaria caiga dentro de la sombra, y así la
+     imagen secundaria (junto al anillo de fotones) no se descarta. */
+  if(depthDist > 0.0){
+    float vz = max(0.06, depthDist);
+    gl_FragDepth = clamp(0.5*(uPA + uPB/vz) + 0.5, 0.0, 1.0);
+  }else{
+    gl_FragDepth = 1.0;
+  }
+}`;
+
+/* ---- PASE 2: cuerpos (planetas / lunas) ----------------------------------- */
+
+/* Vertex shader de esferas: marea (elipsoide prolato hacia el BH), rotación
+   axial, y desplazamiento de lente sobre la posición aparente. La iluminación
+   se calcula con la posición REAL (vWorld): la lente desvía la luz hacia la
+   cámara pero no cambia la geometría física del sistema. */
+const BODY_VS = `#version 300 es
+precision highp float;
+layout(location=0) in vec3 aPos;
+uniform mat4 uProj, uView;
+uniform mat3 uSpin;
+uniform vec3 uCenter;
+uniform float uRadius;
+uniform vec3 uTidalDir;       /* dirección al BH en coordenadas locales */
+uniform float uTidalAmt;
+${GLSL_LENS}
+out vec3 vLocal, vNormal, vWorld;
+void main(){
+  vec3 lp = aPos + uTidalDir*dot(aPos,uTidalDir)*uTidalAmt;
+  vec3 world = uCenter + uSpin*(lp*uRadius);
+  vLocal = aPos;
+  vNormal = normalize(uSpin*aPos);
+  vWorld = world;
+  vec3 wl = lensDisplace(world);
+  gl_Position = uProj*uView*vec4(wl,1.0);
+}`;
+
+/* Über-shader de superficies. uType:
+   0 Tellaria (terrestre tropical)  1 Vortexia (gigante gaseoso vívido)
+   2 Anillaris (gigante pastel)     3 Ignis (volcánico)
+   4 luna craterizada               5 luna helada/criovolcánica
+   6 luna rocosa                    7 luna carbonácea oscura
+   uDetail controla octavas de fBm y activa cráteres: sube automáticamente al
+   acercarse (LOD por tamaño en pantalla). La fuente de luz dominante es el
+   disco de acreción → dirección hacia el origen, tinte ámbar. */
+const BODY_FS = `#version 300 es
+precision highp float;
+in vec3 vLocal, vNormal, vWorld;
+uniform vec3 uCamPos2;
+uniform int  uType;
+uniform vec3 uColA;
+uniform float uSeed, uDetail, uTime2, uCloudPhase, uLightI, uMagBoost, uHighlight, uDim;
+out vec4 outCol;
+${GLSL_NOISE}
+
+vec3 rotY(vec3 p, float a){ float c=cos(a),s=sin(a); return vec3(c*p.x+s*p.z, p.y, -s*p.x+c*p.z); }
+
+void main(){
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(uCamPos2 - vWorld);
+  vec3 L = normalize(-vWorld);                    /* luz: el disco (origen) */
+  vec3 LC = vec3(1.0,0.82,0.6);                   /* tinte del disco */
+  float dif = clamp((dot(N,L)+0.22)/1.22, 0.0, 1.0);   /* difusa envolvente */
+  float fres = pow(1.0-abs(dot(N,V)), 3.0);
+  int oct = int(clamp(2.0+uDetail*2.0, 2.0, 6.0));
+  vec3 q = vLocal*2.4 + uSeed;
+  vec3 alb = vec3(0.5);
+  vec3 emis = vec3(0.0);
+  float spec = 0.0;
+  vec3 rim = vec3(0.0);
+
+  if(uType == 0){
+    /* -------- TELLARIA: océanos turquesa, junglas, nubes dinámicas ------- */
+    float cont = fbm(q*1.7, oct) + 0.10*fbm(q*6.5, oct);
+    float land = smoothstep(0.50, 0.56, cont);
+    float moist = fbm(q*3.3+31.0, oct);
+    vec3 ocean = mix(vec3(0.012,0.20,0.27), vec3(0.05,0.62,0.60),
+                     smoothstep(0.30,0.52,cont));                 /* turquesa */
+    vec3 jungle = mix(vec3(0.05,0.23,0.07), vec3(0.13,0.42,0.12), moist);
+    vec3 dry = vec3(0.42,0.36,0.18);
+    vec3 landc = mix(dry, jungle, smoothstep(0.35,0.6,moist));
+    float mtn = smoothstep(0.62,0.72,cont);
+    landc = mix(landc, vec3(0.38,0.34,0.30), mtn);
+    float ice = smoothstep(0.78,0.9,abs(vLocal.y)) * (1.0-smoothstep(0.5,0.53,cont)*0.4);
+    alb = mix(ocean, landc, land);
+    alb = mix(alb, vec3(0.85,0.9,0.95), ice);
+    spec = (1.0-land)*0.9;
+    /* nubes: dominio independiente rotado por uCloudPhase + deriva lenta */
+    vec3 cq = rotY(vLocal, uCloudPhase)*3.1 + vec3(0.0, uTime2*0.008, 0.0) + uSeed;
+    float cl = fbm(cq + 1.4*vec3(fbm(cq*2.0,3)), oct);
+    float cloud = smoothstep(0.48,0.68,cl);
+    float clShadow = smoothstep(0.48,0.68, fbm(cq + L*0.15 + 1.4*vec3(fbm(cq*2.0,3)), oct));
+    alb *= 1.0 - 0.35*clShadow*(1.0-cloud);
+    alb = mix(alb, vec3(0.96,0.97,1.0), cloud*0.92);
+    spec *= 1.0-cloud;
+    rim = vec3(0.35,0.75,1.0)*0.7;
+  }
+  else if(uType == 1 || uType == 2){
+    /* -------- VORTEXIA / ANILLARIS: gigantes con bandas ------------------ */
+    vec3 sq = vLocal;
+    if(uType == 1){
+      /* gran tormenta ovalada: remolino local animado */
+      vec3 sc = normalize(vec3(0.72,-0.38,0.58));
+      vec3 dv = sq - sc*dot(sq,sc);
+      float d = length(sq-sc);
+      if(d < 0.55){
+        float sw = (0.55-d)*7.0;
+        float a = sw*(0.6+0.4*sin(uTime2*0.12));
+        vec3 ax = sc;
+        float c=cos(a), s=sin(a);
+        sq = mix(sq, sq*c + cross(ax,sq)*s + ax*dot(ax,sq)*(1.0-c), smoothstep(0.55,0.15,d));
+      }
+    }
+    float warp = fbm(sq*2.6 + uSeed + vec3(0.0,uTime2*0.004,0.0), oct)*2.4;
+    float lat = sq.y*7.0 + warp;
+    float bandT = 0.5 + 0.5*sin(lat*(uType==1?2.2:1.7));
+    float bd = fbm(vec3(sq.y*9.0+warp, sq.x*1.2, sq.z*1.2)+uSeed*3.0, oct);
+    if(uType == 1){
+      vec3 magenta = vec3(0.85,0.18,0.62), cyan = vec3(0.10,0.72,0.88);
+      vec3 gold = vec3(0.95,0.70,0.25), violet = vec3(0.42,0.24,0.80);
+      vec3 c1 = mix(magenta, gold, smoothstep(0.2,0.8,bandT));
+      vec3 c2 = mix(violet, cyan, smoothstep(0.2,0.8,fract(bandT+0.37)));
+      alb = mix(c1, c2, smoothstep(0.35,0.65,bd));
+      alb = mix(alb, vec3(0.97,0.9,0.8), smoothstep(0.72,0.95,bd)*0.55);
+      float sc2 = 1.0-smoothstep(0.0,0.5,length(vLocal-normalize(vec3(0.72,-0.38,0.58))));
+      alb = mix(alb, vec3(0.98,0.92,0.85), sc2*0.5);   /* núcleo cremoso de la tormenta */
+      rim = vec3(0.8,0.35,0.9)*0.5;
+    }else{
+      vec3 cream = vec3(0.85,0.78,0.65), rose = vec3(0.82,0.60,0.58), aqua = vec3(0.55,0.72,0.72);
+      alb = mix(mix(cream,rose,smoothstep(0.25,0.75,bandT)), aqua, smoothstep(0.4,0.7,bd)*0.6);
+      rim = vec3(0.9,0.8,0.6)*0.4;
+    }
+    alb *= 0.90 + 0.10*sin(lat*5.0 + warp*1.5);      /* estrías finas de banda */
+    float mu = clamp(dot(N,V),0.0,1.0);
+    alb *= 0.55+0.45*pow(mu,0.4);                    /* oscurecimiento de limbo */
+  }
+  else if(uType == 3){
+    /* -------- IGNIS: corteza basáltica, lagos de lava, calor de marea ---- */
+    float crust = fbm(q*1.9, oct);
+    float cracks = ridged(q*3.1, oct);
+    vec3 basalt = mix(vec3(0.05,0.032,0.03), vec3(0.13,0.08,0.06), fbm(q*7.0,oct));
+    float lake = smoothstep(0.40,0.31,crust);                    /* zonas bajas */
+    float crack = smoothstep(0.78,0.93,cracks)*(1.0-lake);
+    /* calentamiento de marea: máximo en los dos bulbos (cara al BH y antípoda).
+       NOTA: para un BH supermasivo la marea real a 18 Rs es modesta; el efecto
+       se exagera con fines ilustrativos (ver ficha). */
+    float tidal = 1.0 + 1.6*abs(dot(normalize(vLocal), uColA));  /* uColA = dir marea local */
+    float pulse = 0.85 + 0.15*sin(uTime2*0.6 + crust*9.0);
+    float lavaT = (0.55 + 0.5*fbm(q*5.0+9.0,oct))*tidal*pulse;
+    emis = heatColor(lavaT)*(lake*2.6 + crack*1.8);
+    alb = basalt;
+    rim = vec3(1.0,0.3,0.1)*1.1;
+  }
+  else{
+    /* -------- LUNAS ------------------------------------------------------ */
+    float base = fbm(q*2.2, oct);
+    if(uType == 4){          /* craterizada gris */
+      alb = uColA*(0.55+0.5*base);
+      if(uDetail > 0.8){
+        float cr = voro(q*2.6);
+        float bowl = smoothstep(0.32,0.12,cr);
+        float rimc = smoothstep(0.30,0.36,cr)*(1.0-smoothstep(0.42,0.55,cr));
+        alb *= 1.0 - 0.4*bowl + 0.35*rimc;
+        float cr2 = voro(q*6.5+13.0);
+        alb *= 1.0 - 0.28*smoothstep(0.25,0.08,cr2);
+      }
+    }else if(uType == 5){    /* helada / criovolcánica */
+      alb = uColA*(0.75+0.3*base);
+      float streak = ridged(q*3.4+5.0, oct);
+      alb = mix(alb, vec3(0.55,0.75,0.9), smoothstep(0.68,0.9,streak)*0.5);
+      float plume = smoothstep(0.30,0.10,voro(q*2.0+21.0));
+      alb = mix(alb, vec3(0.95,0.99,1.0), plume*0.7);        /* penachos criovolcánicos */
+      emis = vec3(0.35,0.55,0.75)*plume*0.12;
+      spec = 0.7;
+    }else if(uType == 6){    /* rocosa rojiza */
+      alb = uColA*(0.5+0.55*base);
+      float cr = voro(q*3.2);
+      alb *= 1.0 - 0.35*smoothstep(0.3,0.1,cr);
+      alb = mix(alb, uColA*1.35, smoothstep(0.75,0.95,ridged(q*4.0,oct))*0.4);
+    }else{                   /* carbonácea oscura */
+      alb = uColA*(0.6+0.5*base);
+      alb *= 1.0 - 0.3*smoothstep(0.3,0.1,voro(q*2.8+3.0));
+    }
+  }
+
+  /* iluminación: disco (ámbar, direccional) + luz estelar ambiente fría.
+     El ambiente está algo por encima del valor físico para que el hemisferio
+     nocturno conserve lectura de detalle en pantalla. */
+  vec3 col = alb*(LC*dif*uLightI + vec3(0.05,0.065,0.10)*1.7);
+  vec3 Hh = normalize(L+V);
+  col += LC*pow(max(dot(N,Hh),0.0), 42.0)*spec*uLightI*0.9;
+  col += emis;
+  /* rim lighting hacia el disco: el limbo orientado al BH se enciende */
+  float rimL = fres*clamp(dot(-normalize(vWorld), V)*0.5+0.5, 0.0, 1.0);
+  col += rim*rimL*(0.35+0.65*uLightI*0.5);
+  /* magnificación por lente (brillo) + resalte de hover/selección */
+  col *= uMagBoost;
+  col += vec3(0.35,0.8,1.0)*fres*uHighlight*0.55;
+  col = 1.0 - exp(-col*1.35);
+  outCol = vec4(col*uDim, uDim < 0.999 ? 0.82 : 1.0);
+}`;
+
+/* ---- vertex genérico para mallas planas (anillos, órbitas) ---------------- */
+const FLAT_VS = `#version 300 es
+precision highp float;
+layout(location=0) in vec3 aPos;
+layout(location=1) in float aT;
+uniform mat4 uProj, uView, uModel;
+${GLSL_LENS}
+out float vT;
+out vec3 vWorld;
+void main(){
+  vec3 world = (uModel*vec4(aPos,1.0)).xyz;
+  vT = aT;
+  vWorld = world;
+  vec3 wl = lensDisplace(world);
+  gl_Position = uProj*uView*vec4(wl,1.0);
+}`;
+
+/* Anillos de Anillaris: densidad radial procedural con divisiones (estilo
+   Cassini), color pastel iridiscente, sombra proyectada del planeta y
+   retro-iluminación (forward scattering) cuando el disco de acreción queda
+   detrás del plano de anillos. */
+const RING_FS = `#version 300 es
+precision highp float;
+in float vT;
+in vec3 vWorld;
+uniform vec3 uCamPos2, uPlanetC;
+uniform float uPlanetR, uTime2, uLightI, uSeed;
+out vec4 outCol;
+${GLSL_NOISE}
+void main(){
+  float t = vT;
+  /* perfil de densidad: bandas fBm + división principal (t≈0,52) + gap fino */
+  float d = 0.35 + 0.65*fbm(vec3(t*46.0, uSeed, 3.3), 4);
+  d *= 0.55 + 0.45*vnoise(vec3(t*300.0, uSeed*7.0, 1.2));
+  d *= 0.10 + 0.90*smoothstep(0.020, 0.055, abs(t-0.52));   /* división principal */
+  d *= 0.30 + 0.70*smoothstep(0.005, 0.016, abs(t-0.78));   /* gap fino */
+  d *= 0.25 + 0.75*smoothstep(0.004, 0.013, abs(t-0.31));
+  d *= smoothstep(0.0,0.05,t)*(1.0-smoothstep(0.93,1.0,t));
+
+  /* pastel iridiscente: deriva de tono con el radio + brillo fino */
+  vec3 pal = vec3(0.80) + 0.17*cos(6.2831*(t*1.6 + vec3(0.0,0.33,0.62)));
+  pal = mix(pal, vec3(0.95,0.85,0.75), 0.25);
+
+  vec3 V = normalize(vWorld-uCamPos2);
+  vec3 Ld = normalize(-vWorld);                    /* hacia el disco/BH */
+  /* sombra del planeta sobre los anillos (oclusión del segmento hacia la luz) */
+  vec3 pc = uPlanetC - vWorld;
+  float along = dot(pc, Ld);
+  float shad = 1.0;
+  if(along > 0.0){
+    float dd = length(pc - Ld*along);
+    shad = smoothstep(uPlanetR*0.85, uPlanetR*1.35, dd);
+  }
+  float illum = (0.30 + 0.70*shad)*uLightI;
+  /* retro-iluminación: silueta encendida cuando miramos hacia la luz */
+  float back = pow(max(dot(V,Ld),0.0), 10.0)*(1.2-d)*1.8;
+  vec3 col = pal*illum*(0.5+0.8*d) + vec3(1.0,0.75,0.5)*back*shad;
+  col = 1.0-exp(-col*1.3);
+  outCol = vec4(col, clamp(d*0.92, 0.0, 1.0));
+}`;
+
+/* Órbitas: líneas translúcidas con pulso direccional sutil */
+const LINE_FS = `#version 300 es
+precision highp float;
+in float vT;
+in vec3 vWorld;
+uniform vec3 uColor;
+uniform float uAlpha, uTime2;
+out vec4 outCol;
+void main(){
+  float run = 0.75 + 0.25*sin(vT*6.2831*2.0 - uTime2*0.8);
+  outCol = vec4(uColor, uAlpha*run);
+}`;
+
+/* Atmósferas: cascarón ligeramente mayor, fresnel aditivo, culling frontal */
+const ATMO_FS = `#version 300 es
+precision highp float;
+in vec3 vLocal, vNormal, vWorld;
+uniform vec3 uCamPos2, uAtmCol;
+uniform float uLightI;
+out vec4 outCol;
+void main(){
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(uCamPos2-vWorld);
+  vec3 L = normalize(-vWorld);
+  float f = pow(1.0-abs(dot(N,V)), 2.6);
+  float lit = 0.35 + 0.65*clamp(dot(N,L)*0.5+0.5, 0.0, 1.0)*uLightI;
+  outCol = vec4(uAtmCol*f*lit*1.6, 0.0);   /* aditivo puro (blend ONE,ONE) */
+}`;
+
+/* ---- utilidades WebGL ------------------------------------------------------ */
+const canvas = document.getElementById("gl");
+const gl = canvas.getContext("webgl2", { antialias:true, alpha:false, depth:true });
+if(!gl){
+  document.getElementById("nogl").style.display = "grid";
+  throw new Error("WebGL2 no disponible");
+}
+
+function compile(type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+    const log = gl.getShaderInfoLog(s);
+    window.__diag.errors.push("shader: "+log);
+    console.error(log, src.split("\n").map((l,i)=>(i+1)+": "+l).join("\n"));
+    throw new Error("Fallo al compilar shader");
+  }
+  return s;
+}
+function link(vsSrc, fsSrc){
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, vsSrc));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)){
+    const log = gl.getProgramInfoLog(p);
+    window.__diag.errors.push("link: "+log);
+    throw new Error("Fallo al enlazar programa: "+log);
+  }
+  const uCache = {};
+  return { p, u(name){ if(!(name in uCache)) uCache[name] = gl.getUniformLocation(p, name); return uCache[name]; } };
+}
+
+/* geometría: esfera lat-long (dos LOD), anillo, círculo */
+function makeSphere(lon, lat){
+  const pos = [], idx = [];
+  for(let y=0;y<=lat;y++){
+    const th = y/lat*Math.PI, sy = Math.sin(th), cy = Math.cos(th);
+    for(let x=0;x<=lon;x++){
+      const ph = x/lon*2*Math.PI;
+      pos.push(sy*Math.cos(ph), cy, sy*Math.sin(ph));
+    }
+  }
+  for(let y=0;y<lat;y++) for(let x=0;x<lon;x++){
+    const a = y*(lon+1)+x, b = a+lon+1;
+    idx.push(a,b,a+1, a+1,b,b+1);
+  }
+  return { pos:new Float32Array(pos), idx:new Uint16Array(idx) };
+}
+/* Anillo plano: dos vértices por segmento (aT=0 interior, aT=1 exterior).
+   El radio real se resuelve en el vertex shader vía uModel: la malla lleva
+   el círculo unitario duplicado y aT como coordenada radial; el modelo del
+   anillo escala el vértice interior/exterior mediante un uniforme de mezcla
+   aplicado en CPU al construir uModel por instancia (rIn/rOut). Para
+   simplificar, generamos aquí directamente rIn=1 y dejamos que uModel monte
+   la escala exterior con aT en el shader de anillos. */
+function makeAnnulus(seg, rInner, rOuter){
+  const pos = [], t = [], idx = [];
+  for(let i=0;i<=seg;i++){
+    const a = i/seg*2*Math.PI, ca = Math.cos(a), sa = Math.sin(a);
+    pos.push(ca*rInner,0,sa*rInner); t.push(0);
+    pos.push(ca*rOuter,0,sa*rOuter); t.push(1);
+  }
+  for(let i=0;i<seg;i++){
+    const a = i*2;
+    idx.push(a,a+1,a+2, a+2,a+1,a+3);
+  }
+  return { pos:new Float32Array(pos), t:new Float32Array(t), idx:new Uint16Array(idx) };
+}
+function makeCircle(seg){
+  const pos = [], t = [];
+  for(let i=0;i<=seg;i++){
+    const a = i/seg*2*Math.PI;
+    pos.push(Math.cos(a),0,Math.sin(a));
+    t.push(i/seg);
+  }
+  return { pos:new Float32Array(pos), t:new Float32Array(t) };
+}
+function vao(mesh, hasT){
+  const v = gl.createVertexArray();
+  gl.bindVertexArray(v);
+  const pb = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, pb);
+  gl.bufferData(gl.ARRAY_BUFFER, mesh.pos, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0,3,gl.FLOAT,false,0,0);
+  if(hasT && mesh.t){
+    const tb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tb);
+    gl.bufferData(gl.ARRAY_BUFFER, mesh.t, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribPointer(1,1,gl.FLOAT,false,0,0);
+  }
+  let n = 0;
+  if(mesh.idx){
+    const ib = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, mesh.idx, gl.STATIC_DRAW);
+    n = mesh.idx.length;
+  }else{
+    n = mesh.pos.length/3;
+  }
+  gl.bindVertexArray(null);
+  return { v, n };
+}
+
+/* álgebra 4x4 mínima (column-major, convención OpenGL RH) */
+const M4 = {
+  persp(fovY, aspect, n, f){
+    const t = 1/Math.tan(fovY/2);
+    const m = new Float32Array(16);
+    m[0]=t/aspect; m[5]=t; m[10]=-(f+n)/(f-n); m[11]=-1; m[14]=-2*f*n/(f-n);
+    return m;
+  },
+  lookAt(eye, ct, up){
+    const f = norm3(sub3(ct,eye));
+    const r = norm3(cross3(f,up));
+    const u = cross3(r,f);
+    return new Float32Array([
+      r[0],u[0],-f[0],0,
+      r[1],u[1],-f[1],0,
+      r[2],u[2],-f[2],0,
+      -dot3(r,eye), -dot3(u,eye), dot3(f,eye), 1
+    ]);
+  },
+  mul(a,b){
+    const o = new Float32Array(16);
+    for(let c=0;c<4;c++) for(let r=0;r<4;r++){
+      o[c*4+r] = a[r]*b[c*4] + a[4+r]*b[c*4+1] + a[8+r]*b[c*4+2] + a[12+r]*b[c*4+3];
+    }
+    return o;
+  },
+  xform(m, p){
+    const w = m[3]*p[0]+m[7]*p[1]+m[11]*p[2]+m[15];
+    return [
+      (m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12])/w,
+      (m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13])/w,
+      (m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14])/w,
+      w
+    ];
+  }
+};
+function sub3(a,b){ return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]; }
+function add3(a,b){ return [a[0]+b[0],a[1]+b[1],a[2]+b[2]]; }
+function scale3(a,s){ return [a[0]*s,a[1]*s,a[2]*s]; }
+function dot3(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+function cross3(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+function len3(a){ return Math.hypot(a[0],a[1],a[2]); }
+function norm3(a){ const l=len3(a)||1; return [a[0]/l,a[1]/l,a[2]/l]; }
+function lerp3(a,b,t){ return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+/* ============================================================================
+   MÓDULO PHYS — constantes y relatividad de Schwarzschild
+   ============================================================================
+   Todas las magnitudes de los paneles se derivan de estas fórmulas exactas:
+
+   · Radio de Schwarzschild        Rs = 2GM/c²
+   · ISCO (órbita circular estable más interna)   r_isco = 6GM/c² = 3·Rs
+   · Esfera de fotones             r_ph = 1,5·Rs ; sombra aparente b = (3√3/2)·Rs
+   · Tercera ley de Kepler         T = 2π·√(a³/GM)
+     En la métrica de Schwarzschild la velocidad angular COORDENADA de una
+     órbita circular conserva exactamente la forma kepleriana Ω = √(GM/r³)
+     (r = coordenada areal). Las correcciones relativistas aparecen en:
+       – el tiempo PROPIO del planeta:  dτ/dt = √(1 − 3Rs/2r)
+         (combina dilatación gravitatoria y cinemática para órbita circular)
+       – la precesión del periastro con e>0: Δφ = 6πGM/(c²a(1−e²)) por órbita
+         (aquí e=0, sin precesión)
+       – la inestabilidad de las órbitas con r < 3·Rs (por debajo de la ISCO)
+   · Velocidad orbital (coordenada)  v = √(GM/r) → v/c = √(Rs/2r)
+   ========================================================================== */
+const PHYS = (() => {
+  const G = 6.674e-11;               /* m³ kg⁻¹ s⁻² */
+  const c = 2.99792458e8;            /* m/s */
+  const MSUN = 1.989e30;             /* kg */
+  const MEARTH = 5.972e24, MJUP = 1.898e27;
+  const REARTH = 6371, RJUP = 69911; /* km */
+  const M_BH = 1.0e8 * MSUN;
+  const GM = G * M_BH;
+  const Rs_m = 2 * GM / (c * c);     /* ≈ 2,954×10¹¹ m = 2,95×10⁸ km */
+  const Rs_km = Rs_m / 1e3;
+  return {
+    G, c, MSUN, MEARTH, MJUP, REARTH, RJUP, M_BH, GM, Rs_m, Rs_km,
+    /* Ω coordenada para órbita circular a r = aRs·Rs  [rad/s] */
+    omega: aRs => Math.sqrt(GM / Math.pow(aRs * Rs_m, 3)),
+    /* T = 2π√(a³/GM)  [s] */
+    period: aRs => 2 * Math.PI / Math.sqrt(GM / Math.pow(aRs * Rs_m, 3)),
+    /* v = √(GM/r)  [m/s] */
+    vOrb: aRs => Math.sqrt(GM / (aRs * Rs_m)),
+    /* dτ/dt para órbita circular en Schwarzschild */
+    dilOrbit: aRs => Math.sqrt(Math.max(0, 1 - 1.5 / aRs)),
+    /* dτ/dt para observador ESTÁTICO a r (telemetría de la cámara) */
+    dilStatic: rRs => rRs > 1 ? Math.sqrt(1 - 1 / rRs) : 0,
+    /* período kepleriano alrededor de un planeta de masa Mp [kg], a en m */
+    moonPeriod: (Mp, a_m) => 2 * Math.PI * Math.sqrt(Math.pow(a_m, 3) / (G * Mp)),
+    moonOmega: (Mp, a_m) => Math.sqrt(G * Mp / Math.pow(a_m, 3)),
+  };
+})();
+
+/* ============================================================================
+   MÓDULO BODIES — definición del sistema planetario
+   ============================================================================
+   Escala: las DISTANCIAS orbitales son reales (en Rs). Los RADIOS visuales de
+   los cuerpos están exagerados ~2·10³× — a escala real un planeta de 7·10³ km
+   frente a Rs = 2,95·10⁸ km sería un punto sub-píxel. Los paneles muestran
+   siempre los valores físicos reales.
+   Los períodos de rotación y las fases lunares se LIMITAN visualmente a warps
+   extremos para evitar estroboscopia; las posiciones ORBITALES de los
+   planetas nunca se limitan: el diferencial kepleriano (T ∝ a^{3/2}) debe
+   verse tal cual.
+   ========================================================================== */
+const VIS_SPIN_CAP = 0.45 * 2 * Math.PI;   /* rad/s visuales máx. de rotación */
+const VIS_MOON_CAP = 1.10 * 2 * Math.PI;   /* rad/s visuales máx. de fase lunar */
+
+const PLANETS = [
+  {
+    id: "ignis", name: "IGNIS", type: 3, colorUI: "#ff6b4a",
+    kindLabel: "Terrestre volcánico — el más interno",
+    aRs: 18, Rvis: 0.30, Rkm: 0.90 * PHYS.REARTH, radiusLabel: "0,90 R⊕",
+    massKg: 0.8 * PHYS.MEARTH, massLabel: "0,80 M⊕",
+    /* acoplamiento de marea: rotación síncrona con la órbita (spin = T orbital),
+       esperable físicamente tan cerca del primario */
+    spinS: null /* síncrono */, tiltDeg: 1.5,
+    orbitInclDeg: 1.2, orbitNodeDeg: 40, phase0: 2.1,
+    tidalAmt: 0.07,           /* deformación visual (exagerada; ver ficha) */
+    atmCol: [1.0, 0.30, 0.10],
+    unstable: true,
+    desc: "Mundo infernal justo por encima de la ISCO. Lagos de lava y corteza fracturada, calentados por el disco y las mareas.",
+    moons: [
+      { id:"chispa", name:"Chispa", type:6, colA:[0.55,0.30,0.18], a_m:1.5e7, aLabel:"15 000 km",
+        visA:2.3, visR:0.10, phase0:0.4, inclDeg:3 },
+    ],
+  },
+  {
+    id: "tellaria", name: "TELLARIA", type: 0, colorUI: "#35d0c5",
+    kindLabel: "Terrestre tropical",
+    aRs: 40, Rvis: 0.34, Rkm: 1.15 * PHYS.REARTH, radiusLabel: "1,15 R⊕",
+    massKg: 1.2 * PHYS.MEARTH, massLabel: "1,20 M⊕",
+    spinS: 22 * 3600, tiltDeg: 8, orbitInclDeg: 2.4, orbitNodeDeg: 130, phase0: 0.6,
+    tidalAmt: 0.0, atmCol: [0.35, 0.75, 1.0],
+    desc: "Océanos turquesa, continentes de jungla y nubes dinámicas. El disco de acreción tiñe sus amaneceres de ámbar.",
+    moons: [
+      { id:"cinder", name:"Cinder", type:4, colA:[0.62,0.62,0.64], a_m:6.1e7, aLabel:"61 000 km",
+        visA:2.6, visR:0.16, phase0:1.1, inclDeg:4 },
+      { id:"bruma", name:"Bruma", type:5, colA:[0.80,0.88,0.95], a_m:1.1e8, aLabel:"110 000 km",
+        visA:4.1, visR:0.12, phase0:3.9, inclDeg:-6 },
+    ],
+  },
+  {
+    id: "anillaris", name: "ANILLARIS", type: 2, colorUI: "#e8c9a0",
+    kindLabel: "Gigante gaseoso anillado",
+    aRs: 65, Rvis: 0.85, Rkm: 1.60 * PHYS.RJUP, radiusLabel: "1,60 Rjup",
+    massKg: 0.9 * PHYS.MJUP, massLabel: "0,90 Mjup",
+    spinS: 9.5 * 3600, tiltDeg: 14, orbitInclDeg: 3.2, orbitNodeDeg: 245, phase0: 4.4,
+    tidalAmt: 0.0, atmCol: [0.9, 0.8, 0.6],
+    rings: { rIn: 1.5, rOut: 3.4,  /* × Rvis del planeta */
+             rInKm: 140000, rOutKm: 330000 },
+    desc: "Sistema de anillos ancho con divisiones nítidas mantenidas por lunas pastoras, iridiscente al contraluz del disco.",
+    moons: [
+      { id:"lazo",  name:"Lazo · pastora int.",  type:4, colA:[0.75,0.72,0.66], a_m:1.38e8, aLabel:"138 000 km",
+        visA:1.46, visR:0.055, phase0:0.2, inclDeg:0 },
+      { id:"rueca", name:"Rueca · pastora ext.", type:6, colA:[0.80,0.66,0.45], a_m:3.35e8, aLabel:"335 000 km",
+        visA:3.52, visR:0.06, phase0:2.8, inclDeg:0 },
+      { id:"velo",  name:"Velo",  type:5, colA:[0.82,0.90,0.96], a_m:4.5e8, aLabel:"450 000 km",
+        visA:4.6, visR:0.13, phase0:5.0, inclDeg:5 },
+      { id:"ambar", name:"Ámbar", type:6, colA:[0.85,0.62,0.28], a_m:7.0e8, aLabel:"700 000 km",
+        visA:6.0, visR:0.10, phase0:1.7, inclDeg:-8 },
+    ],
+  },
+  {
+    id: "vortexia", name: "VORTEXIA", type: 1, colorUI: "#c65df0",
+    kindLabel: "Gigante gaseoso hinchado",
+    aRs: 90, Rvis: 1.05, Rkm: 8.0 * PHYS.RJUP, radiusLabel: "8,0 Rjup",
+    massKg: 4.0 * PHYS.MJUP, massLabel: "4,0 Mjup",
+    spinS: 11 * 3600, tiltDeg: 5, orbitInclDeg: 1.8, orbitNodeDeg: 320, phase0: 5.3,
+    tidalAmt: 0.0, atmCol: [0.75, 0.35, 0.9],
+    desc: "Gigante anómalamente inflado por la irradiación del disco. Bandas magenta, cian y oro con una gran tormenta ovalada.",
+    moons: [
+      { id:"glacia", name:"Glacia", type:5, colA:[0.85,0.92,0.98], a_m:9.0e8, aLabel:"900 000 km",
+        visA:2.1, visR:0.22, phase0:0.9, inclDeg:3 },
+      { id:"rubra",  name:"Rubra",  type:6, colA:[0.72,0.28,0.14], a_m:1.4e9, aLabel:"1,40×10⁶ km",
+        visA:3.0, visR:0.13, phase0:2.2, inclDeg:-5 },
+      { id:"ceniza", name:"Ceniza", type:4, colA:[0.55,0.55,0.57], a_m:2.0e9, aLabel:"2,00×10⁶ km",
+        visA:3.9, visR:0.10, phase0:4.4, inclDeg:7 },
+      { id:"perla",  name:"Perla",  type:5, colA:[0.95,0.95,0.92], a_m:2.8e9, aLabel:"2,80×10⁶ km",
+        visA:4.8, visR:0.08, phase0:5.7, inclDeg:-2 },
+      { id:"umbra",  name:"Umbra",  type:7, colA:[0.16,0.15,0.14], a_m:3.8e9, aLabel:"3,80×10⁶ km",
+        visA:5.8, visR:0.11, phase0:1.5, inclDeg:10 },
+    ],
+  },
+];
+
+/* ---- construcción de efemérides ------------------------------------------- */
+function orbitBasis(inclDeg, nodeDeg){
+  /* plano orbital: inclinación pequeña respecto al plano del disco (y=0),
+     rotada alrededor del eje y por el nodo ascendente */
+  const i = inclDeg * Math.PI / 180, n = nodeDeg * Math.PI / 180;
+  const e1 = [Math.cos(n), 0, Math.sin(n)];
+  const e2n = [-Math.sin(n), 0, Math.cos(n)];
+  const e2 = [e2n[0]*Math.cos(i), Math.sin(i), e2n[2]*Math.cos(i)];
+  const nrm = norm3(cross3(e1, e2));
+  return { e1, e2, nrm };
+}
+
+class Body {
+  constructor(def, parent){
+    Object.assign(this, def);
+    this.parent = parent || null;
+    this.kind = parent ? "moon" : "planet";
+    if(this.kind === "planet"){
+      this.omega = PHYS.omega(this.aRs);                 /* rad/s (coordenada) */
+      this.periodS = PHYS.period(this.aRs);
+      this.vMs = PHYS.vOrb(this.aRs);
+      this.dil = PHYS.dilOrbit(this.aRs);
+      this.basis = orbitBasis(this.orbitInclDeg, this.orbitNodeDeg);
+      if(this.spinS === null) this.spinS = this.periodS;  /* acoplamiento de marea */
+    }else{
+      this.omega = PHYS.moonOmega(parent.massKg, this.a_m);
+      this.periodS = PHYS.moonPeriod(parent.massKg, this.a_m);
+      this.basis = orbitBasis(this.inclDeg, (def.phase0*97) % 360);
+      this.RvisAbs = parent.Rvis * this.visR;
+      this.aVisAbs = parent.Rvis * this.visA;
+      this.visPhase = this.phase0;   /* fase lunar acumulada (limitada) */
+      this.spinS = this.periodS;     /* lunas en acoplamiento de marea */
+    }
+    this.pos = [0,0,0];
+    this.spinPhase = 0;
+    this.cloudPhase = 0;
+    this.apparent = { pos:[0,0,0], mag:1, beta:9, sec:false, secDim:0 };
+    this.screen = null;
+  }
+  /* ángulo orbital verdadero: θ = θ₀ + Ω·t (círculo kepleriano analítico) */
+  update(simTime, dtReal, warp){
+    if(this.kind === "planet"){
+      const ang = this.phase0 + this.omega * simTime;
+      this.angle = ang;
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      this.pos = [
+        this.aRs*(this.basis.e1[0]*ca + this.basis.e2[0]*sa),
+        this.aRs*(this.basis.e1[1]*ca + this.basis.e2[1]*sa),
+        this.aRs*(this.basis.e1[2]*ca + this.basis.e2[2]*sa),
+      ];
+      this.revs = Math.floor(Math.abs(this.omega * simTime) / (2*Math.PI));
+    }else{
+      /* fase lunar con límite visual anti-estroboscopia (los valores físicos
+         del panel no se ven afectados) */
+      const rate = Math.min(this.omega * warp, VIS_MOON_CAP);
+      this.visPhase += rate * dtReal;
+      const ca = Math.cos(this.visPhase), sa = Math.sin(this.visPhase);
+      const p = this.parent.pos;
+      this.pos = [
+        p[0] + this.aVisAbs*(this.basis.e1[0]*ca + this.basis.e2[0]*sa),
+        p[1] + this.aVisAbs*(this.basis.e1[1]*ca + this.basis.e2[1]*sa),
+        p[2] + this.aVisAbs*(this.basis.e1[2]*ca + this.basis.e2[2]*sa),
+      ];
+    }
+    /* rotación axial (limitada visualmente) y deriva de nubes independiente */
+    const sr = Math.min(2*Math.PI/this.spinS * warp, VIS_SPIN_CAP);
+    this.spinPhase += sr * dtReal;
+    this.cloudPhase += Math.min(sr*0.35, 0.12) * dtReal + dtReal*0.005;
+  }
+  /* matriz de spin 3×3 column-major: oblicuidad (Z) ∘ rotación diaria (Y) */
+  spinMat(){
+    const t = (this.tiltDeg||0)*Math.PI/180, a = this.spinPhase;
+    const ct = Math.cos(t), st = Math.sin(t), ca = Math.cos(a), sa = Math.sin(a);
+    /* Rz(t)·Ry(a) */
+    return new Float32Array([
+      ct*ca, st*ca, -sa,
+      -st,   ct,     0,
+      ct*sa, st*sa,  ca,
+    ]);
+  }
+  radiusVis(){ return this.kind === "planet" ? this.Rvis : this.RvisAbs; }
+}
+
+const bodies = [];        /* aplanado: planetas + lunas */
+const planets = PLANETS.map(def => {
+  const p = new Body(def, null);
+  p.moonBodies = (def.moons||[]).map(md => { const m = new Body(md, p); bodies.push(m); return m; });
+  bodies.unshift(p);
+  return p;
+});
+
+/* ============================================================================
+   Lente puntual en CPU (espejo de GLSL_LENS): posición aparente del centro de
+   cada cuerpo (para etiquetas, raycast y magnificación fotométrica).
+   μ± = (θ±/β)·(dθ±/dβ) — la imagen primaria se magnifica al alinearse tras el
+   BH; usamos √μ como refuerzo de brillo (saturado) para que sea visible sin
+   quemar la escena.
+   ========================================================================== */
+function lensApparent(w, cam, lensOn){
+  const out = { pos: w.slice(), mag: 1, beta: 9, sec: false, secPos: null, secDim: 0 };
+  if(!lensOn) return out;
+  const cv = sub3(w, cam), dS = len3(cv);
+  const cb = scale3(cam, -1), dL = len3(cb);
+  if(dS < 1e-4 || dL < 1e-4) return out;
+  const nv = scale3(cv, 1/dS), nb = scale3(cb, 1/dL);
+  const cosb = Math.max(-1, Math.min(1, dot3(nv, nb)));
+  const beta = Math.acos(cosb);
+  out.beta = beta;
+  const dLS = dS*cosb - dL;
+  const fade = smooth(1.15, 0.35, beta) * smooth(0, 4, dLS);
+  if(fade <= 0.001) return out;
+  const thE2 = 2*Math.max(dLS,0)/(dL*dS);
+  const disc = Math.sqrt(beta*beta + 4*thE2);
+  const theta = beta + (0.5*(beta+disc) - beta)*fade;
+  let axis;
+  if(beta < 1e-4) axis = norm3(cross3(nb, Math.abs(nb[1])<0.9?[0,1,0]:[1,0,0]));
+  else axis = norm3(cross3(nb, nv));
+  out.pos = add3(cam, rodrigues(cv, axis, theta-beta));
+  const dthdb = 0.5*(1 + beta/Math.max(disc,1e-9));
+  out.mag = Math.min(4.5, Math.max(1, Math.pow((theta/Math.max(beta,1e-6))*dthdb, 0.55)));
+  /* imagen secundaria: relevante solo cerca de la alineación */
+  if(fade > 0.5 && beta < 0.6){
+    let th2 = 0.5*(beta - disc);
+    const thPh = 2.598/dL;
+    th2 = Math.min(th2, -1.03*thPh);
+    out.sec = true;
+    out.secPos = add3(cam, rodrigues(cv, axis, th2-beta));
+    const mu2 = Math.abs((th2/Math.max(beta,1e-6))*0.5*(1 - beta/Math.max(disc,1e-9)));
+    out.secDim = Math.min(0.65, Math.max(0.12, Math.pow(mu2, 0.4)));
+  }
+  return out;
+}
+function rodrigues(v, ax, ang){
+  const ca = Math.cos(ang), sa = Math.sin(ang);
+  const cx = cross3(ax, v), d = dot3(ax, v);
+  return [
+    v[0]*ca + cx[0]*sa + ax[0]*d*(1-ca),
+    v[1]*ca + cx[1]*sa + ax[1]*d*(1-ca),
+    v[2]*ca + cx[2]*sa + ax[2]*d*(1-ca),
+  ];
+}
+function smooth(a, b, x){
+  const t = Math.max(0, Math.min(1, (x-a)/(b-a)));
+  return t*t*(3-2*t);
+}
+
+/* ============================================================================
+   MÓDULO CameraController — máquina de estados con transiciones suaves
+   ============================================================================
+   FREE            órbita + desplazamiento WASD/QE alrededor de un punto móvil
+   LOCKED_GARGANTUA órbita alrededor del BH (estado inicial del artefacto)
+   LOCKED_PLANET   sigue a un planeta; distancia en radios planetarios;
+                   «Acompañamiento Orbital» co-rota la cámara con el planeta
+                   para que el BH se mantenga fijo en el encuadre y el fondo
+                   estelar exprese la velocidad orbital
+   SYSTEM          vista cenital amplia con todo el sistema y el disco
+   Las transiciones interpolan ojo y objetivo con easing smootherstep; si el
+   usuario prefiere movimiento reducido, el salto es inmediato.
+   ========================================================================== */
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+class CameraController {
+  constructor(){
+    this.mode = "GARGANTUA";
+    this.yaw = 0.9; this.pitch = 0.24;
+    this.dist = 27;                       /* Rs — vista inicial del artefacto */
+    this.freeTarget = [0,0,0];
+    this.lockBody = null;
+    this.lockDistR = 5;                   /* radios planetarios */
+    this.companion = true;
+    this.trans = null;                    /* {t, dur, fromEye, fromTgt} */
+    this.eye = [0,0,0]; this.target = [0,0,0];
+    this.keys = {};
+    this._syncNow();
+  }
+  desired(){
+    let target, dist;
+    switch(this.mode){
+      case "PLANET": {
+        const b = this.lockBody;
+        target = b.pos.slice();
+        dist = Math.max(1.5, this.lockDistR) * b.radiusVis();
+        break;
+      }
+      case "SYSTEM": target = [0,0,0]; dist = this.distSys ?? 235; break;
+      case "FREE":   target = this.freeTarget; dist = this.dist; break;
+      default:       target = [0,0,0]; dist = this.dist;
+    }
+    const cp = Math.cos(this.pitch);
+    const eye = add3(target, [
+      dist*cp*Math.sin(this.yaw),
+      dist*Math.sin(this.pitch),
+      dist*cp*Math.cos(this.yaw),
+    ]);
+    /* nunca dentro de la esfera de fotones + margen (r=1,5·Rs) */
+    const r = len3(eye);
+    if(r < 3.4){
+      const f = 3.4/Math.max(r, 1e-4);
+      eye[0]*=f; eye[1]*=f; eye[2]*=f;
+    }
+    return { eye, target };
+  }
+  setMode(mode, body){
+    if(mode === "PLANET" && !body) return;
+    this.trans = REDUCED ? null : { t:0, dur:1.35, fromEye:this.eye.slice(), fromTgt:this.target.slice() };
+    if(mode === "FREE"){
+      this.freeTarget = this.target.slice();
+      this.dist = len3(sub3(this.eye, this.target));
+    }
+    if(mode === "GARGANTUA"){ this.dist = Math.max(8, Math.min(120, len3(this.eye))); }
+    if(mode === "SYSTEM"){ this.distSys = 235; this.pitch = Math.max(this.pitch, 0.5); }
+    this.mode = mode;
+    this.lockBody = mode === "PLANET" ? body : null;
+    if(mode === "PLANET"){
+      /* orientación inicial: mirar el planeta con el BH de fondo cerca */
+      const d = norm3(body.pos);
+      this.yaw = Math.atan2(d[0], d[2]) + 0.6;
+    }
+  }
+  update(dtReal, warp, playing){
+    /* acompañamiento orbital: co-rotación del acimut con el planeta,
+       limitada para no marear a warps extremos */
+    if(this.mode === "PLANET" && this.companion && playing && this.lockBody){
+      const dAng = Math.min(this.lockBody.omega * warp, 2.5) * dtReal;
+      this.yaw += dAng;
+    }
+    /* desplazamiento WASD/QE en vista libre (velocidad ∝ distancia) */
+    if(this.mode === "FREE"){
+      const sp = this.dist * 0.9 * dtReal;
+      const fwd = norm3(sub3(this.target, this.eye));
+      const right = norm3(cross3(fwd, [0,1,0]));
+      const fh = norm3([fwd[0],0,fwd[2]]);
+      let mv = [0,0,0];
+      if(this.keys["w"]) mv = add3(mv, scale3(fh, sp));
+      if(this.keys["s"]) mv = add3(mv, scale3(fh,-sp));
+      if(this.keys["a"]) mv = add3(mv, scale3(right,-sp));
+      if(this.keys["d"]) mv = add3(mv, scale3(right, sp));
+      if(this.keys["e"]) mv = add3(mv, [0, sp,0]);
+      if(this.keys["q"]) mv = add3(mv, [0,-sp,0]);
+      this.freeTarget = add3(this.freeTarget, mv);
+    }
+    const want = this.desired();
+    if(this.trans){
+      this.trans.t += dtReal/this.trans.dur;
+      if(this.trans.t >= 1){ this.trans = null; }
+      else{
+        const s = smoother(this.trans.t);
+        this.eye = lerp3(this.trans.fromEye, want.eye, s);
+        this.target = lerp3(this.trans.fromTgt, want.target, s);
+        return;
+      }
+    }
+    this.eye = want.eye; this.target = want.target;
+  }
+  _syncNow(){ const w = this.desired(); this.eye = w.eye; this.target = w.target; }
+  wheel(dy){
+    const f = Math.exp(dy*0.0011);
+    if(this.mode === "PLANET"){
+      this.lockDistR = Math.max(1.6, Math.min(30, this.lockDistR*f));
+      UI.syncLockDist?.();
+    }else if(this.mode === "SYSTEM"){
+      this.distSys = Math.max(120, Math.min(420, (this.distSys??235)*f));
+    }else{
+      this.dist = Math.max(3.4, Math.min(400, this.dist*f));
+    }
+  }
+  drag(dx, dy){
+    this.yaw   -= dx*0.0052;
+    this.pitch = Math.max(-1.45, Math.min(1.45, this.pitch + dy*0.0052));
+  }
+}
+function smoother(t){ t = Math.max(0,Math.min(1,t)); return t*t*t*(t*(t*6-15)+10); }
+/* ============================================================================
+   MÓDULO RENDERER — programas, mallas y pases
+   ========================================================================== */
+const UI = {};        /* puente UI ⇆ cámara (syncLockDist) */
+const progBH   = link(BH_VS, BH_FS);
+const progBody = link(BODY_VS, BODY_FS);
+const progAtmo = link(BODY_VS, ATMO_FS);
+const progRing = link(FLAT_VS, RING_FS);
+const progLine = link(FLAT_VS, LINE_FS);
+
+const vaoEmpty = gl.createVertexArray();
+const sphereHi = vao(makeSphere(64,48));
+const sphereLo = vao(makeSphere(28,20));
+const circle   = vao(makeCircle(256), true);
+/* anillos de Anillaris en unidades Rs absolutas (rIn/rOut × Rvis) */
+const anillaris = planets.find(p=>p.id==="anillaris");
+const ringMesh = vao(makeAnnulus(220, anillaris.Rvis*anillaris.rings.rIn, anillaris.Rvis*anillaris.rings.rOut), true);
+
+const FOV = 55*Math.PI/180, NEAR = 0.05, FAR = 800;
+const OMEGA_ISCO = PHYS.omega(3);      /* rad/s del gas en la ISCO */
+
+/* ============================================================================
+   ESTADO GLOBAL DE LA APLICACIÓN
+   ========================================================================== */
+const LAYERS = { lens:true, disk:true, jets:true, photon:false, labels:true,
+                 planets:true, moons:true, orbits:true };
+const QUALITY = {
+  auto: { dprCap:1.5, steps:250, dtScale:0.055, scale:null },  /* scale adaptativo */
+  alta: { dprCap:2.0, steps:340, dtScale:0.045, scale:1.0 },
+  eco:  { dprCap:1.0, steps:150, dtScale:0.085, scale:0.6 },
+};
+const qs = new URLSearchParams(location.search);
+let qualityMode = ["auto","alta","eco"].includes(qs.get("q")) ? qs.get("q") : "auto";
+let renderScale = QUALITY[qualityMode].scale ?? 0.85;
+const TEST = qs.get("test") === "1";
+if(TEST){ qualityMode = "eco"; renderScale = 0.5; }
+
+let simTime = 0;             /* tiempo coordenado simulado [s] */
+let warp = TEST ? 86400 : 86400;   /* arranque en «Días por segundo» */
+let playing = true;
+let diskPhase = 0;
+let hovered = null, selected = null;
+let fpsEMA = 60, lastQAdj = 0;
+
+const cam = new CameraController();
+
+/* ---- proyección/vista ------------------------------------------------------ */
+let proj, view, viewProj, camRight, camUp, camFwd, aspect = 1;
+function updateMatrices(){
+  aspect = canvas.clientWidth/Math.max(1,canvas.clientHeight);
+  proj = M4.persp(FOV, aspect, NEAR, FAR);
+  let fwd = sub3(cam.target, cam.eye);
+  if(len3(fwd) < 1e-6) fwd = [0,0,-1];
+  camFwd = norm3(fwd);
+  let upRef = Math.abs(camFwd[1]) > 0.985 ? [1,0,0] : [0,1,0];
+  camRight = norm3(cross3(camFwd, upRef));
+  camUp = cross3(camRight, camFwd);
+  view = M4.lookAt(cam.eye, cam.target, camUp);
+  viewProj = M4.mul(proj, view);
+}
+function project(p){
+  const q = M4.xform(viewProj, p);
+  if(q[3] <= 0) return null;
+  return { x:(q[0]*0.5+0.5)*canvas.clientWidth, y:(0.5-q[1]*0.5)*canvas.clientHeight,
+           z:q[2], w:q[3] };
+}
+
+/* ---- pase agujero negro ----------------------------------------------------- */
+function drawBH(tSec){
+  const q = QUALITY[qualityMode];
+  gl.useProgram(progBH.p);
+  gl.uniform2f(progBH.u("uRes"), canvas.width, canvas.height);
+  gl.uniform3f(progBH.u("uCamPos"), cam.eye[0], cam.eye[1], cam.eye[2]);
+  gl.uniformMatrix3fv(progBH.u("uCamBasis"), false, new Float32Array([
+    camRight[0],camRight[1],camRight[2], camUp[0],camUp[1],camUp[2], camFwd[0],camFwd[1],camFwd[2]]));
+  gl.uniform1f(progBH.u("uTanHalf"), Math.tan(FOV/2));
+  gl.uniform1f(progBH.u("uAspect"), aspect);
+  gl.uniform1f(progBH.u("uTime"), tSec);
+  gl.uniform1f(progBH.u("uDiskPhase"), diskPhase);
+  gl.uniform1f(progBH.u("uLens"), LAYERS.lens?1:0);
+  gl.uniform1f(progBH.u("uDisk"), LAYERS.disk?1:0);
+  gl.uniform1f(progBH.u("uJets"), LAYERS.jets?1:0);
+  gl.uniform1f(progBH.u("uPhoton"), LAYERS.photon?1:0);
+  gl.uniform1i(progBH.u("uSteps"), q.steps);
+  gl.uniform1f(progBH.u("uDtScale"), q.dtScale);
+  gl.uniform1f(progBH.u("uPA"), (FAR+NEAR)/(FAR-NEAR));
+  gl.uniform1f(progBH.u("uPB"), -2*FAR*NEAR/(FAR-NEAR));
+  gl.disable(gl.BLEND);
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.ALWAYS);       /* escribe gl_FragDepth aproximado */
+  gl.depthMask(true);
+  gl.bindVertexArray(vaoEmpty);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.depthFunc(gl.LEQUAL);
+}
+
+/* ---- uniformes comunes de lente para programas de mallas -------------------- */
+function setLens(prog, imgSign){
+  gl.uniform3f(prog.u("uCamPos"), cam.eye[0], cam.eye[1], cam.eye[2]);
+  gl.uniform1f(prog.u("uLensOn"), LAYERS.lens?1:0);
+  gl.uniform1f(prog.u("uImgSign"), imgSign);
+}
+
+/* iluminación por el disco: caída con r comprimida para legibilidad
+   (la caída física 1/r² dejaría Vortexia casi a oscuras) */
+function lightAt(r){ return Math.min(3, Math.max(0.5, 3.0*Math.pow(18/Math.max(r,1), 0.8))); }
+
+/* ---- pase de cuerpos --------------------------------------------------------- */
+function drawBody(b, tSec, imgSign, dim){
+  const S = b.spinMat();
+  const center = b.pos, r = len3(center);
+  const dirBH = scale3(norm3(center), -1);                 /* hacia el BH */
+  const tl = [ /* dirección de marea en coords locales: Sᵀ·dirBH */
+    S[0]*dirBH[0]+S[1]*dirBH[1]+S[2]*dirBH[2],
+    S[3]*dirBH[0]+S[4]*dirBH[1]+S[5]*dirBH[2],
+    S[6]*dirBH[0]+S[7]*dirBH[1]+S[8]*dirBH[2]];
+  const p = progBody;
+  gl.uniformMatrix3fv(p.u("uSpin"), false, S);
+  gl.uniform3f(p.u("uCenter"), center[0], center[1], center[2]);
+  gl.uniform1f(p.u("uRadius"), b.radiusVis());
+  gl.uniform3f(p.u("uTidalDir"), tl[0], tl[1], tl[2]);
+  gl.uniform1f(p.u("uTidalAmt"), b.tidalAmt||0);
+  gl.uniform1i(p.u("uType"), b.type);
+  /* uColA: tinte de lunas — para Ignis (type 3) transporta la dirección de
+     marea local que enciende los bulbos de calentamiento */
+  const colA = b.type === 3 ? tl : (b.colA || [1,1,1]);
+  gl.uniform3f(p.u("uColA"), colA[0], colA[1], colA[2]);
+  gl.uniform1f(p.u("uSeed"), b.seed);
+  gl.uniform1f(p.u("uTime2"), tSec);
+  gl.uniform1f(p.u("uCloudPhase"), b.cloudPhase);
+  gl.uniform1f(p.u("uLightI"), lightAt(r));
+  gl.uniform1f(p.u("uMagBoost"), b.apparent.mag);
+  gl.uniform1f(p.u("uHighlight"), b===hovered?0.75 : b===selected?0.4 : 0);
+  gl.uniform1f(p.u("uDim"), dim);
+  setLens(p, imgSign);
+  /* LOD de malla + detalle procedural según tamaño en pantalla */
+  const scr = screenRadiusPx(b);
+  gl.uniform1f(p.u("uDetail"), Math.max(0.35, Math.min(3, scr/70)));
+  const mesh = scr > 26 ? sphereHi : sphereLo;
+  gl.bindVertexArray(mesh.v);
+  gl.drawElements(gl.TRIANGLES, mesh.n, gl.UNSIGNED_SHORT, 0);
+}
+function screenRadiusPx(b){
+  const d = Math.max(0.01, len3(sub3(b.pos, cam.eye)));
+  return b.radiusVis()/(d*Math.tan(FOV/2)) * canvas.clientHeight*0.5;
+}
+
+function drawBodies(tSec){
+  if(!LAYERS.planets) return;
+  gl.useProgram(progBody.p);
+  gl.uniformMatrix4fv(progBody.u("uProj"), false, proj);
+  gl.uniformMatrix4fv(progBody.u("uView"), false, view);
+  gl.uniform3f(progBody.u("uCamPos2"), cam.eye[0], cam.eye[1], cam.eye[2]);
+  gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
+  gl.disable(gl.BLEND);
+  gl.depthMask(true);
+  for(const b of bodies){
+    if(b.kind === "moon" && !LAYERS.moons) continue;
+    drawBody(b, tSec, 1, 1);
+  }
+  /* imágenes secundarias (solo planetas, cerca de la alineación):
+     la segunda solución de la ecuación de la lente aparece al otro lado del
+     BH, comprimida junto al anillo de fotones y atenuada por |μ₋| */
+  gl.disable(gl.CULL_FACE);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.depthMask(false);
+  for(const b of planets){
+    if(b.apparent.sec) drawBody(b, tSec, -1, b.apparent.secDim);
+  }
+  gl.depthMask(true);
+  gl.disable(gl.BLEND);
+  gl.enable(gl.CULL_FACE);
+}
+
+function drawRings(tSec){
+  if(!LAYERS.planets) return;
+  const b = anillaris;
+  const t = b.tiltDeg*Math.PI/180, ct = Math.cos(t), st = Math.sin(t);
+  const model = new Float32Array([
+    ct, st, 0, 0,   -st, ct, 0, 0,   0, 0, 1, 0,
+    b.pos[0], b.pos[1], b.pos[2], 1]);
+  gl.useProgram(progRing.p);
+  gl.uniformMatrix4fv(progRing.u("uProj"), false, proj);
+  gl.uniformMatrix4fv(progRing.u("uView"), false, view);
+  gl.uniformMatrix4fv(progRing.u("uModel"), false, model);
+  gl.uniform3f(progRing.u("uCamPos2"), cam.eye[0], cam.eye[1], cam.eye[2]);
+  gl.uniform3f(progRing.u("uPlanetC"), b.pos[0], b.pos[1], b.pos[2]);
+  gl.uniform1f(progRing.u("uPlanetR"), b.Rvis);
+  gl.uniform1f(progRing.u("uTime2"), tSec);
+  gl.uniform1f(progRing.u("uLightI"), lightAt(len3(b.pos)));
+  gl.uniform1f(progRing.u("uSeed"), 3.7);
+  setLens(progRing, 1);
+  gl.disable(gl.CULL_FACE);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.depthMask(false);
+  gl.bindVertexArray(ringMesh.v);
+  gl.drawElements(gl.TRIANGLES, ringMesh.n, gl.UNSIGNED_SHORT, 0);
+  gl.depthMask(true);
+  gl.disable(gl.BLEND);
+  gl.enable(gl.CULL_FACE);
+}
+
+function drawAtmospheres(){
+  if(!LAYERS.planets) return;
+  gl.useProgram(progAtmo.p);
+  gl.uniformMatrix4fv(progAtmo.u("uProj"), false, proj);
+  gl.uniformMatrix4fv(progAtmo.u("uView"), false, view);
+  gl.uniform3f(progAtmo.u("uCamPos2"), cam.eye[0], cam.eye[1], cam.eye[2]);
+  setLens(progAtmo, 1);
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.FRONT);          /* solo el hemisferio trasero → halo limpio */
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE);   /* aditivo */
+  gl.depthMask(false);
+  for(const b of planets){
+    if(!b.atmCol) continue;
+    const S = b.spinMat();
+    gl.uniformMatrix3fv(progAtmo.u("uSpin"), false, S);
+    gl.uniform3f(progAtmo.u("uCenter"), b.pos[0], b.pos[1], b.pos[2]);
+    gl.uniform1f(progAtmo.u("uRadius"), b.Rvis*1.055);
+    gl.uniform3f(progAtmo.u("uTidalDir"), 0,1,0);
+    gl.uniform1f(progAtmo.u("uTidalAmt"), 0);
+    gl.uniform3f(progAtmo.u("uAtmCol"), b.atmCol[0], b.atmCol[1], b.atmCol[2]);
+    gl.uniform1f(progAtmo.u("uLightI"), lightAt(len3(b.pos)));
+    gl.bindVertexArray(sphereLo.v);
+    gl.drawElements(gl.TRIANGLES, sphereLo.n, gl.UNSIGNED_SHORT, 0);
+  }
+  gl.cullFace(gl.BACK);
+  gl.depthMask(true);
+  gl.disable(gl.BLEND);
+}
+
+function drawOrbits(tSec){
+  if(!LAYERS.orbits) return;
+  gl.useProgram(progLine.p);
+  gl.uniformMatrix4fv(progLine.u("uProj"), false, proj);
+  gl.uniformMatrix4fv(progLine.u("uView"), false, view);
+  gl.uniform1f(progLine.u("uTime2"), tSec);
+  setLens(progLine, 1);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.depthMask(false);
+  gl.bindVertexArray(circle.v);
+  for(const b of planets){
+    const e1 = b.basis.e1, e2 = b.basis.e2, n = b.basis.nrm, a = b.aRs;
+    const model = new Float32Array([
+      e1[0]*a, e1[1]*a, e1[2]*a, 0,
+      n[0],    n[1],    n[2],    0,
+      e2[0]*a, e2[1]*a, e2[2]*a, 0,
+      0,0,0,1]);
+    gl.uniformMatrix4fv(progLine.u("uModel"), false, model);
+    const c = hex2rgb(b.colorUI);
+    gl.uniform3f(progLine.u("uColor"), c[0], c[1], c[2]);
+    gl.uniform1f(progLine.u("uAlpha"), b===selected||b===cam.lockBody ? 0.55 : 0.26);
+    gl.drawArrays(gl.LINE_STRIP, 0, circle.n);
+    /* órbitas lunares: solo con las lunas visibles y la cámara cerca */
+    if(LAYERS.moons && len3(sub3(cam.eye, b.pos)) < 45*b.Rvis){
+      for(const m of b.moonBodies){
+        const me1 = m.basis.e1, me2 = m.basis.e2, mn = m.basis.nrm, ma = m.aVisAbs;
+        const mm = new Float32Array([
+          me1[0]*ma, me1[1]*ma, me1[2]*ma, 0,
+          mn[0], mn[1], mn[2], 0,
+          me2[0]*ma, me2[1]*ma, me2[2]*ma, 0,
+          b.pos[0], b.pos[1], b.pos[2], 1]);
+        gl.uniformMatrix4fv(progLine.u("uModel"), false, mm);
+        gl.uniform3f(progLine.u("uColor"), 0.6, 0.8, 0.9);
+        gl.uniform1f(progLine.u("uAlpha"), 0.16);
+        gl.drawArrays(gl.LINE_STRIP, 0, circle.n);
+      }
+    }
+  }
+  gl.depthMask(true);
+  gl.disable(gl.BLEND);
+}
+function hex2rgb(h){
+  return [parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255];
+}
+
+/* ============================================================================
+   MÓDULO UI — formato, paneles, tiempo, entrada
+   ========================================================================== */
+const SUP = { "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","-":"⁻" };
+function fmtN(x, d=1){ return x.toLocaleString("es-ES",{maximumFractionDigits:d, minimumFractionDigits:0}); }
+function sci(x, d=2){
+  if(x === 0) return "0";
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  if(e >= -2 && e < 4) return fmtN(x, d);
+  const m = x/Math.pow(10, e);
+  return `${fmtN(m, d)}×10${String(e).split("").map(c=>SUP[c]||c).join("")}`;
+}
+function fmtDur(s){
+  const sign = s < 0 ? "−" : "";
+  s = Math.abs(s);
+  if(s < 90)        return sign+fmtN(s, 1)+" s";
+  if(s < 2*3600)    return sign+fmtN(s/60, 1)+" min";
+  if(s < 48*3600)   return sign+fmtN(s/3600, 1)+" h";
+  if(s < 730*86400) return sign+fmtN(s/86400, 1)+" d";
+  const y = s/(365.25*86400);
+  return sign+(y < 1e4 ? fmtN(y, 2) : sci(y, 2))+" años";
+}
+function fmtWarp(w){ return "×"+(w < 9999 ? fmtN(w, 0) : sci(w, 2)); }
+function cap1(s){ return s[0]+s.slice(1).toLowerCase(); }
+
+bodies.forEach((b,i)=>{ b.seed = (i*7.13+3.7)%13; });
+
+/* ---- ficha del objeto -------------------------------------------------------- */
+const fichaBody = document.getElementById("fichaBody");
+const fichaTag = document.getElementById("fichaTag");
+function kv(k, v, cls=""){ return `<div class="kv"><span class="k">${k}</span><span class="v ${cls}">${v}</span></div>`; }
+
+function renderFicha(){
+  const b = selected;
+  if(!b){
+    fichaTag.textContent = "GARGANTUA";
+    /* Valores derivados de las fórmulas de PHYS (ver comentarios arriba) */
+    fichaBody.innerHTML =
+      kv("Clase","Agujero negro de Schwarzschild") +
+      kv("Espín","a★ = 0 (sin rotación)") +
+      kv("Masa","1,00×10⁸ M☉","am") +
+      kv("R. Schwarzschild", sci(PHYS.Rs_km)+" km","cy") +
+      kv("&nbsp;", "≈ "+fmtN(PHYS.Rs_km/1.496e8,2)+" UA") +
+      kv("ISCO", "3 Rs = "+sci(3*PHYS.Rs_km)+" km") +
+      kv("Esfera de fotones","1,5 Rs") +
+      kv("⌀ sombra aparente","≈ 5,2 Rs") +
+      `<hr class="sep">` +
+      kv("Disco de acreción","3 – 13 Rs") +
+      kv("T máx. del disco","~3×10⁵ K","am") +
+      kv("v del gas (ISCO)","0,41 c","am") +
+      kv("dτ/dt órbita ISCO","0,707") +
+      `<p class="notemini">La asimetría de brillo del disco es real: efecto
+       Doppler relativista (el lado que se acerca se abrillanta ∝ δ³). El anillo
+       fino que rodea la sombra es la imagen de órdenes superiores del propio
+       disco, curvada por la lente gravitatoria.</p>`;
+    return;
+  }
+  fichaTag.textContent = cap1(b.name);
+  if(b.kind === "planet"){
+    const locked = cam.lockBody === b;
+    fichaBody.innerHTML =
+      `<p style="margin:0 0 7px;color:var(--tx2);font-size:11px">
+        <span class="swatch" style="color:${b.colorUI};background:${b.colorUI}"></span>${b.kindLabel}</p>` +
+      `<p class="notemini" style="margin:0 0 7px">${b.desc}</p>` +
+      kv("Radio", b.radiusLabel+" · "+sci(b.Rkm)+" km") +
+      kv("Masa", b.massLabel) +
+      kv("Semieje a", fmtN(b.aRs,0)+" Rs · "+sci(b.aRs*PHYS.Rs_km)+" km","cy") +
+      `<hr class="sep">` +
+      /* T = 2π√(a³/GM) — tercera ley de Kepler (exacta en t coordenado) */
+      kv("Período orbital", fmtDur(b.periodS)+" · "+sci(b.periodS)+" s","cy") +
+      kv("v orbital", sci(b.vMs/1e3)+" km/s") +
+      kv("&nbsp;", fmtN(100*b.vMs/PHYS.c,1)+" % c","am") +
+      kv("dτ/dt (órbita)", b.dil.toFixed(4)+"  ("+fmtN((b.dil-1)*100,2)+" %)","cy") +
+      kv("Rotación", b.spinS===b.periodS && b.id==="ignis" ? "síncrona (marea)" : fmtDur(b.spinS)) +
+      kv("Lunas", String(b.moonBodies.length)) +
+      `<hr class="sep">` +
+      kv("Fase orbital", fmtN(((b.angle*180/Math.PI)%360+360)%360,0)+"°") +
+      kv("Revoluciones", fmtN(b.revs,0)) +
+      kv("Tiempo propio", fmtDur(simTime*b.dil)) +
+      (b.unstable ? `<p class="notewarn">⚠ Órbita hipotética inestable a escalas de
+        tiempo largas (zona de posible disrupción por marea o resonancias).
+        <span style="opacity:.75">Nota: para un BH supermasivo la marea a 18 Rs es
+        moderada — el riesgo real viene de perturbaciones y de la cercanía a la
+        ISCO (3 Rs); la deformación mostrada está exagerada.</span></p>` : "") +
+      `<div class="btnrow" style="margin-top:9px">
+        <button class="btn ${locked?"active":""}" id="fichaLock">${locked?"✓ Vista bloqueada — Esc suelta":"🔒 Bloquear vista aquí"}</button>
+       </div>`;
+    document.getElementById("fichaLock").onclick = () => { lockPlanet(b); };
+  }else{
+    const tLbl = {4:"Luna craterizada",5:"Luna helada / criovolcánica",6:"Luna rocosa",7:"Luna carbonácea"}[b.type];
+    fichaBody.innerHTML =
+      `<p style="margin:0 0 7px;color:var(--tx2);font-size:11px">${tLbl} de ${cap1(b.parent.name)}</p>` +
+      kv("Semieje a", b.aLabel,"cy") +
+      /* T = 2π√(a³/GM_planeta) alrededor del planeta anfitrión */
+      kv("Período orbital", fmtDur(b.periodS),"cy") +
+      kv("Rotación","síncrona (marea)") +
+      kv("dτ/dt (sistema)", b.parent.dil.toFixed(4)) +
+      `<p class="notemini">Hereda la dilatación temporal de la órbita de ${cap1(b.parent.name)} alrededor de Gargantua.</p>` +
+      `<div class="btnrow" style="margin-top:9px">
+        <button class="btn" id="fichaLock">🔒 Bloquear vista aquí</button>
+        <button class="btn" id="fichaParent">Ver ${cap1(b.parent.name)}</button></div>`;
+    document.getElementById("fichaLock").onclick = () => { lockPlanet(b); };
+    document.getElementById("fichaParent").onclick = () => { selected = b.parent; renderFicha(); renderSys(); };
+  }
+}
+
+/* ---- lista SISTEMA PLANETARIO ------------------------------------------------ */
+const sysList = document.getElementById("sysList");
+function renderSys(){
+  sysList.innerHTML = planets.map((b,i)=>`
+    <div class="prow ${selected===b?"sel":""}" data-id="${b.id}" role="button" tabindex="0"
+         aria-label="Seleccionar ${cap1(b.name)}">
+      <span class="dot" style="background:${b.colorUI};color:${b.colorUI}"></span>
+      <span class="pi"><span class="pn">${cap1(b.name)} <kbd style="opacity:.5;font-size:8px">${i+1}</kbd>
+        ${b.unstable?'<span class="wtag">⚠ inestable</span>':""}</span>
+      <span class="ps">a ${fmtN(b.aRs,0)} Rs · T ${fmtDur(b.periodS)} · ${b.moonBodies.length} luna${b.moonBodies.length===1?"":"s"}</span></span>
+      <button class="btn small lockb" data-lock="${b.id}" title="Bloquear vista en ${cap1(b.name)}">🔒</button>
+    </div>`).join("");
+  sysList.querySelectorAll(".prow").forEach(row=>{
+    const b = planets.find(p=>p.id===row.dataset.id);
+    row.addEventListener("click", e=>{
+      if(e.target.closest("[data-lock]")) return;
+      selected = b; renderFicha(); renderSys();
+    });
+    row.addEventListener("keydown", e=>{ if(e.key==="Enter") { selected=b; renderFicha(); renderSys(); }});
+    row.addEventListener("mouseenter", ()=>{ if(!dragging) hovered = b; });
+    row.addEventListener("mouseleave", ()=>{ if(hovered===b) hovered = null; });
+  });
+  sysList.querySelectorAll("[data-lock]").forEach(btn=>{
+    btn.addEventListener("click", ()=> lockPlanet(planets.find(p=>p.id===btn.dataset.lock)));
+  });
+}
+
+/* ---- telemetría --------------------------------------------------------------- */
+const teleBody = document.getElementById("teleBody");
+function renderTele(){
+  const r = len3(cam.eye);
+  const dil = PHYS.dilStatic(r);
+  const modeLbl = { FREE:"Vista libre", GARGANTUA:"Bloqueada · Gargantua",
+                    PLANET:"Bloqueada · "+(cam.lockBody?cap1(cam.lockBody.name):"—"),
+                    SYSTEM:"Sistema completo" }[cam.mode];
+  teleBody.innerHTML =
+    kv("Modo cámara", modeLbl, "cy") +
+    kv("Distancia al BH", fmtN(r,1)+" Rs") +
+    kv("&nbsp;", sci(r*PHYS.Rs_km)+" km") +
+    /* observador ESTÁTICO: dτ/dt = √(1−Rs/r) — difiere del factor orbital */
+    kv("dτ/dt (estático)", dil>0 ? dil.toFixed(4) : "— (r ≤ Rs)", dil>0&&dil<0.95?"am":"") +
+    kv("Deriva temporal", dil>0 ? fmtN((dil-1)*100,2)+" % vs infinito" : "—") +
+    (cam.mode==="PLANET" && cam.lockBody ?
+      kv("Dist. al objetivo", fmtN(len3(sub3(cam.eye, cam.lockBody.pos))/cam.lockBody.radiusVis(),1)+" radios") : "");
+}
+
+/* ---- control de tiempo ---------------------------------------------------------- */
+const warpSlider = document.getElementById("warp");
+const warpVal = document.getElementById("warpVal");
+const simTimeEl = document.getElementById("simTime");
+const playBtn = document.getElementById("playBtn");
+const WARP_PRESETS = [
+  ["Tiempo real", 1],
+  ["Horas/s", 3600],
+  ["Días/s", 86400],
+  ["Órbitas rápidas", 3e5],
+  ["Años/s", 3.156e7],
+  ["Evolución", 1e9],
+];
+const presetsEl = document.getElementById("warpPresets");
+WARP_PRESETS.forEach(([label, w])=>{
+  const btn = document.createElement("button");
+  btn.className = "btn small";
+  btn.textContent = label;
+  btn.title = fmtWarp(w) + (label==="Órbitas rápidas"?" — compara el diferencial kepleriano":"");
+  btn.addEventListener("click", ()=> setWarp(w));
+  btn.dataset.w = w;
+  presetsEl.appendChild(btn);
+});
+function setWarp(w){
+  warp = w;
+  warpSlider.value = Math.log10(w).toFixed(2);
+  syncWarpUI();
+}
+function syncWarpUI(){
+  warpVal.textContent = fmtWarp(warp);
+  presetsEl.querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("active", Math.abs(Math.log10(+b.dataset.w) - Math.log10(warp)) < 0.02);
+  });
+}
+warpSlider.addEventListener("input", ()=>{ warp = Math.pow(10, +warpSlider.value); syncWarpUI(); });
+playBtn.addEventListener("click", togglePlay);
+function togglePlay(){
+  playing = !playing;
+  playBtn.textContent = playing ? "⏸" : "▶";
+  playBtn.setAttribute("aria-label", playing?"Pausar la simulación":"Reanudar la simulación");
+}
+document.getElementById("resetT").addEventListener("click", ()=>{
+  simTime = 0;
+  bodies.forEach(b=>{ if(b.kind==="moon") b.visPhase = b.phase0; b.spinPhase = 0; });
+});
+/* scrub fino: arrastre horizontal = desplazamiento temporal ∝ warp */
+const scrub = document.getElementById("scrub");
+let scrubX = null;
+scrub.addEventListener("pointerdown", e=>{ scrubX = e.clientX; scrub.setPointerCapture(e.pointerId); });
+scrub.addEventListener("pointermove", e=>{
+  if(scrubX===null) return;
+  simTime += (e.clientX - scrubX) * warp * 0.02;
+  scrubX = e.clientX;
+});
+scrub.addEventListener("pointerup", ()=>{ scrubX = null; });
+
+/* contadores de revoluciones */
+const revsEl = document.getElementById("revs");
+const revSpans = {};
+planets.forEach(b=>{
+  const s = document.createElement("span");
+  s.className = "rv";
+  s.innerHTML = `<i style="background:${b.colorUI}"></i>${cap1(b.name)} <b>0</b>`;
+  revsEl.appendChild(s);
+  revSpans[b.id] = s.querySelector("b");
+});
+
+/* ---- cámara: botones ------------------------------------------------------------- */
+const btnFree = document.getElementById("btnFree");
+const btnGarg = document.getElementById("btnGarg");
+const btnSystem = document.getElementById("btnSystem");
+const lockSel = document.getElementById("lockSel");
+const lockOpts = document.getElementById("lockOpts");
+const lockDist = document.getElementById("lockDist");
+const companionCb = document.getElementById("companion");
+planets.forEach(b=>{
+  const o = document.createElement("option");
+  o.value = b.id; o.textContent = "🔒 "+cap1(b.name);
+  lockSel.appendChild(o);
+});
+btnFree.addEventListener("click", ()=> setCamMode("FREE"));
+btnGarg.addEventListener("click", ()=> setCamMode("GARGANTUA"));
+btnSystem.addEventListener("click", ()=> setCamMode("SYSTEM"));
+lockSel.addEventListener("change", ()=>{
+  const b = planets.find(p=>p.id===lockSel.value);
+  if(b) lockPlanet(b);
+});
+document.querySelectorAll("[data-ld]").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    cam.lockDistR = +btn.dataset.ld;
+    lockDist.value = cam.lockDistR;
+    markLd();
+  });
+});
+function markLd(){
+  document.querySelectorAll("[data-ld]").forEach(b=>
+    b.classList.toggle("active", Math.abs(+b.dataset.ld - cam.lockDistR) < 0.3));
+}
+lockDist.addEventListener("input", ()=>{ cam.lockDistR = +lockDist.value; markLd(); });
+companionCb.addEventListener("change", ()=>{ cam.companion = companionCb.checked; });
+UI.syncLockDist = ()=>{ lockDist.value = cam.lockDistR; markLd(); };
+
+function setCamMode(mode, body){
+  cam.setMode(mode, body);
+  btnFree.classList.toggle("active", mode==="FREE");
+  btnGarg.classList.toggle("active", mode==="GARGANTUA");
+  btnSystem.classList.toggle("active", mode==="SYSTEM");
+  lockSel.value = mode==="PLANET" && body && body.kind==="planet" ? body.id : "";
+  lockOpts.style.display = mode==="PLANET" ? "block" : "none";
+  renderFicha(); renderTele();
+}
+function lockPlanet(b){
+  selected = b;
+  setCamMode("PLANET", b);
+  renderSys();
+}
+
+/* ---- capas y calidad --------------------------------------------------------------- */
+[["layLens","lens"],["layDisk","disk"],["layJets","jets"],["layPhoton","photon"],
+ ["layLabels","labels"],["layPlanets","planets"],["layMoons","moons"],["layOrbits","orbits"]]
+.forEach(([id,key])=>{
+  const el = document.getElementById(id);
+  el.checked = LAYERS[key];
+  el.addEventListener("change", ()=>{ LAYERS[key] = el.checked; });
+});
+document.querySelectorAll("[data-q]").forEach(btn=>{
+  btn.classList.toggle("active", btn.dataset.q===qualityMode);
+  btn.addEventListener("click", ()=>{
+    qualityMode = btn.dataset.q;
+    renderScale = QUALITY[qualityMode].scale ?? renderScale;
+    document.querySelectorAll("[data-q]").forEach(b=>b.classList.toggle("active", b===btn));
+    resize();
+  });
+});
+
+/* ---- paneles colapsables / responsive ------------------------------------------------ */
+document.getElementById("sysToggle").addEventListener("click", function(){
+  const p = document.getElementById("sysPanel");
+  p.classList.toggle("closed");
+  this.setAttribute("aria-expanded", String(!p.classList.contains("closed")));
+});
+document.getElementById("tgLeft").addEventListener("click", ()=>document.getElementById("left").classList.toggle("open"));
+document.getElementById("tgRight").addEventListener("click", ()=>document.getElementById("right").classList.toggle("open"));
+const helpEl = document.getElementById("help");
+document.getElementById("helpBtn").addEventListener("click", ()=>helpEl.classList.toggle("open"));
+document.getElementById("helpClose").addEventListener("click", ()=>helpEl.classList.remove("open"));
+
+/* ---- etiquetas 3D ---------------------------------------------------------------------- */
+const labelsEl = document.getElementById("labels");
+const labelMap = new Map();
+function makeLabel(b){
+  const d = document.createElement("div");
+  d.className = "lbl"+(b ? (b.kind==="moon"?" moon":"") : " bh");
+  d.innerHTML = b ? cap1(b.name) : "GARGANTUA<small>agujero negro · 10⁸ M☉</small>";
+  d.addEventListener("click", ()=>{ if(b){ selected=b; renderFicha(); renderSys(); } else { selected=null; renderFicha(); renderSys(); }});
+  d.addEventListener("dblclick", ()=>{ if(b) lockPlanet(b); else setCamMode("GARGANTUA"); });
+  labelsEl.appendChild(d);
+  return d;
+}
+const bhLabel = makeLabel(null);
+bodies.forEach(b=>labelMap.set(b, makeLabel(b)));
+function updateLabels(){
+  const show = LAYERS.labels;
+  const place = (el, wp, vis)=>{
+    if(!show || !vis){ el.style.display="none"; return; }
+    const s = project(wp);
+    if(!s || s.z>1 || s.x<-40 || s.x>canvas.clientWidth+40 || s.y<0 || s.y>canvas.clientHeight){
+      el.style.display="none"; return;
+    }
+    el.style.display="block";
+    el.style.transform = `translate(-50%,-140%) translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px)`;
+  };
+  place(bhLabel, [0, 3.6, 0], true);
+  for(const b of bodies){
+    const el = labelMap.get(b);
+    let vis = LAYERS.planets;
+    if(b.kind==="moon"){
+      vis = vis && LAYERS.moons &&
+        (screenRadiusPx(b) > 3.5 || (cam.lockBody && (cam.lockBody===b.parent || cam.lockBody===b)));
+    }
+    el.classList.toggle("sel", b===selected);
+    el.classList.toggle("hot", b===hovered);
+    place(el, add3(b.apparent.pos, [0, b.radiusVis()*1.6, 0]), vis);
+  }
+}
+
+/* ---- tooltip + raycasting ---------------------------------------------------------------- */
+const tip = document.getElementById("tip");
+function rayFromScreen(mx, my){
+  const x = (mx/canvas.clientWidth)*2-1, y = 1-(my/canvas.clientHeight)*2;
+  const t = Math.tan(FOV/2);
+  return norm3(add3(add3(scale3(camRight, x*t*aspect), scale3(camUp, y*t)), camFwd));
+}
+function pick(mx, my){
+  if(!LAYERS.planets) return null;
+  const dir = rayFromScreen(mx, my);
+  let best = null, bestT = 1e9;
+  for(const b of bodies){
+    if(b.kind==="moon" && !LAYERS.moons) continue;
+    const C = b.apparent.pos;
+    const oc = sub3(C, cam.eye);
+    const tc = dot3(oc, dir);
+    if(tc < 0) continue;
+    const d2 = dot3(oc,oc) - tc*tc;
+    /* radio de selección: el visual (magnificado) con un mínimo en píxeles */
+    const minPx = 9;
+    const rPick = Math.max(b.radiusVis()*Math.max(1,b.apparent.mag)*1.15,
+                           tc*Math.tan(FOV/2)*2*minPx/canvas.clientHeight);
+    if(d2 < rPick*rPick && tc < bestT){ best = b; bestT = tc; }
+  }
+  return best;
+}
+function renderTip(mx, my){
+  if(!hovered || dragging){ tip.style.display="none"; return; }
+  const b = hovered;
+  const planet = b.kind==="planet" ? b : b.parent;
+  tip.innerHTML = `
+    <div class="t-name">${cap1(b.name)}</div>
+    <div class="t-kind">${b.kind==="planet" ? b.kindLabel :
+      ({4:"Luna craterizada",5:"Luna helada",6:"Luna rocosa",7:"Luna carbonácea"}[b.type]+" de "+cap1(b.parent.name))}</div>
+    <div class="t-row"><span>Distancia al BH</span><b>${fmtN(planet.aRs,0)} Rs</b></div>
+    <div class="t-row"><span>Período orbital</span><b>${fmtDur(b.periodS)}</b></div>
+    <div class="t-row"><span>dτ/dt</span><b>${planet.dil.toFixed(4)}</b></div>
+    ${b.apparent.mag > 1.15 ? `<div class="t-row"><span>Magnificación (lente)</span><b>×${fmtN(b.apparent.mag,2)}</b></div>` : ""}
+    ${planet.unstable ? `<div class="t-warn">⚠ Órbita hipotética inestable a escalas de tiempo largas (zona de posible disrupción por marea o resonancias).</div>` : ""}
+    <div class="t-hint">Click: seleccionar · Doble click: bloquear vista</div>`;
+  tip.style.display = "block";
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = Math.min(mx+16, innerWidth - tw - 8)+"px";
+  tip.style.top  = (my+18+th > innerHeight-8 ? my-th-12 : my+18)+"px";
+}
+
+/* ---- entrada de ratón/teclado --------------------------------------------------------------- */
+let dragging = false, downXY = null, lastXY = null;
+canvas.addEventListener("pointerdown", e=>{
+  downXY = lastXY = [e.clientX, e.clientY];
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove", e=>{
+  if(downXY && lastXY){
+    const dx = e.clientX-lastXY[0], dy = e.clientY-lastXY[1];
+    if(dragging || Math.hypot(e.clientX-downXY[0], e.clientY-downXY[1]) > 4){
+      dragging = true;
+      canvas.classList.add("grabbing");
+      cam.drag(dx, dy);
+    }
+    lastXY = [e.clientX, e.clientY];
+  }else{
+    hovered = pick(e.clientX, e.clientY);
+    canvas.style.cursor = hovered ? "pointer" : "crosshair";
+  }
+  renderTip(e.clientX, e.clientY);
+});
+canvas.addEventListener("pointerup", e=>{
+  if(!dragging && downXY){
+    const b = pick(e.clientX, e.clientY);
+    if(b){ selected = b; renderFicha(); renderSys(); }
+  }
+  dragging = false; downXY = lastXY = null;
+  canvas.classList.remove("grabbing");
+});
+canvas.addEventListener("dblclick", e=>{
+  const b = pick(e.clientX, e.clientY);
+  if(b) lockPlanet(b);
+});
+canvas.addEventListener("wheel", e=>{ e.preventDefault(); cam.wheel(e.deltaY); }, {passive:false});
+
+addEventListener("keydown", e=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName||"")) return;
+  const k = e.key.toLowerCase();
+  if(k===" "){ e.preventDefault(); togglePlay(); }
+  else if(k>="1" && k<="4"){ lockPlanet(planets[+k-1]); }
+  else if(k==="g"){ setCamMode("GARGANTUA"); }
+  else if(k==="f"){ setCamMode("FREE"); }
+  else if(k==="0"){ setCamMode("SYSTEM"); }
+  else if(k==="h"){ helpEl.classList.toggle("open"); }
+  else if(k==="escape"){ if(cam.mode==="PLANET") setCamMode("FREE"); helpEl.classList.remove("open"); }
+  else if(k==="["){ setWarp(Math.max(1, warp/Math.sqrt(10))); }
+  else if(k==="]"){ setWarp(Math.min(1e12, warp*Math.sqrt(10))); }
+  else if("wasdqe".includes(k)){ cam.keys[k] = true; }
+});
+addEventListener("keyup", e=>{ cam.keys[e.key.toLowerCase()] = false; });
+
+/* ---- redimensionado + calidad adaptativa ----------------------------------------------------- */
+const fpsChip = document.getElementById("fpsChip");
+const resChip = document.getElementById("resChip");
+function resize(){
+  const q = QUALITY[qualityMode];
+  const dpr = Math.min(devicePixelRatio||1, q.dprCap) * renderScale;
+  const w = Math.max(2, Math.round(canvas.clientWidth*dpr));
+  const h = Math.max(2, Math.round(canvas.clientHeight*dpr));
+  if(canvas.width!==w || canvas.height!==h){
+    canvas.width = w; canvas.height = h;
+    gl.viewport(0,0,w,h);
+    resChip.textContent = w+"×"+h;
+  }
+}
+addEventListener("resize", resize);
+canvas.addEventListener("webglcontextlost", e=>{ e.preventDefault(); window.__diag.errors.push("context lost"); });
+
+/* ============================================================================
+   BUCLE PRINCIPAL
+   ========================================================================== */
+let lastT = 0, uiT = 0, teleT = 0;
+function frame(tms){
+  const tSec = tms/1000;
+  const dtReal = Math.min(0.1, Math.max(0.0001, tSec-(lastT||tSec)));
+  lastT = tSec;
+
+  /* fps + calidad Auto: ajusta la resolución interna hacia ~57 fps */
+  fpsEMA += (1/dtReal - fpsEMA)*0.06;
+  if(qualityMode==="auto" && !TEST && tSec-lastQAdj > 0.6){
+    lastQAdj = tSec;
+    if(fpsEMA < 46 && renderScale > 0.45){ renderScale *= 0.9; resize(); }
+    else if(fpsEMA > 57 && renderScale < 1.0){ renderScale = Math.min(1, renderScale*1.05); resize(); }
+  }
+
+  /* avance temporal — simTime es tiempo COORDENADO (observador en el
+     infinito); cada cuerpo convierte a su tiempo propio con dτ/dt */
+  if(playing) simTime += dtReal*warp;
+  /* rotación del patrón del disco: Ω(r)·t, con tasa visual limitada para
+     evitar estroboscopia a warps altos (la física de los paneles no cambia) */
+  diskPhase += Math.min(OMEGA_ISCO*(playing?warp:0), 1.8)*dtReal;
+
+  for(const b of bodies) b.update(simTime, dtReal, playing?warp:0);
+  cam.update(dtReal, warp, playing);
+  updateMatrices();
+
+  /* lente en CPU: posiciones aparentes, magnificación, imagen secundaria */
+  for(const b of bodies){
+    b.apparent = lensApparent(b.pos, cam.eye, LAYERS.lens);
+    if(b.kind==="moon"){ b.apparent.sec = false; }
+  }
+
+  resize();
+  drawBH(tSec);
+  drawOrbits(tSec);
+  drawBodies(tSec);
+  drawRings(tSec);
+  drawAtmospheres();
+
+  /* HUD (limitado en frecuencia para no forzar layout) */
+  if(tSec-uiT > 0.2){
+    uiT = tSec;
+    simTimeEl.textContent = "t = "+fmtDur(simTime);
+    for(const b of planets) revSpans[b.id].textContent = fmtN(b.revs,0);
+    fpsChip.innerHTML = "<b>"+Math.min(240, Math.round(fpsEMA))+"</b> fps";
+    window.__diag.fps = Math.round(fpsEMA);
+    if(selected && cam.mode==="PLANET") renderFicha();   /* telemetría viva */
+    else if(selected) { /* refresco de fase/revoluciones */ renderFicha(); }
+  }
+  if(tSec-teleT > 0.35){ teleT = tSec; renderTele(); }
+  updateLabels();
+
+  window.__diag.frames++;
+  if(!window.__diag.ready){
+    const err = gl.getError();
+    if(err) window.__diag.errors.push("glError "+err);
+    window.__diag.ready = true;
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---- arranque ---------------------------------------------------------------- */
+const UIinit = (()=>{
+  renderFicha(); renderSys(); renderTele(); syncWarpUI(); markLd();
+  setWarp(warp);
+  setCamMode("GARGANTUA");
+  resize();
+  requestAnimationFrame(frame);
+})();
+
+</script>
