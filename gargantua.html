@@ -384,7 +384,7 @@ float vnoise(vec3 x){
 }
 float fbm(vec3 p, int oct){
   float a = 0.5, s = 0.0;
-  for(int i=0;i<7;i++){
+  for(int i=0;i<8;i++){
     if(i>=oct) break;
     s += a*vnoise(p);
     p = p*2.03 + vec3(11.5,7.7,3.1);
@@ -394,7 +394,7 @@ float fbm(vec3 p, int oct){
 }
 float ridged(vec3 p, int oct){
   float a = 0.5, s = 0.0;
-  for(int i=0;i<7;i++){
+  for(int i=0;i<8;i++){
     if(i>=oct) break;
     s += a*(1.0 - abs(vnoise(p)*2.0-1.0));
     p = p*2.13 + vec3(5.2,1.3,8.4);
@@ -578,7 +578,9 @@ vec4 diskShade(vec3 hit, vec3 vd){
 void main(){
   vec2 ndc = (gl_FragCoord.xy/uRes)*2.0 - 1.0;
   vec3 dir = normalize(uCamBasis*vec3(ndc.x*uTanHalf*uAspect, ndc.y*uTanHalf, 1.0));
-  float dith = hash1(vec3(gl_FragCoord.xy, fract(uTime)*13.0));  /* rompe bandas */
+  /* dithering ESTÁTICO por píxel: rompe bandas sin el grano parpadeante que
+     introducía la variante dependiente del tiempo */
+  float dith = hash1(vec3(gl_FragCoord.xy, 7.31));
 
   vec3 p = uCamPos;
   vec3 v = dir;
@@ -617,7 +619,7 @@ void main(){
   vec3 acc = vec3(0.0);        /* radiancia acumulada (front-to-back) */
   float A = 0.0;               /* opacidad acumulada */
   float jetI = 0.0, jetHel = 0.0;
-  float haloI = 0.0;
+  float haloI = 0.0, slabI = 0.0;
   float prevY = p.y;
   vec3 prevP = p;
   bool captured = false;
@@ -634,11 +636,17 @@ void main(){
     float dt = clamp(uDtScale*r, uDtScale*1.2, 3.0);
     if(i==0) dt *= 0.4 + 0.6*dith;                            /* dithering */
 
-    /* aceleración de curvatura (solo si la capa Lente está activa) */
-    if(uLens > 0.5){
-      v += (-1.5*h2/(r2*r2*r)) * p * dt;
-    }
+    /* aceleración de curvatura (solo si la capa Lente está activa).
+       RK2 punto medio: para el mismo paso tiene mucha menos difusión numérica
+       que Euler → desaparecen las bandas concéntricas del disco lensado y el
+       anillo de fotones queda nítido */
     prevP = p; prevY = p.y;
+    if(uLens > 0.5){
+      vec3 a1 = (-1.5*h2/(r2*r2*r)) * p;
+      vec3 pm = p + (v + a1*(0.5*dt))*(0.5*dt);
+      float rm2 = dot(pm,pm), rm = sqrt(rm2);
+      v += (-1.5*h2/(rm2*rm2*rm)) * pm * dt;
+    }
     p += v*dt;
     travel += dt*length(v);
 
@@ -654,12 +662,20 @@ void main(){
         A += (1.0-A)*dcol.a;
       }
     }
-    /* --- resplandor volumétrico suave alrededor del disco */
+    /* --- resplandor volumétrico + espesor aparente del gas: de canto, el
+       disco debe leerse como una banda luminosa suave y no como una línea
+       dura de un píxel cruzando la sombra */
     if(uDisk > 0.5 && r < 16.0){
       float rr2 = dot(p.xz,p.xz);
       if(rr2 > 5.0 && rr2 < 240.0){
         float rr = sqrt(rr2);
         haloI += exp(-p.y*p.y*5.0) * exp(-(rr-DISK_IN)*0.4) * dt;
+        if(rr < DISK_OUT){
+          float t01 = max((rr-DISK_IN)/(DISK_OUT-DISK_IN), 0.0);
+          float hh = 0.10 + 0.16*t01;                    /* semi-espesor ∝ r */
+          float tmp = pow(DISK_IN/max(rr,2.0), 0.75);
+          slabI += (1.0-A) * exp(-p.y*p.y/(2.0*hh*hh)) * tmp*tmp * dt;
+        }
       }
     }
     /* --- jets relativistas bipolares: cono con hélice y pulsos de ruido */
@@ -686,8 +702,9 @@ void main(){
   }
   vec3 col = acc + (1.0-A)*bg;
 
-  /* halo térmico + jets (aditivos, teñidos por el disco / síncrotron) */
+  /* halo térmico + espesor del gas + jets (aditivos) */
   col += vec3(1.0,0.62,0.3)*haloI*0.055*uDisk;
+  col += heatColor(0.72)*slabI*0.28*uDisk;
   col += (vec3(0.55,0.8,1.0)*jetI + vec3(0.5,0.35,0.9)*jetHel*0.4) * 0.16 * uJets;
 
   /* Capa Fotones: resalte didáctico del anillo de fotones. La órbita circular
@@ -772,7 +789,7 @@ void main(){
   vec3 LC = vec3(1.0,0.82,0.6);                   /* tinte del disco */
   float dif = clamp((dot(N,L)+0.22)/1.22, 0.0, 1.0);   /* difusa envolvente */
   float fres = pow(1.0-abs(dot(N,V)), 3.0);
-  int oct = int(clamp(2.0+uDetail*2.0, 2.0, 6.0));
+  int oct = int(clamp(2.0+uDetail*2.0, 2.0, 8.0));
   vec3 q = vLocal*2.4 + uSeed;
   vec3 alb = vec3(0.5);
   vec3 emis = vec3(0.0);
@@ -854,10 +871,15 @@ void main(){
     /* calentamiento de marea: máximo en los dos bulbos (cara al BH y antípoda).
        NOTA: para un BH supermasivo la marea real a 18 Rs es modesta; el efecto
        se exagera con fines ilustrativos (ver ficha). */
-    float tidal = 1.0 + 1.6*abs(dot(normalize(vLocal), uColA));  /* uColA = dir marea local */
+    float tidal = 1.0 + 1.0*abs(dot(normalize(vLocal), uColA));  /* uColA = dir marea local */
     float pulse = 0.85 + 0.15*sin(uTime2*0.6 + crust*9.0);
-    float lavaT = (0.55 + 0.5*fbm(q*5.0+9.0,oct))*tidal*pulse;
-    emis = heatColor(lavaT)*(lake*2.6 + crack*1.8);
+    /* vetas de flujo dentro de los lagos: costra oscura con ríos incandescentes
+       de núcleo compacto (vein³) — nunca zonas amplias de blanco plano */
+    float flow = fbm(q*6.5 + 9.0 + vec3(0.0, uTime2*0.015, 0.0), oct);
+    float vein = smoothstep(0.40, 0.80, flow);
+    float glowTex = 0.65 + 0.35*fbm(q*20.0 + 3.0, 3);
+    float lavaT = (0.25 + 0.55*vein)*tidal*pulse;
+    emis = heatColor(lavaT)*(lake*(0.25 + 1.9*vein*vein*vein) + crack*1.5)*glowTex;
     alb = basalt;
     rim = vec3(1.0,0.3,0.1)*1.1;
   }
@@ -891,6 +913,14 @@ void main(){
       alb = uColA*(0.6+0.5*base);
       alb *= 1.0 - 0.3*smoothstep(0.3,0.1,voro(q*2.8+3.0));
     }
+  }
+
+  /* micro-detalle de cercanía: modulación de albedo de alta frecuencia que
+     rompe el aspecto "plastilina" cuando el planeta llena la pantalla
+     (los gigantes gaseosos se excluyen: sus bandas deben quedar suaves) */
+  float md = smoothstep(1.1, 2.6, uDetail);
+  if(md > 0.0 && uType != 1 && uType != 2){
+    alb *= 1.0 + (fbm(q*13.0 + 47.0, 4)-0.5)*0.5*md;
   }
 
   /* iluminación: disco (ámbar, direccional) + luz estelar ambiente fría.
@@ -1046,7 +1076,9 @@ function makeSphere(lon, lat){
   }
   for(let y=0;y<lat;y++) for(let x=0;x<lon;x++){
     const a = y*(lon+1)+x, b = a+lon+1;
-    idx.push(a,b,a+1, a+1,b,b+1);
+    /* orden CCW visto desde FUERA: con cullFace(BACK) sobreviven las caras
+       exteriores (el orden inverso mostraba el interior del hemisferio opuesto) */
+    idx.push(a,a+1,b, b,a+1,b+1);
   }
   return { pos:new Float32Array(pos), idx:new Uint16Array(idx) };
 }
@@ -1574,6 +1606,7 @@ const progRing = link(FLAT_VS, RING_FS);
 const progLine = link(FLAT_VS, LINE_FS);
 
 const vaoEmpty = gl.createVertexArray();
+const sphereUltra = vao(makeSphere(128,96));   /* close-up: silueta sin facetas */
 const sphereHi = vao(makeSphere(64,48));
 const sphereLo = vao(makeSphere(28,20));
 const circle   = vao(makeCircle(256), true);
@@ -1590,9 +1623,11 @@ const OMEGA_ISCO = PHYS.omega(3);      /* rad/s del gas en la ISCO */
 const LAYERS = { lens:true, disk:true, jets:true, photon:false, labels:true,
                  planets:true, moons:true, orbits:true };
 const QUALITY = {
-  auto: { dprCap:1.5, steps:250, dtScale:0.055, scale:null },  /* scale adaptativo */
-  alta: { dprCap:2.0, steps:340, dtScale:0.045, scale:1.0 },
-  eco:  { dprCap:1.0, steps:150, dtScale:0.085, scale:0.6 },
+  auto: { dprCap:1.5, steps:300, dtScale:0.050, scale:null },  /* scale adaptativo */
+  /* alta: supersampling ×1,15 (en pantallas dpr=1 sube la resolución interna
+     por encima de la nativa; en dpr≥2 queda ≈1,84×, similar al tope anterior) */
+  alta: { dprCap:1.6, steps:380, dtScale:0.040, scale:1.15 },
+  eco:  { dprCap:1.0, steps:160, dtScale:0.080, scale:0.6 },
 };
 const qs = new URLSearchParams(location.search);
 let qualityMode = ["auto","alta","eco"].includes(qs.get("q")) ? qs.get("q") : "auto";
@@ -1611,14 +1646,21 @@ const cam = new CameraController();
 
 /* ---- proyección/vista ------------------------------------------------------ */
 let proj, view, viewProj, camRight, camUp, camFwd, aspect = 1;
+let lastRight = [1,0,0];   /* continuidad del encuadre cerca de los polos */
 function updateMatrices(){
   aspect = canvas.clientWidth/Math.max(1,canvas.clientHeight);
   proj = M4.persp(FOV, aspect, NEAR, FAR);
   let fwd = sub3(cam.target, cam.eye);
   if(len3(fwd) < 1e-6) fwd = [0,0,-1];
   camFwd = norm3(fwd);
-  let upRef = Math.abs(camFwd[1]) > 0.985 ? [1,0,0] : [0,1,0];
-  camRight = norm3(cross3(camFwd, upRef));
+  /* right = fwd × up_mundo. El producto cruzado solo degenera con la vista
+     EXACTAMENTE vertical; en ese caso se reutiliza el right del fotograma
+     anterior. (Antes había un umbral a ~80° que cambiaba la referencia de
+     golpe y hacía "saltar" la cámara a otro plano al seguir girando.) */
+  let rv = cross3(camFwd, [0,1,0]);
+  if(len3(rv) < 1e-3) rv = lastRight;
+  camRight = norm3(rv);
+  lastRight = camRight;
   camUp = cross3(camRight, camFwd);
   view = M4.lookAt(cam.eye, cam.target, camUp);
   viewProj = M4.mul(proj, view);
@@ -1651,6 +1693,7 @@ function drawBH(tSec){
   gl.uniform1f(progBH.u("uPA"), (FAR+NEAR)/(FAR-NEAR));
   gl.uniform1f(progBH.u("uPB"), -2*FAR*NEAR/(FAR-NEAR));
   gl.disable(gl.BLEND);
+  gl.disable(gl.CULL_FACE);      /* el triángulo a pantalla completa nunca se descarta */
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.ALWAYS);       /* escribe gl_FragDepth aproximado */
   gl.depthMask(true);
@@ -1701,7 +1744,7 @@ function drawBody(b, tSec, imgSign, dim){
   /* LOD de malla + detalle procedural según tamaño en pantalla */
   const scr = screenRadiusPx(b);
   gl.uniform1f(p.u("uDetail"), Math.max(0.35, Math.min(3, scr/70)));
-  const mesh = scr > 26 ? sphereHi : sphereLo;
+  const mesh = scr > 220 ? sphereUltra : scr > 26 ? sphereHi : sphereLo;
   gl.bindVertexArray(mesh.v);
   gl.drawElements(gl.TRIANGLES, mesh.n, gl.UNSIGNED_SHORT, 0);
 }
@@ -1789,8 +1832,10 @@ function drawAtmospheres(){
     gl.uniform1f(progAtmo.u("uTidalAmt"), 0);
     gl.uniform3f(progAtmo.u("uAtmCol"), b.atmCol[0], b.atmCol[1], b.atmCol[2]);
     gl.uniform1f(progAtmo.u("uLightI"), lightAt(len3(b.pos)));
-    gl.bindVertexArray(sphereLo.v);
-    gl.drawElements(gl.TRIANGLES, sphereLo.n, gl.UNSIGNED_SHORT, 0);
+    /* malla densa: con la de 28×20 el halo se veía facetado en close-up */
+    const mesh = screenRadiusPx(b) > 220 ? sphereUltra : sphereHi;
+    gl.bindVertexArray(mesh.v);
+    gl.drawElements(gl.TRIANGLES, mesh.n, gl.UNSIGNED_SHORT, 0);
   }
   gl.cullFace(gl.BACK);
   gl.depthMask(true);
@@ -2322,6 +2367,7 @@ function frame(tms){
   for(const b of bodies) b.update(simTime, dtReal, playing?warp:0);
   cam.update(dtReal, warp, playing);
   updateMatrices();
+  window.__diag.up = camUp;      /* para tests: continuidad del encuadre */
 
   /* lente en CPU: posiciones aparentes, magnificación, imagen secundaria */
   for(const b of bodies){
