@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El jardín de senderos que se bifurcan · DAG hiperbólico</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%2304060f'/%3E%3Cpath d='M16 27 L16 17 M16 17 Q10 13 8 7 M16 17 Q22 13 24 7 M8 7 Q16 3 24 7' stroke='%23ffcf7d' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #04060f;
+    --panel: rgba(10, 15, 30, 0.78);
+    --panel-border: rgba(130, 150, 220, 0.22);
+    --ink: #dfe6ff;
+    --ink-dim: #8f9cc7;
+    --gold: #ffcf7d;
+    --teal: #6fd8cf;
+    --rose: #f06ab4;
+    --violet: #c9a0ff;
+    --ok: #7dffb0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 14px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  #scene { position: fixed; inset: 0; display: block; cursor: grab; }
+  #scene.dragging { cursor: grabbing; }
+
+  .glass {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  }
+
+  /* ---- título ---- */
+  #titlebar { position: fixed; top: 14px; left: 16px; padding: 10px 16px; max-width: 340px; z-index: 5; }
+  #titlebar h1 { font-size: 15px; font-weight: 650; letter-spacing: 0.02em; color: var(--gold); }
+  #titlebar p  { font-size: 11.5px; color: var(--ink-dim); margin-top: 2px; }
+
+  /* ---- toggle de modos ---- */
+  #modebar { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; gap: 0; padding: 4px; }
+  .mode-btn {
+    border: 0; background: transparent; color: var(--ink-dim);
+    font: 600 12.5px/1 system-ui, sans-serif; letter-spacing: 0.06em;
+    padding: 9px 16px; border-radius: 10px; cursor: pointer; transition: all .3s;
+  }
+  .mode-btn.active { background: rgba(255, 207, 125, 0.16); color: var(--gold); box-shadow: inset 0 0 0 1px rgba(255,207,125,0.35); }
+  .mode-btn:hover:not(.active) { color: var(--ink); }
+
+  /* ---- controles ---- */
+  #controls { position: fixed; top: 14px; right: 16px; z-index: 5; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  #controls .row { display: flex; gap: 8px; }
+  .ctl {
+    padding: 8px 12px; border-radius: 10px; border: 1px solid var(--panel-border);
+    background: var(--panel); color: var(--ink); font: 500 12px system-ui, sans-serif;
+    cursor: pointer; transition: border-color .2s, color .2s;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .ctl:hover { border-color: var(--violet); color: var(--violet); }
+  select.ctl { appearance: none; padding-right: 22px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='6'><path d='M0 0l4 6 4-6z' fill='%238f9cc7'/></svg>");
+    background-repeat: no-repeat; background-position: right 8px center; }
+
+  /* ---- panel del nodo ---- */
+  #panel {
+    position: fixed; right: 16px; top: 118px; width: 330px; max-height: calc(100vh - 300px);
+    z-index: 5; padding: 16px; overflow-y: auto; display: none;
+  }
+  #panel.visible { display: block; }
+  #panel .node-id { font: 700 11px system-ui; letter-spacing: .14em; color: var(--ink-dim); }
+  #panel h2 { font-size: 17px; font-weight: 650; margin: 2px 0 8px; }
+  #panel h2.anchor  { color: var(--gold); }
+  #panel h2.derived { color: var(--teal); }
+  .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .badge { font: 600 10px system-ui; letter-spacing: .05em; padding: 3px 8px; border-radius: 20px; }
+  .badge.anchor   { background: rgba(255,207,125,.14); color: var(--gold); }
+  .badge.derived  { background: rgba(111,216,207,.13); color: var(--teal); }
+  .badge.conv     { background: rgba(240,106,180,.15); color: var(--rose); }
+  .badge.depth    { background: rgba(140,155,200,.12); color: var(--ink-dim); }
+  #panel .node-text { font-size: 13px; color: var(--ink); opacity: .93; margin-bottom: 14px; }
+  #panel .sec-label { font: 700 10px system-ui; letter-spacing: .12em; color: var(--ink-dim); margin: 12px 0 6px; }
+  .link-btn {
+    display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+    padding: 8px 10px; margin-bottom: 5px; border-radius: 9px; cursor: pointer;
+    border: 1px solid rgba(130,150,220,0.16); background: rgba(20,28,55,0.5);
+    color: var(--ink); font: 500 12.5px system-ui; transition: border-color .15s, background .15s;
+  }
+  .link-btn:hover { border-color: rgba(200,170,255,.45); background: rgba(35,45,85,.6); }
+  .link-btn .arrow { color: var(--ink-dim); font-size: 13px; }
+  .link-btn .gen-chip {
+    margin-left: auto; font: 700 11px ui-monospace, monospace; color: var(--violet);
+    background: rgba(201,160,255,.12); border: 1px solid rgba(201,160,255,.3);
+    padding: 1px 7px; border-radius: 6px;
+  }
+  .link-btn .conv-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rose); flex: none; }
+
+  /* ---- HUD del grupo D4 ---- */
+  #hud {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 5; padding: 10px 18px; display: none; text-align: center; min-width: 300px;
+  }
+  #hud.visible { display: block; }
+  #hud .hud-label { font: 700 9.5px system-ui; letter-spacing: .16em; color: var(--ink-dim); }
+  #hud .word { margin: 6px 0 4px; min-height: 26px; display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .wchip {
+    font: 700 13px ui-monospace, monospace; color: var(--violet);
+    background: rgba(201,160,255,.1); border: 1px solid rgba(201,160,255,.32);
+    padding: 2px 9px; border-radius: 7px;
+  }
+  .wchip.back { border-style: dashed; opacity: .85; }
+  .wchip.eq { border: 0; background: none; color: var(--ink-dim); }
+  #hud .acc { font: 600 12px system-ui; color: var(--ink); }
+  #hud .acc .el { font: 700 15px ui-monospace, monospace; color: var(--gold); }
+  #hud .acc .start { color: var(--ink-dim); font-size: 11px; }
+  #hud.verified { border-color: rgba(125,255,176,.5); box-shadow: 0 0 24px rgba(125,255,176,.18); }
+
+  /* ---- leyenda ---- */
+  #legend { position: fixed; bottom: 16px; left: 16px; z-index: 5; padding: 12px 14px; font-size: 11px; color: var(--ink-dim); max-width: 240px; }
+  #legend .li { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+  #legend .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  #legend .line { width: 16px; height: 3px; border-radius: 2px; flex: none; }
+  #legend .stats { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(130,150,220,.15); font-size: 10.5px; }
+  #legend .hint { margin-top: 6px; font-size: 10px; opacity: .75; }
+
+  /* ---- toast ---- */
+  #toast {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-8px);
+    z-index: 20; padding: 12px 22px; font: 600 13px system-ui; text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s; max-width: 520px;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.gold { color: var(--ok); border-color: rgba(125,255,176,.45); box-shadow: 0 0 30px rgba(125,255,176,.2); }
+
+  /* ---- guía D4 (modal) ---- */
+  #guide {
+    position: fixed; inset: 0; z-index: 30; display: none;
+    background: rgba(3,5,12,0.6); backdrop-filter: blur(4px);
+  }
+  #guide.visible { display: flex; align-items: center; justify-content: center; }
+  #guide .box { width: min(560px, calc(100vw - 40px)); max-height: 82vh; overflow-y: auto; padding: 24px 26px; }
+  #guide h2 { color: var(--violet); font-size: 17px; margin-bottom: 8px; }
+  #guide p { font-size: 12.5px; color: var(--ink); opacity: .9; margin-bottom: 10px; }
+  #guide code { font: 600 12px ui-monospace, monospace; color: var(--violet); }
+  #guide .rel { border: 1px solid rgba(130,150,220,.2); border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+  #guide .rel h3 { font: 700 14px ui-monospace, monospace; color: var(--gold); margin-bottom: 4px; }
+  #guide .rel .st { font-size: 12px; color: var(--ink-dim); }
+  #guide .rel .done { color: var(--ok); font-weight: 700; font-size: 11.5px; }
+  #guide .rel .walkbtn { margin-top: 8px; }
+  #guide .close { margin-top: 12px; width: 100%; }
+
+  /* ---- overlay de carga / error ---- */
+  #loading {
+    position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; background: var(--bg);
+    transition: opacity .6s; font-size: 13px; color: var(--ink-dim); text-align: center; padding: 20px;
+  }
+  #loading .spin {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 2px solid rgba(130,150,220,.2); border-top-color: var(--gold);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading.hidden { opacity: 0; pointer-events: none; }
+  #loading .err { color: #ff9a9a; max-width: 420px; }
+
+  /* ---- tooltip hover ---- */
+  #tip {
+    position: fixed; z-index: 15; pointer-events: none; display: none;
+    padding: 5px 10px; font: 600 11.5px system-ui; border-radius: 8px;
+    background: rgba(8,12,26,.92); border: 1px solid var(--panel-border); color: var(--ink);
+  }
+
+  @media (max-width: 860px) {
+    #titlebar { max-width: 210px; }
+    #panel { right: 8px; left: 8px; width: auto; top: auto; bottom: 90px; max-height: 34vh; }
+    #legend { display: none; }
+    #hud { bottom: auto; top: 64px; min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="scene"></canvas>
+
+<div id="titlebar" class="glass">
+  <h1>El jardín de senderos que se bifurcan</h1>
+  <p>La novela de Ts&rsquo;ui P&ecirc;n como DAG en el plano hiperb&oacute;lico &mdash; disco de Poincar&eacute;, isometr&iacute;as de M&ouml;bius y una capa D&#8324;.</p>
+</div>
+
+<div id="modebar" class="glass">
+  <button class="mode-btn" id="btn-caminante">&#128694; CAMINANTE</button>
+  <button class="mode-btn" id="btn-dios">&#128065; OJO DE DIOS</button>
+</div>
+
+<div id="controls">
+  <div class="row">
+    <select id="proj" class="ctl" title="Modelo de proyección de H²">
+      <option value="poincare">disco de Poincar&eacute;</option>
+      <option value="klein">disco de Klein</option>
+    </select>
+    <button id="btn-guide" class="ctl">&#120027;&#8324; gu&iacute;a</button>
+  </div>
+  <div class="row">
+    <button id="btn-center" class="ctl">centrar historia</button>
+    <button id="btn-reset" class="ctl">reiniciar camino</button>
+  </div>
+</div>
+
+<div id="panel" class="glass"></div>
+
+<div id="hud" class="glass">
+  <div class="hud-label">PALABRA EN D&#8324; &mdash; caminar aristas etiquetadas multiplica generadores</div>
+  <div class="word" id="hud-word"><span class="wchip eq">&mdash;</span></div>
+  <div class="acc" id="hud-acc">elemento acumulado: <span class="el">e</span></div>
+</div>
+
+<div id="legend" class="glass">
+  <div class="li"><span class="dot" style="background:var(--gold)"></span> nudo ancla (momento real del cuento)</div>
+  <div class="li"><span class="dot" style="background:var(--teal)"></span> rama derivada (porvenir generado)</div>
+  <div class="li"><span class="line" style="background:#4d6db8"></span> bifurcaci&oacute;n</div>
+  <div class="li"><span class="line" style="background:var(--rose)"></span> convergencia (el nodo destino tiene varios padres)</div>
+  <div class="li"><span class="line" style="background:var(--violet);height:2px"></span> arista con generador de D&#8324; (r, s, &hellip;)</div>
+  <div class="stats" id="legend-stats"></div>
+  <div class="hint">arrastrar: orbitar &middot; rueda: zoom &middot; doble clic en un nodo: centrarlo (traslaci&oacute;n de M&ouml;bius) &middot; anillos: c&iacute;rculos a distancia hiperb&oacute;lica &rho;=1,2,3&hellip;</div>
+</div>
+
+<div id="toast" class="glass"></div>
+<div id="tip"></div>
+
+<div id="guide">
+  <div class="box glass">
+    <h2>La capa algebraica: el grupo diedral D&#8324;</h2>
+    <p>D&#8324; es el grupo de simetr&iacute;as del cuadrado: <code>r</code> rota 90&deg;, <code>s</code> refleja. Presentaci&oacute;n: <code>&lang;r, s | r&#8308; = s&sup2; = (s&middot;r)&sup2; = e&rang;</code>. Un subconjunto de aristas del jardín lleva estos generadores; recorrer una arista hacia adelante multiplica por su generador, y &laquo;recordar&raquo; (retroceder) multiplica por el inverso.</p>
+    <p>En los tres diamantes etiquetados, el producto por las dos ramas paralelas es <b>el mismo elemento</b> (independencia de camino): la convergencia narrativa de Ts&rsquo;ui P&ecirc;n es, literalmente, una relaci&oacute;n de grupo. Camin&aacute; el lazo &mdash;ida por una rama, vuelta por la otra&mdash; y la palabra se reduce a <code>e</code> exactamente cuando volv&eacute;s al nodo de partida.</p>
+    <div id="guide-rels"></div>
+    <p style="opacity:.7;font-size:11.5px">Consejo: hacelo en MODO CAMINANTE. Retroceder por &laquo;el otro padre&raquo; de un nodo es recordar un pasado distinto del que viviste &mdash; el movimiento clave del jard&iacute;n.</p>
+    <button class="ctl close" id="guide-close">cerrar</button>
+  </div>
+</div>
+
+<div id="loading">
+  <div class="spin"></div>
+  <div id="loading-msg">cargando Three.js y tejiendo la red de tiempos&hellip;</div>
+</div>
+
+<script>
+/* ============================================================================
+   EL JARDÍN DE SENDEROS QUE SE BIFURCAN — núcleo (grafo + matemática)
+   ----------------------------------------------------------------------------
+   1) GRAFO: DAG narrativo del cuento de Borges.
+      - Nodos ancla (anchor:true): momentos reales del cuento.
+      - Nodos derivados (anchor:false): bifurcaciones generadas, coherentes con
+        la lógica de Ts'ui Pên; varias CONVERGEN de vuelta en nudos ancla
+        (nodos con 2 y hasta 3 padres → es un DAG, no un árbol).
+   2) CAPA ALGEBRAICA: un subconjunto de aristas está etiquetado con
+      generadores del grupo diedral D4 = ⟨r, s | r⁴ = s² = (sr)² = e⟩.
+      Caminar un lazo (ida por una rama, vuelta "recordando" la otra) multiplica
+      los generadores (inversos al retroceder) y devuelve la identidad
+      exactamente cuando volvés al nodo de partida: la convergencia narrativa
+      ES una relación de grupo.
+   3) GEOMETRÍA: layout en el plano hiperbólico H² (coordenadas polares
+      hiperbólicas ρ,θ), proyección al disco de Poincaré |z|=tanh(ρ/2) o al
+      disco de Klein |k|=tanh(ρ), geodésicas reales (arcos ortogonales al
+      borde en Poincaré / cuerdas en Klein) e isometrías de Möbius del disco
+      para navegar (traslaciones hiperbólicas genuinas).
+   selfTest() verifica todo esto de forma numérica y estructural.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ */
+  /* 1. NODOS                                                            */
+  /* ------------------------------------------------------------------ */
+  const NODES = [
+    { id: 'A1', anchor: true, title: 'La llamada',
+      text: 'Yu Tsun, ex catedrático de inglés en la Hochschule de Tsingtao y espía del Imperio alemán, marca el número de Viktor Runeberg. Atiende una voz que no debería estar ahí: la del capitán Richard Madden, irlandés al servicio de Inglaterra. Runeberg ha caído; su arresto es la ruina de ambos. La cacería, ahora, es por Yu Tsun.' },
+    { id: 'B1', anchor: false, title: 'La huida al puerto',
+      text: 'En este porvenir Yu Tsun no ejecuta plan alguno: junta sus últimas libras y busca un barco neutral en los muelles. Pero el Jefe espera un nombre en Berlín, y el orgullo de su estirpe pesa más que el miedo: esta rama regresa al plan como los senderos regresan al patio central del laberinto.' },
+    { id: 'A2', anchor: true, title: 'El plan',
+      text: 'Yu Tsun posee el Secreto: el nombre exacto del sitio donde se concentra el nuevo parque de artillería británico sobre el Ancre. Se llama, precisamente, Albert. Sin modo de hacer llegar la palabra a Berlín, concibe un plan atroz: la guía telefónica le da el nombre de la única persona capaz de transmitir la noticia — Stephen Albert, de Ashgrove. El ejecutor de una empresa atroz debe imaginar que ya la ha cumplido.' },
+    { id: 'B2', anchor: false, title: 'Madden muerto en la escalera',
+      text: 'En este porvenir Yu Tsun no corre: espera a su perseguidor con el revólver y lo mata en la escalera de la pensión. Como en la novela de Ts’ui Pên —donde un hombre puede morir en un capítulo y volver vivo en el siguiente—, Madden, muerto aquí, volverá a avanzar intacto por el sendero del jardín (A10). Esta rama confluye directamente en la casa de Albert (A5).' },
+    { id: 'A3', anchor: true, title: 'El tren de Ashgrove',
+      text: 'En la estación, Yu Tsun aborda el tren un instante antes de que arranque. Desde el vagón reconoce, corriendo en vano por el andén, al capitán Richard Madden. Cuarenta minutos de ventaja: en ese margen mínimo cabe todo el porvenir.' },
+    { id: 'B3', anchor: false, title: 'La lucha en el vagón',
+      text: 'En este porvenir Madden alcanza el tren en marcha. Forcejean entre los vagones: dos empleados de imperios ajenos, peleando una guerra que no es de ninguno de los dos. De la lucha brotan dos desenlaces simultáneos: Yu Tsun se desprende y salta al andén de Ashgrove (A4), y Yu Tsun cae a las vías (B3x).' },
+    { id: 'B3x', anchor: false, title: 'Las vías',
+      text: 'Yu Tsun cae del tren: muere junto al terraplén con el Secreto intacto en la garganta. Esta rama no vuelve a bifurcarse — pero en las otras Yu Tsun sigue vivo rumbo a Ashgrove. En el jardín de Ts’ui Pên todos los desenlaces ocurren: muerto en esta rama, camina en las demás.' },
+    { id: 'A4', anchor: true, title: 'Siempre a la izquierda',
+      text: 'En Ashgrove unos muchachos le indican el camino a la casa de Stephen Albert: doblar siempre a la izquierda en cada encrucijada. Yu Tsun reconoce el procedimiento: es la manera común de descubrir el patio central de ciertos laberintos. Él, bisnieto de Ts’ui Pên, sabe de laberintos.' },
+    { id: 'B4', anchor: false, title: 'Doblar a la derecha',
+      text: 'En este porvenir desobedece la fórmula y dobla a la derecha. El camino se pierde, lo devuelve, lo confunde — y al cabo lo entrega, igual, a la verja oxidada de Stephen Albert: en el condado de los laberintos también los errores convergen. (Arista con generador: caminá A4→B4→A5 y volvé por la arista directa para verificar s·r²s·r² = e.)' },
+    { id: 'A5', anchor: true, title: 'La casa de Stephen Albert',
+      text: 'Un farol que se acerca entre los árboles; un hombre alto que lo alza y que habla, inesperadamente, en chino: «¿Usted sin duda querrá ver el jardín de los senderos que se bifurcan?». Stephen Albert, sinólogo, lo toma por un visitante enviado por el cónsul Hsi P’êng. Yu Tsun entra al jardín de su antepasado. Tres pasados distintos (A4, B2, B4) confluyen en este umbral.' },
+    { id: 'B5', anchor: false, title: 'La confesión inmediata',
+      text: 'En este porvenir Yu Tsun no finge: confiesa en el umbral que ha venido a matarlo, que su apellido carga el nombre de una ciudad. Albert, sereno como quien ya leyó todos los capítulos, lo invita a pasar de todos modos: antes de morir quiere mostrarle la carta. La rama confluye en la revelación (A6).' },
+    { id: 'A6', anchor: true, title: 'Un solo objeto',
+      text: 'Albert revela el enigma de Ts’ui Pên, que renunció a todo para escribir una novela y edificar un laberinto: los dos trabajos eran uno solo. El libro caótico ES el laberinto. La prueba, una carta: «Dejo a los varios porvenires (no a todos) mi jardín de senderos que se bifurcan». El jardín se bifurca en el tiempo, no en el espacio: ante varias alternativas, el personaje de Ts’ui Pên las toma todas a la vez.' },
+    { id: 'B6', anchor: false, title: 'La caligrafía del antepasado',
+      text: 'En este porvenir Yu Tsun pide leer la carta con sus propias manos. En la caligrafía minuciosa reconoce la sangre: el mismo pulso que en su infancia trazaba ideogramas hoy le deja en herencia un laberinto de tiempo. La lectura desemboca, como todo en esta casa, en las dos versiones del capítulo épico (A7).' },
+    { id: 'A7', anchor: true, title: 'Las dos lecturas',
+      text: 'Albert lee dos redacciones de un mismo capítulo épico. En ambas el mismo ejército marcha hacia la batalla por caminos incompatibles, y en ambas la batalla se gana. La convergencia está escrita en la propia novela: desde aquí se abren los dos pasados (M1 y M2) que desembocan en la misma victoria (A8). Es el lazo de la relación (s·r)² = e.' },
+    { id: 'M1', anchor: true, title: 'Por la montaña desolada',
+      text: 'Primera versión: el ejército marcha a la batalla cruzando una montaña desierta. El horror de las piedras y de la sombra le hace menospreciar la vida, y gana con facilidad la victoria. (Generador s: la reflexión, el espejo austero del tiempo.)' },
+    { id: 'M2', anchor: true, title: 'Por el palacio en fiesta',
+      text: 'Segunda versión: el mismo ejército atraviesa un palacio en el que hay una fiesta; la batalla resplandeciente les parece una continuación de la fiesta, y la ganan. (Generador r³: tres cuartos de vuelta, la rotación festiva del tiempo.)' },
+    { id: 'A8', anchor: true, title: 'La misma victoria',
+      text: 'Los dos tiempos confluyen. Ambas versiones cierran con la misma frase épica —los héroes, tranquilo el corazón, violenta la espada, resignados a matar y a morir—. Un capítulo, dos pasados, un solo desenlace: la firma formal del jardín, y la primera convergencia que el propio cuento escribe con todas las letras.' },
+    { id: 'A9', anchor: true, title: 'La red de tiempos',
+      text: 'Ts’ui Pên no creía en un tiempo uniforme, absoluto: creía en infinitas series de tiempos, en una «red creciente y vertiginosa de tiempos divergentes, convergentes y paralelos». En algunos existen ambos; en otros, solo uno. «El tiempo se bifurca perpetuamente hacia innumerables futuros. En uno de ellos soy su enemigo.»' },
+    { id: 'B7', anchor: false, title: 'La renuncia',
+      text: 'En este porvenir la red de tiempos lo disuade: ningún nombre vale la vida del hombre que reconstruyó el jardín. Yu Tsun guarda el revólver y sale a la noche. La renuncia no lo salva: Madden lo arresta igual entre los árboles — casi todos los senderos de esta noche terminan en la horca (A12).' },
+    { id: 'A10', anchor: true, title: 'Madden en el sendero',
+      text: 'Yu Tsun alza los ojos: la tenue pesadilla se disipa — por el sendero del jardín, alto y fuerte, avanza el capitán Richard Madden. En una de las ramas de este instante (B2) Madden ya estaba muerto; en esta viene a arrestarlo. El porvenir ya existe, y sin embargo hay que elegir.' },
+    { id: 'B8', anchor: false, title: 'Los dos se miran',
+      text: 'En este porvenir Yu Tsun duda un segundo de más. Madden cruza el jardín y los dos hombres se miran sobre el césped húmedo, sin disparo y sin nombre: el Secreto no viajará. La rama confluye, como casi todas, en la captura (A12).' },
+    { id: 'B9', anchor: false, title: 'La espalda ofrecida',
+      text: 'En este porvenir es Albert quien comprende primero: «En uno de esos tiempos soy su enemigo», dice, y se vuelve hacia la lámpara dándole la espalda, cómplice deliberado del jardín. El desenlace es el mismo disparo (A11): dos intenciones distintas, una sola bala. (Caminá A10→B9→A11 y volvé por la arista directa: r²·r³·r³ = e.)' },
+    { id: 'A11', anchor: true, title: 'El disparo',
+      text: '«Yo había preparado el revólver. Disparé con sumo cuidado: Albert se desplomó sin una queja, inmediatamente.» El hombre que descifró el jardín muere para que un nombre cruce la guerra. Dos ramas (A10 directa y B9) convergen en esta única detonación.' },
+    { id: 'A12', anchor: true, title: 'La captura',
+      text: '«Lo demás es irreal, insignificante. Madden irrumpió, me arrestó. He sido condenado a la horca.» Todas las ramas de esta noche —el disparo, la duda, la renuncia— confluyen en el mismo cuarto de prisionero: tres pasados incompatibles comparten este presente, como enseña la novela de Ts’ui Pên.' },
+    { id: 'A13', anchor: true, title: 'Abominablemente he vencido',
+      text: 'Berlín descifra el enigma leyendo los diarios: Yu Tsun, asesino de un desconocido llamado Stephen Albert, ha comunicado así el nombre exacto de la ciudad que debían atacar — ayer la bombardearon. «No sabe (nadie puede saber) mi innumerable contrición y cansancio.»' },
+    { id: 'B10', anchor: false, title: 'El nombre no viaja',
+      text: 'En este porvenir la horca llega antes que los diarios, o el Jefe no descifra el enigma: el nombre de la ciudad no cruza la guerra y los cañones esperan sobre el Ancre, indiferentes. De la captura (A12) brotan los dos finales: este silencio y la abominable victoria (A13). El mismo presente, dos porvenires.' },
+  ];
+
+  /* ------------------------------------------------------------------ */
+  /* 2. ARISTAS  (gen: generador de D4 si la arista pertenece a la capa  */
+  /*    algebraica; las demás son puramente narrativas)                  */
+  /* ------------------------------------------------------------------ */
+  const EDGES = [
+    { from: 'A1',  to: 'A2'  },
+    { from: 'A1',  to: 'B1'  },
+    { from: 'B1',  to: 'A2'  },
+    { from: 'A2',  to: 'A3'  },
+    { from: 'A2',  to: 'B2'  },
+    { from: 'B2',  to: 'A5'  },
+    { from: 'A3',  to: 'A4'  },
+    { from: 'A3',  to: 'B3'  },
+    { from: 'B3',  to: 'A4'  },
+    { from: 'B3',  to: 'B3x' },
+    { from: 'A4',  to: 'A5',  gen: 'r2'  },
+    { from: 'A4',  to: 'B4',  gen: 's'   },
+    { from: 'B4',  to: 'A5',  gen: 'r2s' },
+    { from: 'A5',  to: 'A6'  },
+    { from: 'A5',  to: 'B5'  },
+    { from: 'B5',  to: 'A6'  },
+    { from: 'A6',  to: 'A7'  },
+    { from: 'A6',  to: 'B6'  },
+    { from: 'B6',  to: 'A7'  },
+    { from: 'A7',  to: 'M1',  gen: 's'   },
+    { from: 'A7',  to: 'M2',  gen: 'r3'  },
+    { from: 'M1',  to: 'A8',  gen: 'r'   },
+    { from: 'M2',  to: 'A8',  gen: 's'   },
+    { from: 'A8',  to: 'A9'  },
+    { from: 'A9',  to: 'A10' },
+    { from: 'A9',  to: 'B7'  },
+    { from: 'B7',  to: 'A12' },
+    { from: 'A10', to: 'A11', gen: 'r'   },
+    { from: 'A10', to: 'B8'  },
+    { from: 'A10', to: 'B9',  gen: 'r2'  },
+    { from: 'B8',  to: 'A12' },
+    { from: 'B9',  to: 'A11', gen: 'r3'  },
+    { from: 'A11', to: 'A12' },
+    { from: 'A12', to: 'A13' },
+    { from: 'A12', to: 'B10' },
+  ];
+  EDGES.forEach(e => { e.key = e.from + '>' + e.to; });
+
+  /* ------------------------------------------------------------------ */
+  /* 3. GRUPO DIEDRAL D4 = ⟨r,s | r⁴ = s² = (sr)² = e⟩                   */
+  /*    Elemento = [k, f] ≡ r^k s^f  (k∈Z₄, f∈{0,1})                     */
+  /*    (r^a s^b)(r^c s^d) = r^(a + (-1)^b c) s^(b⊕d)                    */
+  /* ------------------------------------------------------------------ */
+  const D4 = {
+    E: [0, 0],
+    mul(A, B) { return [(A[0] + (A[1] ? (4 - B[0]) % 4 : B[0])) % 4, A[1] ^ B[1]]; },
+    inv(A)    { return A[1] ? [A[0], 1] : [(4 - A[0]) % 4, 0]; },
+    eq(A, B)  { return A[0] === B[0] && A[1] === B[1]; },
+    name(A)   { const r = ['', 'r', 'r²', 'r³'][A[0]]; const s = A[1] ? 's' : ''; return (r + s) || 'e'; },
+  };
+  const GEN = { r: [1, 0], r2: [2, 0], r3: [3, 0], s: [0, 1], r2s: [2, 1] };
+
+  /* Relaciones verificables caminando el grafo (dir 1 = avanzar la      */
+  /* arista, dir -1 = retroceder por ella, aplica el generador inverso). */
+  const RELATIONS = [
+    { id: 0, name: '(s·r)² = e', start: 'A7',
+      pretty: 's · r · s · r  =  e',
+      hint: 'En A7 avanzá a M1 (s) y a A8 (r); después «recordá» el otro pasado: retrocedé a M2 (s⁻¹=s) y a A7 ((r³)⁻¹=r).',
+      steps: [ { edge: 'A7>M1', dir: 1 }, { edge: 'M1>A8', dir: 1 },
+               { edge: 'M2>A8', dir: -1 }, { edge: 'A7>M2', dir: -1 } ] },
+    { id: 1, name: 's·r²s·r² = e', start: 'A4',
+      pretty: 's · r²s · r²  =  e',
+      hint: 'En A4 avanzá a B4 (s) y a A5 (r²s); después retrocedé a A4 por la arista directa ((r²)⁻¹=r²).',
+      steps: [ { edge: 'A4>B4', dir: 1 }, { edge: 'B4>A5', dir: 1 },
+               { edge: 'A4>A5', dir: -1 } ] },
+    { id: 2, name: 'r⁴ = e  (vía r²·r³·r³ = r⁸)', start: 'A10',
+      pretty: 'r² · r³ · r³  =  e',
+      hint: 'En A10 avanzá a B9 (r²) y a A11 (r³); después retrocedé a A10 por la arista directa (r⁻¹=r³).',
+      steps: [ { edge: 'A10>B9', dir: 1 }, { edge: 'B9>A11', dir: 1 },
+               { edge: 'A10>A11', dir: -1 } ] },
+  ];
+
+  /* ------------------------------------------------------------------ */
+  /* 4. UTILIDADES DE GRAFO: topología, profundidades, convergencias     */
+  /* ------------------------------------------------------------------ */
+  const byId = new Map(NODES.map(n => [n.id, n]));
+  const edgeByKey = new Map(EDGES.map(e => [e.key, e]));
+  const childrenOf = new Map(NODES.map(n => [n.id, []]));
+  const parentsOf  = new Map(NODES.map(n => [n.id, []]));
+  EDGES.forEach(e => { childrenOf.get(e.from).push(e); parentsOf.get(e.to).push(e); });
+
+  function topoOrder() {
+    const indeg = new Map(NODES.map(n => [n.id, parentsOf.get(n.id).length]));
+    const q = NODES.filter(n => indeg.get(n.id) === 0).map(n => n.id);
+    const order = [];
+    while (q.length) {
+      const id = q.shift(); order.push(id);
+      for (const e of childrenOf.get(id)) {
+        indeg.set(e.to, indeg.get(e.to) - 1);
+        if (indeg.get(e.to) === 0) q.push(e.to);
+      }
+    }
+    return order;
+  }
+
+  const ORDER = topoOrder();
+  const DEPTH = new Map(NODES.map(n => [n.id, 0]));
+  for (const id of ORDER)
+    for (const e of childrenOf.get(id))
+      DEPTH.set(e.to, Math.max(DEPTH.get(e.to), DEPTH.get(id) + 1));
+
+  const CONVERGENT = new Set(NODES.filter(n => parentsOf.get(n.id).length >= 2).map(n => n.id));
+  const isConvergenceEdge = e => CONVERGENT.has(e.to);
+  const ROOT = NODES.find(n => parentsOf.get(n.id).length === 0).id;
+
+  /* ------------------------------------------------------------------ */
+  /* 5. LAYOUT HIPERBÓLICO                                               */
+  /*    Cada nodo recibe coordenadas polares hiperbólicas (ρ, θ):        */
+  /*    ρ = profundidad · Δρ  (paso constante en métrica hiperbólica).   */
+  /*    θ por subdivisión de cuñas sobre un árbol generador + pasada de  */
+  /*    separación mínima MEDIDA EN MÉTRICA HIPERBÓLICA: la circunfe-    */
+  /*    rencia de radio ρ es 2π·sinh ρ, así que el gap angular necesario */
+  /*    es sep/sinh(ρ) — el espacio angular útil crece exponencialmente  */
+  /*    con la profundidad, exactamente como el grafo.                   */
+  /*    Proyección: disco de Poincaré z = tanh(ρ/2)·e^{iθ}.              */
+  /* ------------------------------------------------------------------ */
+  const DRHO = 0.8; // longitud hiperbólica de las aristas del árbol generador
+
+  /* Layout estilo Lamping–Rao: cada hijo se coloca a distancia hiperbólica
+     DRHO del padre, en un abanico angular medido en el MARCO LOCAL del padre
+     (el padre trasladado al origen por una isometría de Möbius). Así cada
+     vecindario queda bien abierto, y recentrar cualquier nodo (traslación
+     hiperbólica) muestra su entorno con la misma claridad: la homogeneidad
+     de H² hecha interfaz. */
+  function fanSlots(n) {
+    if (n === 1) return [0];
+    const out = [0];
+    for (let i = 1; i < n; i++) out.push((i % 2 ? 1 : -1) * 0.95 * Math.ceil(i / 2));
+    return out;
+  }
+
+  function buildLayout() {
+    // árbol generador: padre = primera arista entrante, prefiriendo ancla
+    const treeParent = new Map();
+    const treeChildren = new Map(NODES.map(n => [n.id, []]));
+    for (const n of NODES) {
+      if (n.id === ROOT) continue;
+      const cand = parentsOf.get(n.id).slice()
+        .sort((a, b) => (byId.get(b.from).anchor - byId.get(a.from).anchor) ||
+                        (EDGES.indexOf(a) - EDGES.indexOf(b)));
+      treeParent.set(n.id, cand[0].from);
+    }
+    for (const [id, p] of treeParent) treeChildren.get(p).push(id);
+    for (const [id, kids] of treeChildren)
+      kids.sort((a, b) => EDGES.findIndex(e => e.from === id && e.to === a) -
+                          EDGES.findIndex(e => e.from === id && e.to === b));
+
+    const leaves = new Map();
+    (function count(id) {
+      const kids = treeChildren.get(id);
+      if (!kids.length) { leaves.set(id, 1); return 1; }
+      let s = 0; for (const k of kids) s += count(k);
+      leaves.set(id, s); return s;
+    })(ROOT);
+
+    const pos = new Map([[ROOT, { x: 0, y: 0 }]]);
+    const rho = new Map([[ROOT, 0]]);
+    (function place(id, ahead) {
+      const all = treeChildren.get(id);
+      if (!all.length) return;
+      // el subárbol con más hojas sigue "adelante" (tronco); el resto, al costado
+      const kids = all.slice().sort((a, b) => leaves.get(b) - leaves.get(a));
+      const slots = fanSlots(kids.length);
+      const zp = pos.get(id);
+      const Tout = Mobius.normalize({ a: { x: 1, y: 0 }, b: { x: zp.x, y: zp.y } }); // origen → zp
+      kids.forEach((k, i) => {
+        const phi = ahead + slots[i] + (i === 0 ? 0.17 : 0); // deriva suave: espiral del tronco
+        const L = i === 0 ? DRHO : DRHO * 0.9;
+        const w = { x: Math.tanh(L / 2) * Math.cos(phi), y: Math.tanh(L / 2) * Math.sin(phi) };
+        const zc = Mobius.apply(Tout, w);
+        pos.set(k, zc);
+        rho.set(k, hypDist({ x: 0, y: 0 }, zc));
+        // "adelante" del hijo = opuesto a la dirección al padre, en el marco del hijo
+        const u = Mobius.apply(Mobius.translationTo0(zc), zp);
+        place(k, Math.atan2(u.y, u.x) + Math.PI);
+      });
+    })(ROOT, 0);
+    return { pos, rho, treeParent };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 6. MATEMÁTICA HIPERBÓLICA (disco de Poincaré / Klein / Möbius)      */
+  /* ------------------------------------------------------------------ */
+  const C = {
+    add: (a, b) => ({ x: a.x + b.x, y: a.y + b.y }),
+    sub: (a, b) => ({ x: a.x - b.x, y: a.y - b.y }),
+    mul: (a, b) => ({ x: a.x * b.x - a.y * b.y, y: a.x * b.y + a.y * b.x }),
+    conj: a => ({ x: a.x, y: -a.y }),
+    scale: (a, s) => ({ x: a.x * s, y: a.y * s }),
+    abs2: a => a.x * a.x + a.y * a.y,
+    abs: a => Math.hypot(a.x, a.y),
+    div(a, b) { const d = C.abs2(b); return { x: (a.x * b.x + a.y * b.y) / d, y: (a.y * b.x - a.x * b.y) / d }; },
+  };
+
+  // Isometría del disco (SU(1,1)): z ↦ (a·z + b) / (conj(b)·z + conj(a))
+  const Mobius = {
+    identity: () => ({ a: { x: 1, y: 0 }, b: { x: 0, y: 0 } }),
+    translationTo0(p) { return Mobius.normalize({ a: { x: 1, y: 0 }, b: { x: -p.x, y: -p.y } }); },
+    rotation(phi) { return { a: { x: Math.cos(phi / 2), y: Math.sin(phi / 2) }, b: { x: 0, y: 0 } }; },
+    compose(M2, M1) { // primero M1, después M2
+      return Mobius.normalize({
+        a: C.add(C.mul(M2.a, M1.a), C.mul(M2.b, C.conj(M1.b))),
+        b: C.add(C.mul(M2.a, M1.b), C.mul(M2.b, C.conj(M1.a))),
+      });
+    },
+    normalize(M) {
+      const n = Math.sqrt(Math.max(1e-12, C.abs2(M.a) - C.abs2(M.b)));
+      return { a: C.scale(M.a, 1 / n), b: C.scale(M.b, 1 / n) };
+    },
+    apply(M, z) {
+      const num = C.add(C.mul(M.a, z), M.b);
+      const den = C.add(C.mul(C.conj(M.b), z), C.conj(M.a));
+      const w = C.div(num, den);
+      const r = C.abs(w); // protección numérica: dentro del disco abierto
+      if (r >= 0.9999999) return C.scale(w, 0.9999999 / r);
+      return w;
+    },
+  };
+
+  // distancia hiperbólica en el disco de Poincaré (invariante de Möbius)
+  function hypDist(z1, z2) {
+    const d2 = C.abs2(C.sub(z1, z2));
+    const den = (1 - C.abs2(z1)) * (1 - C.abs2(z2));
+    return Math.acosh(1 + 2 * d2 / Math.max(den, 1e-300));
+  }
+
+  // Poincaré ↔ Klein  (mismo punto de H², dos proyecciones)
+  const toKlein = z => C.scale(z, 2 / (1 + C.abs2(z)));
+  function kleinToPoincare(k) {
+    const w = Math.sqrt(Math.max(1e-12, 1 - C.abs2(k)));
+    return C.scale(k, 1 / (1 + w));
+  }
+
+  /* Geodésica entre dos puntos del disco de Poincaré: se muestrea la    */
+  /* cuerda recta en el modelo de Klein (donde las geodésicas SON rectas)*/
+  /* y se reconvierte; en Poincaré el resultado es el arco de círculo    */
+  /* ortogonal al borde — la geodésica real, no una curva decorativa.    */
+  function geodesicSamples(z1, z2, n, model) {
+    const k1 = toKlein(z1), k2 = toKlein(z2);
+    const out = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      const k = { x: k1.x + (k2.x - k1.x) * t, y: k1.y + (k2.y - k1.y) * t };
+      out.push(model === 'klein' ? k : kleinToPoincare(k));
+    }
+    return out;
+  }
+
+  function project(z, model) { return model === 'klein' ? toKlein(z) : z; }
+
+  /* ------------------------------------------------------------------ */
+  /* 7. AUTO-VERIFICACIÓN                                                */
+  /* ------------------------------------------------------------------ */
+  function selfTest() {
+    const checks = [];
+    const ok = (name, cond, info) => { checks.push({ name, ok: !!cond, info: info || '' }); return cond; };
+
+    // (a) DAG: el orden topológico cubre todos los nodos (sin ciclos)
+    ok('DAG acíclico (orden topológico completo)', ORDER.length === NODES.length,
+       ORDER.length + '/' + NODES.length);
+
+    // (b) convergencias: nodos con ≥2 padres
+    const multi = [...CONVERGENT].map(id => id + '(' + parentsOf.get(id).length + ')');
+    ok('≥1 nodo con múltiples padres (convergencia)', CONVERGENT.size >= 1, multi.join(' '));
+    ok('convergencias abundantes (≥6)', CONVERGENT.size >= 6, 'total=' + CONVERGENT.size);
+    ok('existe convergencia triple (3 padres)',
+       [...CONVERGENT].some(id => parentsOf.get(id).length >= 3),
+       [...CONVERGENT].filter(id => parentsOf.get(id).length >= 3).join(','));
+
+    // (c) relaciones del grupo D4
+    const r = GEN.r, s = GEN.s;
+    ok('D4: r⁴ = e', D4.eq(D4.mul(D4.mul(D4.mul(r, r), r), r), D4.E));
+    ok('D4: s² = e', D4.eq(D4.mul(s, s), D4.E));
+    ok('D4: (s·r)² = e', D4.eq(D4.mul(D4.mul(D4.mul(s, r), s), r), D4.E));
+
+    // (d) consistencia de los diamantes etiquetados: los productos de las
+    //     dos ramas paralelas coinciden (independencia de camino)
+    const pathProd = keys => keys.reduce((acc, k) => D4.mul(acc, GEN[edgeByKey.get(k).gen]), D4.E);
+    ok('diamante A7: s·r = r³·s', D4.eq(pathProd(['A7>M1', 'M1>A8']), pathProd(['A7>M2', 'M2>A8'])),
+       D4.name(pathProd(['A7>M1', 'M1>A8'])));
+    ok('diamante A4: s·r²s = r²', D4.eq(pathProd(['A4>B4', 'B4>A5']), pathProd(['A4>A5'])),
+       D4.name(pathProd(['A4>B4', 'B4>A5'])));
+    ok('diamante A10: r²·r³ = r', D4.eq(pathProd(['A10>B9', 'B9>A11']), pathProd(['A10>A11'])),
+       D4.name(pathProd(['A10>B9', 'B9>A11'])));
+
+    // (e) las relaciones se pueden CAMINAR: el lazo devuelve al nodo de
+    //     partida con palabra = identidad
+    for (const rel of RELATIONS) {
+      let cur = rel.start, acc = D4.E, legal = true;
+      for (const st of rel.steps) {
+        const e = edgeByKey.get(st.edge);
+        if (!e || !e.gen) { legal = false; break; }
+        if (st.dir === 1) { if (cur !== e.from) { legal = false; break; } cur = e.to; acc = D4.mul(acc, GEN[e.gen]); }
+        else { if (cur !== e.to) { legal = false; break; } cur = e.from; acc = D4.mul(acc, D4.inv(GEN[e.gen])); }
+      }
+      ok('relación caminable «' + rel.name + '»', legal && cur === rel.start && D4.eq(acc, D4.E),
+         'fin=' + cur + ' palabra=' + D4.name(acc));
+    }
+
+    // (f) layout dentro del disco abierto, sin NaN
+    const { pos } = buildLayout();
+    let inDisk = true;
+    for (const [, z] of pos) if (!isFinite(z.x) || !isFinite(z.y) || C.abs(z) >= 1) inDisk = false;
+    ok('layout: todos los nodos en |z| < 1', inDisk);
+
+    // (g) las isometrías de Möbius implementadas preservan la métrica
+    //     hiperbólica (invariancia de distancias) — prueba de que la
+    //     geometría es hiperbólica real, no cosmética
+    let maxErr = 0;
+    let rnd = 12345; const rand = () => (rnd = (rnd * 1103515245 + 12345) % 2147483648) / 2147483648;
+    for (let i = 0; i < 60; i++) {
+      const z1 = { x: (rand() - 0.5) * 1.8, y: (rand() - 0.5) * 1.8 };
+      const z2 = { x: (rand() - 0.5) * 1.8, y: (rand() - 0.5) * 1.8 };
+      if (C.abs(z1) > 0.97 || C.abs(z2) > 0.97) continue;
+      const p = { x: (rand() - 0.5) * 1.7, y: (rand() - 0.5) * 1.7 };
+      if (C.abs(p) > 0.9) continue;
+      const M = Mobius.compose(Mobius.translationTo0(p), Mobius.rotation(rand() * 6.28));
+      const d0 = hypDist(z1, z2);
+      const d1 = hypDist(Mobius.apply(M, z1), Mobius.apply(M, z2));
+      maxErr = Math.max(maxErr, Math.abs(d0 - d1));
+    }
+    ok('isometrías de Möbius preservan d_H (err<1e-8)', maxErr < 1e-8, 'err=' + maxErr.toExponential(2));
+
+    // (h) geodésicas de Poincaré: los puntos muestreados caen sobre el
+    //     círculo ortogonal al borde del disco que pasa por los extremos
+    let geoOK = true, worst = 0;
+    for (const e of EDGES) {
+      const z1 = pos.get(e.from), z2 = pos.get(e.to);
+      const cross = z1.x * z2.y - z1.y * z2.x;
+      const pts = geodesicSamples(z1, z2, 16, 'poincare');
+      if (Math.abs(cross) < 1e-9) {
+        // caso diametral: la geodésica es un segmento de recta por el origen
+        const dir = C.sub(z2, z1);
+        for (const p of pts) {
+          const c = (p.x - z1.x) * dir.y - (p.y - z1.y) * dir.x;
+          worst = Math.max(worst, Math.abs(c));
+          if (Math.abs(c) > 1e-7) geoOK = false;
+        }
+      } else {
+        const b1 = 1 + C.abs2(z1), b2 = 1 + C.abs2(z2);
+        const det = 4 * (z1.x * z2.y - z1.y * z2.x);
+        const cx = (b1 * 2 * z2.y - 2 * z1.y * b2) / det;
+        const cy = (2 * z1.x * b2 - b1 * 2 * z2.x) / det;
+        const R2 = cx * cx + cy * cy - 1; // ortogonalidad: |c|² = R² + 1
+        if (R2 <= 0) { geoOK = false; continue; }
+        const R = Math.sqrt(R2);
+        for (const p of pts) {
+          const err = Math.abs(Math.hypot(p.x - cx, p.y - cy) - R);
+          worst = Math.max(worst, err);
+          if (err > 1e-6) geoOK = false;
+        }
+      }
+    }
+    ok('geodésicas = arcos ortogonales al borde (Poincaré)', geoOK, 'err_max=' + worst.toExponential(2));
+
+    // (i) coherencia Poincaré ↔ Klein
+    let rt = 0;
+    for (const [, z] of pos) {
+      const back = kleinToPoincare(toKlein(z));
+      rt = Math.max(rt, C.abs(C.sub(back, z)));
+    }
+    ok('ida y vuelta Poincaré↔Klein (err<1e-9)', rt < 1e-9, 'err=' + rt.toExponential(2));
+
+    const pass = checks.every(c => c.ok);
+    return { pass, checks,
+      stats: { nodos: NODES.length,
+               anclas: NODES.filter(n => n.anchor).length,
+               derivados: NODES.filter(n => !n.anchor).length,
+               aristas: EDGES.length,
+               aristasConvergencia: EDGES.filter(isConvergenceEdge).length,
+               convergencias: CONVERGENT.size,
+               profundidadMax: Math.max(...[...DEPTH.values()]) } };
+  }
+
+  globalThis.JARDIN_CORE = {
+    NODES, EDGES, D4, GEN, RELATIONS,
+    byId, edgeByKey, childrenOf, parentsOf,
+    DEPTH, CONVERGENT, isConvergenceEdge, ROOT, DRHO,
+    buildLayout, C, Mobius, hypDist, toKlein, kleinToPoincare,
+    geodesicSamples, project, selfTest,
+  };
+})();
+</script>
+
+<script type="module">
+/* ==========================================================================
+   VISUALIZADOR — Three.js sobre el núcleo JARDIN_CORE
+   ========================================================================== */
+const K = globalThis.JARDIN_CORE;
+const $ = s => document.querySelector(s);
+
+/* ---- carga de Three.js: CDN con fallbacks -------------------------------- */
+async function loadThree() {
+  let sources = [
+    'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
+    'https://unpkg.com/three@0.160.0/build/three.module.js',
+    './three.module.js',
+  ];
+  if (location.search.includes('localthree')) sources = ['./three.module.js', ...sources];
+  let lastErr = null;
+  for (const src of sources) {
+    try { const m = await import(src); if (m && m.WebGLRenderer) return m; }
+    catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('no se pudo cargar Three.js');
+}
+
+let THREE;
+try { THREE = await loadThree(); }
+catch (e) {
+  $('#loading-msg').innerHTML = '<div class="err">No se pudo cargar Three.js desde los CDN (' +
+    (e && e.message ? e.message : e) + '). Verificá la conexión y recargá.</div>';
+  throw e;
+}
+
+/* ---- estado global -------------------------------------------------------- */
+const state = {
+  mode: null,               // 'caminante' | 'dios'
+  proj: 'poincare',         // 'poincare' | 'klein'
+  current: K.ROOT,          // nodo del caminante
+  selected: K.ROOT,         // nodo mostrado en el panel (modo dios)
+  visitedE: new Set(),      // aristas recorridas
+  visitedN: new Set([K.ROOT]),
+  word: [],                 // palabra en D4 (chips)
+  acc: K.D4.E.slice(),      // elemento acumulado
+  wordStart: null,          // nodo donde empezó la palabra
+  wordDone: false,
+  verified: new Set(),      // ids de relaciones verificadas
+  lastVerified: null,
+  ready: false,
+};
+
+/* ---- escena --------------------------------------------------------------- */
+const W = 1.7;                       // radio del disco en unidades de mundo
+const canvas = $('#scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x04060f);
+const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 120);
+
+const orbit = { r: 4.4, th: 0.55, ph: 0.95, rT: 4.4, phT: 0.95 };
+function applyCamera() {
+  const { r, th, ph } = orbit;
+  camera.position.set(r * Math.sin(ph) * Math.sin(th), r * Math.cos(ph), r * Math.sin(ph) * Math.cos(th));
+  camera.lookAt(0, 0, 0);
+}
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize(); applyCamera();
+
+/* ---- texturas de sprites --------------------------------------------------- */
+function radialTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(64, 64, 2, 64, 64, 62);
+  grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+  grad.addColorStop(0.28, 'rgba(255,255,255,0.32)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grad; g.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
+}
+function ringTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 5;
+  g.beginPath(); g.arc(64, 64, 52, 0, 6.2832); g.stroke();
+  return new THREE.CanvasTexture(c);
+}
+const TEX_HALO = radialTexture(), TEX_RING = ringTexture();
+
+function textSprite(text, color, px) {
+  const c = document.createElement('canvas'); const g = c.getContext('2d');
+  const font = '700 ' + px + 'px system-ui, sans-serif';
+  g.font = font;
+  const tw = Math.ceil(g.measureText(text).width) + 26;
+  c.width = tw; c.height = px + 26;
+  const g2 = c.getContext('2d');
+  g2.font = font; g2.textBaseline = 'middle'; g2.textAlign = 'center';
+  g2.shadowColor = 'rgba(0,0,0,0.9)'; g2.shadowBlur = 8;
+  g2.fillStyle = color; g2.fillText(text, c.width / 2, c.height / 2 + 1);
+  const tex = new THREE.CanvasTexture(c);
+  tex.anisotropy = 4;
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const spr = new THREE.Sprite(mat);
+  const S = 0.085;
+  spr.scale.set(S * c.width / c.height, S, 1);
+  spr.userData.baseScale = { x: S * c.width / c.height, y: S };
+  return spr;
+}
+
+/* ---- curva polilínea exacta para los tubos geodésicos ----------------------- */
+class PolyCurve extends THREE.Curve {
+  constructor(pts) { super(); this.pts = pts; }
+  getPoint(t, target = new THREE.Vector3()) {
+    const p = this.pts, n = p.length - 1;
+    const x = Math.min(Math.max(t, 0), 1) * n, i = Math.min(Math.floor(x), n - 1), f = x - i;
+    return target.copy(p[i]).lerp(p[i + 1], f);
+  }
+}
+
+/* ---- construcción de la escena ---------------------------------------------- */
+const COLORS = {
+  anchor: '#ffcf7d', derived: '#6fd8cf', death: '#93a0bd',
+  edge: '#4d6db8', conv: '#f06ab4', trail: '#ffe9b0', violet: '#c9a0ff',
+};
+const layout = K.buildLayout();
+const basePos = layout.pos;
+let M = K.Mobius.identity();         // isometría actual del disco
+const currentZ = id => K.Mobius.apply(M, basePos.get(id));
+
+const gDisk = new THREE.Group(); scene.add(gDisk);
+
+/* horizonte (borde del disco = infinito de H²) + suelo */
+const horizonMat = new THREE.LineBasicMaterial({ color: 0x5b6fae, transparent: true, opacity: 0.85 });
+{
+  const pts = [];
+  for (let i = 0; i <= 160; i++) { const a = i / 160 * 6.2832; pts.push(new THREE.Vector3(Math.cos(a) * W, 0, Math.sin(a) * W)); }
+  gDisk.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), horizonMat));
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_HALO, color: 0x24335f, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
+  halo.scale.set(W * 3.4, W * 3.4, 1); halo.position.y = -0.02; gDisk.add(halo);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(W, 96), new THREE.MeshBasicMaterial({ color: 0x080d20, transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
+  floor.rotation.x = -Math.PI / 2; floor.position.y = -0.012; gDisk.add(floor);
+}
+
+/* grilla métrica: círculos a distancia hiperbólica ρ = 1, 2, 3, … del centro.
+   En Poincaré su radio euclidiano es tanh(ρ/2); en Klein, tanh(ρ). El
+   apiñamiento hacia el borde ES la métrica hiperbólica hecha visible. */
+const gridGroup = new THREE.Group(); gDisk.add(gridGroup);
+function buildGrid() {
+  while (gridGroup.children.length) { const c = gridGroup.children.pop(); c.geometry.dispose(); c.material.dispose(); }
+  for (let rho = 1; rho <= 9; rho++) {
+    const r = (state.proj === 'klein' ? Math.tanh(rho) : Math.tanh(rho / 2)) * W;
+    const pts = [];
+    for (let i = 0; i <= 120; i++) { const a = i / 120 * 6.2832; pts.push(new THREE.Vector3(Math.cos(a) * r, -0.006, Math.sin(a) * r)); }
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: 0x33406e, transparent: true, opacity: rho <= 6 ? 0.35 : 0.18 }));
+    gridGroup.add(line);
+  }
+}
+buildGrid();
+
+/* estrellas de ambiente */
+{
+  const n = 420, arr = new Float32Array(n * 3);
+  let seed = 777; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let i = 0; i < n; i++) {
+    const r = 9 + rnd() * 26, a = rnd() * 6.2832, b = Math.acos(2 * rnd() - 1);
+    arr[i * 3] = r * Math.sin(b) * Math.cos(a); arr[i * 3 + 1] = r * Math.cos(b) * 0.7; arr[i * 3 + 2] = r * Math.sin(b) * Math.sin(a);
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x8899cc, size: 0.045, transparent: true, opacity: 0.55 })));
+}
+
+/* nodos */
+const sphereGeo = new THREE.SphereGeometry(1, 22, 15);
+const nodeObjs = new Map();   // id -> {mesh, halo, label, ring?, baseR}
+const pickables = [];
+for (const n of K.NODES) {
+  const isDeath = (n.id === 'B3x' || n.id === 'B10');
+  const col = n.anchor ? COLORS.anchor : (isDeath ? COLORS.death : COLORS.derived);
+  const baseR = n.anchor ? 0.058 : 0.042;
+  const mesh = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 1 }));
+  mesh.userData.nodeId = n.id;
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_HALO, color: col, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }));
+  halo.userData.nodeId = n.id;
+  const label = textSprite(n.id, n.anchor ? '#ffe2ae' : '#a9e8e2', n.anchor ? 44 : 36);
+  let ring = null;
+  if (K.CONVERGENT.has(n.id)) {
+    ring = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_RING, color: COLORS.conv, transparent: true, opacity: 0.85, depthWrite: false }));
+  }
+  gDisk.add(mesh, halo, label); if (ring) gDisk.add(ring);
+  nodeObjs.set(n.id, { mesh, halo, label, ring, baseR });
+  pickables.push(mesh, halo);
+}
+
+/* aristas */
+const edgeObjs = new Map();   // key -> {mesh, mat, labelSpr?, conv, walked}
+for (const e of K.EDGES) {
+  const conv = K.isConvergenceEdge(e);
+  const mat = new THREE.MeshBasicMaterial({ color: conv ? COLORS.conv : COLORS.edge, transparent: true, opacity: 0.8 });
+  const mesh = new THREE.Mesh(new THREE.BufferGeometry(), mat);
+  gDisk.add(mesh);
+  let labelSpr = null;
+  if (e.gen) {
+    labelSpr = textSprite(K.D4.name(K.GEN[e.gen]), '#d8bcff', 40);
+    gDisk.add(labelSpr);
+  }
+  edgeObjs.set(e.key, { mesh, mat, labelSpr, conv, walked: false, edge: e });
+}
+
+/* anillo de selección */
+const selRing = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_RING, color: 0xffffff, transparent: true, opacity: 0.95, depthWrite: false }));
+gDisk.add(selRing);
+
+/* ---- geometría: reproyección de nodos y tubos geodésicos -------------------- */
+const worldOf = z => { const p = K.project(z, state.proj); return new THREE.Vector3(p.x * W, 0, p.y * W); };
+let geomDirty = true;
+const conformal = z => Math.min(1.15, Math.max(0.15, (1 - K.C.abs2(z)) * 1.45));
+
+function updateGeometry() {
+  for (const n of K.NODES) {
+    const o = nodeObjs.get(n.id);
+    const z = currentZ(n.id);
+    const v = worldOf(z);
+    const c = conformal(z);
+    const r = o.baseR * c;
+    o.mesh.position.copy(v); o.mesh.scale.setScalar(r);
+    o.halo.position.copy(v); o.halo.scale.set(r * 7.5, r * 7.5, 1);
+    o.label.position.set(v.x, v.y + r * 2.0 + 0.045, v.z);
+    const ls = Math.max(c, 0.34), bs = o.label.userData.baseScale;
+    o.label.scale.set(bs.x * ls, bs.y * ls, 1);
+    if (o.ring) { o.ring.position.copy(v); o.ring.scale.set(r * 3.6, r * 3.6, 1); }
+    if (state.selected === n.id || (state.mode === 'caminante' && state.current === n.id)) {
+      selRing.position.copy(v); selRing.scale.set(r * 5.0, r * 5.0, 1);
+    }
+  }
+  for (const [, eo] of edgeObjs) {
+    const z1 = currentZ(eo.edge.from), z2 = currentZ(eo.edge.to);
+    const dH = K.hypDist(z1, z2);
+    const nSeg = Math.round(Math.min(44, Math.max(12, 8 + dH * 7)));
+    const samples = K.geodesicSamples(z1, z2, nSeg, state.proj).map(p => new THREE.Vector3(p.x * W, 0, p.y * W));
+    const cAvg = Math.min(1, Math.max(0.2, (conformal(z1) + conformal(z2)) / 2));
+    const radius = (eo.conv ? 0.0145 : 0.0095) * cAvg;
+    const old = eo.mesh.geometry;
+    eo.mesh.geometry = new THREE.TubeGeometry(new PolyCurve(samples), nSeg, radius, 5, false);
+    if (old) old.dispose();
+    if (eo.labelSpr) {
+      const mid = samples[Math.floor(samples.length / 2)];
+      eo.labelSpr.position.set(mid.x, mid.y + 0.052, mid.z);
+      const ls = Math.max(cAvg, 0.3), bs = eo.labelSpr.userData.baseScale;
+      eo.labelSpr.scale.set(bs.x * ls * 0.9, bs.y * ls * 0.9, 1);
+    }
+  }
+}
+
+/* ---- panorámica hiperbólica (traslación de Möbius animada) ------------------- */
+let panBase = null;     // punto base (coords sin transformar) que se lleva al centro
+function panTo(id) { panBase = basePos.get(id); }
+function panStep(dt) {
+  if (!panBase) return false;
+  const cur = K.Mobius.apply(M, panBase);
+  const d = K.C.abs(cur);
+  if (d < 5e-4) { panBase = null; return false; }
+  const k = 1 - Math.exp(-dt * 4.2);
+  M = K.Mobius.compose(K.Mobius.translationTo0(K.C.scale(cur, k)), M);
+  return true;
+}
+
+/* ---- sistema de tweens ------------------------------------------------------ */
+const tweens = [];
+const easeIO = u => u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+function addTween(dur, apply, done) {
+  tweens.push({ t0: performance.now(), dur, apply, done });
+}
+
+/* ---- visibilidad por modo ---------------------------------------------------- */
+/* La transición entre modos NO cambia la geometría: la misma estructura, con
+   opacidades y encuadre distintos — el corazón del proyecto.                    */
+const visTarget = new Map();      // material -> opacidad objetivo
+let visTweening = 0;
+const frontierMats = new Set();   // materiales que pulsan (elecciones abiertas)
+
+function computeTargets() {
+  visTarget.clear(); frontierMats.clear();
+  const dios = state.mode === 'dios';
+  const nodeOp = new Map(), edgeOp = new Map();
+  if (dios) {
+    for (const n of K.NODES) nodeOp.set(n.id, 1);
+    for (const e of K.EDGES) edgeOp.set(e.key, K.isConvergenceEdge(e) ? 0.95 : 0.8);
+  } else {
+    const cur = state.current;
+    for (const n of K.NODES) nodeOp.set(n.id, state.visitedN.has(n.id) ? 0.62 : 0.055);
+    for (const e of K.EDGES) edgeOp.set(e.key, state.visitedE.has(e.key) ? 0.85 : 0.035);
+    for (const e of K.childrenOf.get(cur)) { nodeOp.set(e.to, 0.95); edgeOp.set(e.key, 0.95); }
+    for (const e of K.parentsOf.get(cur))  { nodeOp.set(e.from, Math.max(nodeOp.get(e.from), 0.45)); edgeOp.set(e.key, Math.max(edgeOp.get(e.key), 0.4)); }
+    nodeOp.set(cur, 1);
+  }
+  for (const n of K.NODES) {
+    const o = nodeObjs.get(n.id), op = nodeOp.get(n.id);
+    visTarget.set(o.mesh.material, op);
+    visTarget.set(o.halo.material, op * 0.6);
+    const lop = dios ? (n.anchor ? 0.95 : 0.7) : (op < 0.1 ? 0.05 : op * 0.95);
+    visTarget.set(o.label.material, lop);
+    if (o.ring) visTarget.set(o.ring.material, op * 0.8);
+    if (!dios && K.childrenOf.get(state.current).some(e => e.to === n.id)) frontierMats.add(o.halo.material);
+  }
+  for (const [key, eo] of edgeObjs) {
+    const op = edgeOp.get(key);
+    visTarget.set(eo.mat, op);
+    /* color: rastro dorado sobre lo caminado (solo en modo caminante) */
+    const walkedNow = !dios && state.visitedE.has(key);
+    eo.mat.color.set(walkedNow ? COLORS.trail : (eo.conv ? COLORS.conv : COLORS.edge));
+    if (eo.labelSpr) visTarget.set(eo.labelSpr.material, dios ? 0.95 : (op < 0.1 ? 0.04 : Math.min(op + 0.1, 1)));
+    if (!dios && eo.edge.from === state.current) frontierMats.add(eo.mat);
+  }
+  visTarget.set(selRing.material, state.mode === 'dios' ? 0.85 : 0.95);
+}
+
+function applyVis(dur) {
+  computeTargets();
+  const entries = [...visTarget].map(([m, to]) => ({ m, from: m.opacity, to }));
+  if (!dur) { for (const e of entries) e.m.opacity = e.to; return; }
+  visTweening++;
+  addTween(dur, u => { for (const e of entries) e.m.opacity = e.from + (e.to - e.from) * u; },
+           () => { visTweening--; });
+}
+
+/* ---- toast ------------------------------------------------------------------- */
+let toastTimer = null;
+function toast(msg, gold, ms) {
+  const t = $('#toast');
+  t.innerHTML = msg; t.classList.toggle('gold', !!gold); t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), ms || 3400);
+}
+
+/* ---- HUD del grupo ------------------------------------------------------------ */
+function renderHUD() {
+  const w = $('#hud-word');
+  if (!state.word.length) {
+    w.innerHTML = '<span class="wchip eq">caminá una arista etiquetada (r, s, …) para empezar una palabra</span>';
+  } else {
+    w.innerHTML = state.word.map(ch =>
+      '<span class="wchip' + (ch.back ? ' back' : '') + '" title="' + (ch.back ? 'retroceso: generador inverso' : 'avance') + '">' + ch.name + '</span>'
+    ).join('<span class="wchip eq">·</span>') +
+    '<span class="wchip eq">=</span><span class="wchip" style="color:var(--gold);border-color:rgba(255,207,125,.45)">' + K.D4.name(state.acc) + '</span>';
+  }
+  $('#hud-acc').innerHTML = 'elemento acumulado: <span class="el">' + K.D4.name(state.acc) + '</span>' +
+    (state.wordStart ? ' <span class="start">&middot; palabra iniciada en ' + state.wordStart + '</span>' : '');
+  $('#hud').classList.toggle('verified', state.wordDone);
+}
+
+function resetWord() {
+  state.word = []; state.acc = K.D4.E.slice(); state.wordStart = null; state.wordDone = false;
+}
+
+/* ---- panel del nodo ------------------------------------------------------------ */
+function linkBtn(attrs, arrow, id, title, genName, conv) {
+  return '<button class="link-btn" ' + attrs + '>' +
+    '<span class="arrow">' + arrow + '</span>' +
+    (conv ? '<span class="conv-dot" title="arista de convergencia"></span>' : '') +
+    '<span><b>' + id + '</b> &middot; ' + title + '</span>' +
+    (genName ? '<span class="gen-chip">' + genName + '</span>' : '') +
+    '</button>';
+}
+
+function renderPanel() {
+  const id = state.mode === 'caminante' ? state.current : state.selected;
+  const n = K.byId.get(id);
+  const panel = $('#panel');
+  const parents = K.parentsOf.get(id), children = K.childrenOf.get(id);
+  const rho = (layout.rho.get(id) || 0).toFixed(2);
+  let h = '<div class="node-id">' + (state.mode === 'caminante' ? 'EST&Aacute;S EN' : 'NODO') + ' &middot; ' + id + '</div>' +
+    '<h2 class="' + (n.anchor ? 'anchor' : 'derived') + '">' + n.title + '</h2>' +
+    '<div class="badges">' +
+      (n.anchor ? '<span class="badge anchor">NUDO ANCLA</span>' : '<span class="badge derived">RAMA DERIVADA</span>') +
+      (parents.length > 1 ? '<span class="badge conv">CONVERGENCIA &middot; ' + parents.length + ' PADRES</span>' : '') +
+      '<span class="badge depth">prof ' + K.DEPTH.get(id) + ' &middot; &rho; = ' + rho + '</span>' +
+    '</div>' +
+    '<div class="node-text">' + n.text + '</div>';
+
+  if (state.mode === 'caminante') {
+    h += '<div class="sec-label">PORVENIRES &mdash; eleg&iacute; una bifurcaci&oacute;n</div>';
+    if (!children.length) {
+      h += '<div class="node-text" style="opacity:.7">Esta rama no vuelve a bifurcarse. Pod&eacute;s recordar un pasado (abajo) o reiniciar el camino.</div>';
+    } else {
+      for (const e of children)
+        h += linkBtn('data-step="' + e.key + '" data-dir="1"', '&rarr;', e.to, K.byId.get(e.to).title,
+                     e.gen ? K.D4.name(K.GEN[e.gen]) : '', K.isConvergenceEdge(e));
+    }
+    if (parents.length) {
+      h += '<div class="sec-label">PASADOS &mdash; record&aacute; (retroceder aplica el generador inverso)</div>';
+      for (const e of parents)
+        h += linkBtn('data-step="' + e.key + '" data-dir="-1"', '&#10554;', e.from, K.byId.get(e.from).title,
+                     e.gen ? K.D4.name(K.D4.inv(K.GEN[e.gen])) : '', false);
+    }
+  } else {
+    if (parents.length) {
+      h += '<div class="sec-label">PADRES (' + parents.length + ')</div>';
+      for (const e of parents)
+        h += linkBtn('data-goto="' + e.from + '"', '&larr;', e.from, K.byId.get(e.from).title,
+                     e.gen ? K.D4.name(K.GEN[e.gen]) : '', K.isConvergenceEdge(e));
+    }
+    if (children.length) {
+      h += '<div class="sec-label">PORVENIRES (' + children.length + ')</div>';
+      for (const e of children)
+        h += linkBtn('data-goto="' + e.to + '"', '&rarr;', e.to, K.byId.get(e.to).title,
+                     e.gen ? K.D4.name(K.GEN[e.gen]) : '', K.isConvergenceEdge(e));
+    }
+  }
+  panel.innerHTML = h;
+  panel.classList.add('visible');
+  panel.querySelectorAll('[data-step]').forEach(b =>
+    b.addEventListener('click', () => step(b.dataset.step, +b.dataset.dir)));
+  panel.querySelectorAll('[data-goto]').forEach(b =>
+    b.addEventListener('click', () => { select(b.dataset.goto); panTo(b.dataset.goto); }));
+}
+
+function select(id) { state.selected = id; geomDirty = true; renderPanel(); }
+
+/* ---- el paso del caminante ------------------------------------------------------ */
+function step(edgeKey, dir) {
+  if (state.mode !== 'caminante') return false;
+  const e = K.edgeByKey.get(edgeKey);
+  if (!e) return false;
+  const legal = dir === 1 ? e.from === state.current : e.to === state.current;
+  if (!legal) { toast('Ese paso no parte de ' + state.current + '.'); return false; }
+
+  if (state.wordDone) resetWord();
+  if (e.gen) {
+    if (!state.word.length) state.wordStart = state.current;
+    const g = dir === 1 ? K.GEN[e.gen] : K.D4.inv(K.GEN[e.gen]);
+    state.acc = K.D4.mul(state.acc, g);
+    state.word.push({ name: K.D4.name(g), back: dir === -1 });
+  } else if (state.word.length) {
+    resetWord();
+    toast('Palabra reiniciada: cruzaste una arista sin generador.', false, 2200);
+  }
+
+  state.current = dir === 1 ? e.to : e.from;
+  state.selected = state.current;
+  state.visitedE.add(edgeKey);
+  state.visitedN.add(state.current);
+
+  /* verificación de relación: palabra no vacía reducida a e, de vuelta en el origen */
+  if (state.word.length && K.D4.eq(state.acc, K.D4.E) && state.current === state.wordStart) {
+    state.wordDone = true;
+    const wordStr = state.word.map(c => c.name).join('&middot;');
+    state.lastVerified = state.word.map(c => c.name).join('·') + ' = e @ ' + state.current;
+    const rel = K.RELATIONS.find(r => r.start === state.current);
+    if (rel) state.verified.add(rel.id);
+    toast('RELACI&Oacute;N VERIFICADA: <b>' + wordStr + ' = e</b> &mdash; volviste a <b>' +
+          state.current + '</b> por otro pasado. La convergencia del jard&iacute;n es una ley de D&#8324;.', true, 6000);
+    renderGuide();
+  }
+
+  panTo(state.current);
+  applyVis(500);
+  renderPanel(); renderHUD();
+  return true;
+}
+
+/* ---- modos: caminante ⟷ ojo de dios --------------------------------------------- */
+function setMode(mode, opts) {
+  opts = opts || {};
+  if (state.mode === mode) return;
+  const first = state.mode === null;
+  state.mode = mode;
+  $('#btn-caminante').classList.toggle('active', mode === 'caminante');
+  $('#btn-dios').classList.toggle('active', mode === 'dios');
+  $('#hud').classList.toggle('visible', mode === 'caminante');
+  if (mode === 'caminante') {
+    state.selected = state.current;
+    panTo(state.current);
+    orbit.rT = 3.0; orbit.phT = 1.02;
+    if (!first && !opts.silent)
+      toast('MODO CAMINANTE: viv&iacute;s el tiempo como l&iacute;nea. Solo ves los porvenires contiguos; el resto de la red espera en la penumbra.', false, 4200);
+  } else {
+    panTo('A6');
+    orbit.rT = 4.6; orbit.phT = 0.78;
+    if (!first && !opts.silent)
+      toast('OJO DE DIOS: la novela verdadera de Ts&rsquo;ui P&ecirc;n &mdash; todos los porvenires a la vez, con sus divergencias y convergencias. Es la MISMA estructura que ven&iacute;as caminando.', false, 4600);
+  }
+  applyVis(opts.instant ? 0 : 1500);
+  renderPanel(); renderHUD();
+}
+
+/* ---- interacción: órbita, picking, tooltip ---------------------------------------- */
+const pointers = new Map();
+let dragDist = 0, pinchD0 = 0;
+canvas.addEventListener('pointerdown', ev => {
+  canvas.setPointerCapture(ev.pointerId);
+  pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  dragDist = 0;
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinchD0 = Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  canvas.classList.add('dragging');
+});
+canvas.addEventListener('pointermove', ev => {
+  const p = pointers.get(ev.pointerId);
+  if (!p) { hover(ev); return; }
+  const dx = ev.clientX - p.x, dy = ev.clientY - p.y;
+  p.x = ev.clientX; p.y = ev.clientY;
+  dragDist += Math.abs(dx) + Math.abs(dy);
+  if (pointers.size === 1) {
+    orbit.th -= dx * 0.0052;
+    orbit.ph = Math.min(1.49, Math.max(0.12, orbit.ph - dy * 0.0052));
+    orbit.phT = orbit.ph;
+  } else if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (pinchD0 > 0) { orbit.r = Math.min(8, Math.max(1.6, orbit.r * pinchD0 / d)); orbit.rT = orbit.r; }
+    pinchD0 = d;
+  }
+});
+function endPointer(ev) {
+  pointers.delete(ev.pointerId);
+  canvas.classList.remove('dragging');
+  if (dragDist < 7 && ev.type === 'pointerup') handlePick(ev);
+}
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('wheel', ev => {
+  ev.preventDefault();
+  orbit.r = Math.min(8, Math.max(1.6, orbit.r * Math.exp(ev.deltaY * 0.0011)));
+  orbit.rT = orbit.r;
+}, { passive: false });
+
+const raycaster = new THREE.Raycaster();
+function pickNode(ev) {
+  const ndc = new THREE.Vector2((ev.clientX / innerWidth) * 2 - 1, -(ev.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const hits = raycaster.intersectObjects(pickables, false);
+  for (const h of hits) {
+    const id = h.object.userData.nodeId;
+    if (!id) continue;
+    const op = nodeObjs.get(id).mesh.material.opacity;
+    if (op > 0.08 || state.mode === 'dios') return id;
+  }
+  return null;
+}
+function handlePick(ev) {
+  const id = pickNode(ev);
+  if (!id) return;
+  if (state.mode === 'dios') { select(id); return; }
+  if (id === state.current) { renderPanel(); return; }
+  const fwd = K.childrenOf.get(state.current).find(e => e.to === id);
+  if (fwd) { step(fwd.key, 1); return; }
+  const back = K.parentsOf.get(state.current).find(e => e.from === id);
+  if (back) { step(back.key, -1); return; }
+  toast('En modo caminante solo pod&eacute;s avanzar a un porvenir contiguo o recordar un pasado. (' + id + ' no toca ' + state.current + ')');
+}
+canvas.addEventListener('dblclick', ev => {
+  const id = pickNode(ev);
+  if (id && state.mode === 'dios') { panTo(id); select(id); }
+});
+let hoverT = 0;
+function hover(ev) {
+  const now = performance.now();
+  if (now - hoverT < 70) return;
+  hoverT = now;
+  const id = pickNode(ev);
+  const tip = $('#tip');
+  if (id) {
+    const n = K.byId.get(id);
+    tip.style.display = 'block';
+    tip.style.left = (ev.clientX + 14) + 'px';
+    tip.style.top = (ev.clientY + 10) + 'px';
+    tip.innerHTML = '<b>' + id + '</b> &middot; ' + n.title;
+    canvas.style.cursor = 'pointer';
+  } else {
+    tip.style.display = 'none';
+    canvas.style.cursor = pointers.size ? 'grabbing' : 'grab';
+  }
+}
+
+/* ---- guía D4 ----------------------------------------------------------------------- */
+function renderGuide() {
+  const box = $('#guide-rels');
+  box.innerHTML = K.RELATIONS.map(rel =>
+    '<div class="rel">' +
+      '<h3>' + rel.name + (state.verified.has(rel.id) ? ' <span class="done">&#10003; verificada caminando</span>' : '') + '</h3>' +
+      '<div class="st">' + rel.hint + '</div>' +
+      '<div class="st" style="margin-top:4px">palabra esperada: <code>' + rel.pretty + '</code></div>' +
+      '<button class="ctl walkbtn" data-rel="' + rel.id + '">llevarme a ' + rel.start + ' en modo caminante</button>' +
+    '</div>').join('');
+  box.querySelectorAll('[data-rel]').forEach(b => b.addEventListener('click', () => {
+    const rel = K.RELATIONS[+b.dataset.rel];
+    $('#guide').classList.remove('visible');
+    setMode('caminante', { silent: true });
+    state.current = rel.start; state.selected = rel.start;
+    state.visitedN.add(rel.start);
+    resetWord();
+    panTo(rel.start); applyVis(600); renderPanel(); renderHUD();
+    toast('Est&aacute;s en ' + rel.start + '. ' + rel.hint, false, 6500);
+  }));
+}
+$('#btn-guide').addEventListener('click', () => { renderGuide(); $('#guide').classList.add('visible'); });
+$('#guide-close').addEventListener('click', () => $('#guide').classList.remove('visible'));
+$('#guide').addEventListener('click', ev => { if (ev.target === $('#guide')) $('#guide').classList.remove('visible'); });
+
+/* ---- botones ------------------------------------------------------------------------ */
+$('#btn-caminante').addEventListener('click', () => setMode('caminante'));
+$('#btn-dios').addEventListener('click', () => setMode('dios'));
+$('#btn-center').addEventListener('click', () => panTo(state.mode === 'dios' ? 'A6' : state.current));
+$('#btn-reset').addEventListener('click', () => {
+  state.current = K.ROOT; state.selected = K.ROOT;
+  state.visitedE.clear(); state.visitedN = new Set([K.ROOT]);
+  resetWord();
+  if (state.mode === 'caminante') panTo(K.ROOT);
+  applyVis(600); renderPanel(); renderHUD();
+  toast('Camino reiniciado: volviste a ' + K.ROOT + ', la primera de las noches posibles.');
+});
+$('#proj').addEventListener('change', ev => setProj(ev.target.value));
+function setProj(v) {
+  state.proj = v; $('#proj').value = v;
+  buildGrid(); geomDirty = true;
+  toast(v === 'klein'
+    ? 'Disco de Klein: mismas posiciones de H&sup2;, otra proyecci&oacute;n &mdash; las geod&eacute;sicas se ven rectas (cuerdas).'
+    : 'Disco de Poincar&eacute;: proyecci&oacute;n conforme &mdash; las geod&eacute;sicas son arcos ortogonales al horizonte.', false, 3800);
+}
+addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') $('#guide').classList.remove('visible');
+  if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT')) return;
+  if (ev.key === 'm' || ev.key === 'M') setMode(state.mode === 'dios' ? 'caminante' : 'dios');
+  if (state.mode === 'caminante') {
+    const kids = K.childrenOf.get(state.current);
+    const num = parseInt(ev.key, 10);
+    if (num >= 1 && num <= kids.length) step(kids[num - 1].key, 1);
+    if (ev.key === 'Backspace') {
+      const par = K.parentsOf.get(state.current);
+      if (par.length) { ev.preventDefault(); step(par[0].key, -1); }
+    }
+  }
+});
+
+/* ---- leyenda ------------------------------------------------------------------------- */
+{
+  const anchors = K.NODES.filter(n => n.anchor).length;
+  $('#legend-stats').innerHTML =
+    anchors + ' nudos ancla &middot; ' + (K.NODES.length - anchors) + ' ramas derivadas &middot; ' +
+    K.CONVERGENT.size + ' nodos de convergencia (' +
+    [...K.CONVERGENT].filter(id => K.parentsOf.get(id).length > 2).length + ' triples) &middot; ' +
+    K.EDGES.length + ' aristas &middot; grupo D&#8324; con 3 relaciones caminables';
+}
+
+/* ---- bucle de animación ---------------------------------------------------------------- */
+let lastT = performance.now();
+function frame() {
+  const now = performance.now();
+  const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+
+  if (panStep(dt)) geomDirty = true;
+
+  for (let i = tweens.length - 1; i >= 0; i--) {
+    const t = tweens[i];
+    const u = Math.min(1, (now - t.t0) / t.dur);
+    t.apply(easeIO(u));
+    if (u >= 1) { tweens.splice(i, 1); if (t.done) t.done(); }
+  }
+
+  orbit.r += (orbit.rT - orbit.r) * (1 - Math.exp(-dt * 3.0));
+  orbit.ph += (orbit.phT - orbit.ph) * (1 - Math.exp(-dt * 3.0));
+  applyCamera();
+
+  if (geomDirty) { updateGeometry(); geomDirty = false; }
+
+  /* pulso de las elecciones abiertas (modo caminante) */
+  if (!visTweening && state.mode === 'caminante') {
+    const k = 0.8 + 0.2 * Math.sin(now * 0.0042);
+    for (const m of frontierMats) {
+      const base = visTarget.get(m);
+      if (base !== undefined) m.opacity = base * k;
+    }
+  }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+/* ---- API para pruebas / consola ---------------------------------------------------------- */
+window.__jardin = {
+  core: K, state, setMode, step, panTo, setProj, select,
+  walkRelation(i) {
+    const rel = K.RELATIONS[i];
+    setMode('caminante', { silent: true });
+    state.current = rel.start; state.selected = rel.start;
+    state.visitedN.add(rel.start);
+    resetWord(); renderPanel(); renderHUD();
+    for (const st of rel.steps) if (!step(st.edge, st.dir)) return { ok: false, at: st.edge };
+    return { ok: true, verified: state.lastVerified, wordDone: state.wordDone };
+  },
+  opacityOf(id) { return nodeObjs.get(id).mesh.material.opacity; },
+  isometry() { return M; },
+  ready: false,
+};
+
+/* ---- arranque ------------------------------------------------------------------------------ */
+setMode('caminante', { instant: true });
+renderPanel(); renderHUD(); renderGuide();
+updateGeometry(); geomDirty = false;
+frame();
+$('#loading').classList.add('hidden');
+setTimeout(() => { const l = $('#loading'); if (l) l.remove(); }, 900);
+window.__jardin.ready = true;
+state.ready = true;
+
+const st = K.selfTest();
+window.__jardin.selfTestResult = st;
+console.log('%cEl jardín de senderos que se bifurcan — selfTest: ' + (st.pass ? 'OK' : 'FALLA'),
+  'color:' + (st.pass ? '#7dffb0' : '#ff8080') + ';font-weight:bold');
+for (const c of st.checks) console.log((c.ok ? ' ✔ ' : ' ✘ ') + c.name + (c.info ? '  [' + c.info + ']' : ''));
+console.log(st.stats);
+toast('Empez&aacute;s en <b>A1 · La llamada</b>, viviendo el tiempo en l&iacute;nea. Eleg&iacute; porvenires en el panel &mdash; o alterna al <b>OJO DE DIOS</b> (tecla M) para ver todos a la vez.', false, 7000);
+</script>
+</body>
+</html>
