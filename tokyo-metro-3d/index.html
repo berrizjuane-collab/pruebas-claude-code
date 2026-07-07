@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tokyo Metro — Graph Control</title>
+    <style>
+      html, body { margin: 0; padding: 0; background: #060a18; height: 100%; overflow: hidden; }
+      #boot {
+        position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+        color: #53d7f0; font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        letter-spacing: 0.25em; text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div id="boot">initializing network graph…</div></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
