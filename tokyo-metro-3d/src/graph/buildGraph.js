@@ -8,10 +8,14 @@
  * Scene units are kilometers; +x = east, -z = north (so north reads "up"
  * when the camera looks down at the map).
  *
- * Vertical axis: each line occupies a depth layer (construction era, see
- * lines.js). A station's node sits at the mean depth of its lines; each edge
- * bows toward its own line's layer, which visually separates parallel
- * corridors (e.g. Yūrakuchō vs Fukutoshin between Wakōshi and Ikebukuro).
+ * Vertical axis: the network sits just BELOW the ground plane (y = 0, where
+ * the stylized Tokyo map is drawn), like the real thing. Each line keeps a
+ * small depth layer ordered by construction era (Ginza 1927 shallowest …
+ * Fukutoshin 2008 deepest) — Tokyo Metro lines really are stacked underground.
+ * The offsets are deliberately subtle so the network reads as a flat,
+ * physically-laid-out metro map from above, and only reveals the stacking
+ * when the camera orbits low. (True depths are ~5–40 m; at map scale that is
+ * invisible, so the relative order is kept and the scale exaggerated.)
  *
  * Edge distance = straight-line km between the projected endpoints (real
  * track length is slightly longer; documented approximation).
@@ -23,7 +27,17 @@ const LON0 = 139.745;
 const LAT0 = 35.70;
 const KM_PER_LON = 90.5;
 const KM_PER_LAT = 111.0;
-const DEPTH_STEP = 0.48; // vertical km-units between consecutive line layers
+
+/** Shared by the map backdrop so geography and stations stay registered. */
+export const PROJECTION = { LON0, LAT0, KM_PER_LON, KM_PER_LAT };
+
+const BASE_DEPTH = 0.16; // ground clearance of the shallowest line (scene km)
+const DEPTH_STEP = 0.09; // vertical spacing between consecutive line layers
+
+/** y-coordinate of a line's depth layer (used for nodes and edge sag). */
+export function depthY(depth) {
+  return -(BASE_DEPTH + depth * DEPTH_STEP);
+}
 
 export function buildGraph() {
   const nodes = new Map();
@@ -48,10 +62,10 @@ export function buildGraph() {
     }
   }
 
-  // Node elevation = mean of its lines' depth layers; exits; hub flag
+  // Node depth = mean of its lines' depth layers; exits; hub flag
   for (const n of nodes.values()) {
     const depths = n.lines.map((lid) => LINES.find((l) => l.id === lid).depth);
-    n.y = -(depths.reduce((a, b) => a + b, 0) / depths.length) * DEPTH_STEP;
+    n.y = depthY(depths.reduce((a, b) => a + b, 0) / depths.length);
     n.exits = exitsFor(n.id, n.lines.length);
     n.isHub = n.lines.length >= 2;
   }

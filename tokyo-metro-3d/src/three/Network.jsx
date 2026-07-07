@@ -9,7 +9,7 @@ import * as THREE from 'three';
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useCursor } from '@react-three/drei';
-import { GRAPH } from '../graph/buildGraph.js';
+import { GRAPH, depthY } from '../graph/buildGraph.js';
 import { LINE_BY_ID } from '../data/lines.js';
 import { useStore } from '../state/store.js';
 import {
@@ -17,11 +17,26 @@ import {
   getGlowTexture, getLabelTexture, hdrColor,
 } from './appearance.js';
 
-const DEPTH_STEP = 0.48; // must match buildGraph.js layer spacing
-const BASE_RADIUS = 0.105;
-const HUB_RADIUS = 0.175;
+const BASE_RADIUS = 0.085;
+const HUB_RADIUS = 0.14;
 
 const sphereGeometry = new THREE.SphereGeometry(1, 18, 18);
+
+// Parallel edges (two lines sharing a physical corridor, e.g. Yūrakuchō /
+// Fukutoshin between Wakōshi and Kotake-Mukaihara) get a small lateral
+// "double track" offset so both stay visible in the flat top-down layout.
+const parallelRank = new Map();
+{
+  const groups = new Map();
+  for (const e of GRAPH.edges) {
+    const k = e.a < e.b ? `${e.a}|${e.b}` : `${e.b}|${e.a}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(e.id);
+  }
+  for (const ids of groups.values()) {
+    if (ids.length > 1) ids.forEach((id, i) => parallelRank.set(id, { i, n: ids.length }));
+  }
+}
 
 /* ────────────────────────── edges ────────────────────────── */
 
@@ -34,11 +49,24 @@ function EdgeMesh({ edge }) {
   const geometry = useMemo(() => {
     const na = GRAPH.nodes.get(edge.a);
     const nb = GRAPH.nodes.get(edge.b);
-    const yLine = -LINE_BY_ID[edge.line].depth * DEPTH_STEP;
+    const yLine = depthY(LINE_BY_ID[edge.line].depth);
     const va = new THREE.Vector3(na.x, na.y, na.z);
     const vb = new THREE.Vector3(nb.x, nb.y, nb.z);
-    // Control point chosen so the curve's midpoint sits exactly on the line's
-    // own depth layer — separates parallel corridors in 3D.
+    const par = parallelRank.get(edge.id);
+    if (par) {
+      // sideways unit vector on the map plane
+      const dx = nb.x - na.x;
+      const dz = nb.z - na.z;
+      const len = Math.hypot(dx, dz) || 1;
+      const off = (par.i - (par.n - 1) / 2) * 0.11;
+      const ox = (-dz / len) * off;
+      const oz = (dx / len) * off;
+      va.x += ox; va.z += oz;
+      vb.x += ox; vb.z += oz;
+    }
+    // Near-flat run: the segment travels at its line's own (subtle) depth
+    // layer and eases into the interchange nodes at the ends, so parallel
+    // corridors stay separated without the old exaggerated braiding.
     const control = new THREE.Vector3(
       (na.x + nb.x) / 2,
       2 * yLine - (na.y + nb.y) / 2,
@@ -84,7 +112,7 @@ function StationNode({ node }) {
   const r = baseR * params.r * (hovered ? 1.3 : 1);
   const color = useMemo(() => hdrColor(params.c, params.k), [params]);
   const glowColor = useMemo(() => hdrColor(params.c, Math.min(params.k, 1.3)), [params]);
-  const glowScale = r * (node.isHub ? 5.5 : 5.2);
+  const glowScale = r * (node.isHub ? 5.0 : 4.6);
 
   useFrame(({ clock }) => {
     if (params.pulse && meshRef.current) {
@@ -100,6 +128,7 @@ function StationNode({ node }) {
         ref={meshRef}
         geometry={sphereGeometry}
         scale={r}
+        renderOrder={2}
         onClick={(e) => {
           e.stopPropagation();
           useStore.getState().pickStation(node.id);
@@ -123,7 +152,7 @@ function StationNode({ node }) {
           map={getGlowTexture()}
           color={glowColor}
           transparent
-          opacity={0.38 * params.o}
+          opacity={0.3 * params.o}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
