@@ -1,0 +1,26 @@
+{
+  "name": "tokyo-metro-graph-lab",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "3D visualizer of the Tokyo Metro network with an educational graph-algorithm engine (Dijkstra, Prim, Kruskal) animated over the real network graph",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test test/algorithms.test.js"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.3",
+    "@react-three/fiber": "^8.17.10",
+    "@react-three/postprocessing": "^2.16.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.169.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
