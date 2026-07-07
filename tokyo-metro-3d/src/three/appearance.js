@@ -39,7 +39,7 @@ export function edgeToken(s, edge) {
 }
 
 export const EDGE_PARAMS = {
-  base:           { o: 0.38, k: 1.0,  line: true },
+  base:           { o: 0.5,  k: 1.0,  line: true },
   spot:           { o: 1.0,  k: 2.6,  line: true },
   'dim-spot':     { o: 0.05, k: 0.7,  line: true },
   'dim-algo':     { o: 0.07, k: 0.7,  line: true },
@@ -77,8 +77,8 @@ export function nodeToken(s, node) {
 }
 
 export const NODE_PARAMS = {
-  node:        { c: '#6f9cc4', o: 0.9,  k: 1.0,  r: 1.0 },
-  hub:         { c: '#bcd8f5', o: 1.0,  k: 1.12, r: 1.0 },
+  node:        { c: '#87a8c8', o: 0.85, k: 0.95, r: 1.0 },
+  hub:         { c: '#c4dcf6', o: 1.0,  k: 1.05, r: 1.0 },
   selected:    { c: '#8ef0ff', o: 1.0,  k: 2.2,  r: 1.5 },
   'spot-node': { c: '#eaf6ff', o: 1.0,  k: 2.0,  r: 1.25 },
   'dim-node':  { c: '#3c5a78', o: 0.35, k: 0.6,  r: 0.9 },

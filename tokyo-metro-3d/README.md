@@ -24,7 +24,7 @@ npm run build    # production bundle in dist/
 | Graph | `src/graph/buildGraph.js` | Single adjacency-list structure shared by renderer **and** algorithms |
 | Algorithms | `src/graph/algorithms.js` | Real implementations — binary min-heap with lazy deletion (Dijkstra/Prim), union–find with path compression + rank (Kruskal). Each run records an execution trace |
 | Playback | `src/state/` | The view at step N is a pure fold of the first N trace events → scrubbing, manual stepping and speed control are trivially correct |
-| 3D scene | `src/three/` | React Three Fiber: tube edges bowed to per-line depth layers (construction era), glow sprites, HDR colors + bloom, orbit camera |
+| 3D scene | `src/three/` | React Three Fiber: near-flat physical layout over a stylized Tokyo basemap (`tokyoMap.js`), subtle per-line depth layers below ground (construction era), glow sprites, HDR colors + bloom, orbit camera |
 | HUD | `src/ui/` | Command-center panels: line roster/legend, algorithm console with live priority queue, station dossier, cursor tooltip |
 | Tests | `test/algorithms.test.js` | Dijkstra vs independent Bellman–Ford oracle; Prim total ≡ Kruskal total from any seed; trace invariants (non-decreasing settle order, real cycle rejections) |
 
@@ -56,7 +56,17 @@ switchable.
 - Exits: simulated (deterministic per station), labeled as such in the UI.
 - The Wakōshi–Kotake-Mukaihara corridor is physically shared by Yūrakuchō and
   Fukutoshin; it is modeled as parallel edges — true to the service pattern,
-  and it hands Kruskal genuine cycles to reject.
+  and it hands Kruskal genuine cycles to reject. In the flat layout they render
+  with a small lateral "double track" offset so both stay visible from above.
+- The basemap (Tokyo Bay + landfill islands, Sumida/Arakawa/Naka/Edogawa/Kanda
+  rivers, Imperial Palace and major parks, arterial roads, the JR Yamanote
+  loop) is hand-drawn from general knowledge into a canvas texture using the
+  same projection as the stations — a recognizable approximation (~few hundred
+  meters), not GIS data. The urban-fabric blocks are procedural texture.
+- Depth: the network sits just below the ground plane. Tokyo Metro lines really
+  are stacked underground (~5–40 m); the relative order by construction era is
+  kept, with the vertical scale exaggerated just enough to be perceptible when
+  orbiting low — from above the map reads flat, as in reality.
 
 ## Controls
 
