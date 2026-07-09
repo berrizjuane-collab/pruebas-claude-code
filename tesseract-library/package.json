@@ -1,0 +1,20 @@
+{
+  "name": "tesseract-library",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Biblioteca tesseráctica — simulación 4D interactiva (Interstellar): recursión escénica real, proyección N-dimensional y polvo gravitacional",
+  "scripts": {
+    "build": "node build.mjs",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.2",
+    "playwright": "1.49.1"
+  }
+}
