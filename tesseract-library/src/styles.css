@@ -1,0 +1,414 @@
+/* ==========================================================================
+   Biblioteca tesseráctica — HUD diegético.
+   Mundo visual único y deliberado (copia fílmica oscura, ámbar Hoytema):
+   este artefacto comete una sola atmósfera, no dos temas.
+   ========================================================================== */
+
+:root {
+  --void: #030406;
+  --amber: #e8b464;
+  --amber-hot: #ffdfae;
+  --amber-dim: #8a6234;
+  --paper: #e9dfcc;
+  --steel: #7d8ea4;
+  --line: rgba(232, 180, 100, 0.22);
+  --line-soft: rgba(232, 180, 100, 0.1);
+  --panel: rgba(9, 7, 4, 0.62);
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--void);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 12px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root, .stage { position: fixed; inset: 0; }
+
+#scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 1.8s ease 0.15s;
+}
+#scene.ready { opacity: 1; }
+
+/* ── Paneles instrumentales ─────────────────────────────────────────── */
+
+.panel {
+  position: absolute;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 3;
+}
+/* ticks de esquina — marcos de instrumento */
+.panel::before, .panel::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+}
+.panel::before {
+  top: -1px; left: -1px;
+  border-top: 1px solid var(--amber);
+  border-left: 1px solid var(--amber);
+}
+.panel::after {
+  bottom: -1px; right: -1px;
+  border-bottom: 1px solid var(--amber);
+  border-right: 1px solid var(--amber);
+}
+
+.label {
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--amber-dim);
+}
+
+/* ── Título (tl) ────────────────────────────────────────────────────── */
+
+.panel.tl { top: 18px; left: 18px; max-width: 320px; }
+.eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--steel);
+  margin-bottom: 6px;
+}
+.panel.tl h1 {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber-hot);
+  text-wrap: balance;
+  margin-bottom: 7px;
+}
+.status {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--paper);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+.status b { color: var(--amber); font-weight: 500; }
+
+/* ── Rotación 4D (tr) ───────────────────────────────────────────────── */
+
+.panel.tr { top: 18px; right: 18px; width: 296px; }
+.panel.tr .label { display: block; margin-bottom: 10px; }
+
+.dial {
+  display: grid;
+  grid-template-columns: 22px 1fr 42px 56px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 7px;
+  overflow: hidden;
+}
+.dial-name { font-size: 10px; color: var(--amber); letter-spacing: 0.08em; }
+.dial-read {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--paper);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+.dial-kind {
+  font-size: 8px;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  color: var(--amber-dim);
+  text-align: right;
+  white-space: nowrap;
+}
+.dial.focal { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  background: transparent;
+  cursor: ew-resize;
+  /* riel con muesca central */
+  background-image:
+    linear-gradient(var(--line) 0 0),
+    linear-gradient(rgba(232, 180, 100, 0.45) 0 0);
+  background-repeat: no-repeat;
+  background-size: 100% 1px, 1px 7px;
+  background-position: 0 center, center center;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  background: var(--amber);
+  transform: rotate(45deg);
+  border: none;
+  cursor: ew-resize;
+  transition: background 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { background: var(--amber-hot); }
+input[type="range"]::-moz-range-thumb {
+  width: 9px; height: 9px;
+  background: var(--amber);
+  transform: rotate(45deg);
+  border: none; border-radius: 0;
+}
+input[type="range"]::-moz-range-track { background: var(--line); height: 1px; }
+input[type="range"]:focus-visible { outline: 1px solid var(--steel); outline-offset: 2px; }
+
+.btn-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line-soft);
+}
+button {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: transparent;
+  border: 1px solid var(--line);
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+button:hover { border-color: var(--amber); color: var(--amber-hot); }
+button:focus-visible { outline: 1px solid var(--steel); outline-offset: 2px; }
+button[aria-pressed="true"] { color: var(--amber); border-color: var(--amber-dim); }
+button:disabled { opacity: 0.4; cursor: default; }
+
+/* ── Riel temporal (derecha, centrado) ──────────────────────────────── */
+
+.rail {
+  position: absolute;
+  right: 26px;
+  top: 60%;
+  transform: translateY(-40%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-height: 46vh;
+  z-index: 2;
+}
+.rail-label { opacity: 0.8; padding-right: 10px; }
+.rail-track {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  border-right: 1px solid var(--line);
+  padding-right: 10px;
+}
+.rail-track::-webkit-scrollbar { display: none; }
+
+.rail-node {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  padding: 3px 2px;
+  color: var(--amber-dim);
+  min-height: 19px;
+}
+.rail-node:hover { color: var(--amber-hot); border: none; }
+.rail-node i {
+  width: 6px; height: 6px;
+  border: 1px solid currentColor;
+  transform: rotate(45deg);
+  flex: none;
+  transition: background 0.15s;
+}
+.rail-node span { font-size: 9px; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; }
+.rail-node.anchor { color: var(--amber-hot); }
+.rail-node.anchor i { background: var(--amber-hot); }
+.rail-node.selected { color: var(--steel); }
+.rail-node.selected i {
+  background: var(--steel);
+  box-shadow: 0 0 7px rgba(125, 142, 164, 0.8);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 50% { box-shadow: 0 0 2px rgba(125, 142, 164, 0.3); } }
+
+.enter-btn { border-color: var(--steel); color: var(--steel); }
+.enter-btn:hover { border-color: var(--amber); }
+.glide-note { font-size: 9px; letter-spacing: 0.18em; color: var(--amber); animation: blink 0.9s step-end infinite; }
+@keyframes blink { 50% { opacity: 0.35; } }
+
+/* ── Panel matemático (bl) ──────────────────────────────────────────── */
+
+.panel.bl { bottom: 18px; left: 18px; max-width: 400px; }
+.math-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  padding: 0;
+  width: 100%;
+  justify-content: space-between;
+}
+.math-toggle:hover { border: none; }
+.badge {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--void);
+  background: var(--amber);
+  padding: 2px 6px;
+  font-variant-numeric: tabular-nums;
+}
+.badge.bad { background: #b0483a; color: var(--paper); }
+.math-body { margin-top: 10px; }
+.math-body p {
+  font-size: 10.5px;
+  line-height: 1.65;
+  opacity: 0.82;
+  margin-bottom: 8px;
+  max-width: 62ch;
+}
+.math-body code {
+  color: var(--amber);
+  font-size: 10px;
+  background: rgba(232, 180, 100, 0.08);
+  padding: 0 3px;
+}
+.list-toggle { margin-top: 2px; }
+.checks {
+  list-style: none;
+  margin-top: 8px;
+  max-height: 168px;
+  overflow-y: auto;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--amber-dim) transparent;
+}
+.checks li { font-size: 9.5px; line-height: 1.75; opacity: 0.75; font-variant-numeric: tabular-nums; }
+.checks li.ok { color: var(--paper); }
+.checks li.fail { color: #d76a58; opacity: 1; }
+
+/* ── Barra de pistas / señal (bc) ───────────────────────────────────── */
+
+.hintbar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  min-height: 30px;
+}
+.hint {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--amber-dim);
+  animation: hint-in 0.9s ease both;
+}
+@keyframes hint-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+.signal { font-size: 11px; letter-spacing: 0.2em; }
+.signal-in { color: var(--amber); animation: blink 0.5s step-end infinite; }
+.signal-out { color: var(--amber-dim); }
+.signal-decode { display: inline-flex; gap: 18px; }
+.signal-decode b {
+  color: var(--amber-hot);
+  font-size: 17px;
+  font-weight: 500;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-shadow: 0 0 14px rgba(255, 223, 174, 0.6);
+  animation: hint-in 0.4s ease both;
+}
+.signal-decode b i { font-size: 8px; font-style: normal; color: var(--amber-dim); letter-spacing: 0.1em; }
+
+/* ── Marcador proyectado (3D→2D pura) ───────────────────────────────── */
+
+.marker {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+  --mk: var(--amber);
+}
+.marker[data-mode="selected"] { --mk: var(--steel); }
+.marker .c { position: absolute; width: 9px; height: 9px; }
+.marker .c.tl { top: 0; left: 0; border-top: 1px solid var(--mk); border-left: 1px solid var(--mk); }
+.marker .c.tr { top: 0; right: 0; border-top: 1px solid var(--mk); border-right: 1px solid var(--mk); }
+.marker .c.bl { bottom: 0; left: 0; border-bottom: 1px solid var(--mk); border-left: 1px solid var(--mk); }
+.marker .c.br { bottom: 0; right: 0; border-bottom: 1px solid var(--mk); border-right: 1px solid var(--mk); }
+.marker-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 7px);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mk);
+  white-space: nowrap;
+  background: var(--panel);
+  padding: 3px 7px;
+  border: 1px solid var(--line-soft);
+}
+
+/* ── fps (br) ───────────────────────────────────────────────────────── */
+
+.fps {
+  position: absolute;
+  bottom: 20px;
+  right: 22px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber-dim);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Responsivo ─────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .panel.tr { width: 226px; padding: 10px; }
+  .dial { grid-template-columns: 22px 1fr 40px; }
+  .dial-kind { display: none; }
+  .panel.bl { max-width: min(400px, calc(100vw - 36px)); }
+  .rail { right: 14px; }
+}
+@media (max-width: 640px) {
+  .panel.tl { max-width: 250px; }
+  .panel.tr { display: none; } /* en móvil manda el gesto, no el instrumento */
+  .fps { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint, .signal-in, .glide-note, .rail-node.selected i, .signal-decode b { animation: none; }
+  #scene { transition: none; opacity: 1; }
+}

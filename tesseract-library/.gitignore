@@ -1,0 +1,6 @@
+node_modules/
+dist/bundle.js
+dist/debug.js
+dist/debug.html
+shots/*
+!shots/01-default.png
