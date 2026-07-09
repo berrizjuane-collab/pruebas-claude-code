@@ -63,14 +63,32 @@ export function runValidations(hooks) {
   check('3D→2D: pinhole exacto', q !== null && Math.abs(q[0] - 6) < 1e-12 && Math.abs(q[1] + 4) < 1e-12);
   check('3D→2D: rechaza puntos detrás de la cámara', project3Dto2D([1, 1, 0.5], 10) === null);
 
-  // ── 4 · Terminación de la recursión ──
+  // ── 4 · Terminación de la recursión y estructura de árbol ──
   if (hooks?.simulateCorridor) {
     const byDepth = hooks.simulateCorridor({ maxDepth: 9, minScale: 1e-9, maxScale: 1e9, deltaW: 0.001, d4: 3.2 });
-    check('recursión: corta por profundidad (1 + 2·9 habitaciones)', byDepth.rooms === 19 && byDepth.maxDepthSeen === 9 && !byDepth.overflow);
+    check('recursión: corta por profundidad (1 + 2·9 nodos sin intervenciones)', byDepth.rooms === 19 && byDepth.maxDepthSeen === 9 && !byDepth.overflow);
     const byScale = hooks.simulateCorridor({ maxDepth: 100000, minScale: 0.3, maxScale: 2.0, deltaW: 0.5, d4: 3.2 });
-    check('recursión: corta por escala mucho antes del tope (18 habitaciones)', byScale.rooms === 18 && !byScale.overflow);
+    check('recursión: corta por escala mucho antes del tope (18 nodos)', byScale.rooms === 18 && !byScale.overflow);
     const deep = hooks.simulateCorridor({ maxDepth: 3000, minScale: 0, maxScale: Infinity, deltaW: 1e-7, d4: 3.2 });
     check('recursión: 3000 niveles por rama sin desbordar la pila', deep.rooms === 6001 && !deep.overflow);
+
+    // branching factor variable: una intervención de 3 ramas en el ancla
+    const base = { maxDepth: 4, minScale: 1e-9, maxScale: 1e9, deltaW: 0.001, d4: 3.2 };
+    const tree = hooks.simulateCorridor({ ...base, interventions: { '0|': 3 } });
+    check('árbol: intervención ×3 en el ancla → 17 nodos (4 pasado + 3 subárboles de 4)', tree.rooms === 17 && !tree.overflow);
+    check('árbol: propiedad de árbol (aristas = nodos − 1)', tree.edges === tree.rooms - 1);
+    check('árbol: claves de nodo únicas en todo el árbol', tree.uniqueKeys);
+    check('árbol: el nodo intervenido tiene 3 hijos (continuación + 2 alternativas)',
+      ['1|', '1|0:1;', '1|0:2;'].every((k) => tree.keys.includes(k)));
+
+    // bifurcación en el PASADO: el camino no tomado también se despliega
+    const past = hooks.simulateCorridor({ ...base, interventions: { '-2|': 2 } });
+    check('árbol: bifurcación pasada → la rama no tomada existe (11 nodos)',
+      past.rooms === 11 && past.keys.includes('-1|-2:1;') && past.edges === past.rooms - 1);
+
+    // caso base por presupuesto de nodos
+    const budget = hooks.simulateCorridor({ ...base, maxDepth: 100, interventions: { '0|': 3 }, nodeBudget: 20 });
+    check('árbol: el presupuesto de nodos corta la recursión (exactamente 20)', budget.rooms === 20 && budget.edges === 19);
   }
 
   // ── 5 · Higiene del grafo de escena ──

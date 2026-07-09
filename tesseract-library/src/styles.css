@@ -234,8 +234,10 @@ button:disabled { opacity: 0.4; cursor: default; }
   gap: 7px;
   border: none;
   padding: 3px 2px;
+  padding-left: calc(2px + var(--indent, 0) * 13px); /* indentación de rama */
   color: var(--amber-dim);
   min-height: 19px;
+  position: relative;
 }
 .rail-node:hover { color: var(--amber-hot); border: none; }
 .rail-node i {
@@ -245,7 +247,18 @@ button:disabled { opacity: 0.4; cursor: default; }
   flex: none;
   transition: background 0.15s;
 }
-.rail-node span { font-size: 9px; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; }
+.rail-node span { font-size: 9px; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rail-node span small { font-size: 8px; color: var(--steel); }
+/* conector de rama alternativa */
+.rail-node.alt::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--indent, 0) * 13px - 6px);
+  top: 50%;
+  width: 6px;
+  height: 1px;
+  background: var(--line);
+}
 .rail-node.anchor { color: var(--amber-hot); }
 .rail-node.anchor i { background: var(--amber-hot); }
 .rail-node.selected { color: var(--steel); }
@@ -255,6 +268,15 @@ button:disabled { opacity: 0.4; cursor: default; }
   animation: pulse 1.4s ease-in-out infinite;
 }
 @keyframes pulse { 50% { box-shadow: 0 0 2px rgba(125, 142, 164, 0.3); } }
+
+.fork-badge {
+  font-size: 8px;
+  font-style: normal;
+  color: var(--amber-hot);
+  border: 1px solid var(--line);
+  padding: 0 3px;
+  letter-spacing: 0.06em;
+}
 
 .enter-btn { border-color: var(--steel); color: var(--steel); }
 .enter-btn:hover { border-color: var(--amber); }

@@ -18,8 +18,9 @@ const HINTS = [
   'girá el plano XW: el tiempo se despliega como un eje espacial',
   'clic en una habitación la selecciona · clic de nuevo o ⏎ para entrar',
   'mantené presionado: tu dedo es un pozo de gravedad sobre el polvo',
-  'agitá el polvo con energía y algo del otro lado va a responder',
-  'rueda para acercarte · ← → recorren los instantes · espacio pausa la deriva',
+  'agitá el polvo con energía: cada señal bifurca la línea de tiempo',
+  'en una bifurcación ⑂ elegí qué rama seguir — todas las variantes existen',
+  'rueda para acercarte · ← → recorren el árbol · espacio pausa la deriva',
 ];
 
 const MORSE_TEXT = ['· · ·', '—', '· —', '— · — —'];
@@ -92,32 +93,43 @@ const RotationPanel = memo(function RotationPanel({ engine, paused, audio, angle
   );
 });
 
-// ── Riel de navegación temporal ─────────────────────────────────────────────
+// ── Árbol de navegación temporal ────────────────────────────────────────────
+// Ya no es una lista: cada nodo muestra su línea (indentación por profundidad
+// de rama) y las bifurcaciones ⑂ indican cuántas ramas abren.
 
-const TimeRail = memo(function TimeRail({ engine, rooms, selection, epoch, gliding }) {
+const TimeRail = memo(function TimeRail({ engine, tree, selection, gliding }) {
+  const sel = tree.find((n) => n.key === selection);
   return (
-    <nav className="rail" aria-label="Navegación temporal">
-      <h2 className="label rail-label">Instantes · eje W</h2>
+    <nav className="rail" aria-label="Árbol de líneas temporales">
+      <h2 className="label rail-label">Árbol de instantes</h2>
       <div className="rail-track">
-        {rooms.map((t) => (
+        {tree.map((n) => (
           <button
-            key={t}
+            key={n.key}
             className={
-              'rail-node' + (t === 0 ? ' anchor' : '') + (t === selection ? ' selected' : '')
+              'rail-node' +
+              (n.isAnchor ? ' anchor' : '') +
+              (n.key === selection ? ' selected' : '') +
+              (n.branchDepth > 0 ? ' alt' : '')
             }
-            disabled={t === 0 || gliding}
-            onClick={() => t !== 0 && engine.select(t)}
-            onDoubleClick={() => { if (t !== 0) { engine.select(t); engine.enterSelected(); } }}
-            title={t === 0 ? 'ancla actual' : fmtYears(t)}
+            style={{ '--indent': Math.min(n.branchDepth, 3) }}
+            disabled={n.isAnchor || gliding}
+            onClick={() => !n.isAnchor && engine.select(n.key)}
+            onDoubleClick={() => { if (!n.isAnchor) { engine.select(n.key); engine.enterSelected(); } }}
+            title={n.isAnchor ? 'ancla actual' : `${fmtYears(n.timeIndex)}${n.pretty ? ' · línea ' + n.pretty : ''}`}
           >
             <i />
-            <span>{fmtT(t)}</span>
+            <span>
+              {fmtT(n.timeIndex)}
+              {n.pretty && <small> {n.pretty}</small>}
+            </span>
+            {n.isFork && <em className="fork-badge">⑂{n.arms}</em>}
           </button>
         ))}
       </div>
-      {selection != null && !gliding && (
+      {sel && !gliding && (
         <button className="enter-btn" onClick={() => engine.enterSelected()}>
-          entrar {fmtT(selection)} ⏎
+          entrar {fmtT(sel.timeIndex)}{sel.pretty ? ' ' + sel.pretty : ''} ⏎
         </button>
       )}
       {gliding && <div className="glide-note">atravesando el tiempo…</div>}
@@ -152,9 +164,12 @@ const MathPanel = memo(function MathPanel({ validation }) {
             encogimiento no es un truco — es la perspectiva 4D real.
           </p>
           <p>
-            El pasillo es una recursión genuina — <code>renderRoom(depth, transform)</code> se
-            llama a sí misma con doble caso base: profundidad máxima y umbral de escala
-            proyectada. Entrar en una habitación re-ancla el árbol recursivo en ese nodo.
+            El pasillo es una recursión genuina con <em>branching factor variable</em> —
+            <code>renderRoom(depth, transform)</code> se llama a sí misma con casos base de
+            profundidad y de escala proyectada; cada intervención tuya sobre el polvo convierte
+            ese instante en una bifurcación de 2-3 líneas hijas que divergen también en Y/Z.
+            La propiedad de árbol (aristas = nodos − 1) se verifica en vivo, y entrar en una
+            habitación re-ancla la recursión en ese nodo.
           </p>
           <button className="list-toggle" onClick={() => setShowList(!showList)}>
             {showList ? 'ocultar' : 'ver'} las {validation.total} verificaciones
@@ -176,7 +191,7 @@ const MathPanel = memo(function MathPanel({ validation }) {
 
 // ── Barra de estado / señal ─────────────────────────────────────────────────
 
-function SignalReadout({ phase }) {
+function SignalReadout({ phase, forked }) {
   const [step, setStep] = useState(0);
   useEffect(() => {
     if (phase !== 'hold') { setStep(0); return; }
@@ -195,7 +210,13 @@ function SignalReadout({ phase }) {
           ))}
         </span>
       )}
-      {phase === 'release' && <span className="signal-out">…la señal se disuelve</span>}
+      {phase === 'release' && (
+        <span className="signal-out">
+          {forked
+            ? `…la señal se disuelve — este instante se bifurcó en ${forked} líneas ⑂`
+            : '…la señal se disuelve'}
+        </span>
+      )}
     </div>
   );
 }
@@ -214,10 +235,11 @@ export function App() {
   const [engine, setEngine] = useState(null);
   const [validation, setValidation] = useState(null);
   const [st, setSt] = useState({
-    epoch: 0, selection: null, hover: null, paused: false, audio: false,
-    quality: 0, qualityName: 'ALTA', signalCount: 0, gliding: false, rooms: [],
+    epoch: 0, anchorPretty: '', selection: null, hover: null, paused: false, audio: false,
+    quality: 0, qualityName: 'ALTA', signalCount: 0, gliding: false,
+    tree: [], stats: { nodes: 0, edges: 0, forks: 0, lines: 1 },
   });
-  const [signalPhase, setSignalPhase] = useState('idle');
+  const [signal, setSignal] = useState({ phase: 'idle', forked: 0 });
   const [hintIdx, setHintIdx] = useState(0);
 
   useEffect(() => {
@@ -225,7 +247,7 @@ export function App() {
     const canvas = canvasRef.current;
     const eng = createEngine(canvas, {
       onState: (s) => setSt(s),
-      onSignal: (s) => setSignalPhase(s.phase),
+      onSignal: (s) => setSignal({ phase: s.phase, forked: s.forked || 0 }),
       onTelemetry: (t) => {
         for (const { key } of ROTATION_PLANES) {
           const el = angleRefs.current[key];
@@ -244,14 +266,16 @@ export function App() {
         el.style.transform = `translate(${m.x - m.size / 2}px, ${m.y - m.size / 2}px)`;
         el.style.width = `${m.size}px`;
         el.style.height = `${m.size}px`;
-        if (lastMarker.current.t !== m.timeIndex || lastMarker.current.mode !== m.mode) {
-          lastMarker.current = { t: m.timeIndex, mode: m.mode };
+        const sig = m.timeIndex + '|' + (m.pretty || '') + '|' + m.mode;
+        if (lastMarker.current.t !== sig) {
+          lastMarker.current = { t: sig };
           el.dataset.mode = m.mode;
           if (markerLabelRef.current) {
+            const name = fmtT(m.timeIndex) + (m.pretty ? ' ' + m.pretty : '') + (m.isFork ? ' ⑂' : '');
             markerLabelRef.current.textContent =
               m.mode === 'selected'
-                ? `${fmtT(m.timeIndex)} · ⏎ entrar`
-                : `${fmtT(m.timeIndex)} · ${fmtYears(m.timeIndex)}`;
+                ? `${name} · ⏎ entrar`
+                : `${name} · ${fmtYears(m.timeIndex)}`;
           }
         }
       },
@@ -293,20 +317,23 @@ export function App() {
             <p className="eyebrow">Gargantua · interior del horizonte</p>
             <h1>Biblioteca tesseráctica</h1>
             <p className="status">
-              época ancla <b>{fmtT(st.epoch)}</b>
+              época ancla <b>{fmtT(st.epoch)}{st.anchorPretty ? ' ' + st.anchorPretty : ''}</b>
               {st.epoch !== 0 && <span> · {fmtYears(st.epoch).replace('al', 'hacia el')}</span>}
-              <span> · {st.rooms.length} instantes en el árbol</span>
+              <span> · árbol: {st.stats.nodes} nodos</span>
+              {st.stats.forks > 0 && (
+                <span> · {st.stats.forks} bifurcaci{st.stats.forks > 1 ? 'ones' : 'ón'} · {st.stats.lines} líneas</span>
+              )}
               {st.signalCount > 0 && <span> · señales: {st.signalCount}</span>}
             </p>
           </header>
 
           <RotationPanel engine={engine} paused={st.paused} audio={st.audio} angleRefs={angleRefs} />
-          <TimeRail engine={engine} rooms={st.rooms} selection={st.selection} epoch={st.epoch} gliding={st.gliding} />
+          <TimeRail engine={engine} tree={st.tree} selection={st.selection} gliding={st.gliding} />
           <MathPanel validation={validation} />
 
           <footer className="hintbar">
-            <SignalReadout phase={signalPhase} />
-            {signalPhase === 'idle' && <p className="hint" key={hintIdx}>{HINTS[hintIdx]}</p>}
+            <SignalReadout phase={signal.phase} forked={signal.forked} />
+            {signal.phase === 'idle' && <p className="hint" key={hintIdx}>{HINTS[hintIdx]}</p>}
           </footer>
 
           <div className="fps">

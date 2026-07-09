@@ -20,7 +20,10 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 import { generateHypercube, composeRotations, project3Dto2D, w4PerspectiveScale } from './math.js';
-import { buildCorridorTree, simulateCorridor, createRoomAssets, createRoomNode, lodForIndex } from './corridor.js';
+import {
+  buildCorridorTree, simulateCorridor, createRoomAssets, createRoomNode,
+  nodeKey, offsetOf, prettyTag, parseTag, hashStr,
+} from './corridor.js';
 import { DustField, createDustMaterial, morseBars } from './dust.js';
 import { noise3 } from './noise.js';
 import { createAudio } from './audio.js';
@@ -30,9 +33,9 @@ const TESS_SIZE = 2.3;    // radio del teseracto (la celda w=−1 anida la habit
 const WORLD_SPREAD = 5.0; // separación espacial del eje temporal proyectado
 
 const QUALITY = [
-  { name: 'ALTA', dust: 4200, depth: 14, dpr: 1.75, bloomScale: 0.5 },
-  { name: 'MEDIA', dust: 2600, depth: 11, dpr: 1.4, bloomScale: 0.35 },
-  { name: 'BAJA', dust: 1500, depth: 8, dpr: 1.1, bloomScale: 0.25 },
+  { name: 'ALTA', dust: 4200, depth: 14, budget: 64, dpr: 1.75, bloomScale: 0.5 },
+  { name: 'MEDIA', dust: 2600, depth: 11, budget: 44, dpr: 1.4, bloomScale: 0.35 },
+  { name: 'BAJA', dust: 1500, depth: 8, budget: 30, dpr: 1.1, bloomScale: 0.25 },
 ];
 
 export const DEFAULT_ANGLES = { xy: 0, xz: 0, xw: -1.04, yz: 0, yw: -0.22, zw: 0 };
@@ -96,12 +99,18 @@ export function createEngine(canvas, cb) {
   const deltaW = 0.58;
   const minScale = 0.16, maxScale = 2.7;
   let quality = 0;
-  let epoch = 0;
-  let selection = null; // timeIndex | null
-  let hover = null;
-  let glide = null;     // { to, start, dur, timeIndex }
-  let wOffset = 0;
+  let anchorT = 0;      // instante absoluto del ancla
+  let anchorTag = '';   // línea temporal del ancla (historia de bifurcaciones)
+  let selection = null; // clave de nodo | null
+  let hover = null;     // clave de nodo | null
+  let glide = null;     // { to: [x,y,z,w], start, dur, room }
+  const gOff = [0, 0, 0, 0]; // traslación 4D en curso (re-anclaje)
   let signalCount = 0;
+  // intervenciones de Cooper: clave de nodo → k hijos (2-3). Persisten entre
+  // re-anclajes: son los puntos de bifurcación del árbol temporal.
+  const interventions = new Map();
+  const anchorKey = () => nodeKey(anchorT, anchorTag);
+  const forkArmsOf = (t, tag) => Math.max((interventions.get(nodeKey(t, tag)) || 1) - 1, 0);
   let disposedTotal = 0, createdTotal = 0;
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
@@ -193,13 +202,14 @@ export function createEngine(canvas, cb) {
   const tessColor = new THREE.Color();
   const tessProjected = tess.vertices.map(() => [0, 0, 0, 0]);
 
-  // ── Pasillo recursivo ─────────────────────────────────────────────────
-  const assets = createRoomAssets();
+  // ── Árbol temporal recursivo ──────────────────────────────────────────
+  const assets = createRoomAssets(glowTex);
   const corridorGroup = new THREE.Group();
   scene.add(corridorGroup);
-  let rooms = [];        // registro vivo
+  let rooms = [];        // registro vivo (nodos del árbol)
+  let treeEdges = [];    // aristas padre→hijo (|aristas| = |nodos| − 1)
   let pickMeshes = [];
-  let worldlines = null; // { mesh, pairs }
+  let worldlines = null; // { mesh, pairs, positions }
 
   function disposeRoom(room) {
     room.group.removeFromParent();
@@ -214,6 +224,7 @@ export function createEngine(canvas, cb) {
   function rebuildCorridor() {
     for (const r of rooms) disposeRoom(r);
     rooms = [];
+    treeEdges = [];
     pickMeshes = [];
     if (worldlines) {
       worldlines.mesh.geometry.dispose();
@@ -221,16 +232,26 @@ export function createEngine(canvas, cb) {
       worldlines = null;
     }
 
+    const aOff = offsetOf(anchorT, anchorTag); // el ancla renderiza en el origen
     const ctx = {
+      anchorT, anchorTag,
       maxDepth: QUALITY[quality].depth,
+      nodeBudget: QUALITY[quality].budget,
       minScale, maxScale, deltaW, d4,
+      count: () => rooms.length,
+      forkArms: forkArmsOf,
       emit: (spec) => {
-        const absoluteIndex = epoch + spec.timeIndex;
-        const node = createRoomNode(spec, assets, absoluteIndex);
+        const arms = forkArmsOf(spec.t, spec.tag);
+        const node = createRoomNode(spec, assets, arms > 0);
         corridorGroup.add(node.group);
+        const off = offsetOf(spec.t, spec.tag);
         const room = {
           ...spec,
-          absoluteIndex,
+          ox: off[0] - aOff[0],
+          oy: off[1] - aOff[1],
+          oz: off[2] - aOff[2],
+          isFork: arms > 0,
+          forkArms: arms,
           node,
           group: node.group,
           disposed: false,
@@ -239,26 +260,19 @@ export function createEngine(canvas, cb) {
           _visible: true,
         };
         node.pick.userData.room = room;
-        if (spec.timeIndex !== 0) pickMeshes.push(node.pick);
+        if (spec.key !== anchorKey()) pickMeshes.push(node.pick);
+        if (spec.parentRoom) treeEdges.push([spec.parentRoom, room]);
+        if (spec.childRoom) treeEdges.push([room, spec.childRoom]);
         rooms.push(room);
         createdTotal++;
+        return room;
       },
     };
-    buildCorridorTree(ctx); // ← LA recursión (renderRoom se llama a sí misma)
+    buildCorridorTree(ctx); // ← LA recursión (renderRoom, branching variable)
 
-    // líneas de universo: los 8 vértices de cada habitación trazados a la
-    // siguiente en el tiempo — los rieles del pasillo
-    const chains = [[], []];
-    for (const r of rooms) {
-      if (r.timeIndex <= 0) chains[0].push(r);
-      if (r.timeIndex >= 0) chains[1].push(r);
-    }
-    chains[0].sort((a, b) => b.timeIndex - a.timeIndex);
-    chains[1].sort((a, b) => a.timeIndex - b.timeIndex);
-    const pairs = [];
-    for (const chain of chains) {
-      for (let i = 0; i < chain.length - 1; i++) pairs.push([chain[i], chain[i + 1]]);
-    }
+    // líneas de universo: los 8 vértices de cada habitación trazados a su
+    // padre en el árbol — los rieles del pasillo, que ahora se ramifican
+    const pairs = treeEdges;
     const segCount = pairs.length * 8;
     const wp = new Float32Array(segCount * 2 * 3);
     const wc = new Float32Array(segCount * 2 * 3);
@@ -323,7 +337,22 @@ export function createEngine(canvas, cb) {
     dust.beginSignal(bars);
     signalCount++;
     audio.signalSwell();
-    cb.onSignal?.({ phase: 'forming', count: signalCount });
+
+    // la intervención de Cooper: este instante se vuelve punto de bifurcación
+    const key = anchorKey();
+    const prev = interventions.get(key);
+    let forked = 0;
+    if (!prev) {
+      forked = interventions.size === 0 ? 3 : 2 + (hashStr(key) % 2);
+      interventions.set(key, forked);
+    } else if (prev < 3) {
+      forked = 3; // insistir en el mismo instante abre una rama más
+      interventions.set(key, 3);
+    }
+    signal.forked = forked;
+    if (forked) rebuildCorridor(); // el árbol se abre mientras el polvo escribe
+
+    cb.onSignal?.({ phase: 'forming', count: signalCount, forked });
     emitState();
     return true;
   }
@@ -332,13 +361,13 @@ export function createEngine(canvas, cb) {
     const t = now - signal.t0;
     switch (signal.phase) {
       case 'forming':
-        if (t > 0.55) { signal = { phase: 'hold', t0: now }; cb.onSignal?.({ phase: 'hold', count: signalCount }); }
+        if (t > 0.55) { signal = { ...signal, phase: 'hold', t0: now }; cb.onSignal?.({ phase: 'hold', count: signalCount, forked: signal.forked }); }
         return 34 * easeInOutQuint(Math.min(t / 0.55, 1));
       case 'hold':
         if (t > 3.0) {
-          signal = { phase: 'release', t0: now };
+          signal = { ...signal, phase: 'release', t0: now };
           dust.endSignal();
-          cb.onSignal?.({ phase: 'release', count: signalCount });
+          cb.onSignal?.({ phase: 'release', count: signalCount, forked: signal.forked });
         }
         return 34;
       case 'release':
@@ -389,9 +418,9 @@ export function createEngine(canvas, cb) {
   }
 
   function setHover(room) {
-    const t = room ? room.timeIndex : null;
-    if (t !== hover) {
-      hover = t;
+    const k = room ? room.key : null;
+    if (k !== hover) {
+      hover = k;
       canvas.style.cursor = room ? 'pointer' : 'crosshair';
       emitState();
     }
@@ -451,8 +480,8 @@ export function createEngine(canvas, cb) {
       updateNdc(e);
       const room = pickRoom();
       if (room) {
-        if (selection === room.timeIndex) enterSelected();
-        else { selection = room.timeIndex; emitState(); }
+        if (selection === room.key) enterSelected();
+        else { selection = room.key; emitState(); }
       } else {
         selection = null;
         clickPulse = 0.3; // soplo de polvo al tocar el vacío
@@ -471,50 +500,52 @@ export function createEngine(canvas, cb) {
 
   canvas.addEventListener('dblclick', () => {
     const room = pickRoom();
-    if (room) { selection = room.timeIndex; enterSelected(); }
+    if (room) { selection = room.key; enterSelected(); }
   });
 
   window.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-    const sorted = rooms.map((r) => r.timeIndex).filter((t) => t !== 0).sort((a, b) => a - b);
+    // recorrido plano del árbol en orden (t, línea): las flechas visitan
+    // también las ramas alternativas
+    const sorted = rooms
+      .filter((r) => r.key !== anchorKey())
+      .sort((a, b) => a.t - b.t || a.tag.localeCompare(b.tag))
+      .map((r) => r.key);
     if (!sorted.length) return;
+    const cur = selection != null ? sorted.indexOf(selection) : -1;
     switch (e.key) {
-      case 'ArrowLeft': case '[': {
-        const cur = selection ?? 1;
-        const prev = sorted.filter((t) => t < cur);
-        selection = prev.length ? prev[prev.length - 1] : sorted[0];
+      case 'ArrowLeft': case '[':
+        selection = sorted[cur <= 0 ? sorted.length - 1 : cur - 1];
         emitState();
         break;
-      }
-      case 'ArrowRight': case ']': {
-        const cur = selection ?? -1;
-        const next = sorted.filter((t) => t > cur);
-        selection = next.length ? next[0] : sorted[sorted.length - 1];
+      case 'ArrowRight': case ']':
+        selection = sorted[cur === -1 || cur === sorted.length - 1 ? 0 : cur + 1];
         emitState();
         break;
-      }
       case 'Enter': enterSelected(); break;
       case 'Escape': selection = null; emitState(); break;
       case ' ': e.preventDefault(); paused = !paused; emitState(); break;
     }
   });
 
-  // ── Re-anclaje: entrar en una habitación ──────────────────────────────
+  // ── Re-anclaje: entrar en una habitación (elegir un nodo del árbol) ───
   function enterSelected() {
     if (glide || selection == null) return;
-    const room = rooms.find((r) => r.timeIndex === selection);
+    const room = rooms.find((r) => r.key === selection);
     if (!room) return;
-    glide = { to: -room.w, start: elapsed, dur: 1.15, timeIndex: room.timeIndex };
+    glide = { to: [-room.ox, -room.oy, -room.oz, -room.w], start: elapsed, dur: 1.15, room };
     emitState();
   }
 
   function stepGlide(now) {
     if (!glide) return;
     const t = Math.min((now - glide.start) / glide.dur, 1);
-    wOffset = glide.to * easeInOutQuint(t);
+    const k = easeInOutQuint(t);
+    for (let i = 0; i < 4; i++) gOff[i] = glide.to[i] * k;
     if (t >= 1) {
-      epoch += glide.timeIndex;
-      wOffset = 0;
+      anchorT = glide.room.t;
+      anchorTag = glide.room.tag;
+      gOff[0] = gOff[1] = gOff[2] = gOff[3] = 0;
       selection = null;
       hover = null;
       glide = null;
@@ -524,8 +555,21 @@ export function createEngine(canvas, cb) {
 
   // ── Emisión de estado al HUD ──────────────────────────────────────────
   function emitState() {
+    const tree = rooms
+      .map((r) => ({
+        key: r.key,
+        t: r.t,
+        timeIndex: r.timeIndex,
+        branchDepth: parseTag(r.tag).length,
+        pretty: prettyTag(r.tag),
+        isFork: r.isFork,
+        arms: r.forkArms + 1,
+        isAnchor: r.key === anchorKey(),
+      }))
+      .sort((a, b) => b.t - a.t || a.key.localeCompare(b.key));
     cb.onState?.({
-      epoch,
+      epoch: anchorT,
+      anchorPretty: prettyTag(anchorTag),
       selection,
       hover,
       paused,
@@ -535,7 +579,13 @@ export function createEngine(canvas, cb) {
       signalCount,
       gliding: !!glide,
       d4,
-      rooms: rooms.map((r) => r.timeIndex).sort((a, b) => b - a),
+      tree,
+      stats: {
+        nodes: rooms.length,
+        edges: treeEdges.length,
+        forks: rooms.filter((r) => r.isFork).length,
+        lines: new Set(rooms.map((r) => r.tag)).size,
+      },
     });
   }
 
@@ -643,10 +693,14 @@ export function createEngine(canvas, cb) {
     // 3 · re-anclaje en curso
     stepGlide(now);
 
-    // 4 · habitaciones: mismo pipeline 4D real, ancla [0,0,0,w]
+    // 4 · habitaciones: mismo pipeline 4D real, ahora sobre el punto 4D
+    // completo del nodo [ox, oy, oz, w] (offset lateral de rama + avance W)
     for (const room of rooms) {
-      const wEff = room.w + wOffset;
-      const px = R[3] * wEff, py = R[7] * wEff, pz = R[11] * wEff, pw = R[15] * wEff;
+      const ax = room.ox + gOff[0], ay = room.oy + gOff[1], az = room.oz + gOff[2], aw = room.w + gOff[3];
+      const px = R[0] * ax + R[1] * ay + R[2] * az + R[3] * aw;
+      const py = R[4] * ax + R[5] * ay + R[6] * az + R[7] * aw;
+      const pz = R[8] * ax + R[9] * ay + R[10] * az + R[11] * aw;
+      const pw = R[12] * ax + R[13] * ay + R[14] * az + R[15] * aw;
       const s = d4 / (d4 - pw);
       const visible = Number.isFinite(s) && s > 0.03 && s < 3.6;
       room._visible = visible;
@@ -657,7 +711,10 @@ export function createEngine(canvas, cb) {
       room.group.position.copy(room._pos);
       room.group.scale.set(room.mirror ? -room._scaleAbs : room._scaleAbs, room._scaleAbs, room._scaleAbs);
       if (room.node.pendulum) {
-        room.node.pendulum.rotation.z = Math.sin(now * 1.35 + room.absoluteIndex * 1.7) * 0.16;
+        room.node.pendulum.rotation.z = Math.sin(now * 1.35 + (room.t * 1.7)) * 0.16;
+      }
+      if (room.node.forkSprite) {
+        room.node.forkSprite.scale.setScalar(0.5 + 0.12 * Math.sin(now * 2.3 + room.t));
       }
     }
 
@@ -742,7 +799,7 @@ export function createEngine(canvas, cb) {
         sph.r * Math.cos(sph.phi) + sy + 0.35,
         sph.r * Math.sin(sph.phi) * Math.sin(sph.theta)
       );
-      const selRoom = selection != null ? rooms.find((r) => r.timeIndex === selection) : null;
+      const selRoom = selection != null ? rooms.find((r) => r.key === selection) : null;
       camTmp.set(0, 0.1, 0);
       if (selRoom && selRoom._visible) camTmp.lerp(selRoom._pos, 0.22);
       lookCurrent.lerp(camTmp, 1 - Math.exp(-dt * 3.2));
@@ -761,8 +818,8 @@ export function createEngine(canvas, cb) {
 
     // 8 · marcador del HUD vía proyección pura 3D→2D
     {
-      const targetIdx = selection ?? hover;
-      const room = targetIdx != null ? rooms.find((r) => r.timeIndex === targetIdx) : null;
+      const targetKey = selection ?? hover;
+      const room = targetKey != null ? rooms.find((r) => r.key === targetKey) : null;
       if (room && room._visible && !glide) {
         camera.updateMatrixWorld();
         camTmp.copy(room._pos).applyMatrix4(camera.matrixWorldInverse);
@@ -778,6 +835,8 @@ export function createEngine(canvas, cb) {
             y: h / 2 - pr[1],
             size: sizePx,
             timeIndex: room.timeIndex,
+            pretty: prettyTag(room.tag),
+            isFork: room.isFork,
             mode: selection != null ? 'selected' : 'hover',
           });
         } else cb.onMarker?.({ visible: false });
@@ -791,7 +850,7 @@ export function createEngine(canvas, cb) {
 
     if (now - lastTelemetry > 0.12) {
       lastTelemetry = now;
-      cb.onTelemetry?.({ angles: { ...angles }, fps, wOffset, epoch });
+      cb.onTelemetry?.({ angles: { ...angles }, fps });
     }
 
     if (!firstFrame) {
@@ -841,7 +900,7 @@ export function createEngine(canvas, cb) {
       api._d4t = setTimeout(() => rebuildCorridor(), 260); // el caso base por escala cambia
       emitState();
     },
-    select(t) { selection = t; emitState(); },
+    select(key) { selection = key; emitState(); },
     enterSelected,
     setAudio(on) { audioOn = on; audio.setEnabled(on); emitState(); },
     requestState: emitState,
@@ -851,10 +910,19 @@ export function createEngine(canvas, cb) {
       pickAt(nx, ny) {
         ndc.set(nx, ny);
         const r = pickRoom();
-        return r ? r.timeIndex : null;
+        return r ? r.key : null;
       },
-      getRooms: () => rooms.map((r) => ({ t: r.timeIndex, abs: r.absoluteIndex, depth: r.depth, scale: r.scale, visible: r._visible })),
-      getEpoch: () => epoch,
+      getRooms: () => rooms.map((r) => ({
+        key: r.key, t: r.t, tag: r.tag, timeIndex: r.timeIndex,
+        depth: r.depth, scale: r.scale, isFork: r.isFork, visible: r._visible,
+      })),
+      getAnchor: () => ({ t: anchorT, tag: anchorTag }),
+      treeStats: () => ({
+        nodes: rooms.length,
+        edges: treeEdges.length,
+        forks: rooms.filter((r) => r.isFork).length,
+        lines: new Set(rooms.map((r) => r.tag)).size,
+      }),
       getSignalPhase: () => signal.phase,
       easeAnglesTo: (t, d) => api.easeAnglesTo(t, d),
       drawCalls: () => renderer.info.render.calls,

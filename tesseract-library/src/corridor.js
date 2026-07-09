@@ -1,64 +1,189 @@
 // ============================================================================
-// Recursión escénica: el pasillo infinito de habitaciones (efecto Droste).
+// Recursión escénica: el ÁRBOL de líneas temporales (efecto Droste ramificado).
 //
-// renderRoom(depth, transform) emite UNA habitación y se llama a sí misma
-// para la siguiente a lo largo del eje temporal W. No hay bucle disfrazado:
-// la cadena es una recursión real con DOBLE caso base explícito —
-//   1) profundidad máxima del árbol,
-//   2) umbral de escala proyectada (= distancia a la cámara 4D),
-// lo que ocurra primero. La escala NO es un factor artístico: sale de la
-// perspectiva 4D real, s = d4/(d4 − w). El pasado (w<0) se anida hacia
-// adentro encogiéndose; el futuro (w>0) envuelve hacia afuera creciendo:
-// exactamente el efecto de espejos enfrentados de la película.
+// renderRoom(depth, transform) emite UNA habitación y se llama a sí misma con
+// branching factor VARIABLE: los instantes donde el usuario perturbó el polvo
+// de forma significativa (una intervención de Cooper) se vuelven nodos de
+// bifurcación con 2-3 hijos — líneas de tiempo alternativas que divergen
+// lateralmente en Y/Z además de avanzar en W. Los instantes sin intervención
+// siguen siendo lineales. Hacia el pasado se recorre la cadena de padres, y en
+// cada bifurcación ya existente los caminos no tomados también se despliegan.
+//
+// Identidad de nodos: (t, tag) — t es el instante absoluto (entero) y tag la
+// historia de bifurcaciones "τ:j;τ:j;…" (en τ se tomó la alternativa j). La
+// clave `${t}|${tag}` es única en todo el árbol, lo que garantiza la propiedad
+// de árbol (aristas = nodos − 1) verificada al arrancar.
+//
+// Casos base explícitos, lo que ocurra primero:
+//   1) profundidad máxima del árbol
+//   2) umbral de escala proyectada (= distancia a la cámara 4D)
+//   3) presupuesto total de nodos (tope de recursos, no de forma)
 // ============================================================================
 
 import * as THREE from 'three';
 import { w4PerspectiveScale } from './math.js';
 
-// ── La recursión ────────────────────────────────────────────────────────────
+// ── Identidad y geometría del árbol ─────────────────────────────────────────
 
-export function renderRoom(depth, transform, ctx) {
-  if (depth > ctx.maxDepth) return; // caso base 1: profundidad máxima
+export const nodeKey = (t, tag) => `${t}|${tag}`;
 
-  const scale = w4PerspectiveScale(transform.w, ctx.d4);
-  // caso base 2: umbral de escala/distancia 4D (cubre también s ≤ 0 e ∞,
-  // es decir instantes en o detrás de la cámara-W)
-  if (!(scale >= ctx.minScale && scale <= ctx.maxScale)) return;
-
-  ctx.emit({ depth, scale, ...transform });
-
-  renderRoom(depth + 1, {
-    w: transform.w + transform.dir * ctx.deltaW,
-    dir: transform.dir,
-    mirror: !transform.mirror, // habitaciones adyacentes especulares
-    timeIndex: transform.timeIndex + transform.dir,
-  }, ctx);
+export function parseTag(tag) {
+  if (!tag) return [];
+  return tag.slice(0, -1).split(';').map((s) => {
+    const [a, b] = s.split(':');
+    return [+a, +b];
+  });
 }
 
-/** Raíz del árbol: la habitación ancla (T+0) y las dos ramas ±W. */
+export function prettyTag(tag) {
+  const segs = parseTag(tag);
+  return segs.length ? '⌁' + segs.map(([, j]) => j).join('·') : '';
+}
+
+const lastForkTime = (tag) => {
+  const segs = parseTag(tag);
+  return segs.length ? segs[segs.length - 1][0] : -Infinity;
+};
+
+const stripLastSeg = (tag) => {
+  const i = tag.lastIndexOf(';', tag.length - 2);
+  return i === -1 ? '' : tag.slice(0, i + 1);
+};
+
+export function hashStr(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+// direcciones laterales de divergencia (x = 0: el eje X ya carga la
+// proyección del tiempo con XW; las ramas se abren en Y/Z)
+const DIRS = [
+  [0, 1, 0], [0, -1, 0],
+  [0, 0.62, 0.79], [0, -0.62, -0.79],
+  [0, 0.62, -0.79], [0, -0.62, 0.79],
+];
+const LAMBDA = 0.42; // paso lateral por instante de rama
+const SAT = 3;       // la divergencia satura a los 3 instantes
+
+/**
+ * Desplazamiento lateral 3D absoluto de un nodo — función pura de (t, tag):
+ * cada segmento de bifurcación empuja en su dirección propia, creciendo con
+ * la edad de la rama hasta saturar. El motor lo resta contra el del ancla,
+ * así el re-anclaje es una traslación rígida (sin costuras).
+ */
+export function offsetOf(t, tag) {
+  const o = [0, 0, 0];
+  let prefix = '';
+  for (const [tau, j] of parseTag(tag)) {
+    const d = DIRS[hashStr(prefix + tau + ':' + j) % DIRS.length];
+    const m = LAMBDA * Math.min(Math.max(t - tau, 0), SAT);
+    o[0] += d[0] * m;
+    o[1] += d[1] * m;
+    o[2] += d[2] * m;
+    prefix += tau + ':' + j + ';';
+  }
+  return o;
+}
+
+// ── La recursión ────────────────────────────────────────────────────────────
+
+function nodeTransform(t, tag, ctx, extra) {
+  const timeIndex = t - ctx.anchorT;
+  return { t, tag, key: nodeKey(t, tag), timeIndex, w: timeIndex * ctx.deltaW, ...extra };
+}
+
+/** Hijo temporal: j = 0 continúa la misma línea; j ≥ 1 abre una alternativa. */
+function futureChild(tr, meRoom, j, ctx) {
+  const tag = j === 0 ? tr.tag : tr.tag + tr.t + ':' + j + ';';
+  return nodeTransform(tr.t + 1, tag, ctx, { dir: +1, mirror: !tr.mirror, parentRoom: meRoom });
+}
+
+function parentTransform(tr, meRoom, ctx) {
+  const pt = tr.t - 1;
+  const tag = lastForkTime(tr.tag) === pt ? stripLastSeg(tr.tag) : tr.tag;
+  return nodeTransform(pt, tag, ctx, {
+    dir: -1, mirror: !tr.mirror, childRoom: meRoom, cameFromKey: tr.key,
+  });
+}
+
+export function renderRoom(depth, tr, ctx) {
+  if (depth > ctx.maxDepth) return;                    // caso base 1: profundidad
+  if (ctx.count() >= ctx.nodeBudget) return;           // caso base 3: presupuesto
+  const scale = w4PerspectiveScale(tr.w, ctx.d4);
+  if (!(scale >= ctx.minScale && scale <= ctx.maxScale)) return; // caso base 2: escala 4D
+
+  const me = ctx.emit({ depth, scale, ...tr });
+
+  if (tr.dir >= 0) {
+    // FUTURO: branching factor variable — la intervención abre k hijos
+    const arms = ctx.forkArms(tr.t, tr.tag);
+    renderRoom(depth + 1, futureChild(tr, me, 0, ctx), ctx);
+    for (let j = 1; j <= arms; j++) {
+      renderRoom(depth + 1, futureChild(tr, me, j, ctx), ctx);
+    }
+  } else {
+    // PASADO: cadena de padres; los desvíos no tomados también se abren
+    renderRoom(depth + 1, parentTransform(tr, me, ctx), ctx);
+    const arms = ctx.forkArms(tr.t, tr.tag);
+    if (arms > 0) {
+      for (let j = 0; j <= arms; j++) {
+        const child = futureChild(tr, me, j, ctx);
+        if (child.key !== tr.cameFromKey) renderRoom(depth + 1, child, ctx);
+      }
+    }
+  }
+}
+
+/** Raíz del árbol: la habitación ancla y sus ramas hacia ±W. */
 export function buildCorridorTree(ctx) {
-  ctx.emit({ depth: 0, scale: 1, w: 0, dir: 0, mirror: false, timeIndex: 0 });
-  renderRoom(1, { w: +ctx.deltaW, dir: +1, mirror: true, timeIndex: +1 }, ctx);
-  renderRoom(1, { w: -ctx.deltaW, dir: -1, mirror: true, timeIndex: -1 }, ctx);
+  const trA = nodeTransform(ctx.anchorT, ctx.anchorTag, ctx, { dir: 0, mirror: false });
+  const anchor = ctx.emit({ depth: 0, scale: 1, ...trA });
+  const arms = ctx.forkArms(ctx.anchorT, ctx.anchorTag);
+  renderRoom(1, futureChild(trA, anchor, 0, ctx), ctx);
+  for (let j = 1; j <= arms; j++) {
+    renderRoom(1, futureChild(trA, anchor, j, ctx), ctx);
+  }
+  renderRoom(1, parentTransform(trA, anchor, ctx), ctx);
 }
 
 /**
- * Corrida en seco para validación: recorre EXACTAMENTE la misma recursión
- * con un emisor contador (sin crear objetos). Permite verificar terminación
- * por ambos casos base y ausencia de desborde de pila.
+ * Corrida en seco para validación: la MISMA recursión con un emisor contador.
+ * Verifica terminación por los tres casos base, unicidad de claves y la
+ * propiedad de árbol (aristas = nodos − 1).
  */
 export function simulateCorridor(params) {
-  let rooms = 0, maxDepthSeen = 0, overflow = false;
+  let rooms = 0, edges = 0, maxDepthSeen = 0, overflow = false;
+  const keys = new Set();
+  const interventions = params.interventions || {};
   const ctx = {
-    ...params,
-    emit: (r) => { rooms++; maxDepthSeen = Math.max(maxDepthSeen, r.depth); },
+    anchorT: params.anchorT ?? 0,
+    anchorTag: params.anchorTag ?? '',
+    maxDepth: params.maxDepth,
+    minScale: params.minScale,
+    maxScale: params.maxScale,
+    deltaW: params.deltaW,
+    d4: params.d4,
+    nodeBudget: params.nodeBudget ?? Infinity,
+    count: () => rooms,
+    forkArms: (t, tag) => Math.max((interventions[nodeKey(t, tag)] || 1) - 1, 0),
+    emit: (spec) => {
+      rooms++;
+      keys.add(spec.key);
+      if (spec.parentRoom || spec.childRoom) edges++;
+      maxDepthSeen = Math.max(maxDepthSeen, spec.depth);
+      return { key: spec.key };
+    },
   };
   try {
     buildCorridorTree(ctx);
   } catch (err) {
     if (err instanceof RangeError) overflow = true; else throw err;
   }
-  return { rooms, maxDepthSeen, overflow };
+  return { rooms, edges, maxDepthSeen, overflow, uniqueKeys: keys.size === rooms, keys: [...keys] };
 }
 
 // ── Niveles de detalle ──────────────────────────────────────────────────────
@@ -147,6 +272,25 @@ function makeLatticeGeometry(lod) {
   return g;
 }
 
+// estrella de bifurcación: aristas convergiendo al nodo donde el árbol se abre
+function makeForkGeometry() {
+  const pos = [], col = [];
+  const n = 12;
+  for (let i = 0; i < n; i++) {
+    const th = (i / n) * Math.PI * 2;
+    const r = i % 2 ? 0.34 : 0.2;
+    const dx = Math.cos(th) * r;
+    const dy = (i % 3 - 1) * 0.16;
+    const dz = Math.sin(th) * r;
+    pos.push(0, 0, 0, dx, dy, dz);
+    col.push(1.15, 0.95, 0.68, 0.12, 0.09, 0.05);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  return g;
+}
+
 function mulberry32(seed) {
   let a = seed >>> 0;
   return () => {
@@ -158,7 +302,7 @@ function mulberry32(seed) {
 }
 
 /** Activos compartidos entre todas las habitaciones (geometrías y materiales). */
-export function createRoomAssets() {
+export function createRoomAssets(glowTexture) {
   const lattices = [0, 1, 2, 3].map(makeLatticeGeometry);
   const lineMats = [
     new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }),
@@ -172,17 +316,27 @@ export function createRoomAssets() {
   const pickMat = new THREE.MeshBasicMaterial({
     transparent: true, opacity: 0, depthWrite: false, colorWrite: false, side: THREE.DoubleSide,
   });
-  return { lattices, lineMats, bookGeo, bookMat, pickGeo, pickMat };
+  const forkGeo = makeForkGeometry();
+  const forkMat = new THREE.LineBasicMaterial({
+    vertexColors: true, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const forkSpriteMat = new THREE.SpriteMaterial({
+    map: glowTexture, color: 0xffdfae, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  return { lattices, lineMats, bookGeo, bookMat, pickGeo, pickMat, forkGeo, forkMat, forkSpriteMat };
 }
 
 const BOOK_COLORS = [0xd9995a, 0xb97a3a, 0x8a5a28, 0x6d4520, 0x3a2a18, 0xe8b464, 0x9a6a30];
 
 /**
  * Crea el nodo Three.js de una habitación según su LOD. Los libros se
- * siembran de forma determinista con el índice temporal ABSOLUTO: la misma
- * habitación conserva sus libros al re-anclar el árbol (continuidad causal).
+ * siembran de forma determinista con la CLAVE del nodo: la misma habitación
+ * conserva sus libros al re-anclar, y cada línea temporal alternativa tiene
+ * los suyos propios (otro libro caído, otras alturas — otra historia).
  */
-export function createRoomNode(spec, assets, absoluteIndex) {
+export function createRoomNode(spec, assets, isFork) {
   const lod = lodForIndex(spec.timeIndex);
   const lodSpec = LODS[lod];
   const group = new THREE.Group();
@@ -194,7 +348,7 @@ export function createRoomNode(spec, assets, absoluteIndex) {
   let books = null;
   const bookCount = lodSpec.shelves * lodSpec.booksPerShelf * 2;
   if (bookCount > 0) {
-    const rand = mulberry32((absoluteIndex * 2654435761) ^ 0x9e3779b9);
+    const rand = mulberry32(hashStr(spec.key) ^ 0x9e3779b9);
     books = new THREE.InstancedMesh(assets.bookGeo, assets.bookMat, bookCount + 1);
     const dummy = new THREE.Object3D();
     const color = new THREE.Color();
@@ -253,10 +407,22 @@ export function createRoomNode(spec, assets, absoluteIndex) {
     group.add(pendulum);
   }
 
+  // nodo de bifurcación: estrella de aristas convergentes + halo pulsante
+  let forkSprite = null;
+  if (isFork) {
+    const star = new THREE.LineSegments(assets.forkGeo, assets.forkMat);
+    star.position.set(0, 0.99, 0); // en el techo: donde el pasillo se abre
+    group.add(star);
+    forkSprite = new THREE.Sprite(assets.forkSpriteMat);
+    forkSprite.position.set(0, 0.99, 0);
+    forkSprite.scale.setScalar(0.55);
+    group.add(forkSprite);
+  }
+
   // volumen invisible de selección (raycast); colorWrite=false ⇒ no dibuja
   const pick = new THREE.Mesh(assets.pickGeo, assets.pickMat);
   pick.userData.timeIndex = spec.timeIndex;
   group.add(pick);
 
-  return { group, books, pendulum, pick, lod };
+  return { group, books, pendulum, pick, lod, forkSprite };
 }

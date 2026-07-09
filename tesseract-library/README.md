@@ -19,19 +19,33 @@ autocontenido (React + Three.js empaquetados inline, cero peticiones externas).
   focal d₄ ajustable (escala = d₄/(d₄−w)) y pinhole 3D→2D — esta última se usa en
   producción para anclar el marcador del HUD a la habitación seleccionada.
 
-**Recursión escénica** (`src/corridor.js`)
-- `renderRoom(depth, transform)` emite una habitación y se llama a sí misma para
-  la siguiente a lo largo de W. Doble caso base explícito: profundidad máxima y
-  umbral de escala proyectada (= distancia 4D), lo que ocurra primero.
-- El encogimiento Droste del pasillo **no es un factor artístico**: es la
-  perspectiva 4D real aplicada al ancla [0,0,0,w] de cada habitación. Colapsá los
-  ángulos y las habitaciones se anidan concéntricas; girá XW y el tiempo se
-  despliega como eje espacial.
-- Entrar en una habitación re-ancla el árbol recursivo en ese nodo (la época se
-  acumula; los libros de cada instante persisten porque se siembran por índice
-  temporal absoluto).
+**Recursión escénica: un árbol de verdad** (`src/corridor.js`)
+- `renderRoom(depth, transform)` emite una habitación y se llama a sí misma con
+  **branching factor variable**: los instantes donde el usuario intervino sobre el
+  polvo (cada señal Morse) se vuelven nodos de bifurcación con 2-3 hijos — líneas
+  de tiempo alternativas que divergen lateralmente en Y/Z además de avanzar en W.
+  Los instantes sin intervención siguen siendo lineales. Hacia el pasado se
+  recorre la cadena de padres, y en las bifurcaciones ya existentes **los caminos
+  no tomados también se despliegan**.
+- Identidad de nodos por camino: `(t, tag)` donde `tag` es la historia de
+  bifurcaciones (`"τ:j;…"`). La clave única por nodo garantiza la propiedad de
+  árbol — aristas = nodos − 1 — verificada en vivo al arrancar y ejercitada por
+  el verificador e2e después de bifurcar.
+- Casos base explícitos, lo que ocurra primero: profundidad máxima, umbral de
+  escala proyectada (= distancia 4D) y presupuesto total de nodos.
+- El encogimiento Droste **no es un factor artístico**: es la perspectiva 4D real
+  aplicada al punto 4D completo de cada nodo `[ox, oy, oz, w]` (offset de rama +
+  avance temporal). Colapsá los ángulos y el árbol se anida concéntrico; girá XW
+  y el tiempo se despliega como eje espacial.
+- Entrar en una habitación re-ancla el árbol recursivo en ese nodo — incluso
+  dentro de una rama alternativa (la época y la línea se muestran en el HUD; los
+  libros de cada nodo persisten porque se siembran por su clave, así cada línea
+  temporal tiene su propio libro caído).
 - LOD por profundidad: 4 niveles (libros instanciados + mobiliario en aristas →
   estanterías → jaula → aristas mínimas) con materiales cada vez más simples.
+- Los nodos de bifurcación se distinguen: estrella de aristas convergentes + halo
+  pulsante, badge `⑂k` en el HUD, y los rieles de universo (aristas padre→hijo
+  del árbol) se abren físicamente en varios caminos.
 
 **Polvo gravitacional** (`src/dust.js`, `src/noise.js`)
 - Campo pseudo-curl de ruido de gradiente propio (divergencia ~0) + pozos de
@@ -42,11 +56,13 @@ autocontenido (React + Three.js empaquetados inline, cero peticiones externas).
   resortes conviven con el resto de las fuerzas: se puede seguir perturbando
   durante la formación.
 
-**Validaciones automáticas** (`src/validate.js`) — 40 checks con `console.assert`
+**Validaciones automáticas** (`src/validate.js`) — 46 checks con `console.assert`
 al arrancar: conteos de hipercubos, ortogonalidad, proyecciones, terminación de la
-recursión por ambos casos base (incluida una corrida de 3000 niveles por rama sin
-desbordar la pila) y cero geometría huérfana tras 3 re-anclajes. El resultado se
-muestra en el panel «LA MATEMÁTICA» del HUD.
+recursión por sus casos base (incluida una corrida de 3000 niveles por rama sin
+desbordar la pila), estructura de árbol con intervenciones (aristas = nodos − 1,
+claves únicas, 3 hijos en el nodo intervenido, la rama pasada no tomada existe,
+corte por presupuesto) y cero geometría huérfana tras 3 re-anclajes. El resultado
+se muestra en el panel «LA MATEMÁTICA» del HUD.
 
 **Capa visual** (`src/engine.js`)
 - Paleta fiel: negros profundos, ámbar/dorado Hoytema, acento acero mínimo.
@@ -63,10 +79,10 @@ muestra en el panel «LA MATEMÁTICA» del HUD.
 | --- | --- |
 | arrastrar | orbitar (con inercia y alabeo) |
 | rueda / pinza | acercarse |
-| clic en habitación | seleccionar instante · segundo clic o ⏎ entra |
-| ← → / [ ] | recorrer instantes · Esc deselecciona |
+| clic en habitación | seleccionar nodo · segundo clic o ⏎ entra (elegir rama) |
+| ← → / [ ] | recorrer el árbol (incluye ramas) · Esc deselecciona |
 | mantener presionado | pozo de gravedad concentrado sobre el polvo |
-| agitar el polvo con energía | …algo del otro lado responde |
+| agitar el polvo con energía | la señal responde y **bifurca la línea de tiempo** ⑂ |
 | espacio | pausar la deriva 4D |
 | diales XY…ZW, d₄ | velocidades de los 6 planos y focal 4D |
 
@@ -78,6 +94,7 @@ npm run build    # → dist/index.html (artifact único autocontenido)
 npm run verify   # Chromium headless: validaciones + picking + re-anclaje + capturas
 ```
 
-`verify.mjs` carga el artifact real, espera el primer frame, lee las 40
-validaciones, ejercita picking sintético, re-anclaje a T−2 y la señal Morse, y
-deja capturas en `shots/`.
+`verify.mjs` carga el artifact real, espera el primer frame, lee las 46
+validaciones, ejercita picking sintético, re-anclaje a T−2, la señal Morse (y
+comprueba que bifurca el árbol manteniendo aristas = nodos − 1), entra a una
+rama alternativa, y deja capturas en `shots/`.
