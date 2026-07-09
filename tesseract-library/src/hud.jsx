@@ -305,10 +305,24 @@ export function App() {
     <div className="stage">
       <canvas ref={canvasRef} id="scene" />
 
-      {/* marcador de habitación: posicionado con project3Dto2D pura */}
+      {/* marcador de habitación: posicionado con project3Dto2D pura.
+          El chip de texto es un control real (fix regresión #2: antes tenía
+          pointer-events:none, el click lo atravesaba hacia el canvas y caía
+          fuera del volumen de picking ⇒ deseleccionaba en vez de entrar). */}
       <div className="marker" ref={markerRef} data-mode="hover">
         <i className="c tl" /><i className="c tr" /><i className="c bl" /><i className="c br" />
-        <span className="marker-label" ref={markerLabelRef} />
+        <span
+          className="marker-label"
+          ref={markerLabelRef}
+          role="button"
+          tabIndex={-1}
+          onClick={() => {
+            const eng = engineRef.current;
+            if (!eng) return;
+            if (markerRef.current?.dataset.mode === 'selected') eng.enterSelected();
+            else eng.selectHovered();
+          }}
+        />
       </div>
 
       {engine && validation && (

@@ -53,7 +53,24 @@ for (const [nx, ny] of [[-0.35, 0.1], [-0.5, 0.15], [-0.2, 0.05], [0.3, 0.0], [-
   picks.push(await page.evaluate(`window.__ENGINE__.debug.pickAt(${nx}, ${ny})`));
 }
 
-// re-anclaje lineal: entrar a T−2 en la línea troncal
+// ── REGRESIÓN #2 (camino DOM real): riel → botón ENTRAR ──
+await page.locator('.rail-node', { hasText: 'T−3' }).first().click();
+await frames(8);
+const enterBtnText = await page.locator('.enter-btn').textContent().catch(() => null);
+await page.locator('.enter-btn').click();
+await frames(140);
+const anchorAfterDomButton = await page.evaluate('window.__ENGINE__.debug.getAnchor()');
+
+// ── REGRESIÓN #1 (camino DOM real): colapsar/desplegar no poda el árbol ──
+const nodesBeforeCycle = (await page.evaluate('window.__ENGINE__.debug.treeStats()')).nodes;
+await page.click('button:has-text("colapsar")');
+await frames(110);
+await page.click('button:has-text("desplegar")');
+await frames(110);
+const nodesAfterCycle = (await page.evaluate('window.__ENGINE__.debug.treeStats()')).nodes;
+const roomsAfterCycle = await page.evaluate('window.__ENGINE__.debug.getRooms().length');
+
+// re-anclaje lineal: entrar a T−2 en la línea troncal (vía API)
 await page.evaluate(`
   const r = window.__ENGINE__.debug.getRooms().find((r) => r.t === -2 && r.tag === '');
   window.__ENGINE__.select(r.key);
@@ -92,6 +109,11 @@ const report = {
   validation,
   statsBefore,
   picks,
+  enterBtnText,
+  anchorAfterDomButton,
+  nodesBeforeCycle,
+  nodesAfterCycle,
+  roomsAfterCycle,
   anchorAfterEnter,
   signalPhase,
   statsForked,
@@ -108,6 +130,10 @@ await browser.close();
 const failed =
   errors.length > 0 ||
   !validation?.ok ||
+  // regresión #2: el botón ENTRAR del riel (click DOM) tiene que re-anclar
+  anchorAfterDomButton?.t !== -3 || anchorAfterDomButton?.tag !== '' ||
+  // regresión #1: colapsar/desplegar (y el governor) no pueden podar el árbol
+  nodesAfterCycle !== nodesBeforeCycle || roomsAfterCycle !== nodesAfterCycle ||
   anchorAfterEnter?.t !== -2 || anchorAfterEnter?.tag !== '' ||
   !picks.some((p) => p !== null) ||
   !['forming', 'hold', 'release'].includes(signalPhase) ||

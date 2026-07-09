@@ -32,10 +32,18 @@ const ROOM_SIZE = 1.55;   // semi-extensión de la habitación en unidades de mu
 const TESS_SIZE = 2.3;    // radio del teseracto (la celda w=−1 anida la habitación)
 const WORLD_SPREAD = 5.0; // separación espacial del eje temporal proyectado
 
+// Profundidad y presupuesto del árbol: FIJOS, independientes de la calidad.
+// (Fix regresión #1: el governor adaptativo bajaba maxDepth/budget en máquinas
+// lentas y reconstruía un árbol podado — lo renderizado dejaba de corresponder
+// a los instantes reales. La calidad ahora solo degrada polvo, resolución de
+// bloom y pixel ratio; NUNCA la cantidad de nodos del árbol.)
+const TREE_DEPTH = 14;
+const NODE_BUDGET = 64;
+
 const QUALITY = [
-  { name: 'ALTA', dust: 4200, depth: 14, budget: 64, dpr: 1.75, bloomScale: 0.5 },
-  { name: 'MEDIA', dust: 2600, depth: 11, budget: 44, dpr: 1.4, bloomScale: 0.35 },
-  { name: 'BAJA', dust: 1500, depth: 8, budget: 30, dpr: 1.1, bloomScale: 0.25 },
+  { name: 'ALTA', dust: 4200, dpr: 1.75, bloomScale: 0.5 },
+  { name: 'MEDIA', dust: 2600, dpr: 1.4, bloomScale: 0.35 },
+  { name: 'BAJA', dust: 1500, dpr: 1.1, bloomScale: 0.25 },
 ];
 
 export const DEFAULT_ANGLES = { xy: 0, xz: 0, xw: -1.04, yz: 0, yw: -0.22, zw: 0 };
@@ -235,8 +243,8 @@ export function createEngine(canvas, cb) {
     const aOff = offsetOf(anchorT, anchorTag); // el ancla renderiza en el origen
     const ctx = {
       anchorT, anchorTag,
-      maxDepth: QUALITY[quality].depth,
-      nodeBudget: QUALITY[quality].budget,
+      maxDepth: TREE_DEPTH,
+      nodeBudget: NODE_BUDGET,
       minScale, maxScale, deltaW, d4,
       count: () => rooms.length,
       forkArms: forkArmsOf,
@@ -296,7 +304,38 @@ export function createEngine(canvas, cb) {
     corridorGroup.add(wl);
     worldlines = { mesh: wl, pairs, positions: wp };
 
+    // una selección que apunta a un nodo ya no materializado no debe
+    // dejar vivo un botón ENTRAR sin destino
+    if (selection != null && !rooms.some((r) => r.key === selection)) selection = null;
+    if (hover != null && !rooms.some((r) => r.key === hover)) hover = null;
+
+    // Validación en vivo (regresión #1): lo renderizado tiene que
+    // corresponder EXACTAMENTE a los nodos reales del árbol — se compara
+    // el registro, la escena y una corrida en seco de la misma recursión.
+    const cov = renderCoverage();
+    console.assert(
+      cov.inScene === cov.registry && cov.simulated === cov.registry,
+      '[TESERACTO] cubos renderizados ≠ nodos del árbol',
+      cov
+    );
+    console.info(
+      `[TESERACTO] árbol materializado: ${cov.registry} nodos · ${cov.inScene} habitaciones en escena · ${cov.simulated} según corrida en seco ${cov.inScene === cov.registry && cov.simulated === cov.registry ? '✓' : '✗'}`
+    );
+
     emitState();
+  }
+
+  /** Cobertura de render: registro vivo vs escena vs recursión en seco. */
+  function renderCoverage() {
+    let inScene = 0;
+    scene.traverse((o) => { if (o.userData.isRoom) inScene++; });
+    const dry = simulateCorridor({
+      anchorT, anchorTag,
+      maxDepth: TREE_DEPTH, nodeBudget: NODE_BUDGET,
+      minScale, maxScale, deltaW, d4,
+      interventions: Object.fromEntries(interventions),
+    });
+    return { inScene, registry: rooms.length, simulated: dry.rooms };
   }
 
   /** Sonda de higiene para la validación: 3 ciclos de re-anclaje. */
@@ -476,7 +515,9 @@ export function createEngine(canvas, cb) {
     pointer.down = false;
     pointer.pinch = null;
     const dt = performance.now() - pointer.downT;
-    if (pointer.moved < 7 && dt < 500) {
+    // umbral tolerante al jitter de mouse real: un click con micro-arrastre
+    // sigue siendo un click (fix regresión #2, camino de click sobre la escena)
+    if (pointer.moved < 11 && dt < 600) {
       updateNdc(e);
       const room = pickRoom();
       if (room) {
@@ -529,10 +570,33 @@ export function createEngine(canvas, cb) {
   });
 
   // ── Re-anclaje: entrar en una habitación (elegir un nodo del árbol) ───
+
+  /** Aplica el re-anclaje. Único camino de cambio de ancla: lo usan el glide
+   *  de ENTRAR y la sonda de validación, así lo que se valida es lo mismo
+   *  que dispara el click. Deja log verificable del nuevo nodo ancla. */
+  function applyAnchor(room) {
+    anchorT = room.t;
+    anchorTag = room.tag;
+    console.info(
+      `[TESERACTO] re-anclado en ${anchorKey()} (t=${anchorT}, línea=${anchorTag ? prettyTag(anchorTag) : 'troncal'})`
+    );
+    rebuildCorridor(); // re-ancla el árbol recursivo en el nodo elegido
+  }
+
   function enterSelected() {
-    if (glide || selection == null) return;
+    if (glide) return;
+    if (selection == null) {
+      console.warn('[TESERACTO] ENTRAR sin selección: elegí un instante primero');
+      return;
+    }
     const room = rooms.find((r) => r.key === selection);
-    if (!room) return;
+    if (!room) {
+      console.warn('[TESERACTO] ENTRAR: la selección ya no existe en el árbol', selection);
+      selection = null;
+      emitState();
+      return;
+    }
+    console.info(`[TESERACTO] ENTRAR → ${room.key}`);
     glide = { to: [-room.ox, -room.oy, -room.oz, -room.w], start: elapsed, dur: 1.15, room };
     emitState();
   }
@@ -543,13 +607,12 @@ export function createEngine(canvas, cb) {
     const k = easeInOutQuint(t);
     for (let i = 0; i < 4; i++) gOff[i] = glide.to[i] * k;
     if (t >= 1) {
-      anchorT = glide.room.t;
-      anchorTag = glide.room.tag;
       gOff[0] = gOff[1] = gOff[2] = gOff[3] = 0;
       selection = null;
       hover = null;
+      const room = glide.room;
       glide = null;
-      rebuildCorridor(); // re-ancla el árbol recursivo en el nodo elegido
+      applyAnchor(room);
     }
   }
 
@@ -608,7 +671,7 @@ export function createEngine(canvas, cb) {
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, Q.dpr));
     dustMat.uniforms.uPixelRatio.value = renderer.getPixelRatio();
     resize();
-    rebuildCorridor();
+    emitState(); // el árbol NO se reconstruye: la calidad no poda nodos
   }
 
   function govern(now, dt) {
@@ -902,9 +965,30 @@ export function createEngine(canvas, cb) {
     },
     select(key) { selection = key; emitState(); },
     enterSelected,
+    /** El chip del marcador en modo hover selecciona el nodo bajo el cursor. */
+    selectHovered() {
+      if (hover != null) { selection = hover; emitState(); }
+    },
     setAudio(on) { audioOn = on; audio.setEnabled(on); emitState(); },
     requestState: emitState,
-    hooks: { simulateCorridor, disposalProbe },
+    hooks: {
+      simulateCorridor,
+      disposalProbe,
+      renderCoverage,
+      /** Sonda de ENTRAR: ejercita el mismo applyAnchor del click (ida y
+       *  vuelta al ancla original) y confirma el cambio de estado. */
+      probeEnter() {
+        const from = { t: anchorT, tag: anchorTag, key: anchorKey() };
+        const target = rooms.find((r) => r.key !== from.key);
+        if (!target) return { ok: false };
+        const targetKey = target.key;
+        applyAnchor(target);
+        const moved = anchorKey() === targetKey;
+        const back = rooms.find((r) => r.t === from.t && r.tag === from.tag);
+        if (back) applyAnchor(back);
+        return { ok: moved && anchorKey() === from.key, visited: targetKey };
+      },
+    },
     debug: {
       triggerSignal: () => triggerSignal(elapsed),
       pickAt(nx, ny) {

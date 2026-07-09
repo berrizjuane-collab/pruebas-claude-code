@@ -99,6 +99,19 @@ export function runValidations(hooks) {
     check(`re-anclaje ×3: población estable (${d.alive} habitaciones)`, d.stable && d.alive > 0);
   }
 
+  // ── 6 · Regresiones vigiladas (en cada carga) ──
+  if (hooks?.renderCoverage) {
+    const c = hooks.renderCoverage();
+    check(
+      `render = árbol: ${c.inScene} en escena = ${c.registry} en registro = ${c.simulated} en seco`,
+      c.inScene === c.registry && c.simulated === c.registry && c.registry > 0
+    );
+  }
+  if (hooks?.probeEnter) {
+    const p = hooks.probeEnter();
+    check('ENTRAR: el re-anclaje dispara un cambio de estado verificable (ida y vuelta)', p.ok);
+  }
+
   const passed = results.filter((r) => r.ok).length;
   const summary = { results, passed, total: results.length, ok: passed === results.length };
   console.info(`[TESERACTO] Validaciones: ${passed}/${results.length} ${summary.ok ? 'OK ✓' : '— HAY FALLAS ✗'}`);
