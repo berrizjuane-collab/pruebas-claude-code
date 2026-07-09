@@ -399,7 +399,12 @@ button:disabled { opacity: 0.4; cursor: default; }
   background: var(--panel);
   padding: 3px 7px;
   border: 1px solid var(--line-soft);
+  /* el chip es un control: recibe el click aunque el marco no */
+  pointer-events: auto;
+  cursor: pointer;
+  transition: border-color 0.15s;
 }
+.marker-label:hover { border-color: var(--mk); }
 
 /* ── fps (br) ───────────────────────────────────────────────────────── */
 

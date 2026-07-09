@@ -56,13 +56,16 @@ autocontenido (React + Three.js empaquetados inline, cero peticiones externas).
   resortes conviven con el resto de las fuerzas: se puede seguir perturbando
   durante la formación.
 
-**Validaciones automáticas** (`src/validate.js`) — 46 checks con `console.assert`
+**Validaciones automáticas** (`src/validate.js`) — 48 checks con `console.assert`
 al arrancar: conteos de hipercubos, ortogonalidad, proyecciones, terminación de la
 recursión por sus casos base (incluida una corrida de 3000 niveles por rama sin
 desbordar la pila), estructura de árbol con intervenciones (aristas = nodos − 1,
 claves únicas, 3 hijos en el nodo intervenido, la rama pasada no tomada existe,
-corte por presupuesto) y cero geometría huérfana tras 3 re-anclajes. El resultado
-se muestra en el panel «LA MATEMÁTICA» del HUD.
+corte por presupuesto), cero geometría huérfana tras 3 re-anclajes, y dos
+guardias de regresión en cada carga: cobertura de render (habitaciones en escena
+= nodos del registro = corrida en seco) y la sonda de ENTRAR (el re-anclaje
+dispara un cambio de estado verificable, con log del nuevo nodo ancla). El
+resultado se muestra en el panel «LA MATEMÁTICA» del HUD.
 
 **Capa visual** (`src/engine.js`)
 - Paleta fiel: negros profundos, ámbar/dorado Hoytema, acento acero mínimo.
@@ -71,7 +74,11 @@ se muestra en el panel «LA MATEMÁTICA» del HUD.
 - Cámara no-euclidiana: resortes críticos con inercia, acople de alabeo al giro,
   balanceo por ruido, fov respirando; deriva cinematográfica en reposo.
 - Governor de calidad: si el fps sostenido baja de ~34, reduce polvo, resolución
-  de bloom, pixel ratio y profundidad de recursión (y vuelve a subir si sobra).
+  de bloom y pixel ratio (y vuelve a subir si sobra). **Nunca poda el árbol**:
+  la profundidad y el presupuesto de la recursión son fijos, así lo renderizado
+  siempre corresponde a los instantes reales — verificado en cada carga y en
+  cada reconstrucción con un `console.assert` de cobertura (escena = registro =
+  corrida en seco de la misma recursión).
 
 ## Interacción
 
