@@ -1,0 +1,36 @@
+5
+---
+1
+Barrera de Energía Cinética
+Escudo_Personal
+150
+200
+10
+---
+2
+Proyector de Campo Deflector
+Escudo_Área
+300
+100
+40
+---
+3
+Blindaje Reactivo
+Armadura_Física
+120
+300
+5
+---
+4
+Cortafuegos Cuántico
+Ciber_Defensa
+250
+500
+0
+---
+5
+Módulo de Camuflaje Óptico
+Evasión
+50
+150
+0

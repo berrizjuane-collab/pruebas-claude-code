@@ -1,0 +1,36 @@
+5
+---
+1
+Hacker de Combate
+90 # Fortaleza (aliado)
+- 
+80 # Salud
+110 # Rapidez
+---
+2
+Infantería Pesada
+160 
+-
+150 
+40 
+---
+3
+Ingeniero de Nodos
+100
+-
+100
+70
+---
+4
+Dron Centinela
+-
+120 # Daño (enemigo)
+60
+130
+---
+5
+Virus Mutante
+-
+180
+90
+90

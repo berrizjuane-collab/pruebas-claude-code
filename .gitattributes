@@ -1,0 +1,2 @@
+# Canonical catalogs are preserved byte-for-byte, including CRLF line endings.
+data/*.txt -text -whitespace

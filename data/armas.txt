@@ -1,0 +1,36 @@
+5
+---
+1
+Cañón de Plasma Pesado
+Fuego_Directo
+180
+100
+50
+---
+2
+Rifle Francotirador Gauss
+Precisión
+250
+50
+120
+---
+3
+Espada de Iones
+Cuerpo_A_Cuerpo
+130
+200
+2
+---
+4
+Granada de Pulso Electromagnético
+Área
+90
+10
+30
+---
+5
+Inyector de Malware
+Hackeo
+60
+300
+15

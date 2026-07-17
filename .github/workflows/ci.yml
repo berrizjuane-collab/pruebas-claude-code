@@ -1,0 +1,66 @@
+name: C++ CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gui-build:
+    name: Native raylib game build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install raylib desktop headers
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          libasound2-dev libx11-dev libxrandr-dev libxi-dev
+          libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
+      - name: Configure
+        run: >-
+          cmake -S . -B build-gui
+          -DYGGDRASIL_BUILD_GUI=ON
+          -DBUILD_TESTING=OFF
+          -DCMAKE_BUILD_TYPE=Release
+      - name: Build game
+        run: cmake --build build-gui --parallel 2 --target yggdrasil_game
+
+  test:
+    name: Headless build and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DYGGDRASIL_BUILD_GUI=OFF
+          -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel 2
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Simulator smoke test
+        run: build/bin/yggdrasil_sim --seed 20260717 --turns 8 --games 3
+
+  sanitizers:
+    name: ASan and UBSan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >-
+          cmake -S . -B build-sanitized
+          -DYGGDRASIL_BUILD_GUI=OFF
+          -DYGGDRASIL_ENABLE_SANITIZERS=ON
+          -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cmake --build build-sanitized --parallel 2
+      - name: Test with sanitizers
+        env:
+          ASAN_OPTIONS: detect_leaks=1:strict_string_checks=1:check_initialization_order=1
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+        run: ctest --test-dir build-sanitized --output-on-failure

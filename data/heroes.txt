@@ -1,0 +1,29 @@
+4
+---
+1
+Comandante Cipher
+200 # Fortaleza
+-
+250 # Salud
+100 # Rapidez
+---
+2
+Fantasma "Null Pointer"
+150
+-
+120
+180
+---
+3
+Titán de Acero
+300
+-
+400
+30
+---
+4
+Oráculo de Datos
+120
+-
+180
+140
