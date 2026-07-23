@@ -1,26 +1,25 @@
 {
-  "name": "linear-transformation-lab",
+  "name": "neutron-star-observatory",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Interactive visualizer of 2D linear transformations, inspired by 3Blue1Brown's Essence of Linear Algebra",
+  "description": "Interactive, scientifically-grounded 3D visualization of a rotating neutron star / pulsar / magnetar.",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "katex": "^0.16.11",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "three": "^0.169.0"
   },
   "devDependencies": {
     "@types/katex": "^0.16.7",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/three": "^0.169.0",
     "typescript": "~5.6.2",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"

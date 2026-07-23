@@ -1,10 +1,21 @@
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
+  base: './',
+  build: {
+    target: 'es2020',
+    // Keep three.js in its own chunk; it dominates the bundle size.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three'],
+          katex: ['katex'],
+        },
+      },
+    },
+  },
   test: {
-    // The algebra layer is pure (no DOM), so the default node environment suffices.
+    // The physics/math layer is pure (no DOM/WebGL), so node suffices.
     environment: 'node',
     include: ['src/**/*.test.ts'],
   },
