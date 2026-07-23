@@ -1,0 +1,27 @@
+{
+  "name": "neutron-star-observatory",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Interactive, scientifically-grounded 3D visualization of a rotating neutron star / pulsar / magnetar.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "katex": "^0.16.11",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.7",
+    "@types/three": "^0.169.0",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
