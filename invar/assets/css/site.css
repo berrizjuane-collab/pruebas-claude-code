@@ -61,6 +61,16 @@
   color-scheme: dark;
 }
 
+/* Esta identidad se compromete con un solo mundo visual: grafito y una brasa.
+   Si el contenedor donde se incrusta la página fuerza un tema claro, el suelo
+   sigue siendo el mismo — es una decisión, no un olvido. */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  background: var(--void);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
