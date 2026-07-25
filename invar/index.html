@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>INVAR · Detección y respuesta para infraestructura crítica</title>
+<meta name="description" content="INVAR opera la detección y la respuesta de organizaciones que no pueden pararse. Telemetría sin muestreo, detección como código y contención medida en minutos.">
+<meta name="theme-color" content="#06080A">
+<meta property="og:title" content="INVAR · Contención en minutos, no en informes">
+<meta property="og:description" content="SOC gestionado para energía, ferroviario, banca y salud. MTTD mediano de 4 min 12 s.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/og.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306080A'/%3E%3Cpath d='M7 6.5v19M25 6.5v19M13 6.5v19M19 6.5v19' stroke='%234A5D6E' stroke-width='2'/%3E%3Cpath d='M19 6.5v19' stroke='%23FF5B2E' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preload" as="image" href="assets/img/substrate.webp" imagesrcset="assets/img/substrate@sm.webp 1280w, assets/img/substrate.webp 2560w" imagesizes="100vw" fetchpriority="high">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+
+<body>
+<a class="skip" href="#tension">Saltar al contenido</a>
+
+<!-- capas de color de fondo: se cruzan por opacidad al hacer scroll -->
+<div class="bg" aria-hidden="true">
+  <div class="bg__layer" data-bg="0"></div>
+  <div class="bg__layer" data-bg="1"></div>
+  <div class="bg__layer" data-bg="2"></div>
+  <div class="bg__layer" data-bg="3"></div>
+  <div class="bg__grain"></div>
+</div>
+
+<!-- indicador de progreso -->
+<div class="rail" aria-hidden="true">
+  <div class="rail__track"><div class="rail__fill"></div></div>
+  <span class="rail__label">00</span>
+</div>
+
+<!-- cursor personalizado (solo puntero fino) -->
+<div class="cursor" aria-hidden="true">
+  <div class="cursor__dot"></div>
+  <div class="cursor__ring"><span class="cursor__text"></span></div>
+</div>
+
+<header class="nav" id="nav">
+  <a class="nav__brand" href="#top" aria-label="INVAR, inicio" data-cursor="link">
+    <svg class="mark" viewBox="0 0 34 24" aria-hidden="true" focusable="false">
+      <path d="M2 2v20M11 2v20M20 2v9.2M20 14.8V22M29 2v20" />
+      <path class="mark__hot" d="M20 11.6v1.6" />
+    </svg>
+    <span class="nav__word">INVAR</span>
+  </a>
+  <nav class="nav__links" aria-label="Secciones">
+    <a href="#tension" data-cursor="link"><i>01</i> Tensión</a>
+    <a href="#secuencia" data-cursor="link"><i>02</i> Secuencia</a>
+    <a href="#capacidades" data-cursor="link"><i>03</i> Capacidades</a>
+    <a href="#arquitectura" data-cursor="link"><i>04</i> Arquitectura</a>
+    <a href="#medicion" data-cursor="link"><i>05</i> Medición</a>
+    <a href="#doctrina" data-cursor="link"><i>07</i> Doctrina</a>
+  </nav>
+  <a class="nav__cta" href="#contacto" data-cursor="link">
+    <span class="nav__pulse" aria-hidden="true"></span>Guardia 24/7
+  </a>
+  <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-drawer">
+    <span aria-hidden="true"></span><span class="sr">Abrir menú</span>
+  </button>
+</header>
+
+<div class="drawer" id="nav-drawer" hidden>
+  <nav aria-label="Secciones (móvil)">
+    <a href="#tension"><i>01</i> Tensión</a>
+    <a href="#secuencia"><i>02</i> Secuencia</a>
+    <a href="#capacidades"><i>03</i> Capacidades</a>
+    <a href="#arquitectura"><i>04</i> Arquitectura</a>
+    <a href="#medicion"><i>05</i> Medición</a>
+    <a href="#campo"><i>06</i> Campo</a>
+    <a href="#doctrina"><i>07</i> Doctrina</a>
+    <a href="#contacto"><i>—</i> Contacto</a>
+  </nav>
+</div>
+
+<main id="top">
+
+<!-- ═══════════════════════════════════════════════ HÉROE ═══════════════ -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__media" data-parallax="0.18">
+    <img src="assets/img/substrate.webp"
+         srcset="assets/img/substrate@sm.webp 1280w, assets/img/substrate.webp 2560w"
+         sizes="100vw" width="2560" height="1440" fetchpriority="high" decoding="async"
+         alt="Campo de isotermas: curvas de nivel frías que se comprimen alrededor de un único núcleo incandescente.">
+  </div>
+  <canvas class="hero__field" aria-hidden="true"></canvas>
+  <div class="hero__scrim" aria-hidden="true"></div>
+
+  <div class="hero__inner">
+    <p class="eyebrow hero__eyebrow">
+      <span class="dot" aria-hidden="true"></span>
+      Detección y respuesta gestionada · Infraestructura crítica
+    </p>
+
+    <h1 class="hero__title" id="hero-title" data-split>Contención en minutos, no en informes.</h1>
+
+    <div class="hero__cols">
+      <p class="hero__lede">
+        Operamos la detección y la respuesta de organizaciones que no se pueden parar:
+        energía, ferroviario, banca y salud. Telemetría sin muestreo, detección
+        versionada como código y contención verificada.
+      </p>
+      <p class="hero__note">
+        <b>Invar</b> — aleación Fe-Ni al 36&nbsp;% cuyo coeficiente de dilatación es
+        prácticamente nulo. No cambia de forma cuando sube la temperatura.
+      </p>
+    </div>
+
+    <dl class="hero__stats">
+      <div><dt>MTTD mediano</dt><dd>4<span>:</span>12</dd></div>
+      <div><dt>MTTR de contención</dt><dd>18<span> min</span></dd></div>
+      <div><dt>Cobertura</dt><dd>24<span>·</span>7<span>·</span>365</dd></div>
+    </dl>
+
+    <a class="hero__scroll" href="#tension" data-cursor="down">
+      <span>Bajar</span>
+      <svg viewBox="0 0 12 34" aria-hidden="true"><path d="M6 0v30M1 25l5 5 5-5"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 01 TENSIÓN ══════════ -->
+<section class="section tension" id="tension" aria-labelledby="tension-title">
+  <div class="wrap">
+    <header class="head">
+      <p class="eyebrow" data-reveal><i>01</i> Tensión</p>
+      <h2 class="head__title" id="tension-title" data-reveal>
+        El adversario no entra. Inicia sesión.
+      </h2>
+    </header>
+
+    <div class="tension__grid">
+      <div class="tension__text">
+        <p class="lede" data-reveal>
+          La mayoría de las intrusiones que investigamos no empiezan con un exploit:
+          empiezan con una credencial legítima usada a una hora razonable desde una
+          ubicación creíble. No hay binario que analizar ni firma que disparar. Solo
+          hay comportamiento, y el comportamiento únicamente se ve si se conserva la
+          telemetría completa y se sabe qué es normal en ese dominio concreto.
+        </p>
+        <p data-reveal>
+          Lo que decide el daño no es el punto de entrada, sino los minutos siguientes.
+          Entre el primer acceso y el primer salto lateral median, en nuestras
+          investigaciones de 2025, <b>51 minutos</b>. Ese es el presupuesto real de
+          tiempo. Cualquier arquitectura de defensa que necesite un turno de mañana
+          para reaccionar ya ha perdido.
+        </p>
+        <p data-reveal>
+          En entornos industriales el problema se agrava: la convergencia IT/OT ha
+          creado rutas de enrutamiento que nadie documentó y que sobreviven a las
+          auditorías porque nadie las mira desde el lado correcto.
+        </p>
+      </div>
+
+      <figure class="tension__figure" data-reveal>
+        <div class="frame" data-parallax="0.08">
+          <img src="assets/img/surface.webp"
+               srcset="assets/img/surface@sm.webp 900w, assets/img/surface.webp 1800w"
+               sizes="(max-width: 880px) 92vw, 44vw" width="1800" height="1200"
+               loading="lazy" decoding="async"
+               alt="Relieve de malla en perspectiva con tres focos incandescentes bajo la superficie: representación de la superficie de exposición de una organización.">
+        </div>
+        <figcaption>
+          Superficie de exposición de un cliente del sector energético: 3&nbsp;412 activos,
+          seis rutas no documentadas hacia la red de proceso.
+        </figcaption>
+      </figure>
+    </div>
+
+    <ul class="facts" data-reveal data-reveal-stagger>
+      <li>
+        <p class="facts__n"><span data-count="62" data-suffix="%">62%</span></p>
+        <p>de las intrusiones que investigamos en 2025 empezaron con una credencial
+           válida, sin explotación de vulnerabilidad.</p>
+      </li>
+      <li>
+        <p class="facts__n"><span data-count="51" data-suffix=" min">51 min</span></p>
+        <p>es la mediana entre el acceso inicial y el primer movimiento lateral
+           efectivo que hemos medido en respuesta a incidentes.</p>
+      </li>
+      <li>
+        <p class="facts__n"><span data-count="78" data-suffix="%">78%</span></p>
+        <p>de los entornos OT auditados tenían tráfico enrutado desde IT sin
+           control de sesión ni diodo de datos.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 02 SECUENCIA ════════ -->
+<section class="sequence" id="secuencia" aria-labelledby="sequence-title">
+  <div class="sequence__stage">
+    <canvas class="sequence__canvas" aria-hidden="true"></canvas>
+    <div class="sequence__hud">
+      <p class="sequence__clock"><span class="sequence__t">t+00:00</span></p>
+      <p class="sequence__phase">Acceso inicial</p>
+      <div class="sequence__meter" aria-hidden="true">
+        <span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span>
+        <span style="--i:3"></span><span style="--i:4"></span><span style="--i:5"></span>
+      </div>
+      <p class="sequence__legend">
+        <b><i class="sw sw--hot"></i>Comprometido</b>
+        <b><i class="sw sw--watch"></i>Bajo observación</b>
+        <b><i class="sw sw--cold"></i>Sano</b>
+      </p>
+    </div>
+  </div>
+
+  <div class="sequence__intro wrap">
+    <p class="eyebrow"><i>02</i> Secuencia</p>
+    <h2 class="head__title" id="sequence-title">Anatomía de una intrusión, minuto a minuto.</h2>
+    <p class="lede">
+      Reconstrucción de un incidente real anonimizado en un operador ferroviario,
+      diciembre de 2025. Desplaza para avanzar el reloj: cada tramo corresponde a
+      un momento verificable de la línea temporal que entregamos al cliente.
+    </p>
+  </div>
+
+  <ol class="sequence__beats wrap">
+    <li class="beat" data-beat="0">
+      <p class="beat__t">t+00:00</p>
+      <h3 class="beat__title">Acceso inicial</h3>
+      <p>Credencial válida de un proveedor de mantenimiento contra el portal VPN.
+         Sin segundo factor, desde una IP residencial del mismo país. No hay
+         binario, no hay firma, no hay alerta.</p>
+      <p class="beat__tag">T1078.004 · Cuentas válidas</p>
+    </li>
+    <li class="beat" data-beat="1">
+      <p class="beat__t">t+00:47</p>
+      <h3 class="beat__title">Reconocimiento interno</h3>
+      <p>Volumen anómalo de consultas LDAP, enumeración de nombres principales de
+         servicio y de relaciones de confianza entre dominios. La primera señal es
+         estadística: 40× la línea base de esa cuenta.</p>
+      <p class="beat__tag">T1087 · T1482 · Descubrimiento</p>
+    </li>
+    <li class="beat" data-beat="2">
+      <p class="beat__t">t+02:10</p>
+      <h3 class="beat__title">Escalada y movimiento lateral</h3>
+      <p>Kerberoasting sobre tres cuentas de servicio con contraseñas de 2019.
+         Sesión SMB hacia un servidor de ficheros de ingeniería y creación de un
+         servicio remoto. El adversario ya es administrador local en dos máquinas.</p>
+      <p class="beat__tag">T1558.003 · T1021.002 · Lateral</p>
+    </li>
+    <li class="beat" data-beat="3">
+      <p class="beat__t">t+04:12</p>
+      <h3 class="beat__title">Detección</h3>
+      <p>Correlación de tres fuentes —identidad, endpoint y flujo de red— sobre una
+         regla propia, no una firma comercial. Incidente P1 abierto y turno de
+         respuesta activado. Aquí es donde se gana o se pierde el incidente.</p>
+      <p class="beat__tag">Detección propia · INV-1042</p>
+    </li>
+    <li class="beat" data-beat="4">
+      <p class="beat__t">t+11:30</p>
+      <h3 class="beat__title">Contención</h3>
+      <p>Aislamiento de cinco hosts en el agente, revocación de tokens de sesión y
+         de actualización en el proveedor de identidad, y bloqueo de la
+         infraestructura de mando en el cortafuegos perimetral. La propagación se detiene.</p>
+      <p class="beat__tag">Manual RSP-07 · acción reversible y firmada</p>
+    </li>
+    <li class="beat" data-beat="5">
+      <p class="beat__t">t+18:04</p>
+      <h3 class="beat__title">Erradicación y verificación</h3>
+      <p>Rotación de secretos, retirada del servicio persistente y caza dirigida
+         sobre el resto del dominio para descartar segundas vías. Cierre con línea
+         temporal reproducible y las consultas usadas, entregadas al cliente.</p>
+      <p class="beat__tag">Informe con trazas · reproducible</p>
+    </li>
+  </ol>
+
+  <div class="sequence__out wrap">
+    <p>
+      Ninguna de las seis fases depende de una herramienta concreta. Dependen de
+      conservar la telemetría, de saber qué consultar y de tener permiso previo
+      para actuar sin esperar a un comité.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 03 CAPACIDADES ══════ -->
+<section class="section caps" id="capacidades" aria-labelledby="caps-title">
+  <div class="wrap">
+    <header class="head head--split">
+      <div>
+        <p class="eyebrow" data-reveal><i>03</i> Capacidades</p>
+        <h2 class="head__title" id="caps-title" data-reveal>Seis unidades. Un solo turno.</h2>
+      </div>
+      <p class="head__aside" data-reveal>
+        No vendemos licencias ni revendemos plataformas. Operamos, escribimos la
+        detección y respondemos con las manos en el teclado del cliente cuando el
+        contrato lo permite.
+      </p>
+    </header>
+
+    <div class="caps__grid">
+
+      <article class="cap cap--wide" data-reveal>
+        <p class="cap__n">01</p>
+        <h3>Detección y respuesta gestionada</h3>
+        <p>Turno continuo de analistas propios sobre tu telemetría, no sobre un
+           resumen. Triaje en menos de 6 minutos para P1, con acciones de contención
+           previamente autorizadas por escrito y ensayadas en simulacro.</p>
+        <ul class="tags"><li>EDR/XDR</li><li>Identidad</li><li>Nube</li><li>Red</li><li>Correo</li></ul>
+      </article>
+
+      <article class="cap cap--media" data-reveal>
+        <div class="frame frame--tall" data-parallax="0.06">
+          <img src="assets/img/topology.webp"
+               srcset="assets/img/topology@sm.webp 640w, assets/img/topology.webp 1200w"
+               sizes="(max-width: 880px) 92vw, 30vw" width="1200" height="1500"
+               loading="lazy" decoding="async"
+               alt="Grafo tridimensional de nodos y enlaces en tonos acero, con un grupo de nodos encendidos en ámbar en la esquina inferior.">
+        </div>
+      </article>
+
+      <article class="cap" data-reveal>
+        <p class="cap__n">02</p>
+        <h3>Ingeniería de detección</h3>
+        <p>Detección como código: reglas en Sigma y en el lenguaje nativo de tu
+           plataforma, versionadas en Git, revisadas por pares y validadas contra un
+           banco de 4.000 trazas reales antes de llegar a producción.</p>
+        <ul class="tags"><li>Sigma</li><li>ATT&amp;CK</li><li>CI de reglas</li></ul>
+      </article>
+
+      <article class="cap" data-reveal>
+        <p class="cap__n">03</p>
+        <h3>Respuesta a incidentes</h3>
+        <p>Retén con activación en 45 minutos, 24/7. Adquisición forense en vivo,
+           línea temporal reconstruida y contención dirigida. Entregamos las
+           consultas y los artefactos, no solo las conclusiones.</p>
+        <ul class="tags"><li>DFIR</li><li>Retén</li><li>Cadena de custodia</li></ul>
+      </article>
+
+      <article class="cap" data-reveal>
+        <p class="cap__n">04</p>
+        <h3>Emulación de adversario</h3>
+        <p>Ejercicios dirigidos por inteligencia sobre el entorno de producción, con
+           reglas de enfrentamiento firmadas. Medimos qué se detecta, en cuánto tiempo
+           y qué regla falló. Compatible con marcos TIBER-EU y TLPT.</p>
+        <ul class="tags"><li>Red team</li><li>Purple</li><li>TIBER-EU</li></ul>
+      </article>
+
+      <article class="cap cap--media cap--media-wide" data-reveal>
+        <div class="frame" data-parallax="0.05">
+          <img src="assets/img/fiber.webp"
+               srcset="assets/img/fiber@sm.webp 900w, assets/img/fiber.webp 1800w"
+               sizes="(max-width: 880px) 92vw, 46vw" width="1800" height="1200"
+               loading="lazy" decoding="async"
+               alt="Macro de un haz de fibra óptica: puntas encendidas como discos desenfocados en azul frío y una única fibra ámbar.">
+        </div>
+      </article>
+
+      <article class="cap" data-reveal>
+        <p class="cap__n">05</p>
+        <h3>Seguridad de identidad</h3>
+        <p>Modelo de niveles en Active Directory y Entra ID, acceso privilegiado con
+           aprobación y caducidad, y capacidad real de revocar sesiones en segundos.
+           La identidad es hoy el perímetro que de verdad se ataca.</p>
+        <ul class="tags"><li>AD tiering</li><li>PAM</li><li>Revocación</li></ul>
+      </article>
+
+      <article class="cap" data-reveal>
+        <p class="cap__n">06</p>
+        <h3>Operación industrial</h3>
+        <p>Monitorización pasiva de redes de proceso conforme a IEC 62443-2-4, sin
+           agentes ni tráfico activo sobre el bus. Inventario por escucha, detección
+           de cambios de lógica y control de las rutas IT→OT que nadie documentó.</p>
+        <ul class="tags"><li>IEC 62443</li><li>Purdue</li><li>Pasivo</li></ul>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 04 ARQUITECTURA ═════ -->
+<section class="arch" id="arquitectura" aria-labelledby="arch-title">
+  <div class="arch__pin">
+    <div class="arch__head wrap">
+      <p class="eyebrow"><i>04</i> Arquitectura</p>
+      <h2 class="head__title" id="arch-title">Cinco etapas. Ninguna opcional.</h2>
+    </div>
+
+    <div class="arch__track" tabindex="0" role="group"
+         aria-label="Etapas de la arquitectura · desplazamiento horizontal">
+      <article class="panel">
+        <p class="panel__n">01</p>
+        <h3>Ingesta sin muestreo</h3>
+        <p>Recogemos telemetría en crudo de endpoint, identidad, red, nube, correo y
+           OT. Sin muestreo, sin agregación previa, sin descartar lo que hoy parece
+           ruido: la consulta que resuelve un incidente casi siempre necesita el
+           evento que alguien decidió no guardar.</p>
+        <ul class="panel__list">
+          <li>Retención en caliente 90 días · en frío 18 meses</li>
+          <li>Integridad por firma en origen</li>
+          <li>Reloj sincronizado, deriva máxima 50 ms</li>
+        </ul>
+      </article>
+
+      <article class="panel">
+        <p class="panel__n">02</p>
+        <h3>Normalización OCSF</h3>
+        <p>Un solo esquema para todo lo que entra. Cada evento se resuelve contra un
+           identificador único de activo y de identidad, de forma que una consulta
+           sirva igual para un portátil, un contenedor efímero o una estación de
+           ingeniería.</p>
+        <ul class="panel__list">
+          <li>Esquema OCSF 1.3</li>
+          <li>Resolución de activo e identidad</li>
+          <li>Enriquecimiento con inventario y criticidad</li>
+        </ul>
+      </article>
+
+      <article class="panel panel--media">
+        <div class="frame">
+          <img src="assets/img/layers.webp"
+               srcset="assets/img/layers@sm.webp 700w, assets/img/layers.webp 1400w"
+               sizes="(max-width: 880px) 92vw, 34vw" width="1400" height="1400"
+               loading="lazy" decoding="async"
+               alt="Estratos translúcidos en perspectiva atravesados por una señal que se fragmenta capa a capa hasta volverse ilegible.">
+        </div>
+        <p class="panel__cap">La misma señal, estrato a estrato: lo que entra legible
+           sale sin estructura recuperable.</p>
+      </article>
+
+      <article class="panel">
+        <p class="panel__n">03</p>
+        <h3>Correlación versionada</h3>
+        <p>Las detecciones viven en un repositorio, no en la consola. Cada regla lleva
+           autor, hipótesis, técnica ATT&amp;CK asociada, tasa de falso positivo medida
+           y prueba automática. Si una regla no pasa la prueba, no se despliega.</p>
+        <ul class="panel__list">
+          <li>4.128 detecciones activas</li>
+          <li>Banco de pruebas con trazas reales</li>
+          <li>Revisión por pares obligatoria</li>
+        </ul>
+      </article>
+
+      <article class="panel">
+        <p class="panel__n">04</p>
+        <h3>Respuesta ejecutable</h3>
+        <p>Manuales que son código, no documentos. Cada acción —aislar, revocar,
+           bloquear, poner en cuarentena— está firmada, es reversible y deja registro
+           con quién la autorizó y bajo qué condición previamente pactada.</p>
+        <ul class="panel__list">
+          <li>Acciones firmadas y reversibles</li>
+          <li>Autorización previa por escrito</li>
+          <li>Registro completo de cadena de custodia</li>
+        </ul>
+      </article>
+
+      <article class="panel">
+        <p class="panel__n">05</p>
+        <h3>Verificación</h3>
+        <p>Ninguna acción se da por buena porque la API devolviera 200. Comprobamos el
+           efecto: si un host no queda realmente aislado en 90 segundos, el sistema
+           escala a intervención manual y despierta a una persona.</p>
+        <ul class="panel__list">
+          <li>Comprobación de efecto, no de respuesta</li>
+          <li>Escalado automático a 90 s</li>
+          <li>Post mortem en 5 días hábiles</li>
+        </ul>
+      </article>
+    </div>
+
+    <p class="arch__hint" aria-hidden="true">Desplaza <span></span></p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 05 MEDICIÓN ═════════ -->
+<section class="section metrics" id="medicion" aria-labelledby="metrics-title">
+  <div class="wrap">
+    <header class="head head--split">
+      <div>
+        <p class="eyebrow" data-reveal><i>05</i> Medición</p>
+        <h2 class="head__title" id="metrics-title" data-reveal>Lo que se promete, medido.</h2>
+      </div>
+      <p class="head__aside" data-reveal>
+        Cifras propias del ejercicio 2025, calculadas sobre la totalidad de los
+        incidentes gestionados y auditadas dentro del alcance de nuestra
+        certificación SOC&nbsp;2 Tipo&nbsp;II.
+      </p>
+    </header>
+
+    <dl class="metrics__grid" data-reveal data-reveal-stagger>
+      <div class="metric">
+        <dt>Tiempo mediano de detección</dt>
+        <dd>
+          <span class="metric__n"><span data-count="4" data-suffix=":12">4:12</span></span>
+          <span class="metric__d">Desde el primer evento observable hasta el incidente abierto y asignado.</span>
+        </dd>
+      </div>
+      <div class="metric">
+        <dt>Tiempo mediano de contención</dt>
+        <dd>
+          <span class="metric__n"><span data-count="18" data-suffix=" min">18 min</span></span>
+          <span class="metric__d">Desde la apertura del P1 hasta el corte efectivo de la propagación.</span>
+        </dd>
+      </div>
+      <div class="metric">
+        <dt>Disponibilidad del servicio</dt>
+        <dd>
+          <span class="metric__n"><span data-count="99.98" data-decimals="2" data-suffix="%">99,98%</span></span>
+          <span class="metric__d">Plano de detección, medido externamente cada 30 segundos.</span>
+        </dd>
+      </div>
+      <div class="metric">
+        <dt>Incidentes P1 gestionados</dt>
+        <dd>
+          <span class="metric__n"><span data-count="214">214</span></span>
+          <span class="metric__d">De los cuales 9 llegaron a cifrado parcial y ninguno a parada de servicio.</span>
+        </dd>
+      </div>
+      <div class="metric">
+        <dt>Detecciones en producción</dt>
+        <dd>
+          <span class="metric__n"><span data-count="4128">4.128</span></span>
+          <span class="metric__d">Versionadas, con prueba automática y tasa de falso positivo declarada.</span>
+        </dd>
+      </div>
+      <div class="metric">
+        <dt>Cobertura ATT&amp;CK relevante</dt>
+        <dd>
+          <span class="metric__n"><span data-count="78" data-suffix="%">78%</span></span>
+          <span class="metric__d">Sobre el subconjunto de técnicas aplicable al perfil de cada cliente.</span>
+        </dd>
+      </div>
+    </dl>
+
+    <ul class="certs" data-reveal>
+      <li>ISO/IEC 27001</li>
+      <li>SOC 2 Tipo II</li>
+      <li>ENS categoría ALTA</li>
+      <li>PCI DSS 4.0 · QSA</li>
+      <li>IEC 62443-2-4</li>
+      <li>TIBER-EU</li>
+      <li>NIS2 · DORA</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 06 CAMPO ════════════ -->
+<section class="section field" id="campo" aria-labelledby="field-title">
+  <div class="wrap">
+    <header class="head">
+      <p class="eyebrow" data-reveal><i>06</i> Campo</p>
+      <h2 class="head__title" id="field-title" data-reveal>Donde una parada no es una incidencia.</h2>
+    </header>
+
+    <figure class="field__hero" data-reveal>
+      <div class="frame" data-parallax="0.1">
+        <img src="assets/img/ops.webp"
+             srcset="assets/img/ops@sm.webp 1200w, assets/img/ops.webp 2400w"
+             sizes="(max-width: 880px) 94vw, 88vw" width="2400" height="1350"
+             loading="lazy" decoding="async"
+             alt="Centro de operaciones a oscuras: muro de paneles azulados con uno en ámbar y siluetas de analistas recortadas contra sus pantallas.">
+      </div>
+      <figcaption>Sala de operaciones, turno de noche. Rotterdam.</figcaption>
+    </figure>
+
+    <div class="cases">
+      <article class="case" data-reveal>
+        <h3>Energía y distribución</h3>
+        <p>Operador con 1.900 subestaciones. Separamos la red de proceso de la
+           corporativa, instrumentamos las seis rutas que quedaban abiertas y pasamos
+           la detección de firmas a comportamiento de protocolo.</p>
+        <p class="case__k"><span>−94%</span> alertas sin acción</p>
+      </article>
+      <article class="case" data-reveal>
+        <h3>Ferroviario</h3>
+        <p>Señalización y venta bajo el mismo grupo. Modelo de niveles en el directorio
+           y respuesta con autorización previa: en el incidente de diciembre la
+           contención llegó antes que la primera reunión de crisis.</p>
+        <p class="case__k"><span>18 min</span> hasta el corte</p>
+      </article>
+      <article class="case" data-reveal>
+        <h3>Banca</h3>
+        <p>Entidad bajo DORA. Ejercicio TLPT anual, registro de detecciones trazable
+           al regulador y pruebas de resiliencia sobre proveedores críticos, incluidos
+           los nuestros.</p>
+        <p class="case__k"><span>0</span> hallazgos mayores</p>
+      </article>
+      <article class="case" data-reveal>
+        <h3>Salud</h3>
+        <p>Doce hospitales, equipamiento clínico que no admite agente. Monitorización
+           pasiva por espejo de puerto y microsegmentación por función clínica en
+           lugar de por VLAN heredada.</p>
+        <p class="case__k"><span>3.400</span> equipos sin agente</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 07 DOCTRINA ═════════ -->
+<section class="section doctrine" id="doctrina" aria-labelledby="doctrine-title">
+  <div class="wrap">
+    <header class="head head--split">
+      <div>
+        <p class="eyebrow" data-reveal><i>07</i> Doctrina</p>
+        <h2 class="head__title" id="doctrine-title" data-reveal>Cuatro reglas que no negociamos.</h2>
+      </div>
+      <p class="head__aside" data-reveal>
+        Somos 34 personas: 19 en operaciones, 7 en ingeniería de detección, 5 en
+        respuesta y 3 en ofensiva. Sin comerciales. Fundada en 2017 en Madrid;
+        segundo turno en Rotterdam desde 2021.
+      </p>
+    </header>
+
+    <div class="doctrine__grid">
+      <article class="rule" data-reveal>
+        <p class="rule__n">i</p>
+        <h3>Sin caja negra</h3>
+        <p>Entregamos la regla, la consulta y la traza. Si el cliente no puede
+           reproducir una detección por su cuenta, no la consideramos una detección
+           sino una opinión.</p>
+      </article>
+      <article class="rule" data-reveal>
+        <p class="rule__n">ii</p>
+        <h3>El reloj manda</h3>
+        <p>Todo compromiso se expresa en minutos medidos sobre incidentes reales.
+           Ningún nivel de servicio que no se pueda contar con un cronómetro entra
+           en el contrato.</p>
+      </article>
+      <article class="rule" data-reveal>
+        <p class="rule__n">iii</p>
+        <h3>Menos herramientas, mejor telemetría</h3>
+        <p>Una plataforma bien instrumentada rinde más que siete integradas a medias.
+           Antes de proponer una compra, agotamos lo que ya está desplegado.</p>
+      </article>
+      <article class="rule" data-reveal>
+        <p class="rule__n">iv</p>
+        <h3>La respuesta se ensaya</h3>
+        <p>Cada manual se ejecuta en simulacro trimestral con el cliente delante.
+           Un procedimiento que solo existe en un documento no es un procedimiento.</p>
+      </article>
+    </div>
+
+    <figure class="doctrine__figure" data-reveal>
+      <div class="frame" data-parallax="0.07">
+        <img src="assets/img/console.webp"
+             srcset="assets/img/console@sm.webp 800w, assets/img/console.webp 1600w"
+             sizes="(max-width: 880px) 92vw, 52vw" width="1600" height="1200"
+             loading="lazy" decoding="async"
+             alt="Sala de briefing en penumbra: tres siluetas frente a un muro de situación que muestra un grafo de red y una columna de eventos.">
+      </div>
+      <figcaption>Traspaso de turno. Cada incidente abierto se cuenta en voz alta.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ CONTACTO ════════════ -->
+<section class="section contact" id="contacto" aria-labelledby="contact-title">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>Primer contacto</p>
+    <h2 class="contact__title" id="contact-title" data-reveal data-split>
+      Si ya está ocurriendo, llama. Si todavía no, hablemos esta semana.
+    </h2>
+
+    <div class="contact__grid">
+      <a class="contact__hot" href="tel:+34900000000" data-reveal data-cursor="call">
+        <span class="contact__label">Guardia de incidentes · 24/7</span>
+        <span class="contact__value">+34 900 000 000</span>
+        <span class="contact__sub">Activación de retén en 45 minutos</span>
+      </a>
+      <a class="contact__mail" href="mailto:operaciones@invar.example" data-reveal data-cursor="mail">
+        <span class="contact__label">Evaluación de exposición</span>
+        <span class="contact__value">operaciones@invar.example</span>
+        <span class="contact__sub">Respuesta en un día hábil · sin comercial de por medio</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__grid">
+    <div class="foot__brand">
+      <svg class="mark mark--lg" viewBox="0 0 34 24" aria-hidden="true" focusable="false">
+        <path d="M2 2v20M11 2v20M20 2v9.2M20 14.8V22M29 2v20" />
+        <path class="mark__hot" d="M20 11.6v1.6" />
+      </svg>
+      <p class="foot__word">INVAR</p>
+      <p class="foot__claim">Estabilidad dimensional bajo temperatura.</p>
+    </div>
+    <div class="foot__col">
+      <p class="foot__h">Operaciones</p>
+      <p>Calle Zurbano 41 · 28010 Madrid</p>
+      <p>Weena 505 · 3013 AL Rotterdam</p>
+    </div>
+    <div class="foot__col">
+      <p class="foot__h">Cumplimiento</p>
+      <p>ISO/IEC 27001 · SOC 2 Tipo II</p>
+      <p>ENS ALTA · PCI DSS 4.0</p>
+    </div>
+    <div class="foot__col">
+      <p class="foot__h">Divulgación</p>
+      <p>security.txt · PGP 0x4F2A…</p>
+      <p>Divulgación coordinada en 90 días</p>
+    </div>
+  </div>
+  <div class="wrap foot__base">
+    <p>© 2026 INVAR Systems S.L.</p>
+    <p class="foot__note">Marca ficticia creada como pieza de diseño. Toda cifra y
+       cliente son inventados.</p>
+  </div>
+</footer>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/lenis.min.js"></script>
+<script src="assets/js/field.js"></script>
+<script src="assets/js/sequence.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
