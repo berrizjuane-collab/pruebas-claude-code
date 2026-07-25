@@ -1,11 +1,29 @@
 # INVAR — sitio one-page
 
-Pieza de diseño para una empresa **ficticia** de ciberseguridad. Abre
-`index.html` en un navegador: no necesita servidor, ni build, ni red.
+Pieza de diseño para una empresa **ficticia** de ciberseguridad.
+
+### Tres formas de verlo
+
+1. **`invar-portable.html`** — un único fichero con el CSS, el JavaScript y las
+   nueve imágenes incrustados (687 kB). Descárgalo suelto y ábrelo con doble
+   clic: funciona sin servidor, sin la carpeta `assets/` al lado y sin red.
+2. **Publicado como Artifact** — la misma compilación, en una URL:
+   <https://claude.ai/code/artifact/afa65564-8c86-4cf8-9373-cd8a190f158d>
+3. **`index.html`** — la versión de trabajo, con los recursos separados. Esta
+   necesita la carpeta `assets/` **entera** al lado; si descargas solo el HTML
+   verás el texto en crudo, porque el navegador no encuentra ni los estilos ni
+   los scripts.
+
+Para regenerar el fichero único después de tocar cualquier cosa:
+
+```bash
+node tools/build-single.mjs
+```
 
 ```
 invar/
 ├── index.html                 # todo el marcado, una sola página
+├── invar-portable.html        # compilado autocontenido (generado)
 ├── assets/
 │   ├── css/site.css           # sistema completo (custom properties + capas)
 │   ├── js/
@@ -69,7 +87,7 @@ está parametrizado por `S = ancho / 2400`, así que la misma escena se renderiz
 | `substrate` · `og` | campo de isotermas con un núcleo incandescente (héroe) |
 | `surface` | relieve de exposición con oclusión por pintor |
 | `topology` | grafo 3D con propagación de compromiso y DOF por bandas |
-| `flow` | líneas de corriente atravesando una garganta |
+| `flow` | líneas de corriente que convergen en una garganta incandescente |
 | `layers` | estratos translúcidos que fragmentan una señal |
 | `fiber` | macro de haz de fibra: bokeh con conservación de energía |
 | `ops` · `console` | sala de operaciones y sala de briefing |
@@ -188,6 +206,7 @@ narración por scroll —cada tramo llega a opacidad plena cuando le toca— y c
 ## Instrumental
 
 ```bash
+node tools/build-single.mjs       # compila invar-portable.html
 node tools/render.mjs [escena…]   # genera las imágenes
 node tools/contact.mjs [salida]   # lámina de contacto de las imágenes
 node tools/shots.mjs <dir> <anchos>   # capturas por ancho + control de desbordes
