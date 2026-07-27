@@ -11,9 +11,11 @@ contacto.
 |---|---|
 | `index.html` | El sitio completo: HTML, CSS, JS y tipografías, todo en un archivo. |
 | `og.jpg` | Imagen 1200×630 para compartir en WhatsApp/Instagram/X. |
+| `img/hero.jpg` | Foto de fondo del hero (competencia, Power Cartel Meet). |
+| `img/moises-podium.jpg` | Foto de podio con medalla y certificado (Iberoamericano, Medellín). |
 
-No hay build, no hay dependencias, no hay peticiones de red. Es un archivo
-estático que se abre con doble clic.
+No hay build, no hay dependencias, no hay peticiones de red. Es una carpeta
+estática que se abre con doble clic.
 
 ## Previsualizar
 
@@ -29,8 +31,8 @@ python3 -m http.server 8000 --directory .
 ## Desplegar
 
 Sirve la carpeta tal cual en cualquier hosting estático (GitHub Pages, Netlify,
-Vercel, Cloudflare Pages). Sube `index.html` y `og.jpg` juntos, en el mismo
-directorio.
+Vercel, Cloudflare Pages). Sube `index.html`, `og.jpg` y la carpeta `img/`
+juntos, manteniendo esta misma estructura relativa.
 
 ### Antes de publicar
 
@@ -49,6 +51,10 @@ directorio.
 3. **Revisar los testimonios.** Los de la sección *Resultados* están
    parafraseados a partir de su contenido de Instagram, no son citas
    literales. Vale la pena que él los valide.
+4. **Confirmar que Moisés está de acuerdo con las dos fotos usadas.** Son
+   suyas, publicadas por él, pero al ser su propia landing vale la pena que
+   las apruebe antes de publicar — sobre todo la del hero, que ahora es la
+   primera imagen que ve cualquiera que entre al sitio.
 
 ## De dónde salen los datos
 
@@ -57,11 +63,18 @@ personales vienen de sus registros en OpenPowerlifting bajo la federación WRPF.
 Están además en una tabla accesible dentro de la propia página: el botón
 *«Ver los datos en tabla»* bajo el gráfico de progresión.
 
-## Notas técnicas
+## De dónde salen las fotos
 
-- **Sin imágenes fotográficas.** Todo lo visual —la barra olímpica del hero, los
-  iconos, las texturas de grano— es SVG y CSS escritos a mano. La página entera
-  pesa ~150 KB y carga completa sin red.
+`img/hero.jpg` y `img/moises-podium.jpg` son recortes de fotos reales de
+competencia que Moisés publicó en su propio Instagram (@moises.coaching) — no
+son fotografía profesional ni imágenes generadas. Se extrajeron a resolución
+completa (1496×3256, la de la cámara del teléfono, no la de una captura de
+pantalla) desde el PDF de referencia del proyecto, se recortaron para quitar
+la interfaz de Instagram y se les quitó el indicador de carrusel ("1/8",
+"1/5") que quedaba visible en la esquina. También se les quitaron los
+metadatos EXIF al guardarlas. El resto de lo visual —iconos, texturas,
+gráficos— sigue siendo SVG y CSS escritos a mano.
+
 - **Tipografías incrustadas** en base64 (subconjunto latino): *Anton* y
   *Barlow Condensed*, ambas bajo [SIL Open Font License 1.1](https://scripts.sil.org/OFL).
   Se incrustaron en vez de enlazar Google Fonts para que no haya peticiones

@@ -329,43 +329,36 @@ section{position:relative;padding-block:clamp(4.5rem,11vw,8.5rem)}
   overflow:hidden;
   isolation:isolate;
 }
-.hero-bg{position:absolute;inset:0;z-index:-3;background:var(--ink-0)}
+/* foto de competencia real; la posición horizontal sigue al atleta
+   (queda algo a la izquierda del centro del encuadre original) y el --parY
+   lo mueve el scroll para un parallax sutil */
+.hero-bg{
+  position:absolute;inset:-4% -4%;z-index:-3;
+  background:var(--ink-0) url('img/hero.jpg') no-repeat;
+  background-size:cover;
+  background-position:44% calc(20% + var(--parY,0px));
+}
 /* cono de luz cenital */
 .hero-bg::before{
   content:"";position:absolute;left:50%;top:-18%;
   width:min(160vw,1500px);height:118%;transform:translateX(-50%);
   background:
-    radial-gradient(58% 52% at 50% 8%,rgba(255,197,40,.20),transparent 68%),
-    radial-gradient(46% 66% at 50% 34%,rgba(255,255,255,.07),transparent 72%);
+    radial-gradient(58% 52% at 50% 8%,rgba(255,197,40,.16),transparent 68%),
+    radial-gradient(46% 66% at 50% 34%,rgba(255,255,255,.05),transparent 72%);
   filter:blur(6px);
 }
-/* viñeta */
+/* viñeta + velo de legibilidad: sin esto el texto se pierde contra la foto */
 .hero-bg::after{
   content:"";position:absolute;inset:0;
   background:
-    radial-gradient(120% 78% at 50% 42%,transparent 34%,rgba(10,10,12,.72) 78%,var(--ink-0) 100%),
-    linear-gradient(180deg,rgba(10,10,12,.9) 0%,transparent 26%,transparent 58%,var(--ink-0) 97%);
+    radial-gradient(120% 78% at 50% 42%,transparent 22%,rgba(10,10,12,.78) 78%,var(--ink-0) 100%),
+    linear-gradient(180deg,rgba(10,10,12,.94) 0%,rgba(10,10,12,.25) 30%,rgba(10,10,12,.34) 56%,var(--ink-0) 98%),
+    linear-gradient(100deg,rgba(10,10,12,.7) 0%,rgba(10,10,12,.32) 42%,rgba(10,10,12,.08) 68%);
 }
 .hero-grain{
   position:absolute;inset:-10%;z-index:-2;pointer-events:none;
-  background-image:var(--grain);opacity:.07;mix-blend-mode:overlay;
+  background-image:var(--grain);opacity:.1;mix-blend-mode:overlay;
 }
-
-/* barra olímpica: se hunde bajo el borde inferior y se disuelve hacia arriba,
-   así el texto siempre cae sobre negro y nunca sobre un disco brillante */
-.hero-bar{
-  --barY:34%;
-  position:absolute;z-index:-1;
-  left:50%;bottom:0;
-  width:min(1200px,235vw);
-  transform:translate3d(-50%,calc(var(--barY) + var(--py,0px)),0);
-  opacity:.82;pointer-events:none;
-  /* rampa larga: en la franja visible los discos nunca llegan a brillo pleno,
-     así el texto que cae encima se sigue leyendo */
-  -webkit-mask-image:linear-gradient(180deg,transparent 5%,#000 84%,#000 100%);
-  mask-image:linear-gradient(180deg,transparent 5%,#000 84%,#000 100%);
-}
-@media (min-width:820px){ .hero-bar{--barY:26%;width:min(1680px,124vw)} }
 
 /* piso + polvo */
 .hero-floor{
@@ -564,6 +557,29 @@ h1.name span.b{
 @media (min-width:940px){
   .hist-grid{grid-template-columns:1.25fr .85fr;align-items:start;gap:clamp(2.5rem,5vw,4.5rem)}
 }
+.hist-side{display:flex;flex-direction:column;gap:1.75rem}
+
+.portrait{
+  margin:0;border-radius:var(--r);overflow:hidden;
+  border:1px solid var(--line);background:var(--ink-2);
+  position:relative;isolation:isolate;
+}
+.portrait::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:var(--grain);opacity:.05;mix-blend-mode:overlay;
+}
+.portrait img{
+  width:100%;height:auto;display:block;
+  aspect-ratio:860/754;object-fit:cover;object-position:50% 18%;
+}
+.portrait figcaption{
+  padding:.85rem 1.1rem;border-top:1px solid var(--line);
+  background:var(--ink-2);position:relative;
+  font-family:var(--f-cond);font-weight:600;font-size:.76rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);
+}
+.portrait figcaption span{color:var(--gold);padding-inline:.3em}
+
 .prose p{margin:0 0 1.15rem;color:var(--txt-2);max-width:62ch}
 .prose p:last-child{margin-bottom:0}
 .prose strong{color:var(--txt);font-weight:600}
@@ -1008,82 +1024,11 @@ table.data tbody td strong{color:var(--gold)}
 
 <!-- ══════════════ HERO ══════════════ -->
 <section class="hero" id="inicio">
-  <div class="hero-bg" aria-hidden="true"></div>
+  <!-- foto real de competencia (Power Cartel Meet, Venezuela): decorativa —
+       toda la información se transmite en el texto, así que no necesita alt -->
+  <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
   <div class="hero-grain" aria-hidden="true"></div>
   <div class="hero-floor" aria-hidden="true"></div>
-
-  <!-- Barra olímpica cargada con discos de competencia (rojo, azul, amarillo:
-       los colores reglamentarios de los discos y los de la bandera de Venezuela) -->
-  <svg class="hero-bar" id="heroBar" viewBox="0 0 1440 400" role="img" aria-label="Ilustración de una barra olímpica cargada con discos de competencia bajo un foco de tarima">
-    <defs>
-      <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#d9d5cd"/>
-        <stop offset=".34" stop-color="#8e8b85"/>
-        <stop offset=".6" stop-color="#3b3a38"/>
-        <stop offset="1" stop-color="#131313"/>
-      </linearGradient>
-      <linearGradient id="collar" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#cfcac1"/><stop offset=".5" stop-color="#5c5a56"/><stop offset="1" stop-color="#171717"/>
-      </linearGradient>
-      <linearGradient id="pRed" x1=".2" y1="0" x2=".8" y2="1">
-        <stop offset="0" stop-color="#ff6b5e"/><stop offset=".38" stop-color="#c4342c"/><stop offset="1" stop-color="#460f0c"/>
-      </linearGradient>
-      <linearGradient id="pBlue" x1=".2" y1="0" x2=".8" y2="1">
-        <stop offset="0" stop-color="#63b7e8"/><stop offset=".38" stop-color="#2a72a5"/><stop offset="1" stop-color="#0a2438"/>
-      </linearGradient>
-      <linearGradient id="pGold" x1=".2" y1="0" x2=".8" y2="1">
-        <stop offset="0" stop-color="#ffd964"/><stop offset=".38" stop-color="#d69c12"/><stop offset="1" stop-color="#3f2c04"/>
-      </linearGradient>
-      <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#0a0a0c" stop-opacity="0"/>
-        <stop offset=".62" stop-color="#0a0a0c" stop-opacity=".45"/>
-        <stop offset="1" stop-color="#0a0a0c" stop-opacity=".97"/>
-      </linearGradient>
-      <radialGradient id="glow" cx=".5" cy=".5" r=".5">
-        <stop offset="0" stop-color="#ffc528" stop-opacity=".30"/>
-        <stop offset="1" stop-color="#ffc528" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-
-    <ellipse cx="720" cy="205" rx="560" ry="150" fill="url(#glow)"/>
-
-    <!-- barra: las mangas suben por el látigo del peso -->
-    <path d="M232 196 Q720 224 1208 196" fill="none" stroke="url(#steel)" stroke-width="15" stroke-linecap="round"/>
-    <path d="M232 191 Q720 219 1208 191" fill="none" stroke="#fffdf6" stroke-opacity=".26" stroke-width="2.4" stroke-linecap="round"/>
-    <!-- marcas de knurling -->
-    <g stroke="#0a0a0c" stroke-opacity=".55" stroke-width="2">
-      <path d="M470 205v10M486 206v10M502 207v10"/>
-      <path d="M938 217v-10M954 216v-10M970 215v-10"/>
-    </g>
-
-    <!-- discos: izquierda -->
-    <g>
-      <ellipse cx="228" cy="197" rx="22" ry="118" fill="url(#pGold)"/>
-      <ellipse cx="228" cy="197" rx="9" ry="34" fill="#0d0d0f" opacity=".82"/>
-      <ellipse cx="186" cy="199" rx="24" ry="142" fill="url(#pBlue)"/>
-      <ellipse cx="186" cy="199" rx="10" ry="36" fill="#0d0d0f" opacity=".82"/>
-      <ellipse cx="138" cy="201" rx="27" ry="168" fill="url(#pRed)"/>
-      <ellipse cx="138" cy="201" rx="11" ry="38" fill="#0d0d0f" opacity=".82"/>
-      <ellipse cx="138" cy="201" rx="27" ry="168" fill="none" stroke="#fffdf6" stroke-opacity=".16" stroke-width="1.5"/>
-      <ellipse cx="96" cy="203" rx="14" ry="46" fill="url(#collar)"/>
-      <rect x="62" y="188" width="34" height="28" rx="8" fill="url(#steel)"/>
-    </g>
-    <!-- discos: derecha -->
-    <g>
-      <ellipse cx="1212" cy="197" rx="22" ry="118" fill="url(#pGold)"/>
-      <ellipse cx="1212" cy="197" rx="9" ry="34" fill="#0d0d0f" opacity=".82"/>
-      <ellipse cx="1254" cy="199" rx="24" ry="142" fill="url(#pBlue)"/>
-      <ellipse cx="1254" cy="199" rx="10" ry="36" fill="#0d0d0f" opacity=".82"/>
-      <ellipse cx="1302" cy="201" rx="27" ry="168" fill="url(#pRed)"/>
-      <ellipse cx="1302" cy="201" rx="11" ry="38" fill="#0d0d0f" opacity=".82"/>
-      <ellipse cx="1302" cy="201" rx="27" ry="168" fill="none" stroke="#fffdf6" stroke-opacity=".16" stroke-width="1.5"/>
-      <ellipse cx="1344" cy="203" rx="14" ry="46" fill="url(#collar)"/>
-      <rect x="1344" y="188" width="34" height="28" rx="8" fill="url(#steel)"/>
-    </g>
-
-    <!-- la barra se hunde en la sombra -->
-    <rect x="0" y="150" width="1440" height="250" fill="url(#fadeDown)"/>
-  </svg>
 
   <div class="dust" id="dust" aria-hidden="true"></div>
 
@@ -1204,19 +1149,27 @@ table.data tbody td strong{color:var(--gold)}
         </div>
       </div>
 
-      <aside class="ficha reveal" style="--d:120ms" aria-label="Ficha del atleta">
-        <h3>Ficha del atleta</h3>
-        <dl>
-          <div class="row"><dt>Edad</dt><dd>18 años</dd></div>
-          <div class="row"><dt>Base</dt><dd>Mérida, Venezuela</dd></div>
-          <div class="row"><dt>Federación</dt><dd>WRPF</dd></div>
-          <div class="row"><dt>Categoría</dt><dd>Sub-Junior –82.5 kg</dd></div>
-          <div class="row"><dt>Modalidad</dt><dd>Raw (sin equipo)</dd></div>
-          <div class="row"><dt>Estudios</dt><dd>Fisioterapia</dd></div>
-          <div class="row"><dt>Récord</dt><dd><b>657.5 kg</b> de total</dd></div>
-          <div class="row"><dt>Registro</dt><dd><b>3 – 0</b> en competencia</dd></div>
-        </dl>
-      </aside>
+      <div class="hist-side">
+        <figure class="portrait reveal" style="--d:80ms">
+          <img src="img/moises-podium.jpg" width="860" height="754" loading="lazy" decoding="async"
+               alt="Moisés Carrero sonriendo, con una medalla al cuello y el certificado de participación del Iberoamericano WRPF 2025 en Medellín.">
+          <figcaption>Medellín, sept. 2025 <span>·</span> Campeón Iberoamericano</figcaption>
+        </figure>
+
+        <aside class="ficha reveal" style="--d:200ms" aria-label="Ficha del atleta">
+          <h3>Ficha del atleta</h3>
+          <dl>
+            <div class="row"><dt>Edad</dt><dd>18 años</dd></div>
+            <div class="row"><dt>Base</dt><dd>Mérida, Venezuela</dd></div>
+            <div class="row"><dt>Federación</dt><dd>WRPF</dd></div>
+            <div class="row"><dt>Categoría</dt><dd>Sub-Junior –82.5 kg</dd></div>
+            <div class="row"><dt>Modalidad</dt><dd>Raw (sin equipo)</dd></div>
+            <div class="row"><dt>Estudios</dt><dd>Fisioterapia</dd></div>
+            <div class="row"><dt>Récord</dt><dd><b>657.5 kg</b> de total</dd></div>
+            <div class="row"><dt>Registro</dt><dd><b>3 – 0</b> en competencia</dd></div>
+          </dl>
+        </aside>
+      </div>
     </div>
   </div>
 </section>
@@ -1566,13 +1519,13 @@ table.data tbody td strong{color:var(--gold)}
     chart.style.setProperty("--p", Math.max(0, Math.min(1, p)).toFixed(4));
   }
 
-  /* ---------- parallax del hero ---------- */
-  var heroBar = document.getElementById("heroBar"), dustEl = document.getElementById("dust");
+  /* ---------- parallax del hero (sobre la foto real) ---------- */
+  var heroBg = document.getElementById("heroBg"), dustEl = document.getElementById("dust");
   function parallax(y){
-    if(reduce || !heroBar) return;
+    if(reduce || !heroBg) return;
     if(y > (window.innerHeight || 800) * 1.2) return;
-    // sólo la variable: la traslación base (--barY) vive en el CSS
-    heroBar.style.setProperty("--py", (y * 0.22).toFixed(1) + "px");
+    var max = 70; // tope: que la foto nunca se desplace tanto que asome el borde
+    heroBg.style.setProperty("--parY", Math.min(y * 0.12, max).toFixed(1) + "px");
     if(dustEl) dustEl.style.transform = "translate3d(0," + (y * 0.12).toFixed(1) + "px,0)";
   }
 
