@@ -49,8 +49,8 @@ export class Axes {
     });
     this.magLine = new THREE.Line(this.magGeom, magMat);
 
-    this.spinLabel = makeLabel('Spin axis Ω', '#8fe6ff', 0.34);
-    this.magLabel = makeLabel('Magnetic axis', '#ffcf9a', 0.34);
+    this.spinLabel = makeLabel('Spin axis Ω', '#8fe6ff', 0.2);
+    this.magLabel = makeLabel('Magnetic axis', '#ffcf9a', 0.2);
 
     this.group.add(this.spinLine, this.magLine, this.spinLabel.sprite, this.magLabel.sprite);
     this.spinLabel.sprite.position.set(0, AXIS_LEN + 0.25, 0);
@@ -67,7 +67,9 @@ export class Axes {
     pos.setXYZ(0, p0.x, p0.y, p0.z);
     pos.setXYZ(1, p1.x, p1.y, p1.z);
     pos.needsUpdate = true;
-    this.magLabel.sprite.position.copy(p1).multiplyScalar(1.08);
+    // Pushed further out than the spin label so the two don't collide when the
+    // magnetic axis swings close to the spin axis.
+    this.magLabel.sprite.position.copy(p1).multiplyScalar(1.22);
   }
 
   setVisible(v: boolean): void {

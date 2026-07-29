@@ -23,6 +23,7 @@ import {
 import { clamp } from '../utils/math.ts';
 
 import { NeutronStar } from './NeutronStar.ts';
+import { Corona } from './Corona.ts';
 import { Axes } from './Axes.ts';
 import { MagneticField } from './MagneticField.ts';
 import { Magnetosphere } from './Magnetosphere.ts';
@@ -38,6 +39,7 @@ const HISTORY = 512;
 export class World {
   private tracker = new ResourceTracker();
   readonly star: NeutronStar;
+  readonly corona: Corona;
   readonly axes: Axes;
   readonly field: MagneticField;
   readonly magnetosphere: Magnetosphere;
@@ -66,6 +68,7 @@ export class World {
     private audio: AudioEngine,
   ) {
     this.star = new NeutronStar(this.tracker);
+    this.corona = new Corona(this.tracker);
     this.axes = new Axes(this.tracker);
     this.field = new MagneticField(this.tracker);
     this.magnetosphere = new Magnetosphere(this.tracker);
@@ -76,6 +79,7 @@ export class World {
 
     this.liveGroup.add(
       this.star.group,
+      this.corona.group,
       this.axes.group,
       this.field.group,
       this.magnetosphere.group,
@@ -158,11 +162,17 @@ export class World {
     // ── update scene modules ───────────────────────────────────────────────
     this.background.setMode(state.backgroundMode);
     this.background.update(elapsed, this.engine.camera, this.pixelRatio);
+    // The sober lab mode drops the lens grade entirely; the scientific backdrop
+    // keeps a trace of it so the frame still reads as one image.
+    this.engine.setGrade(
+      state.backgroundMode === 'lab' ? 0 : state.backgroundMode === 'scientific' ? 0.45 : 1,
+    );
 
     if (interior) {
       this.interior.update(elapsed);
     } else {
       this.star.update(this._phase, state, elapsed);
+      this.corona.update(state, this.engine.camera, elapsed);
       if (state.layers.axes) this.axes.update(this._phase, state.params.magneticInclination);
       if (state.layers.magneticField) this.field.update(this._phase, state);
       if (state.layers.magnetosphere)
@@ -223,6 +233,7 @@ export class World {
 
   dispose(): void {
     this.star.dispose();
+    this.corona.dispose();
     this.axes.dispose();
     this.field.dispose();
     this.magnetosphere.dispose();

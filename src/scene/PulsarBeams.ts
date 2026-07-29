@@ -13,7 +13,7 @@ import { magneticAxis, observerDirection, beamAngle } from '../physics/pulsar.ts
 import type { AppState } from '../state/types.ts';
 import type { ResourceTracker } from '../core/Disposable.ts';
 
-const BEAM_LENGTH = 3.4;
+const BEAM_LENGTH = 5.2;
 
 export class PulsarBeams {
   readonly group = new THREE.Group();
@@ -49,8 +49,11 @@ export class PulsarBeams {
       uTime: { value: 0 },
       uIntensity: { value: 0.8 },
       uWidth: { value: 0.22 },
-      uColor: { value: new THREE.Color(0x7fbaff) },
+      uColor: { value: new THREE.Color(0x2878ff) },
+      uHotColor: { value: new THREE.Color(0xdcefff) },
       uLength: { value: BEAM_LENGTH },
+      uFlare: { value: 0 },
+      uReducedMotion: { value: 0 },
     };
   }
 
@@ -77,12 +80,18 @@ export class PulsarBeams {
     const flareN = pulseFlare(beamAngle([dirN.x, dirN.y, dirN.z], obs), halfAngle);
     const flareS = pulseFlare(beamAngle([dirS.x, dirS.y, dirS.z], obs), halfAngle);
 
-    const base = state.beamIntensity * 0.7;
+    // The beams glow continuously so a free camera always sees the lighthouse,
+    // and flare hard on top of that when a cone sweeps the observer.
+    const base = 0.55 + state.beamIntensity * 1.05;
     const flashScale = state.reducedFlashing ? 0.4 : 1;
-    this.northU.uIntensity.value = base + flareN * 0.9 * flashScale;
-    this.southU.uIntensity.value = base + flareS * 0.9 * flashScale;
+    this.northU.uIntensity.value = base + flareN * 1.6 * flashScale;
+    this.southU.uIntensity.value = base + flareS * 1.6 * flashScale;
+    this.northU.uFlare.value = flareN;
+    this.southU.uFlare.value = flareS;
     this.northU.uWidth.value = this.southU.uWidth.value = state.beamWidth;
     this.northU.uTime.value = this.southU.uTime.value = elapsed;
+    const rm = state.reducedMotion ? 1 : 0;
+    this.northU.uReducedMotion.value = this.southU.uReducedMotion.value = rm;
   }
 
   setVisible(v: boolean): void {

@@ -71,12 +71,16 @@ html, body {
   overflow-y: auto; padding: 6px;
 }
 .panel-right {
-  top: 16px; right: 16px; width: 340px; max-height: calc(100vh - 120px);
+  /* Stops above the camera/action toolbar in the bottom-right corner, so the
+     data column never slides underneath it and loses its last rows. */
+  top: 16px; right: 16px; width: 340px; max-height: calc(100vh - 244px);
   display: flex; flex-direction: column; padding: 0;
 }
 .panel-bottom {
+  /* Narrow enough to sit in the gap between the left control column and the
+     right-hand toolbar at common desktop widths. */
   bottom: 16px; left: 50%; transform: translateX(-50%);
-  width: min(680px, calc(100vw - 32px)); padding: 10px 12px;
+  width: min(560px, calc(100vw - 32px)); padding: 10px 12px;
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
 }
 
@@ -175,7 +179,9 @@ html, body {
 .tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-dim); border-radius: 0; padding: 8px 12px; }
 .tab:hover { color: #fff; background: none; border-color: transparent; }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-.tab-page { display: none; overflow-y: auto; padding: 12px 14px; }
+/* min-height:0 lets the page actually scroll inside the flex column instead of
+   forcing the panel taller than its max-height. */
+.tab-page { display: none; overflow-y: auto; min-height: 0; padding: 12px 14px; }
 .tab-page.active { display: block; }
 
 /* ── Formulas ─────────────────────────────────────────────────────────── */

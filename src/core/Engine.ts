@@ -17,6 +17,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { LensingShader } from '../shaders/lensing.ts';
+import { GradeShader } from '../shaders/grade.ts';
 import type { QualitySettings } from './QualityManager.ts';
 
 export type UpdateFn = (dt: number, elapsed: number) => void;
@@ -29,6 +30,7 @@ export class Engine {
 
   private bloomPass: UnrealBloomPass;
   private lensingPass: ShaderPass;
+  private gradePass: ShaderPass;
   private outputPass: OutputPass;
   private renderPass: RenderPass;
 
@@ -56,11 +58,11 @@ export class Engine {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, settings.pixelRatio));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    this.renderer.toneMappingExposure = 1.15;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x02030a);
+    this.scene.background = new THREE.Color(0x010206);
 
     this.camera = new THREE.PerspectiveCamera(
       55,
@@ -78,13 +80,19 @@ export class Engine {
     this.lensingPass = new ShaderPass(LensingShader);
     this.composer.addPass(this.lensingPass);
 
+    // The surface shader keeps the crust well under 1.0 and lets only the polar
+    // caps, fracture seams, beams and corona overshoot, so a threshold just
+    // below 1 blooms exactly the emissive features and leaves the crust crisp.
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.55, // strength — deliberately restrained
-      0.7, // radius
-      0.85, // threshold (only genuinely bright things bloom)
+      0.80, // strength
+      0.78, // radius
+      0.72, // threshold
     );
     this.composer.addPass(this.bloomPass);
+
+    this.gradePass = new ShaderPass(GradeShader);
+    this.composer.addPass(this.gradePass);
 
     this.outputPass = new OutputPass();
     this.composer.addPass(this.outputPass);
@@ -125,6 +133,22 @@ export class Engine {
     this.lensingPass.enabled = on && this.settings.lensing;
   }
 
+  /**
+   * Dial the cinematic grade. `strength` 0 disables every cosmetic effect —
+   * used by the sober `lab` background mode, where the frame is an instrument
+   * readout and lens artefacts would be actively misleading.
+   */
+  setGrade(strength: number): void {
+    const u = this.gradePass.uniforms;
+    this.gradePass.enabled = strength > 0.001;
+    u.uAberration.value = strength;
+    u.uVignette.value = strength;
+    u.uContrast.value = strength;
+    // Grain stays on at a floor even in sober modes: it is what keeps the wide
+    // dark gradients from banding.
+    u.uGrain.value = Math.max(strength, 0.35);
+  }
+
   /** Update the lensing uniforms (called by the world each frame). */
   updateLensing(screen: THREE.Vector2, radius: number, strength: number, active: boolean): void {
     const u = this.lensingPass.uniforms;
@@ -154,6 +178,7 @@ export class Engine {
     if (this.hidden) return;
     const dt = Math.min(this.clock.getDelta(), 0.1); // clamp huge deltas
     const elapsed = this.clock.elapsedTime;
+    this.gradePass.uniforms.uTime.value = elapsed;
     for (const fn of this.updaters) fn(dt, elapsed);
     this.composer.render();
     // Capture within the same frame so the drawing buffer is still valid.
