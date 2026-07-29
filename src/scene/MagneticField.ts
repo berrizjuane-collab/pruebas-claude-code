@@ -18,8 +18,10 @@ import { clamp, mapLog } from '../utils/math.ts';
 import type { AppState } from '../state/types.ts';
 import type { ResourceTracker } from '../core/Disposable.ts';
 
-const CLOSED_COLOR = new THREE.Color(0x4aa8ff);
-const OPEN_COLOR = new THREE.Color(0x7ce6ff);
+const CLOSED_COLOR = new THREE.Color(0x2f6ed8);
+const CLOSED_HOT = new THREE.Color(0x9fd8ff);
+const OPEN_COLOR = new THREE.Color(0x3fb6e8);
+const OPEN_HOT = new THREE.Color(0xdcf4ff);
 
 export class MagneticField {
   readonly group = new THREE.Group();
@@ -32,16 +34,23 @@ export class MagneticField {
   private _up = new THREE.Vector3(0, 1, 0);
   private q = new THREE.Quaternion();
 
-  constructor(private tracker: ResourceTracker) {
+  constructor(tracker: ResourceTracker) {
     this.closedUniforms = {
       uColor: { value: CLOSED_COLOR.clone() },
+      uHotColor: { value: CLOSED_HOT.clone() },
       uOpacity: { value: 0.55 },
       uPulse: { value: 0 },
+      uTime: { value: 0 },
+      uFlow: { value: 0.9 },
     };
     this.openUniforms = {
       uColor: { value: OPEN_COLOR.clone() },
+      uHotColor: { value: OPEN_HOT.clone() },
       uOpacity: { value: 0.7 },
       uPulse: { value: 0 },
+      uTime: { value: 0 },
+      // Open lines channel the wind outward, so their packets run visibly faster.
+      uFlow: { value: 2.2 },
     };
     const closedMat = createFieldLineMaterial(this.closedUniforms);
     const openMat = createFieldLineMaterial(this.openUniforms);
@@ -59,15 +68,19 @@ export class MagneticField {
 
     const closedPts: number[] = [];
     const closedFade: number[] = [];
+    const closedArc: number[] = [];
     const openPts: number[] = [];
     const openFade: number[] = [];
+    const openArc: number[] = [];
 
     // Closed loops: shells of increasing L, each drawn at several azimuths.
     for (let s = 0; s < shells; s++) {
       const L = 1.5 + (s / Math.max(1, shells - 1)) * 2.4; // 1.5R .. 3.9R
       for (let ai = 0; ai < azimuths; ai++) {
-        const phi = (ai / azimuths) * Math.PI * 2;
-        pushDipoleLoop(closedPts, closedFade, L, phi, 64);
+        // Offset every other shell in azimuth so the shells interleave instead of
+        // stacking into visible "walls" of coincident lines.
+        const phi = ((ai + (s % 2) * 0.5) / azimuths) * Math.PI * 2;
+        pushDipoleLoop(closedPts, closedFade, closedArc, L, phi, 64);
       }
     }
 
@@ -75,12 +88,12 @@ export class MagneticField {
     const openAz = Math.max(4, Math.round(azimuths * 0.8));
     for (let ai = 0; ai < openAz; ai++) {
       const phi = (ai / openAz) * Math.PI * 2;
-      pushOpenLine(openPts, openFade, phi, 1, 40); // north cap
-      pushOpenLine(openPts, openFade, phi, -1, 40); // south cap
+      pushOpenLine(openPts, openFade, openArc, phi, 1, 40); // north cap
+      pushOpenLine(openPts, openFade, openArc, phi, -1, 40); // south cap
     }
 
-    setLineGeometry(this.closed.geometry, closedPts, closedFade, this.tracker);
-    setLineGeometry(this.open.geometry, openPts, openFade, this.tracker);
+    setLineGeometry(this.closed.geometry, closedPts, closedFade, closedArc);
+    setLineGeometry(this.open.geometry, openPts, openFade, openArc);
     this.builtLines = lineCount;
     this.builtDensity = density;
   }
@@ -98,11 +111,17 @@ export class MagneticField {
 
     // Magnetar tension: stronger, more agitated lines for extreme fields.
     const activity = clamp(mapLog(state.params.magneticField, 5e9, 5e10, 0, 1), 0, 1);
-    const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.002);
+    const t = performance.now() * 0.001;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2);
+    const flowScale = state.reducedMotion ? 0.3 : 1;
     this.closedUniforms.uPulse.value = activity * pulse;
     this.openUniforms.uPulse.value = activity * pulse;
-    this.closedUniforms.uOpacity.value = 0.4 + activity * 0.4;
-    this.openUniforms.uOpacity.value = 0.55 + activity * 0.4;
+    this.closedUniforms.uOpacity.value = 0.5 + activity * 0.45;
+    this.openUniforms.uOpacity.value = 0.68 + activity * 0.45;
+    this.closedUniforms.uTime.value = t;
+    this.openUniforms.uTime.value = t;
+    this.closedUniforms.uFlow.value = (0.9 + activity * 1.4) * flowScale;
+    this.openUniforms.uFlow.value = (2.2 + activity * 2.6) * flowScale;
   }
 
   setVisible(v: boolean): void {
@@ -119,6 +138,7 @@ export class MagneticField {
 function pushDipoleLoop(
   pts: number[],
   fade: number[],
+  arc: number[],
   L: number,
   phi: number,
   steps: number,
@@ -128,31 +148,33 @@ function pushDipoleLoop(
   // θ from just off the north pole to just off the south pole.
   const thetaMin = Math.asin(Math.min(1, Math.sqrt(1 / L))); // where r = 1 (surface)
   let prev: [number, number, number] | null = null;
+  let prevFade = 0;
   for (let i = 0; i <= steps; i++) {
-    const theta = thetaMin + (i / steps) * (Math.PI - 2 * thetaMin);
+    const t = i / steps;
+    const theta = thetaMin + t * (Math.PI - 2 * thetaMin);
     const r = L * Math.sin(theta) * Math.sin(theta);
     const x = r * Math.sin(theta) * cosP;
     const y = r * Math.cos(theta);
     const z = r * Math.sin(theta) * sinP;
-    // Fade brighter near the star, dimmer at the apex.
-    const f = 0.35 + 0.65 * (1 - Math.min(1, (r - 1) / (L - 1 + 1e-3)));
+    // Brightest where the line leaves and re-enters the crust, dimmest at the
+    // apex — the field is strongest close to the surface.
+    const f = 0.28 + 0.72 * Math.pow(1 - Math.min(1, (r - 1) / (L - 1 + 1e-3)), 0.8);
     const cur: [number, number, number] = [x, y, z];
     if (prev) {
       pts.push(prev[0], prev[1], prev[2], cur[0], cur[1], cur[2]);
-      fade.push(fadeAt(prev[1], L), f);
+      fade.push(prevFade, f);
+      arc.push(t - 1 / steps, t);
     }
     prev = cur;
+    prevFade = f;
   }
-}
-
-function fadeAt(_y: number, _L: number): number {
-  return 0.6;
 }
 
 /** Append an open polar field line streaming outward from a cap (sign = ±1). */
 function pushOpenLine(
   pts: number[],
   fade: number[],
+  arc: number[],
   phi: number,
   sign: number,
   steps: number,
@@ -164,16 +186,17 @@ function pushOpenLine(
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
     // Start at the cap on the surface, flare outward and slightly away from axis.
-    const r = 1 + t * 3.0;
+    const r = 1 + t * 3.6;
     const theta = capAngle * (0.6 + 0.8 * t); // opens up with distance
     const x = r * Math.sin(theta) * cosP;
     const y = sign * r * Math.cos(theta);
     const z = r * Math.sin(theta) * sinP;
     const cur: [number, number, number] = [x, y, z];
-    const f = 0.8 * (1 - t) + 0.15;
+    const f = 0.85 * (1 - t) + 0.15;
     if (prev) {
       pts.push(prev[0], prev[1], prev[2], cur[0], cur[1], cur[2]);
-      fade.push(0.9 * (1 - t) + 0.1, f);
+      fade.push(0.95 * (1 - (t - 1 / steps)) + 0.12, f);
+      arc.push(t - 1 / steps, t);
     }
     prev = cur;
   }
@@ -183,9 +206,10 @@ function setLineGeometry(
   geom: THREE.BufferGeometry,
   pts: number[],
   fade: number[],
-  _tracker: ResourceTracker,
+  arc: number[],
 ): void {
   geom.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
   geom.setAttribute('aFade', new THREE.Float32BufferAttribute(fade, 1));
+  geom.setAttribute('aArc', new THREE.Float32BufferAttribute(arc, 1));
   geom.computeBoundingSphere();
 }

@@ -1,10 +1,19 @@
 /**
- * Pulsar beam shader — a soft, volumetric emission cone (one per magnetic pole).
+ * Pulsar beam shader — a volumetric emission cone (one per magnetic pole).
  *
  * The geometry is a cone whose apex sits at the star; the shader shapes it into a
- * glowing beam that is bright on-axis, falls off toward the cone wall (soft
- * edges, NOT a hard laser), thins with distance, and carries faint internal
- * filament structure that drifts over time. Additive, depth-write off.
+ * glowing beam that is:
+ *
+ *  - HOLLOW. Real pulsar beams are widely modelled as hollow cones: the emission
+ *    comes from the last open field lines bounding the polar cap, so the bright
+ *    part is an annulus around the magnetic axis rather than a filled pencil.
+ *    That is also why many observed pulse profiles are double-peaked — the line
+ *    of sight cuts the cone wall twice. We render a bright wall plus a weaker
+ *    "core" component, which is the standard core/cone decomposition;
+ *  - soft-edged, never a hard laser;
+ *  - filled with drifting filaments (sub-pulse drift) that spiral with the
+ *    co-rotating plasma;
+ *  - brightest at the base and fading outward as the flux tube expands.
  *
  * Colour is a deliberate visual translation — real beams radiate mostly in radio
  * / X-ray / gamma bands, which the UI states explicitly.
@@ -18,7 +27,10 @@ export interface BeamUniforms {
   uIntensity: { value: number };
   uWidth: { value: number }; // relative half-width used for edge softness
   uColor: { value: THREE.Color };
+  uHotColor: { value: THREE.Color };
   uLength: { value: number };
+  uFlare: { value: number }; // 0..1, how squarely the beam faces the observer
+  uReducedMotion: { value: number };
 }
 
 const VERT = /* glsl */ `
@@ -41,6 +53,9 @@ uniform float uTime;
 uniform float uIntensity;
 uniform float uWidth;
 uniform vec3  uColor;
+uniform vec3  uHotColor;
+uniform float uFlare;
+uniform float uReducedMotion;
 
 ${NOISE_GLSL}
 
@@ -49,22 +64,41 @@ void main() {
   float radius = length(vLocal.xz);
   float coneR = mix(0.02, 1.0, vAxial); // widens with distance
   float rn = radius / max(coneR, 1e-3);
+  float azim = atan(vLocal.z, vLocal.x);
 
-  // Soft radial falloff — Gaussian-ish, softened by uWidth.
-  float edge = exp(-rn * rn * (5.0 - uWidth * 3.0));
+  float t = uTime * (uReducedMotion > 0.5 ? 0.3 : 1.0);
 
-  // Longitudinal falloff: bright near the star, fading outward.
-  float along = pow(1.0 - vAxial, 1.4);
+  // ── hollow cone: emission concentrated on the wall of the flux tube ────────
+  // The wall sits a little inside the geometric edge and softens with uWidth.
+  float wallPos = 0.74;
+  float wallW = 0.16 + uWidth * 0.55;
+  float wall = exp(-pow((rn - wallPos) / wallW, 2.0));
+  // The far side of the wall must not spill outside the cone.
+  wall *= smoothstep(1.18, 0.92, rn);
 
-  // Internal filament structure, drifting outward over time.
-  vec3 np = vec3(vLocal.xz * 6.0, vAxial * 4.0 - uTime * 0.6);
-  float fil = 0.6 + 0.4 * fbm(np, 4, 2.0, 0.5);
+  // ── core component: a weaker filled pencil along the very axis ────────────
+  float core = exp(-rn * rn * 9.0);
 
-  float a = edge * along * fil * uIntensity;
-  // A brighter hot core along the very axis.
-  a += exp(-rn * rn * 14.0) * along * uIntensity * 0.6;
+  // ── longitudinal profile ──────────────────────────────────────────────────
+  // Bright at the base, then a slow decay so the beam actually reaches out into
+  // the frame instead of dying within a stellar radius.
+  float along = exp(-vAxial * 1.5) * 0.75 + 0.25 * (1.0 - vAxial);
 
-  vec3 col = uColor * (0.7 + 0.6 * (1.0 - vAxial));
+  // ── drifting sub-pulse filaments, spiralling with the co-rotating plasma ──
+  vec3 np = vec3(cos(azim) * 2.4, sin(azim) * 2.4, vAxial * 5.0 - t * 0.9);
+  float fil = 0.62 + 0.38 * fbm(np, 4, 2.1, 0.5);
+  // A slow spiral striping keyed to azimuth reads as rotation of the flux tube.
+  float spiral = 0.82 + 0.18 * sin(azim * 3.0 - vAxial * 7.0 + t * 1.6);
+
+  float a = (wall * 1.15 * fil * spiral + core * 0.55) * along * uIntensity;
+
+  // Hot white-blue on the axis and while the cone sweeps the observer; the cone
+  // wall itself stays saturated blue, or the whole beam washes out to grey.
+  float heat = clamp(core * 0.9 + wall * 0.18 + uFlare * 0.5, 0.0, 1.0);
+  vec3 col = mix(uColor, uHotColor, heat);
+  // Slight blue-shift toward the base where the plasma is densest.
+  col *= 0.85 + 0.45 * (1.0 - vAxial);
+
   gl_FragColor = vec4(col * a, a);
 }
 `;

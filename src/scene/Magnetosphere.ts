@@ -37,10 +37,11 @@ export class Magnetosphere {
 
   constructor(tracker: ResourceTracker) {
     this.uniforms = {
-      uColor: { value: new THREE.Color(0x9fe0ff) },
-      uSize: { value: 2.2 },
+      uColor: { value: new THREE.Color(0x4aa6f0) },
+      uHotColor: { value: new THREE.Color(0xf0faff) },
+      uSize: { value: 2.6 },
       uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-      uOpacity: { value: 0.8 },
+      uOpacity: { value: 0.95 },
     };
     const material = createParticleMaterial(this.uniforms);
     this.geometry = new THREE.BufferGeometry();
@@ -92,11 +93,16 @@ export class Magnetosphere {
     const pos = this.positions;
     const br = this.bright;
     for (let i = 0; i < this.count; i++) {
-      let u = this.param[i] + this.speed[i] * dt;
+      const line = this.lines[this.lineIndex[i]];
+      let u = this.param[i];
+      // Advance along the line. The step is scaled by sin²θ so particles race
+      // across the equatorial apex and crawl through the polar funnels — which
+      // makes them pile up at the caps, where the flux tube is narrowest.
+      const s0 = Math.sin(line.thetaMin + u * (Math.PI - 2 * line.thetaMin));
+      u += this.speed[i] * dt * (0.18 + 1.6 * s0 * s0);
       if (u > 1) u -= 1;
       this.param[i] = u;
 
-      const line = this.lines[this.lineIndex[i]];
       const theta = line.thetaMin + u * (Math.PI - 2 * line.thetaMin);
       const sinT = Math.sin(theta);
       const r = line.L * sinT * sinT;
@@ -107,8 +113,9 @@ export class Magnetosphere {
       pos[j] = x;
       pos[j + 1] = y;
       pos[j + 2] = z;
-      // Brighter near the poles (|cosθ| → 1) where particles are funnelled.
-      br[i] = 0.25 + 0.75 * Math.pow(Math.abs(Math.cos(theta)), 2.0);
+      // Brighter near the poles (|cosθ| → 1) where particles are funnelled and
+      // would radiate; the shader turns high brightness into bigger, whiter points.
+      br[i] = 0.16 + 0.84 * Math.pow(Math.abs(Math.cos(theta)), 3.0);
     }
     (this.geometry.getAttribute('position') as THREE.BufferAttribute).needsUpdate = true;
     (this.geometry.getAttribute('aBright') as THREE.BufferAttribute).needsUpdate = true;

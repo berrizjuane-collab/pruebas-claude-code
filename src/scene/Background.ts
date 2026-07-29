@@ -22,6 +22,9 @@ import type { ResourceTracker } from '../core/Disposable.ts';
 
 const DOME_RADIUS = 600;
 
+/** Normal of the galactic plane. Kept in sync with `galNormal` in the dome shader. */
+const GAL_NORMAL = new THREE.Vector3(0.34, 0.86, -0.38);
+
 export class Background {
   readonly group = new THREE.Group();
   private dome: THREE.Mesh;
@@ -75,37 +78,45 @@ export class Background {
       { radius: 560, frac: 0.4, sizeScale: 0.8 },
     ];
 
+    // Basis for the galactic plane. GAL_NORMAL must match the one used by the
+    // nebula shader, so the star band and the nebulosity lie on the same plane
+    // instead of crossing each other.
+    const nrm = GAL_NORMAL.clone().normalize();
+    const e1 = new THREE.Vector3(1, 0, 0).cross(nrm).normalize();
+    const e2 = nrm.clone().cross(e1).normalize();
+
     for (const shell of shells) {
       const n = Math.max(1, Math.floor(count * shell.frac));
       const pos = new Float32Array(n * 3);
       const col = new Float32Array(n * 3);
       const size = new Float32Array(n);
       const tw = new Float32Array(n);
+      const v = new THREE.Vector3();
 
       for (let i = 0; i < n; i++) {
-        // Non-uniform distribution: cluster along a faint galactic band (y small).
-        const u = Math.random();
-        const v = Math.random();
-        const theta = 2 * Math.PI * u;
-        // Bias latitude toward the plane for a Milky-Way-like band.
-        const lat = (Math.acos(2 * v - 1) - Math.PI / 2) * (0.55 + 0.45 * Math.random());
+        // Uniform on the sphere, then pulled toward the galactic plane: two
+        // thirds of the stars get a squashed latitude, the rest stay isotropic
+        // so the halo away from the band is still populated.
+        const theta = 2 * Math.PI * Math.random();
+        let lat = Math.asin(2 * Math.random() - 1);
+        if (Math.random() < 0.66) lat *= 0.16 + 0.3 * Math.random() * Math.random();
         const r = shell.radius * (0.85 + Math.random() * 0.3);
-        const cx = r * Math.cos(lat) * Math.cos(theta);
-        const cy = r * Math.sin(lat);
-        const cz = r * Math.cos(lat) * Math.sin(theta);
-        pos[i * 3] = cx;
-        pos[i * 3 + 1] = cy;
-        pos[i * 3 + 2] = cz;
+
+        const cl = Math.cos(lat) * r;
+        v.copy(e1).multiplyScalar(cl * Math.cos(theta))
+          .addScaledVector(e2, cl * Math.sin(theta))
+          .addScaledVector(nrm, Math.sin(lat) * r);
+        pos[i * 3] = v.x;
+        pos[i * 3 + 1] = v.y;
+        pos[i * 3 + 2] = v.z;
 
         // Magnitude distribution: many faint, few bright (power-law-ish).
-        const bright = Math.pow(Math.random(), 3.0);
-        const baseSize = (0.6 + bright * 3.2) * shell.sizeScale;
-        size[i] = baseSize;
+        const bright = Math.pow(Math.random(), 3.4);
+        size[i] = (0.55 + bright * 4.3) * shell.sizeScale;
         tw[i] = Math.random();
 
         // Colour by a pseudo temperature: mostly white/blue, some warm.
-        const t = Math.random();
-        const c = starColor(t);
+        const c = starColor(Math.random());
         col[i * 3] = c.r;
         col[i * 3 + 1] = c.g;
         col[i * 3 + 2] = c.b;
@@ -162,7 +173,9 @@ export class Background {
 
 /** Map a 0..1 "temperature" to a star colour (mostly cool white/blue). */
 function starColor(t: number): THREE.Color {
-  if (t < 0.7) return new THREE.Color(0.85, 0.9, 1.0); // blue-white majority
-  if (t < 0.9) return new THREE.Color(1.0, 0.98, 0.92); // white
-  return new THREE.Color(1.0, 0.85, 0.7); // warm minority
+  if (t < 0.42) return new THREE.Color(0.72, 0.83, 1.0); // blue
+  if (t < 0.72) return new THREE.Color(0.88, 0.94, 1.0); // blue-white
+  if (t < 0.9) return new THREE.Color(1.0, 0.98, 0.93); // white
+  if (t < 0.97) return new THREE.Color(1.0, 0.88, 0.72); // amber
+  return new THREE.Color(1.0, 0.72, 0.58); // red minority
 }
