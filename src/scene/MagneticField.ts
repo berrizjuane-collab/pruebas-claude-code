@@ -7,8 +7,10 @@
  * instead of closing — the region that channels the pulsar wind. The whole group
  * is oriented to the magnetic axis, so it co-rotates and tilts correctly.
  *
- * The distinction between the (physically-motivated) closed geometry and the
- * schematic open lines is surfaced in the UI's magnetosphere panel.
+ * Rendered as faint plasma filaments rather than a diagram: low opacity, smooth
+ * flow, and colour that only reaches white where a brightness packet crests. The
+ * cage should frame the star and give the orbit a sense of volume, not read as an
+ * overlaid schematic.
  */
 
 import * as THREE from 'three';
@@ -30,7 +32,7 @@ export class MagneticField {
   private closedUniforms: FieldLineUniforms;
   private openUniforms: FieldLineUniforms;
   private builtLines = -1;
-  private builtDensity = -1;
+  private builtSegments = -1;
   private _up = new THREE.Vector3(0, 1, 0);
   private q = new THREE.Quaternion();
 
@@ -58,13 +60,19 @@ export class MagneticField {
     this.open = new THREE.LineSegments(new THREE.BufferGeometry(), openMat);
     this.group.add(this.closed, this.open);
     tracker.trackMany(closedMat, openMat);
-    this.rebuild(14, 0.6);
+    this.rebuild(16, 96);
   }
 
-  /** Rebuild the line geometry for a given count / density. */
-  private rebuild(lineCount: number, density: number): void {
-    const azimuths = Math.max(3, Math.round(lineCount * (0.5 + density)));
-    const shells = Math.max(2, Math.round(lineCount / 3));
+  /** Rebuild the geometry at the quality tier's line count and resolution. */
+  setDensity(lineCount: number, segments: number): void {
+    if (lineCount === this.builtLines && segments === this.builtSegments) return;
+    this.rebuild(lineCount, segments);
+  }
+
+  private rebuild(lineCount: number, segments: number): void {
+    const azimuths = Math.max(4, Math.round(lineCount * 1.15));
+    const shells = Math.max(3, Math.round(lineCount / 3));
+    const steps = Math.max(24, Math.round(segments * 0.66));
 
     const closedPts: number[] = [];
     const closedFade: number[] = [];
@@ -80,30 +88,26 @@ export class MagneticField {
         // Offset every other shell in azimuth so the shells interleave instead of
         // stacking into visible "walls" of coincident lines.
         const phi = ((ai + (s % 2) * 0.5) / azimuths) * Math.PI * 2;
-        pushDipoleLoop(closedPts, closedFade, closedArc, L, phi, 64);
+        pushDipoleLoop(closedPts, closedFade, closedArc, L, phi, steps);
       }
     }
 
     // Open polar lines: a fan from each cap streaming outward (large L, truncated).
     const openAz = Math.max(4, Math.round(azimuths * 0.8));
+    const openSteps = Math.max(16, Math.round(steps * 0.6));
     for (let ai = 0; ai < openAz; ai++) {
       const phi = (ai / openAz) * Math.PI * 2;
-      pushOpenLine(openPts, openFade, openArc, phi, 1, 40); // north cap
-      pushOpenLine(openPts, openFade, openArc, phi, -1, 40); // south cap
+      pushOpenLine(openPts, openFade, openArc, phi, 1, openSteps); // north cap
+      pushOpenLine(openPts, openFade, openArc, phi, -1, openSteps); // south cap
     }
 
     setLineGeometry(this.closed.geometry, closedPts, closedFade, closedArc);
     setLineGeometry(this.open.geometry, openPts, openFade, openArc);
     this.builtLines = lineCount;
-    this.builtDensity = density;
+    this.builtSegments = segments;
   }
 
   update(phase: number, state: AppState): void {
-    const lineCount = Math.round(6 + state.fieldLineDensity * 18);
-    if (lineCount !== this.builtLines || Math.abs(state.fieldLineDensity - this.builtDensity) > 0.05) {
-      this.rebuild(lineCount, state.fieldLineDensity);
-    }
-
     // Orient the whole magnetosphere to the current magnetic axis.
     const a = magneticAxis(phase, state.params.magneticInclination);
     this.q.setFromUnitVectors(this._up, new THREE.Vector3(a[0], a[1], a[2]));
@@ -116,8 +120,8 @@ export class MagneticField {
     const flowScale = state.reducedMotion ? 0.3 : 1;
     this.closedUniforms.uPulse.value = activity * pulse;
     this.openUniforms.uPulse.value = activity * pulse;
-    this.closedUniforms.uOpacity.value = 0.5 + activity * 0.45;
-    this.openUniforms.uOpacity.value = 0.68 + activity * 0.45;
+    this.closedUniforms.uOpacity.value = 0.38 + activity * 0.34;
+    this.openUniforms.uOpacity.value = 0.52 + activity * 0.36;
     this.closedUniforms.uTime.value = t;
     this.openUniforms.uTime.value = t;
     this.closedUniforms.uFlow.value = (0.9 + activity * 1.4) * flowScale;

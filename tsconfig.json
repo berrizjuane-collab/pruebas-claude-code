@@ -5,6 +5,8 @@
     "lib": ["ES2021", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    /* Vite's ambient types, for import.meta.env. */
+    "types": ["vite/client"],
 
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

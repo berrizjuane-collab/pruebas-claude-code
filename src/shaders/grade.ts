@@ -13,8 +13,8 @@
  *  - fine animated grain, the single most effective cure for the banding that
  *    smooth dark gradients always produce on 8-bit displays.
  *
- * Everything here is off in `lab` background mode, where the point is to inspect
- * the simulation rather than to look at it.
+ * All four are driven by uniforms rather than hard-coded, so the whole grade can
+ * be dialled down in one call if a future mode ever needs an unretouched frame.
  */
 
 import * as THREE from 'three';
@@ -69,23 +69,26 @@ export const GradeShader = {
         col = texture2D(tDiffuse, vUv).rgb;
       }
 
-      // ── contrast S-curve with a cold shadow lift ──────────────────────────
+      // ── contrast S-curve ──────────────────────────────────────────────────
       // This pass runs on linear HDR, before tone mapping, so the curve must be
       // split: x²(3-2x) is only an S-curve on [0,1] and turns negative above it.
       // Applying it to raw HDR would crush whichever channel is brightest — on a
       // blue-white star that means the highlights invert to orange.
+      //
+      // Note there is deliberately NO shadow lift. Space is black, and a lifted
+      // floor is what made the earlier version read as a hazy studio backdrop
+      // rather than as vacuum.
       if (uContrast > 0.001) {
         vec3 lo = min(col, vec3(1.0));
         vec3 over = max(col - 1.0, vec3(0.0));
         vec3 graded = lo * lo * (3.0 - 2.0 * lo) + over;
-        col = mix(col, graded, 0.30 * uContrast);
-        col += vec3(0.004, 0.008, 0.018) * uContrast;
+        col = mix(col, graded, 0.34 * uContrast);
       }
 
       // ── vignette ──────────────────────────────────────────────────────────
       if (uVignette > 0.001) {
-        float v = smoothstep(0.95, 0.22, r2 * 2.0);
-        col *= mix(1.0, 0.42 + 0.58 * v, uVignette);
+        float v = smoothstep(1.05, 0.18, r2 * 2.0);
+        col *= mix(1.0, 0.34 + 0.66 * v, uVignette);
       }
 
       // ── grain: breaks up banding in the large dark gradients ──────────────
@@ -94,9 +97,11 @@ export const GradeShader = {
         // pattern (which would read as a static screen door rather than grain).
         vec2 jitter = vec2(fract(uTime * 13.71), fract(uTime * 7.33)) * 512.0;
         float n = hash(gl_FragCoord.xy + jitter) - 0.5;
-        // Scale with luminance so the darkest areas stay clean.
+        // Scale with luminance and clamp at zero: grain must never push a black
+        // pixel above black, or the "pure black" falls apart into static.
         float lum = dot(col, vec3(0.299, 0.587, 0.114));
-        col += n * (0.008 + 0.014 * smoothstep(0.0, 0.4, lum)) * uGrain;
+        float amt = smoothstep(0.0, 0.06, lum) * (0.006 + 0.013 * smoothstep(0.0, 0.4, lum));
+        col = max(col + n * amt * uGrain, vec3(0.0));
       }
 
       gl_FragColor = vec4(max(col, 0.0), 1.0);

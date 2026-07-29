@@ -1,82 +1,50 @@
 /**
- * Startup experience: a real (progress-driven) loading screen, a title card with
- * "enter with / without sound", and a short, skippable cinematic reveal.
+ * Opening sequence: a black screen, a hairline progress rule, and a wordmark.
  *
- * The loading bar reflects genuine initialization steps reported by main.ts — it
- * is not a fake timed delay.
+ * The progress is real — main.ts reports genuine initialization steps — but there
+ * is no "enter" button any more. Nothing needs a user gesture now that the piece
+ * is silent, and a click-through would break the one thing an opening like this
+ * is for: arriving already inside the shot.
  */
-
-import { h, button } from './dom.ts';
-
-const SCIENCE_LINES = [
-  'A teaspoon of its matter would weigh billions of tonnes.',
-  'It spins hundreds of times per second, dragging its magnetic field with it.',
-  'So compact that you can see more than half of its surface at once.',
-  'A city-sized nucleus, denser than an atom, brighter than a thousand suns in X-rays.',
-];
 
 export class Intro {
   readonly root: HTMLElement;
   private bar: HTMLElement;
-  private status: HTMLElement;
-  private loading: HTMLElement;
-  private titleCard: HTMLElement;
-  private skipBtn: HTMLElement;
+  private mark: HTMLElement;
 
   constructor() {
-    this.bar = h('div', { class: 'load-bar-fill' });
-    this.status = h('div', { class: 'load-status', text: 'Initializing…' });
-    this.loading = h('div', { class: 'intro-loading' }, [
-      h('div', { class: 'load-bar' }, [this.bar]),
-      this.status,
-    ]);
+    this.bar = document.createElement('div');
+    this.bar.className = 'boot-bar-fill';
 
-    this.titleCard = h('div', { class: 'intro-title hidden' });
-    this.skipBtn = button('Skip intro →', () => this.onSkip?.(), 'btn btn-skip');
-    this.skipBtn.classList.add('hidden');
+    const track = document.createElement('div');
+    track.className = 'boot-bar';
+    track.append(this.bar);
 
-    this.root = h('div', { class: 'intro' }, [
-      h('div', { class: 'intro-bg' }),
-      h('div', { class: 'intro-content' }, [
-        h('h1', { class: 'intro-heading', text: 'Neutron Star Observatory' }),
-        h('p', { class: 'intro-tag', text: SCIENCE_LINES[Math.floor(Math.random() * SCIENCE_LINES.length)] }),
-        this.loading,
-        this.titleCard,
-      ]),
-      this.skipBtn,
-    ]);
+    this.mark = document.createElement('div');
+    this.mark.className = 'boot-mark';
+    this.mark.textContent = 'Neutron Star';
+
+    const inner = document.createElement('div');
+    inner.className = 'boot-inner';
+    inner.append(this.mark, track);
+
+    this.root = document.createElement('div');
+    this.root.className = 'boot';
+    this.root.append(inner);
   }
 
-  onSkip?: () => void;
-
-  setProgress(p: number, label?: string): void {
-    this.bar.style.width = `${Math.round(p * 100)}%`;
-    if (label) this.status.textContent = label;
+  setProgress(p: number): void {
+    this.bar.style.width = `${Math.round(Math.max(0, Math.min(1, p)) * 100)}%`;
   }
 
-  /** Swap the progress bar for the start buttons; resolves with sound choice. */
-  showStart(): Promise<boolean> {
-    this.loading.classList.add('hidden');
-    this.titleCard.classList.remove('hidden');
+  /** Fade to the scene. Resolves once the element is gone. */
+  finish(): Promise<void> {
+    this.root.classList.add('done');
     return new Promise((resolve) => {
-      const withSound = button('Enter with sound', () => resolve(true), 'btn btn-primary');
-      const noSound = button('Enter (silent)', () => resolve(false), 'btn');
-      this.titleCard.append(
-        h('p', { class: 'intro-note', text: 'Audio is a data sonification, not literal sound.' }),
-        h('div', { class: 'intro-buttons' }, [withSound, noSound]),
-      );
+      window.setTimeout(() => {
+        this.root.remove();
+        resolve();
+      }, 1400);
     });
-  }
-
-  /** Reveal the skip button during the cinematic. */
-  enableSkip(cb: () => void): void {
-    this.onSkip = cb;
-    this.titleCard.classList.add('hidden');
-    this.skipBtn.classList.remove('hidden');
-  }
-
-  fadeOut(): void {
-    this.root.classList.add('fade-out');
-    window.setTimeout(() => this.root.remove(), 900);
   }
 }
