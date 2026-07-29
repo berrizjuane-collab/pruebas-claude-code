@@ -1,17 +1,24 @@
 /**
- * Background shaders: a deep-space dome and soft star-point sprites.
+ * Deep-sky background: a real galactic sky rather than decorative nebulosity.
  *
- * The dome renders a domain-warped nebula in three colour families, carved by
- * dark dust lanes and concentrated into a Milky-Way-like band with a brighter
- * core direction. It is deliberately kept an order of magnitude dimmer than the
- * star so it reads as depth behind the subject, never as competition for it —
- * but unlike a flat gradient it gives the camera something to move against, so
- * orbiting actually feels like orbiting.
+ * The previous version painted saturated blue clouds across the whole dome,
+ * which is not what the sky looks like and left nothing genuinely black to make
+ * the star read as bright. This one is built the way the real thing is built:
  *
- * Star points are a separate additive Points cloud (see Background.ts) with
- * per-star colour, magnitude and twinkle, a soft circular core, and diffraction
- * spikes on the brightest few — the cue that reads as "bright star" rather than
- * "large dot".
+ *  - the sky is BLACK. There is no ambient floor, no colour wash. Everything
+ *    visible is either a resolved star or unresolved starlight;
+ *  - the Milky Way is the integrated light of stars too faint to resolve, so it
+ *    is rendered as a near-neutral cream glow — never blue — concentrated into a
+ *    thin disc plus a fainter thick disc, with a brighter, warmer bulge toward
+ *    the galactic centre;
+ *  - dark nebulae cut the band. Interstellar dust does not add colour, it
+ *    subtracts light, so the lanes are applied as extinction (multiplying the
+ *    glow down toward zero) rather than as dark paint;
+ *  - the glow carries fine high-frequency granularity, because unresolved
+ *    starlight is grainy at the limit of resolution and a smooth gradient is the
+ *    single biggest giveaway of a fake sky.
+ *
+ * Resolved stars are a separate additive Points cloud (see Background.ts).
  */
 
 import * as THREE from 'three';
@@ -19,7 +26,6 @@ import { NOISE_GLSL } from './noise.glsl.ts';
 
 export interface NebulaUniforms {
   uTime: { value: number };
-  uMode: { value: number }; // 0 cinematic, 1 scientific, 2 lab, 3 grid
   uIntensity: { value: number };
 }
 
@@ -35,76 +41,80 @@ const DOME_FRAG = /* glsl */ `
 precision highp float;
 varying vec3 vDir;
 uniform float uTime;
-uniform float uMode;
 uniform float uIntensity;
 
 ${NOISE_GLSL}
 
+// Galactic plane normal and the direction of the bulge. Kept in sync with
+// GAL_NORMAL / GAL_CORE in Background.ts so the resolved stars share the band.
+const vec3 GAL_NORMAL = vec3(0.3237, 0.8188, -0.4750);
+const vec3 GAL_CORE   = vec3(-0.7107, -0.1579, 0.6712);
+
 void main() {
   vec3 d = normalize(vDir);
 
-  if (uMode > 2.5) {
-    // Grid / lab modes: essentially black; the dome contributes nothing.
-    gl_FragColor = vec4(0.0);
-    return;
-  }
+  // Height above the galactic mid-plane, in radians of arc.
+  float h = dot(d, GAL_NORMAL);
 
-  // ── galactic band ─────────────────────────────────────────────────────────
-  // A plane tilted off the spin axis so the band cuts the frame diagonally
-  // rather than lining up with the star's equator.
-  vec3 galNormal = normalize(vec3(0.34, 0.86, -0.38));
-  float bandDist = abs(dot(d, galNormal));
-  float band = exp(-bandDist * bandDist * 11.0);
-  // A brighter "core" region in one direction along the band.
-  vec3 coreDir = normalize(vec3(-0.72, -0.16, 0.68));
-  float core = pow(max(dot(d, coreDir), 0.0), 3.0);
+  // Thin disc + thick disc. Two exponentials, as the real vertical light
+  // distribution is: a bright narrow core with a broad faint envelope. Both are
+  // tight — the band subtends only a few degrees, and a wide one immediately
+  // reads as a painted backdrop rather than as a galaxy seen edge-on.
+  float thin  = exp(-h * h * 1100.0);
+  float thick = exp(-h * h * 95.0);
+  float band  = thin * 0.66 + thick * 0.34;
 
-  // ── domain-warped nebulosity ──────────────────────────────────────────────
-  vec3 w = vec3(
-    snoise(d * 1.7 + 3.0),
-    snoise(d * 1.7 + 29.0),
-    snoise(d * 1.7 + 61.0)
-  );
-  vec3 p = d * 2.3 + w * 0.75;
+  // Longitude: the far side of the disc is much fainter than the bulge side.
+  float lon = dot(d, GAL_CORE);
+  float bulge = exp(-pow(max(1.0 - lon, 0.0) * 1.45, 2.0));
+  float arm = 0.30 + 0.70 * smoothstep(-0.85, 0.95, lon);
 
-  float n1 = fbm(p * 0.9 + 11.0, 5, 2.0, 0.55);
-  float n2 = fbm(p * 2.4 - 5.0, 5, 2.0, 0.5);
-  float n3 = fbm(p * 5.5 + 44.0, 4, 2.1, 0.5);
+  // ── unresolved starlight ──────────────────────────────────────────────────
+  // Almost smooth, with only gentle large-scale variation. The graininess of the
+  // band comes from the 30k resolved star points that share this plane, not from
+  // noise in here: layering high-frequency noise on the dome produced a regular
+  // scaly ripple, which is a texture, not a galaxy.
+  vec3 p = d * 3.4;
+  float clumps = fbm(p + 13.0, 4, 2.1, 0.55) * 0.5 + 0.5;
+  float swirl  = fbm(p * 2.6 + 71.0, 3, 2.2, 0.5) * 0.5 + 0.5;
+  float texture = 0.80 + 0.14 * clumps + 0.09 * swirl;
 
-  float neb = smoothstep(-0.05, 0.72, n1 * 0.62 + n2 * 0.28 + n3 * 0.10);
-  // Nebulosity clings to the galactic plane.
-  neb *= 0.22 + 1.05 * band;
-  neb += core * 0.30 * band;
+  float glow = band * arm * texture;
+  glow += band * bulge * 0.55 * texture;
 
-  // Dark dust lanes carve into the nebula, strongest right along the band.
-  float dust = smoothstep(0.30, 0.72, fbm(p * 3.2 + 30.0, 4, 2.2, 0.5));
-  neb *= (1.0 - 0.78 * dust * (0.35 + 0.65 * band));
+  // ── extinction: dust removes light, it does not add colour ────────────────
+  // Warped fbm at two scales, soft-thresholded, and gated by the band profile so
+  // dust can only remove light where there is light to remove.
+  //
+  // fbm rather than ridged: ridged noise builds long continuous crests, which on
+  // a sphere read as contour lines drawn across the sky — the previous version
+  // produced exactly that wood-grain ripple. fbm gives irregular clouds instead.
+  vec3 wp = d * 4.0 + vec3(
+    snoise(d * 2.2 + 5.0),
+    snoise(d * 2.2 + 37.0),
+    snoise(d * 2.2 + 91.0)
+  ) * 1.2;
+  float rift = fbm(wp, 5, 2.1, 0.55) * 0.5 + 0.5;             // broad rifts
+  float filament = fbm(wp * 3.1 + 17.0, 4, 2.2, 0.5) * 0.5 + 0.5; // finer structure
+  float dust = smoothstep(0.44, 0.80, rift * 0.74 + filament * 0.26);
+  dust *= exp(-h * h * 220.0);
+  float extinction = clamp(dust * 0.88, 0.0, 0.88) * clamp(band * 1.7, 0.0, 1.0);
+  glow *= (1.0 - extinction);
 
   // ── colour ────────────────────────────────────────────────────────────────
-  // Three families mixed by the mid-frequency field: cold steel blue for the
-  // bulk, a violet emission tint, and teal where dust thins out.
-  vec3 steel  = vec3(0.055, 0.105, 0.235);
-  vec3 violet = vec3(0.150, 0.070, 0.230);
-  vec3 teal   = vec3(0.040, 0.170, 0.205);
-  vec3 hue = mix(violet, teal, clamp(n2 * 0.5 + 0.5, 0.0, 1.0));
-  vec3 col = mix(steel, hue, clamp(n1 * 0.6 + 0.5, 0.0, 1.0));
+  // Integrated starlight is close to neutral, running slightly warm; the bulge
+  // is older and redder, and dust reddens whatever shines through it a little.
+  vec3 diffuse = vec3(0.95, 0.97, 1.00);
+  vec3 core    = vec3(1.00, 0.965, 0.920);
+  vec3 col = mix(diffuse, core, clamp(bulge * 0.5, 0.0, 1.0));
+  col = mix(col, vec3(1.00, 0.94, 0.88), extinction * 0.08); // reddening
 
-  // A faint warm lift in the galactic core direction, the only warm note in the
-  // whole palette — it keeps the sky from reading as monochrome blue.
-  col += vec3(0.16, 0.10, 0.05) * core * band;
+  // Deliberately low: the band should be a presence you notice, not a subject.
+  vec3 outCol = col * glow * uIntensity;
 
-  // Baseline sky glow so the frame is never pure black even away from the band.
-  vec3 skyFloor = vec3(0.007, 0.011, 0.024) * (0.5 + 0.9 * band);
-
-  // Scientific mode: desaturate and dim further for a sober backdrop.
-  if (uMode > 0.5 && uMode < 1.5) {
-    float g = dot(col, vec3(0.299, 0.587, 0.114));
-    col = mix(col, vec3(g), 0.6) * 0.5;
-    skyFloor *= 0.5;
-  }
-
-  vec3 outCol = col * neb * uIntensity + skyFloor;
-  gl_FragColor = vec4(outCol, 1.0);
+  // No ambient floor. Away from the band this returns exact black, which is what
+  // lets the star and the resolved stars carry the entire dynamic range.
+  gl_FragColor = vec4(max(outCol, 0.0), 1.0);
 }
 `;
 
@@ -118,7 +128,7 @@ export function createNebulaMaterial(uniforms: NebulaUniforms): THREE.ShaderMate
   });
 }
 
-// ── Star points ─────────────────────────────────────────────────────────────
+// ── Resolved stars ──────────────────────────────────────────────────────────
 
 export const STAR_POINT_VERT = /* glsl */ `
 attribute float aSize;
@@ -131,15 +141,22 @@ uniform float uPixelRatio;
 uniform float uTime;
 void main() {
   vColor = aColor;
-  // Two beat frequencies so the field never pulses in unison.
+  // Scintillation: three incommensurate frequencies so no two stars share a
+  // rhythm and the field never pulses as a whole.
   float ph = aTwinkle * 6.2831;
-  vTwinkle = 0.68 + 0.20 * sin(uTime * 1.5 + ph) + 0.12 * sin(uTime * 3.7 + ph * 2.3);
-  vMag = clamp((aSize - 1.6) / 3.2, 0.0, 1.0); // 0 faint → 1 brightest
+  vTwinkle = 0.70
+           + 0.16 * sin(uTime * 1.30 + ph)
+           + 0.09 * sin(uTime * 3.10 + ph * 2.7)
+           + 0.05 * sin(uTime * 7.70 + ph * 5.1);
+  vMag = clamp((aSize - 2.2) / 4.2, 0.0, 1.0); // 0 faint → 1 brightest
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   gl_Position = projectionMatrix * mv;
-  // Size attenuates gently with distance but is clamped so far stars stay points.
-  gl_PointSize = aSize * uPixelRatio * (340.0 / max(1.0, -mv.z));
-  gl_PointSize = clamp(gl_PointSize, 1.0, 16.0);
+  // Screen size does NOT fall off with the shell's distance. These stars stand in
+  // for objects effectively at infinity, so their apparent size must not depend
+  // on which parallax shell they happen to live in — attenuating by depth made
+  // the outer shells collapse to single dim pixels and the sky look empty.
+  // The aSize attribute is therefore already expressed in device pixels.
+  gl_PointSize = clamp(aSize * uPixelRatio, 1.0, 26.0);
 }
 `;
 
@@ -152,22 +169,25 @@ void main() {
   vec2 uv = gl_PointCoord - 0.5;
   float r = length(uv);
 
-  // Soft circular falloff → round stars with a gentle halo, never hard squares.
-  float core = exp(-r * r * 60.0);
-  float glow = exp(-r * r * 9.0);
+  // Airy-ish core plus a wide faint skirt: a hard-edged disc is what makes
+  // procedural star fields look like confetti.
+  float core = exp(-r * r * 110.0);
+  float glow = exp(-r * r * 16.0);
+  float skirt = exp(-r * r * 4.0);
 
-  // Diffraction spikes, scaled by magnitude: only genuinely bright stars get
-  // them, which is exactly the cue the eye uses to rank stellar brightness.
+  // Four-vane diffraction spikes, gated hard on magnitude so only the handful of
+  // genuinely bright stars get them — that contrast is the brightness cue.
   vec2 a = abs(uv);
-  float spike = exp(-a.x * 55.0) * exp(-a.y * a.y * 90.0)
-              + exp(-a.y * 55.0) * exp(-a.x * a.x * 90.0);
-  spike *= vMag * vMag * 0.55;
+  float spike = exp(-a.x * 46.0) * exp(-a.y * a.y * 150.0)
+              + exp(-a.y * 46.0) * exp(-a.x * a.x * 150.0);
+  spike *= pow(vMag, 3.0) * 0.7;
 
-  // Trim the disc at the sprite edge so no square corner ever shows; the spikes
-  // carry their own falloff and are allowed to reach further out.
-  float disc = (core * 0.95 + glow * 0.42) * smoothstep(0.5, 0.40, r);
-  float alpha = clamp(disc + spike, 0.0, 1.6) * vTwinkle;
+  float disc = (core + glow * 0.40 + skirt * 0.10) * smoothstep(0.5, 0.36, r);
+  float alpha = clamp(disc + spike, 0.0, 2.2) * vTwinkle;
 
-  gl_FragColor = vec4(vColor * alpha, alpha);
+  // Bright stars saturate toward white at the very centre, as film does.
+  vec3 col = mix(vColor, vec3(1.0), core * vMag * 0.55);
+
+  gl_FragColor = vec4(col * alpha, alpha);
 }
 `;

@@ -1,307 +1,319 @@
 /**
- * Camera system: one perspective camera driven through several distinct modes.
+ * Camera rig.
  *
- *  - orbit     : OrbitControls with inertia and a hard minimum distance so you
- *                cannot fly through the star.
- *  - free      : WASD/arrow fly-cam with adjustable speed and an optional lock on
- *                the star.
- *  - fixed     : a stable 3/4 vantage; the star rotates within the frame.
- *  - polar     : looking down the spin axis.
- *  - magnetic  : aligned with the (tilted, heavily-damped) magnetic axis.
- *  - equatorial: side-on in the rotation plane.
- *  - observer  : from the distant-observer line of sight — watch the pulse arrive.
- *  - cinematic : a scripted, eased fly-through that can be paused/resumed.
- *  - closeup   : extreme surface zoom with tightened near/far and reduced motion.
+ * One orbital state — azimuth, elevation, radius — shared by both camera modes,
+ * which is what makes the angle presets and the mode switch compose instead of
+ * fighting each other:
  *
- * Near/far planes are updated every frame from the distance to the surface so
- * close-ups keep depth precision (helped by the renderer's log depth buffer).
+ *  - `free`  : the pointer drives azimuth/elevation, the wheel (or a pinch)
+ *              drives radius, with inertia and exponential damping.
+ *  - `fixed` : input is ignored outright. The rig eases to the selected pose and
+ *              then holds it exactly, so the star rotates within a locked frame.
+ *
+ * Choosing an angle sets the target pose in either mode: in `free` you land there
+ * and can keep moving; in `fixed` you land there and stay. There is no separate
+ * "mode" per angle, so no combination can leave the camera in a state where the
+ * controls appear dead.
+ *
+ * OrbitControls is deliberately not used. Its `enabled` flag still mutates the
+ * camera through damping for a frame or two after being switched off, which is
+ * exactly the class of bug that makes a locked shot drift.
  */
 
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import type { CameraMode } from '../state/types.ts';
-import { damp } from '../utils/math.ts';
+import { clamp, damp } from '../utils/math.ts';
+
+export type CameraMode = 'free' | 'fixed';
+export type ViewAngle = 'threeQuarter' | 'equatorial' | 'polar' | 'wide';
+
+export interface Pose {
+  azimuth: number;
+  elevation: number;
+  radius: number;
+}
+
+/** The four framings offered in the UI. All static, so `fixed` is truly fixed. */
+export const POSES: Record<ViewAngle, Pose> = {
+  threeQuarter: { azimuth: 0.60, elevation: 0.28, radius: 5.6 },
+  equatorial: { azimuth: 1.28, elevation: 0.02, radius: 4.9 },
+  polar: { azimuth: 0.45, elevation: 1.34, radius: 6.4 },
+  wide: { azimuth: 0.95, elevation: 0.18, radius: 14.0 },
+};
+
+export const ANGLE_LABELS: Record<ViewAngle, string> = {
+  threeQuarter: 'Three-quarter',
+  equatorial: 'Equatorial',
+  polar: 'Polar',
+  wide: 'Wide',
+};
+
+const MIN_ELEVATION = -1.45;
+const MAX_ELEVATION = 1.45;
+const MIN_RADIUS = 1.55;
+const MAX_RADIUS = 90;
 
 export interface CameraContext {
   starRadius: number;
-  magneticAxis: THREE.Vector3;
-  spinAxis: THREE.Vector3;
-  observerDir: THREE.Vector3;
-  reducedMotion: boolean;
-}
-
-interface Waypoint {
-  pos: THREE.Vector3;
-  target: THREE.Vector3;
-  duration: number;
 }
 
 export class CameraRig {
-  readonly controls: OrbitControls;
-  private mode: CameraMode = 'orbit';
-  private desiredPos = new THREE.Vector3(0, 2.5, 7);
-  private desiredTarget = new THREE.Vector3(0, 0, 0);
-  private currentTarget = new THREE.Vector3(0, 0, 0);
-  private freeSpeed = 3;
-  private keys = new Set<string>();
-  private freeLock = true;
+  private mode: CameraMode = 'free';
+  private angle: ViewAngle = 'threeQuarter';
 
-  // Cinematic timeline.
-  private waypoints: Waypoint[] = [];
-  private cineTime = 0;
-  private cinePlaying = true;
+  // Current (rendered) and target (desired) orbital state.
+  private azimuth: number;
+  private elevation: number;
+  private radius: number;
+  private tAzimuth: number;
+  private tElevation: number;
+  private tRadius: number;
 
-  // Pointer look for free mode.
-  private yaw = 0;
-  private pitch = 0;
-  private dragging = false;
-  private lastPointer = new THREE.Vector2();
+  // Drag inertia, in radians per second.
+  private velAzimuth = 0;
+  private velElevation = 0;
+
+  /** Seconds left of the slow opening push-in; 0 once the intro is over. */
+  private introT = 0;
+
+  // Pointer bookkeeping. A Map keyed by pointerId so a pinch cannot be confused
+  // by a stray pointer that never fired its up event.
+  private pointers = new Map<number, { x: number; y: number }>();
+  private pinchDist = 0;
+  private target = new THREE.Vector3(0, 0, 0);
 
   constructor(
     private camera: THREE.PerspectiveCamera,
     private dom: HTMLElement,
   ) {
-    this.controls = new OrbitControls(camera, dom);
-    this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.08;
-    this.controls.minDistance = 1.6;
-    this.controls.maxDistance = 60;
-    this.controls.rotateSpeed = 0.7;
-    this.controls.zoomSpeed = 0.9;
+    const p = POSES.threeQuarter;
+    this.azimuth = this.tAzimuth = p.azimuth;
+    this.elevation = this.tElevation = p.elevation;
+    this.radius = this.tRadius = p.radius;
+    this.applyToCamera();
 
-    this.buildCinematic();
-
-    window.addEventListener('keydown', this.onKeyDown);
-    window.addEventListener('keyup', this.onKeyUp);
     dom.addEventListener('pointerdown', this.onPointerDown);
-    window.addEventListener('pointerup', this.onPointerUp);
-    window.addEventListener('pointermove', this.onPointerMove);
+    dom.addEventListener('pointermove', this.onPointerMove);
+    dom.addEventListener('pointerup', this.onPointerUp);
+    dom.addEventListener('pointercancel', this.onPointerUp);
+    dom.addEventListener('pointerleave', this.onPointerUp);
+    dom.addEventListener('wheel', this.onWheel, { passive: false });
   }
 
   getMode(): CameraMode {
     return this.mode;
   }
 
+  getAngle(): ViewAngle {
+    return this.angle;
+  }
+
   setMode(mode: CameraMode): void {
+    if (mode === this.mode) return;
     this.mode = mode;
-    const orbitLike = mode === 'orbit';
-    this.controls.enabled = orbitLike;
-
-    if (mode === 'free') {
-      // Seed yaw/pitch from the current orientation.
-      const dir = new THREE.Vector3();
-      this.camera.getWorldDirection(dir);
-      this.yaw = Math.atan2(dir.x, dir.z);
-      this.pitch = Math.asin(THREE.MathUtils.clamp(dir.y, -1, 1));
-    }
-    if (mode === 'cinematic') {
-      this.cineTime = 0;
-      this.cinePlaying = true;
-    }
-    if (orbitLike) {
-      this.controls.target.copy(this.currentTarget);
-      this.controls.update();
-    }
+    // Leaving free mode must not carry drag inertia into the locked shot, and
+    // the pose is re-asserted so `fixed` always converges on the exact framing
+    // even if the user had dragged away from it.
+    this.velAzimuth = 0;
+    this.velElevation = 0;
+    this.pointers.clear();
+    if (mode === 'fixed') this.applyPose(this.angle);
+    this.dom.style.cursor = mode === 'free' ? 'grab' : 'default';
   }
 
-  setFreeSpeed(s: number): void {
-    this.freeSpeed = s;
+  /** Select a framing. Applies in both modes. */
+  setAngle(angle: ViewAngle): void {
+    this.angle = angle;
+    this.applyPose(angle);
   }
 
-  setFreeLock(lock: boolean): void {
-    this.freeLock = lock;
+  private applyPose(angle: ViewAngle): void {
+    const p = POSES[angle];
+    this.tRadius = p.radius;
+    this.tElevation = p.elevation;
+    // Approach the target azimuth by the short way round, so a preset never
+    // sends the camera the long way about the star.
+    this.tAzimuth = this.azimuth + shortestAngle(this.azimuth, p.azimuth);
+    this.velAzimuth = 0;
+    this.velElevation = 0;
   }
 
-  toggleCinematic(): void {
-    this.cinePlaying = !this.cinePlaying;
+  /**
+   * Start far out and low, so the opening is a slow push-in toward the selected
+   * pose. Only the *current* state is moved — the target is already the pose, so
+   * the existing damping does the whole move with no separate animation path to
+   * get out of sync with the controls.
+   */
+  beginIntro(seconds = 7): void {
+    this.radius = Math.max(this.tRadius * 4.5, 34);
+    this.elevation = this.tElevation * 0.25 - 0.06;
+    this.azimuth = this.tAzimuth - 0.5;
+    this.introT = seconds;
+    this.applyToCamera();
   }
 
-  /** Snap back to a comfortable, safe orbit vantage. */
-  resetToSafe(): void {
-    this.setMode('orbit');
-    this.desiredPos.set(0, 2.5, 7);
-    this.desiredTarget.set(0, 0, 0);
-    this.camera.position.copy(this.desiredPos);
-    this.currentTarget.set(0, 0, 0);
-    this.controls.target.set(0, 0, 0);
-    this.controls.update();
+  /** True once the rig has essentially reached its target pose. */
+  get settled(): boolean {
+    return (
+      Math.abs(this.azimuth - this.tAzimuth) < 1e-4 &&
+      Math.abs(this.elevation - this.tElevation) < 1e-4 &&
+      Math.abs(this.radius - this.tRadius) < 1e-3
+    );
   }
 
   update(dt: number, ctx: CameraContext): void {
     const R = ctx.starRadius;
 
-    switch (this.mode) {
-      case 'orbit':
-        this.controls.minDistance = R * 1.5;
-        this.controls.update();
-        this.currentTarget.copy(this.controls.target);
-        break;
-
-      case 'free':
-        this.updateFree(dt, R);
-        break;
-
-      case 'fixed':
-        this.scriptTo(new THREE.Vector3(4.5, 2.2, 5.5), new THREE.Vector3(0, 0, 0), dt, 2.5);
-        break;
-
-      case 'polar':
-        this.scriptTo(new THREE.Vector3(0, 6.5, 0.001), new THREE.Vector3(0, 0, 0), dt, 2.5);
-        break;
-
-      case 'magnetic': {
-        const d = ctx.magneticAxis.clone().multiplyScalar(6.5);
-        this.scriptTo(d, new THREE.Vector3(0, 0, 0), dt, 1.2); // heavy damping
-        break;
-      }
-
-      case 'equatorial':
-        this.scriptTo(new THREE.Vector3(6.5, 0.0, 0.001), new THREE.Vector3(0, 0, 0), dt, 2.5);
-        break;
-
-      case 'observer': {
-        const d = ctx.observerDir.clone().multiplyScalar(7.5);
-        this.scriptTo(d, new THREE.Vector3(0, 0, 0), dt, 2.0);
-        break;
-      }
-
-      case 'closeup':
-        this.scriptTo(
-          new THREE.Vector3(0.15, 0.35, R * 1.35),
-          new THREE.Vector3(0, 0.1, 0),
-          dt,
-          ctx.reducedMotion ? 1.0 : 1.8,
+    if (this.mode === 'free') {
+      // Coast on release, then bleed the velocity off.
+      if (this.pointers.size === 0) {
+        this.tAzimuth += this.velAzimuth * dt;
+        this.tElevation = clamp(
+          this.tElevation + this.velElevation * dt,
+          MIN_ELEVATION,
+          MAX_ELEVATION,
         );
-        break;
-
-      case 'cinematic':
-        this.updateCinematic(dt);
-        break;
+        const decay = Math.exp(-4.5 * dt);
+        this.velAzimuth *= decay;
+        this.velElevation *= decay;
+        if (Math.abs(this.velAzimuth) < 1e-4) this.velAzimuth = 0;
+        if (Math.abs(this.velElevation) < 1e-4) this.velElevation = 0;
+      }
     }
 
+    // Never let the camera reach the surface, whatever the mode or the preset.
+    const minR = Math.max(MIN_RADIUS, R * 1.5);
+    this.tRadius = clamp(this.tRadius, minR, MAX_RADIUS);
+
+    // A much softer constant during the opening, so the arrival is a long glide
+    // rather than a snap. Any drag or wheel input cancels it immediately.
+    if (this.introT > 0) {
+      this.introT = Math.max(0, this.introT - dt);
+      if (this.pointers.size > 0) this.introT = 0;
+    }
+    const lambda = this.introT > 0 ? 0.42 : this.mode === 'fixed' ? 2.2 : 7.0;
+    this.azimuth = damp(this.azimuth, this.tAzimuth, lambda, dt);
+    this.elevation = damp(this.elevation, this.tElevation, lambda, dt);
+    this.radius = damp(this.radius, this.tRadius, lambda, dt);
+
+    // Snap once inside a pixel of the target so a locked shot is bit-stable and
+    // the star is the only thing moving in frame.
+    if (Math.abs(this.azimuth - this.tAzimuth) < 1e-4) this.azimuth = this.tAzimuth;
+    if (Math.abs(this.elevation - this.tElevation) < 1e-4) this.elevation = this.tElevation;
+    if (Math.abs(this.radius - this.tRadius) < 1e-3) this.radius = this.tRadius;
+
+    this.applyToCamera();
     this.updateNearFar(R);
   }
 
-  /** Drive the camera toward a scripted pose with exponential damping. */
-  private scriptTo(pos: THREE.Vector3, target: THREE.Vector3, dt: number, lambda: number): void {
-    this.desiredPos.copy(pos);
-    this.desiredTarget.copy(target);
-    this.camera.position.x = damp(this.camera.position.x, pos.x, lambda, dt);
-    this.camera.position.y = damp(this.camera.position.y, pos.y, lambda, dt);
-    this.camera.position.z = damp(this.camera.position.z, pos.z, lambda, dt);
-    this.currentTarget.x = damp(this.currentTarget.x, target.x, lambda, dt);
-    this.currentTarget.y = damp(this.currentTarget.y, target.y, lambda, dt);
-    this.currentTarget.z = damp(this.currentTarget.z, target.z, lambda, dt);
-    this.camera.lookAt(this.currentTarget);
-  }
-
-  private updateFree(dt: number, R: number): void {
-    const forward = new THREE.Vector3();
-    this.camera.getWorldDirection(forward);
-    const right = new THREE.Vector3().crossVectors(forward, this.camera.up).normalize();
-    const move = new THREE.Vector3();
-    const s = this.freeSpeed * dt;
-    if (this.keys.has('w') || this.keys.has('arrowup')) move.addScaledVector(forward, s);
-    if (this.keys.has('s') || this.keys.has('arrowdown')) move.addScaledVector(forward, -s);
-    if (this.keys.has('a') || this.keys.has('arrowleft')) move.addScaledVector(right, -s);
-    if (this.keys.has('d') || this.keys.has('arrowright')) move.addScaledVector(right, s);
-    if (this.keys.has('q')) move.y -= s;
-    if (this.keys.has('e')) move.y += s;
-    this.camera.position.add(move);
-
-    // Collision: never enter the star.
-    const dist = this.camera.position.length();
-    if (dist < R * 1.25) this.camera.position.setLength(R * 1.25);
-
-    if (this.freeLock) {
-      this.camera.lookAt(0, 0, 0);
-      this.currentTarget.set(0, 0, 0);
-    } else {
-      const dir = new THREE.Vector3(
-        Math.sin(this.yaw) * Math.cos(this.pitch),
-        Math.sin(this.pitch),
-        Math.cos(this.yaw) * Math.cos(this.pitch),
-      );
-      this.currentTarget.copy(this.camera.position).add(dir);
-      this.camera.lookAt(this.currentTarget);
-    }
-  }
-
-  private buildCinematic(): void {
-    // Approach → orbit → magnetic-axis reveal → pole → pull back to the galaxy.
-    this.waypoints = [
-      { pos: new THREE.Vector3(0, 1.5, 26), target: new THREE.Vector3(0, 0, 0), duration: 4 },
-      { pos: new THREE.Vector3(5, 2.5, 8), target: new THREE.Vector3(0, 0, 0), duration: 5 },
-      { pos: new THREE.Vector3(-4, 4.5, 6), target: new THREE.Vector3(0, 0, 0), duration: 5 },
-      { pos: new THREE.Vector3(0.4, 0.6, 2.4), target: new THREE.Vector3(0, 0.1, 0), duration: 5 },
-      { pos: new THREE.Vector3(0, 7, 3), target: new THREE.Vector3(0, 0, 0), duration: 5 },
-      { pos: new THREE.Vector3(2, 3, 18), target: new THREE.Vector3(0, 0, 0), duration: 6 },
-    ];
-  }
-
-  private updateCinematic(dt: number): void {
-    if (this.cinePlaying) this.cineTime += dt;
-    const total = this.waypoints.reduce((s, w) => s + w.duration, 0);
-    let t = this.cineTime % total;
-    let i = 0;
-    while (i < this.waypoints.length && t > this.waypoints[i].duration) {
-      t -= this.waypoints[i].duration;
-      i++;
-    }
-    const a = this.waypoints[i % this.waypoints.length];
-    const b = this.waypoints[(i + 1) % this.waypoints.length];
-    const k = smootherstep(t / a.duration);
-    this.camera.position.lerpVectors(a.pos, b.pos, k);
-    this.currentTarget.lerpVectors(a.target, b.target, k);
-    this.camera.lookAt(this.currentTarget);
+  private applyToCamera(): void {
+    const ce = Math.cos(this.elevation);
+    this.camera.position.set(
+      this.radius * ce * Math.sin(this.azimuth),
+      this.radius * Math.sin(this.elevation),
+      this.radius * ce * Math.cos(this.azimuth),
+    );
+    this.camera.up.set(0, 1, 0);
+    this.camera.lookAt(this.target);
   }
 
   private updateNearFar(R: number): void {
-    const dist = this.camera.position.distanceTo(this.currentTarget);
-    const surface = Math.max(0.002, dist - R);
-    this.camera.near = THREE.MathUtils.clamp(surface * 0.05, 0.001, 1);
-    this.camera.far = Math.max(2000, dist * 20);
+    const surface = Math.max(0.002, this.radius - R);
+    this.camera.near = clamp(surface * 0.04, 0.001, 1);
+    this.camera.far = Math.max(4000, this.radius * 20);
     this.camera.updateProjectionMatrix();
   }
 
   getTarget(): THREE.Vector3 {
-    return this.currentTarget;
+    return this.target;
   }
 
-  private onKeyDown = (e: KeyboardEvent): void => {
-    this.keys.add(e.key.toLowerCase());
-  };
-  private onKeyUp = (e: KeyboardEvent): void => {
-    this.keys.delete(e.key.toLowerCase());
-  };
+  /** Distance from the camera to the star's centre, for the UI and post passes. */
+  get distance(): number {
+    return this.radius;
+  }
+
+  /** Current orbital state. Used by tests to assert that `fixed` really locks. */
+  get pose(): Pose {
+    return { azimuth: this.azimuth, elevation: this.elevation, radius: this.radius };
+  }
+
+  // ── input ─────────────────────────────────────────────────────────────────
+
   private onPointerDown = (e: PointerEvent): void => {
-    if (this.mode !== 'free' || this.freeLock) return;
-    this.dragging = true;
-    this.lastPointer.set(e.clientX, e.clientY);
-  };
-  private onPointerUp = (): void => {
-    this.dragging = false;
-  };
-  private onPointerMove = (e: PointerEvent): void => {
-    if (!this.dragging || this.mode !== 'free' || this.freeLock) return;
-    const dx = e.clientX - this.lastPointer.x;
-    const dy = e.clientY - this.lastPointer.y;
-    this.lastPointer.set(e.clientX, e.clientY);
-    this.yaw -= dx * 0.005;
-    this.pitch = THREE.MathUtils.clamp(this.pitch - dy * 0.005, -1.4, 1.4);
+    if (this.mode !== 'free') return;
+    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    this.velAzimuth = 0;
+    this.velElevation = 0;
+    if (this.pointers.size === 2) this.pinchDist = this.currentPinchDistance();
+    this.dom.style.cursor = 'grabbing';
+    this.dom.setPointerCapture?.(e.pointerId);
   };
 
+  private onPointerMove = (e: PointerEvent): void => {
+    if (this.mode !== 'free') return;
+    const prev = this.pointers.get(e.pointerId);
+    if (!prev) return;
+
+    if (this.pointers.size >= 2) {
+      this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const d = this.currentPinchDistance();
+      if (this.pinchDist > 0 && d > 0) {
+        this.tRadius = clamp(this.tRadius * (this.pinchDist / d), MIN_RADIUS, MAX_RADIUS);
+      }
+      this.pinchDist = d;
+      return;
+    }
+
+    const dx = e.clientX - prev.x;
+    const dy = e.clientY - prev.y;
+    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    // Scale with viewport size so a drag traverses the same arc on any display.
+    const k = 2.6 / Math.max(1, this.dom.clientHeight || window.innerHeight);
+    const dAz = -dx * k;
+    const dEl = dy * k;
+    this.tAzimuth += dAz;
+    this.tElevation = clamp(this.tElevation + dEl, MIN_ELEVATION, MAX_ELEVATION);
+    // Feed inertia from the instantaneous drag rate.
+    this.velAzimuth = dAz * 9;
+    this.velElevation = dEl * 9;
+  };
+
+  private onPointerUp = (e: PointerEvent): void => {
+    this.pointers.delete(e.pointerId);
+    if (this.pointers.size < 2) this.pinchDist = 0;
+    if (this.pointers.size === 0 && this.mode === 'free') this.dom.style.cursor = 'grab';
+  };
+
+  private onWheel = (e: WheelEvent): void => {
+    if (this.mode !== 'free') return;
+    e.preventDefault();
+    this.introT = 0; // taking control ends the opening glide
+    // Multiplicative so the zoom feels the same near the surface and far out.
+    const factor = Math.exp(clamp(e.deltaY, -240, 240) * 0.0013);
+    this.tRadius = clamp(this.tRadius * factor, MIN_RADIUS, MAX_RADIUS);
+  };
+
+  private currentPinchDistance(): number {
+    const pts = [...this.pointers.values()];
+    if (pts.length < 2) return 0;
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  }
+
   dispose(): void {
-    this.controls.dispose();
-    window.removeEventListener('keydown', this.onKeyDown);
-    window.removeEventListener('keyup', this.onKeyUp);
     this.dom.removeEventListener('pointerdown', this.onPointerDown);
-    window.removeEventListener('pointerup', this.onPointerUp);
-    window.removeEventListener('pointermove', this.onPointerMove);
+    this.dom.removeEventListener('pointermove', this.onPointerMove);
+    this.dom.removeEventListener('pointerup', this.onPointerUp);
+    this.dom.removeEventListener('pointercancel', this.onPointerUp);
+    this.dom.removeEventListener('pointerleave', this.onPointerUp);
+    this.dom.removeEventListener('wheel', this.onWheel);
   }
 }
 
-function smootherstep(x: number): number {
-  x = THREE.MathUtils.clamp(x, 0, 1);
-  return x * x * x * (x * (x * 6 - 15) + 10);
+/** Signed smallest rotation from `from` to `to`, in (-π, π]. */
+function shortestAngle(from: number, to: number): number {
+  let d = (to - from) % (Math.PI * 2);
+  if (d > Math.PI) d -= Math.PI * 2;
+  if (d <= -Math.PI) d += Math.PI * 2;
+  return d;
 }

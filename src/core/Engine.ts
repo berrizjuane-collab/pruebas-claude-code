@@ -1,13 +1,21 @@
 /**
  * The rendering engine: owns the WebGL renderer, the post-processing composer,
- * the perspective camera, the resize handling and the RAF loop.
+ * the perspective camera, resize handling and the RAF loop.
+ *
+ * Post chain, in order:
+ *   render → lensing → starburst → bloom → grade → output
+ *
+ * Starburst sits *before* bloom deliberately: the spikes and the anamorphic
+ * streak are light, so bloom should bleed off them the same way it bleeds off the
+ * star. Putting it after bloom gives hard-edged decals pasted over the frame.
  *
  * Design choices for stability & close-ups:
  *  - logarithmic depth buffer to fight z-fighting across the huge dynamic range
- *    of scales (surface millimetres of relief vs. a light-cylinder decades away);
+ *    of scales (surface relief vs. a star field decades away);
  *  - dynamic near/far planes updated by the camera rig for extreme zoom;
- *  - pauses simulation when the tab is hidden (visibilitychange) to save power;
- *  - post chain rebuilt cheaply when the quality tier changes.
+ *  - half-float render targets, so the HDR values the star shader emits survive
+ *    the chain instead of clipping at 1.0 before tone mapping;
+ *  - pauses simulation when the tab is hidden (visibilitychange) to save power.
  */
 
 import * as THREE from 'three';
@@ -17,6 +25,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { LensingShader } from '../shaders/lensing.ts';
+import { StarburstShader } from '../shaders/starburst.ts';
 import { GradeShader } from '../shaders/grade.ts';
 import type { QualitySettings } from './QualityManager.ts';
 
@@ -30,6 +39,7 @@ export class Engine {
 
   private bloomPass: UnrealBloomPass;
   private lensingPass: ShaderPass;
+  private starburstPass: ShaderPass;
   private gradePass: ShaderPass;
   private outputPass: OutputPass;
   private renderPass: RenderPass;
@@ -41,7 +51,6 @@ export class Engine {
   private hidden = false;
   private settings: QualitySettings;
   private onResizeCbs: Array<(w: number, h: number) => void> = [];
-  private pendingCapture: ((dataUrl: string) => void) | null = null;
 
   constructor(canvas: HTMLCanvasElement, settings: QualitySettings) {
     this.settings = settings;
@@ -52,42 +61,54 @@ export class Engine {
       powerPreference: 'high-performance',
       logarithmicDepthBuffer: true,
       stencil: false,
-      // Needed so the screenshot capture can read back a valid frame buffer.
-      preserveDrawingBuffer: true,
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, settings.pixelRatio));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    // Khronos PBR Neutral: rolls highlights cleanly to white while preserving
+    // hue, which is what this frame needs — ACES shears bright blues toward cyan
+    // and AgX desaturates the midtones so far that the star reads as grey.
+    this.renderer.toneMapping = THREE.NeutralToneMapping;
+    this.renderer.toneMappingExposure = 1.18;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x010206);
+    // Pure black. The galactic dome supplies every non-zero pixel of the sky.
+    this.scene.background = new THREE.Color(0x000000);
 
     this.camera = new THREE.PerspectiveCamera(
-      55,
+      48, // slightly long lens: less wide-angle distortion, more cinematic
       window.innerWidth / window.innerHeight,
       0.01,
-      5000,
+      8000,
     );
     this.camera.position.set(0, 2.5, 7);
 
-    // Post-processing chain.
-    this.composer = new EffectComposer(this.renderer);
+    // ── post chain ──────────────────────────────────────────────────────────
+    const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
+    const rt = new THREE.WebGLRenderTarget(size.x, size.y, {
+      type: THREE.HalfFloatType,
+      samples: settings.msaa,
+      colorSpace: THREE.LinearSRGBColorSpace,
+    });
+    this.composer = new EffectComposer(this.renderer, rt);
+
     this.renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(this.renderPass);
 
     this.lensingPass = new ShaderPass(LensingShader);
     this.composer.addPass(this.lensingPass);
 
-    // The surface shader keeps the crust well under 1.0 and lets only the polar
-    // caps, fracture seams, beams and corona overshoot, so a threshold just
-    // below 1 blooms exactly the emissive features and leaves the crust crisp.
+    this.starburstPass = new ShaderPass(StarburstShader);
+    this.composer.addPass(this.starburstPass);
+
+    // Threshold sits just under 1: the star shader keeps the crust below that and
+    // lets only caps, seams, rim, corona and beams overshoot, so bloom picks out
+    // the emissive features and leaves the crust crisp.
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.80, // strength
-      0.78, // radius
-      0.72, // threshold
+      1.15, // strength
+      0.85, // radius
+      0.78, // threshold
     );
     this.composer.addPass(this.bloomPass);
 
@@ -119,34 +140,12 @@ export class Engine {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, settings.pixelRatio));
     this.bloomPass.enabled = settings.bloom;
     this.lensingPass.enabled = settings.lensing;
-    // Keep composer buffers in step with the pixel ratio.
+    this.starburstPass.enabled = settings.starburst;
     this.handleResize();
-  }
-
-  setBloom(strength: number, radius: number, threshold: number): void {
-    this.bloomPass.strength = strength;
-    this.bloomPass.radius = radius;
-    this.bloomPass.threshold = threshold;
   }
 
   setLensingEnabled(on: boolean): void {
     this.lensingPass.enabled = on && this.settings.lensing;
-  }
-
-  /**
-   * Dial the cinematic grade. `strength` 0 disables every cosmetic effect —
-   * used by the sober `lab` background mode, where the frame is an instrument
-   * readout and lens artefacts would be actively misleading.
-   */
-  setGrade(strength: number): void {
-    const u = this.gradePass.uniforms;
-    this.gradePass.enabled = strength > 0.001;
-    u.uAberration.value = strength;
-    u.uVignette.value = strength;
-    u.uContrast.value = strength;
-    // Grain stays on at a floor even in sober modes: it is what keeps the wide
-    // dark gradients from banding.
-    u.uGrain.value = Math.max(strength, 0.35);
   }
 
   /** Update the lensing uniforms (called by the world each frame). */
@@ -157,6 +156,19 @@ export class Engine {
     u.uStrength.value = strength;
     u.uAspect.value = this.camera.aspect;
     u.uActive.value = active ? 1 : 0;
+  }
+
+  /** Point the aperture starburst at the star. */
+  updateStarburst(screen: THREE.Vector2, radius: number): void {
+    const u = this.starburstPass.uniforms;
+    u.uStarScreen.value.copy(screen);
+    u.uStarRadius.value = radius;
+    u.uAspect.value = this.camera.aspect;
+  }
+
+  /** Pulse the flare when a beam sweeps the observer. */
+  setStarburstFlare(flare: number): void {
+    this.starburstPass.uniforms.uFlare.value = flare;
   }
 
   start(): void {
@@ -179,20 +191,10 @@ export class Engine {
     const dt = Math.min(this.clock.getDelta(), 0.1); // clamp huge deltas
     const elapsed = this.clock.elapsedTime;
     this.gradePass.uniforms.uTime.value = elapsed;
+    this.starburstPass.uniforms.uTime.value = elapsed;
     for (const fn of this.updaters) fn(dt, elapsed);
     this.composer.render();
-    // Capture within the same frame so the drawing buffer is still valid.
-    if (this.pendingCapture) {
-      const cb = this.pendingCapture;
-      this.pendingCapture = null;
-      cb(this.renderer.domElement.toDataURL('image/png'));
-    }
   };
-
-  /** Grab a PNG data URL of the next rendered frame (for screenshots). */
-  requestCapture(cb: (dataUrl: string) => void): void {
-    this.pendingCapture = cb;
-  }
 
   private handleResize = (): void => {
     const w = window.innerWidth;

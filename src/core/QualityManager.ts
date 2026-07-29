@@ -26,6 +26,8 @@ export interface QualitySettings {
   bloom: boolean;
   /** Enable gravitational-lensing post pass. */
   lensing: boolean;
+  /** Enable the aperture starburst / anamorphic flare pass. */
+  starburst: boolean;
   /** Number of stars in the procedural background. */
   backgroundStars: number;
   /** Enable soft shadows / extra lights. */
@@ -34,54 +36,65 @@ export interface QualitySettings {
   msaa: number;
 }
 
+/**
+ * Tiers are pitched higher than in the earlier build: this is a piece meant to be
+ * looked at, so bloom and the starburst survive even on `low` (they are cheap
+ * screen-space passes and they are most of the look), and the things that
+ * actually cost frames — pixel ratio, particle count, star count — carry the
+ * scaling instead.
+ */
 const TIERS: Record<Exclude<QualityLevel, 'adaptive'>, QualitySettings> = {
   low: {
     pixelRatio: 1,
-    particleCount: 1200,
-    fieldLines: 6,
-    fieldLineSegments: 48,
-    surfaceDetail: 5,
-    bloom: false,
+    particleCount: 2500,
+    fieldLines: 8,
+    fieldLineSegments: 56,
+    surfaceDetail: 6,
+    bloom: true,
     lensing: false,
-    backgroundStars: 2500,
+    starburst: true,
+    backgroundStars: 8000,
     richLighting: false,
     msaa: 0,
   },
   medium: {
-    pixelRatio: 1.25,
-    particleCount: 4000,
-    fieldLines: 10,
-    fieldLineSegments: 72,
-    surfaceDetail: 6,
-    bloom: true,
-    lensing: false,
-    backgroundStars: 6000,
-    richLighting: true,
-    msaa: 2,
-  },
-  high: {
-    pixelRatio: 1.75,
-    particleCount: 9000,
-    fieldLines: 16,
-    fieldLineSegments: 96,
+    pixelRatio: 1.5,
+    particleCount: 7000,
+    fieldLines: 12,
+    fieldLineSegments: 80,
     surfaceDetail: 7,
     bloom: true,
     lensing: true,
-    backgroundStars: 12000,
+    starburst: true,
+    backgroundStars: 16000,
+    richLighting: true,
+    msaa: 4,
+  },
+  high: {
+    pixelRatio: 2,
+    particleCount: 14000,
+    fieldLines: 18,
+    fieldLineSegments: 112,
+    surfaceDetail: 8,
+    bloom: true,
+    lensing: true,
+    starburst: true,
+    backgroundStars: 30000,
     richLighting: true,
     msaa: 4,
   },
   ultra: {
-    pixelRatio: 2,
-    particleCount: 16000,
-    fieldLines: 22,
-    fieldLineSegments: 128,
+    pixelRatio: 2.5,
+    particleCount: 24000,
+    fieldLines: 24,
+    fieldLineSegments: 144,
     surfaceDetail: 8,
     bloom: true,
     lensing: true,
-    backgroundStars: 20000,
+    starburst: true,
+    backgroundStars: 45000,
     richLighting: true,
-    msaa: 4,
+    msaa: 8,
   },
 };
 
@@ -123,16 +136,17 @@ export class QualityManager {
       this.level === 'adaptive' ? TIERS[this.baseTierForAdaptive] : TIERS[this.level];
     if (this.level !== 'adaptive') return { ...base };
 
-    // Scale the expensive knobs by the adaptive factor.
+    // Scale the expensive knobs by the adaptive factor. Bloom and the starburst
+    // are never dropped — they carry the look, and they are screen-space passes
+    // whose cost does not grow with the scene.
     const s = clamp(this.adaptiveScale, 0.4, 1);
     return {
       ...base,
       pixelRatio: clamp(base.pixelRatio * s, 0.75, base.pixelRatio),
       particleCount: Math.round(base.particleCount * s),
-      fieldLines: Math.max(6, Math.round(base.fieldLines * s)),
+      fieldLines: Math.max(8, Math.round(base.fieldLines * s)),
       backgroundStars: Math.round(base.backgroundStars * (0.6 + 0.4 * s)),
-      lensing: base.lensing && s > 0.7,
-      bloom: base.bloom && s > 0.5,
+      lensing: base.lensing && s > 0.65,
     };
   }
 

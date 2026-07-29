@@ -1,68 +1,36 @@
-/** Application-wide state types. */
+/**
+ * Application state.
+ *
+ * Deliberately small. The physics parameters are fixed to one preset and are no
+ * longer user-editable — this build is a cinematic piece, so the only things the
+ * viewer controls are the framing, the camera mode and the rotation speed.
+ * `params`/`derived` remain because the shaders are still driven by real
+ * quantities (compactness, redshift, oblateness, equatorial β).
+ */
 
 import type { DerivedQuantities, StarParams } from '../physics/NeutronStarModel';
+import type { CameraMode, ViewAngle } from '../camera/CameraRig';
 
 export type QualityLevel = 'low' | 'medium' | 'high' | 'ultra' | 'adaptive';
-export type RotationMode = 'physical' | 'educational';
-export type BackgroundMode = 'cinematic' | 'scientific' | 'lab' | 'grid';
-export type CameraMode =
-  | 'orbit'
-  | 'free'
-  | 'fixed'
-  | 'polar'
-  | 'magnetic'
-  | 'equatorial'
-  | 'observer'
-  | 'cinematic'
-  | 'closeup';
-
-/** Which optional scene layers are visible. */
-export interface LayerVisibility {
-  magneticField: boolean;
-  magnetosphere: boolean;
-  beams: boolean;
-  lightCylinder: boolean;
-  axes: boolean;
-  interior: boolean;
-  lensing: boolean;
-}
-
-export interface AudioState {
-  scientific: boolean;
-  cinematic: boolean;
-  muted: boolean;
-  volume: number; // 0..1
-  syncRotation: boolean;
-  started: boolean; // AudioContext resumed after a user gesture
-}
+export type { CameraMode, ViewAngle };
 
 export interface AppState {
-  presetId: string;
   params: StarParams;
   derived: DerivedQuantities;
 
-  // Rotation / simulation
+  /** Rotation-speed multiplier applied to the visual spin. */
+  speed: number;
   playing: boolean;
-  timeScale: number; // multiplier on simulation speed
-  rotationMode: RotationMode;
 
-  // Camera & observer
   cameraMode: CameraMode;
-  observerInclination: number; // radians, latitude of the distant observer
+  viewAngle: ViewAngle;
 
-  // Scene
-  layers: LayerVisibility;
-  backgroundMode: BackgroundMode;
-  fieldLineDensity: number; // 0..1
-  beamIntensity: number; // 0..1
-  beamWidth: number; // radians (half-angle)
+  /** Latitude of the notional distant observer; sets which way the beams flare. */
+  observerInclination: number;
+  beamIntensity: number;
+  beamWidth: number;
 
-  // Rendering
   quality: QualityLevel;
-  immersive: boolean;
-  showFps: boolean;
   reducedMotion: boolean;
   reducedFlashing: boolean;
-
-  audio: AudioState;
 }

@@ -143,9 +143,10 @@ void main() {
   float cap = smoothstep(0.930, 0.998, aa);       // the cap proper
   float halo = smoothstep(0.720, 0.960, aa);      // warm surround bleeding out of it
 
-  // Base thermal field — kept mostly dark so the crust reads dense, with strong
-  // spatial contrast so the surface never looks uniform.
-  float temp = uColorTemp * 0.58;
+  // Base thermal field. Sits high enough that the disc itself reads as a light
+  // source — if the crust is too dark the corona ring dominates and the star
+  // becomes a bright hoop around a dead sphere.
+  float temp = uColorTemp * 0.86;
   temp += 0.26 * plates;                       // pronounced thermal domains
   temp += 0.09 * grain + 0.07 * micro;         // mottling + close-up crust grain
   temp += uHotCap * (halo * 0.13 + cap * 0.85); // hot caps, with a softer surround
@@ -190,12 +191,14 @@ void main() {
 
   // Emission model: self-luminous, but with real relief-driven contrast so the
   // body has form and the crust reads as dense rather than a flat white ball.
-  float shade = 0.16 + 0.84 * ndv;
-  vec3 emission = color * shade * dopplerBoost;
+  // The floor is well above zero because nothing shades a self-luminous surface
+  // to black — relief modulates its brightness, it does not switch it off.
+  float shade = 0.46 + 0.54 * ndv;
+  vec3 emission = color * shade * dopplerBoost * 1.85;
 
   // Hot caps punch through the shading so they stay overbright at any angle —
   // this is what the bloom pass latches onto.
-  emission += vec3(0.55, 0.80, 1.05) * cap * uHotCap * 0.85;
+  emission += vec3(0.55, 0.80, 1.05) * cap * uHotCap * 1.6;
 
   // Incandescent magnetar seams get their own additive contribution so they glow
   // rather than merely lightening.
