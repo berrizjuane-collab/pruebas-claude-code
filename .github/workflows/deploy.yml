@@ -27,9 +27,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Turns Pages on by itself when the repository allows it. On a private
+      # repo the Actions token is not permitted to create the Pages site, so
+      # this step is allowed to fail: the artifact still uploads and the deploy
+      # job succeeds as soon as Pages is available.
       - uses: actions/configure-pages@v5
+        continue-on-error: true
         with:
-          # Turns Pages on for the repository the first time this runs.
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
