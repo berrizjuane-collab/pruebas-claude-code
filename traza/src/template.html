@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRAZA · Calculadora de préstamos</title>
+<meta name="description" content="TRAZA: calculadora visual de préstamos (sistema francés) para Ingeniería Económica. Las finanzas con claridad.">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#142D34">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23142D34'/%3E%3Cg transform='translate(10.4 16) scale(.8611)' stroke='%23FFFFFF' fill='none'%3E%3Cpath stroke-width='3.952' d='M0 13.543H50.16'/%3E%3Cpath stroke-width='3.876' d='M12.038 13.543V2.508M24.578 13.543V32.102M37.62 13.543V0'/%3E%3C/g%3E%3Ccircle cx='31.56' cy='27.66' r='3.14' fill='%23FFFFFF'/%3E%3C/svg%3E">
+<!--INJECT:STYLE-->
+</head>
+<body>
+<a class="skip-link" href="#calculadora">Saltar a la calculadora</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#inicio" aria-label="TRAZA, ir al inicio">
+      <svg class="brand-symbol" viewBox="0 0 50.16 32.102" aria-hidden="true" focusable="false">
+        <g stroke="currentColor" fill="none">
+          <line x1="0" y1="13.543" x2="50.16" y2="13.543" stroke-width="3.952"/>
+          <line x1="12.038" y1="13.543" x2="12.038" y2="2.508" stroke-width="3.876"/>
+          <line x1="24.578" y1="13.543" x2="24.578" y2="32.102" stroke-width="3.876"/>
+          <line x1="37.62" y1="13.543" x2="37.62" y2="0" stroke-width="3.876"/>
+        </g>
+        <circle cx="24.578" cy="13.543" r="3.648" fill="currentColor"/>
+      </svg>
+      <span class="wordmark" aria-hidden="true">TRAZA</span>
+    </a>
+    <nav class="site-nav" aria-label="Secciones">
+      <ul>
+        <li><a href="#calculadora">Calculadora</a></li>
+        <li><a href="#resultados">Resultados</a></li>
+        <li><a href="#como-usar" id="nav-howto">Cómo usar</a></li>
+        <li><a href="#equipo">Equipo</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<noscript>
+  <div class="container noscript">
+    <strong>TRAZA necesita JavaScript.</strong> El cálculo de la cuota, las gráficas, el análisis y las exportaciones funcionan en tu navegador, sin conexión. Activa JavaScript y vuelve a abrir este archivo.
+  </div>
+</noscript>
+
+<main id="inicio" tabindex="-1">
+  <section class="container intro" aria-labelledby="page-title">
+    <p class="eyebrow">Ingeniería Económica · Sistema francés</p>
+    <h1 id="page-title">Calculadora de préstamos</h1>
+    <p class="lead">TRAZA te ayuda a estimar la cuota de un préstamo y entender cuánto pagas por capital e intereses. Explora el efecto de la tasa y del plazo, revisa cada mensualidad y genera un informe para tu análisis de Ingeniería Económica.</p>
+    <p class="scope-note">Modelo de tasa fija y pagos al final de cada mes. Los resultados no incluyen comisiones, seguros ni impuestos.</p>
+    <details class="howto" id="como-usar">
+      <summary>Cómo usar TRAZA</summary>
+      <div class="howto-body">
+        <ol>
+          <li><strong>Configura</strong> la moneda, el monto, la tasa anual (nominal o efectiva) y el plazo en meses.</li>
+          <li><strong>Pulsa «Calcular».</strong> Desde ese momento, cada cambio válido actualiza los resultados.</li>
+          <li><strong>Explora</strong> la composición del total pagado, la evolución de saldos, el flujo de efectivo y la tabla mes a mes.</li>
+          <li><strong>Exporta</strong> el informe PDF o los datos CSV para Power BI.</li>
+        </ol>
+        <p>Los deslizadores sirven para explorar; el campo de texto guarda el valor exacto con punto de miles y coma decimal (por ejemplo, 12.000,50). Con el teclado, usa Tab para moverte, las flechas para ajustar deslizadores y recorrer gráficas, e Inicio o Fin para ir a los extremos.</p>
+      </div>
+    </details>
+  </section>
+
+  <div class="container workspace">
+    <section class="panel params" id="calculadora" aria-labelledby="params-title">
+      <h2 class="panel-title" id="params-title">Configura tu préstamo</h2>
+      <p class="help-box" id="slider-help">Arrastra el punto para ajustar el valor o escribe una cantidad exacta. También puedes usar las flechas del teclado. Pulsa «Calcular» para iniciar; después, los resultados se actualizan al cambiar valores válidos.</p>
+
+      <form id="loan-form" novalidate>
+        <div class="error-summary" id="error-summary" tabindex="-1" role="alert" hidden>
+          <p class="error-summary-title">Revisa estos datos antes de calcular:</p>
+          <ul id="error-summary-list"></ul>
+        </div>
+
+        <fieldset class="field currency-field">
+          <legend class="field-label">Moneda del préstamo</legend>
+          <div class="currency-options">
+            <label class="choice"><input type="radio" name="currency" value="USD" checked><span class="choice-box"><span class="sym" aria-hidden="true">$</span><span class="cur-code">USD</span><span class="visually-hidden">Dólar estadounidense</span></span></label>
+            <label class="choice"><input type="radio" name="currency" value="EUR"><span class="choice-box"><span class="sym" aria-hidden="true">€</span><span class="cur-code">EUR</span><span class="visually-hidden">Euro</span></span></label>
+            <label class="choice"><input type="radio" name="currency" value="GBP"><span class="choice-box"><span class="sym" aria-hidden="true">£</span><span class="cur-code">GBP</span><span class="visually-hidden">Libra esterlina</span></span></label>
+            <label class="choice"><input type="radio" name="currency" value="VES"><span class="choice-box"><span class="sym" aria-hidden="true">Bs.</span><span class="cur-code">VES</span><span class="visually-hidden">Bolívar</span></span></label>
+          </div>
+          <p class="field-help">Cambiar la moneda redefine la unidad del préstamo; no aplica un tipo de cambio.</p>
+        </fieldset>
+
+        <div class="field" id="amount-field">
+          <label class="field-label" for="amount-input">Monto del préstamo</label>
+          <div class="input-affix">
+            <span class="affix prefix" id="amount-prefix" aria-hidden="true">$</span>
+            <input id="amount-input" name="amount" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="12.000,00" aria-describedby="amount-help amount-error">
+          </div>
+          <input type="range" class="slider" id="amount-slider" min="1" max="1000" step="1" value="120" aria-label="Monto del préstamo, ajuste con deslizador" aria-describedby="slider-help">
+          <div class="slider-scale" aria-hidden="true"><span>100</span><span id="amount-max-label">100.000</span></div>
+          <p class="field-help" id="amount-help">Entre 100 y 1.000.000.000 · hasta 2 decimales · ej. 12.000,50</p>
+          <p class="field-help equivalence" id="amount-equivalence" hidden></p>
+          <p class="field-error" id="amount-error" hidden></p>
+        </div>
+
+        <div class="field" id="rate-field">
+          <label class="field-label" for="rate-input">Tasa de interés anual</label>
+          <div class="input-affix">
+            <input id="rate-input" name="rate" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="12,00" aria-describedby="rate-type-help rate-help rate-error">
+            <span class="affix suffix" aria-hidden="true">%</span>
+          </div>
+          <input type="range" class="slider" id="rate-slider" min="0" max="100" step="0.1" value="12" aria-label="Tasa anual, ajuste con deslizador" aria-describedby="slider-help">
+          <div class="slider-scale" aria-hidden="true"><span>0 %</span><span>100 %</span></div>
+          <fieldset class="segmented rate-type">
+            <legend class="visually-hidden">Tipo de tasa</legend>
+            <label class="seg"><input type="radio" name="rateType" value="nominal_annual" checked><span>Nominal anual</span></label>
+            <label class="seg"><input type="radio" name="rateType" value="effective_annual"><span>Efectiva anual</span></label>
+          </fieldset>
+          <p class="field-help" id="rate-type-help">Nominal anual capitalizable mensualmente: la tasa mensual es i = j / 12.</p>
+          <p class="field-help" id="rate-help">Entre 0 % y 100 % · hasta 4 decimales</p>
+          <p class="field-error" id="rate-error" hidden></p>
+        </div>
+
+        <div class="field" id="months-field">
+          <label class="field-label" for="months-input">Plazo</label>
+          <div class="input-affix">
+            <input id="months-input" name="months" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="24" aria-describedby="months-help months-error">
+            <span class="affix suffix" aria-hidden="true">meses</span>
+          </div>
+          <input type="range" class="slider" id="months-slider" min="1" max="600" step="1" value="24" aria-label="Plazo en meses, ajuste con deslizador" aria-describedby="slider-help">
+          <div class="slider-scale" aria-hidden="true"><span>1</span><span>600</span></div>
+          <p class="field-help" id="months-help">Meses enteros entre 1 y 600 · primer pago al final del mes 1</p>
+          <p class="field-error" id="months-error" hidden></p>
+        </div>
+
+        <div class="field convert-field">
+          <div class="switch-row">
+            <input type="checkbox" id="convert-toggle" class="switch-input" aria-controls="convert-panel" aria-describedby="convert-help">
+            <label for="convert-toggle" class="switch-label">Convertir este resultado a otra moneda</label>
+          </div>
+          <p class="field-help" id="convert-help">Opcional. Usa un tipo de cambio que tú indicas; el préstamo sigue en su moneda.</p>
+          <div class="convert-panel" id="convert-panel" hidden>
+            <label class="field-label" for="convert-target">Mostrar resultados en</label>
+            <div class="select-wrap">
+              <select id="convert-target">
+                <option value="USD">Dólar estadounidense (USD)</option>
+                <option value="EUR" selected>Euro (EUR)</option>
+                <option value="GBP">Libra esterlina (GBP)</option>
+                <option value="VES">Bolívar (VES)</option>
+              </select>
+            </div>
+            <p class="field-help" id="convert-same" hidden>Es la misma moneda del préstamo: se usa un factor exacto de 1 y no hace falta tipo de cambio.</p>
+            <div class="fx-fields" id="fx-fields">
+              <label class="field-label" for="fx-rate" id="fx-rate-label">1 USD equivale a</label>
+              <div class="input-affix">
+                <input id="fx-rate" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="fx-help fx-rate-error">
+                <span class="affix suffix" id="fx-rate-suffix" aria-hidden="true">EUR</span>
+              </div>
+              <p class="field-error" id="fx-rate-error" hidden></p>
+              <label class="field-label" for="fx-date">Fecha de referencia</label>
+              <input id="fx-date" class="plain-input" type="date" min="1900-01-01" aria-describedby="fx-date-error">
+              <p class="field-error" id="fx-date-error" hidden></p>
+              <label class="field-label" for="fx-source">Fuente</label>
+              <input id="fx-source" class="plain-input" type="text" maxlength="120" autocomplete="off" value="Tipo de cambio ingresado manualmente">
+              <p class="field-help" id="fx-help">TRAZA no consulta cotizaciones: escribe el tipo de cambio (hasta 8 decimales), su fecha y su fuente. Convertir no modifica el préstamo.</p>
+            </div>
+            <p class="status-line" id="convert-status" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="calc-btn">Calcular</button>
+      </form>
+    </section>
+
+    <div class="main-col">
+      <section class="results" id="resultados" aria-labelledby="results-title" tabindex="-1">
+        <h2 class="visually-hidden" id="results-title">Resultados</h2>
+        <div class="hero" id="hero">
+          <div class="hero-empty" id="hero-empty">
+            <p class="hero-label">Cuota mensual estimada</p>
+            <p class="hero-orient" id="hero-orient">Configura el préstamo y pulsa <strong>«Calcular»</strong>. Aquí verás la cuota mensual, el costo total y cómo se reparte cada pago entre capital e intereses.</p>
+            <ul class="hero-steps" aria-label="Qué obtendrás">
+              <li>Cuota e indicadores</li><li>Gráficas y flujo de efectivo</li><li>Tabla, análisis e informe</li>
+            </ul>
+          </div>
+          <div class="hero-result" id="hero-result" hidden>
+            <div class="hero-top">
+              <p class="hero-label">Cuota mensual estimada</p>
+              <p class="stale-chip" data-stale-chip hidden>Resultado anterior: corrige los datos para actualizar</p>
+            </div>
+            <p class="hero-amount"><span class="visually-hidden" id="hero-amount-sr"></span><span id="hero-amount" aria-hidden="true"></span></p>
+            <p class="hero-meta" id="hero-meta"></p>
+            <p class="hero-meta" id="hero-rate"></p>
+            <p class="hero-meta hero-currency" id="hero-currency"></p>
+            <p class="hero-meta hero-last" id="hero-last" hidden></p>
+          </div>
+        </div>
+
+        <div class="kpis" id="kpis">
+          <div class="kpi"><p class="kpi-label"><span class="swatch capital" aria-hidden="true"></span>Capital inicial</p><p class="kpi-value" id="kpi-principal">—</p></div>
+          <div class="kpi"><p class="kpi-label"><span class="swatch interest" aria-hidden="true"></span>Interés total</p><p class="kpi-value" id="kpi-interest">—</p></div>
+          <div class="kpi"><p class="kpi-label">Total pagado</p><p class="kpi-value" id="kpi-total">—</p></div>
+          <div class="kpi"><p class="kpi-label">Intereses del total pagado</p><p class="kpi-value" id="kpi-share">—</p><p class="kpi-note">J ÷ T: interés total entre total pagado</p></div>
+        </div>
+
+        <div class="result-actions">
+          <button type="button" class="btn btn-secondary btn-pdf" data-export-pdf disabled aria-describedby="pdf-hint">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path class="icon-arrow" d="M12 11v6m-3-3 3 3 3-3"/></svg>
+            <span>Exportar informe PDF</span>
+          </button>
+          <p class="export-status" data-pdf-status role="status"></p>
+        </div>
+        <p class="field-help" id="pdf-hint">El informe se genera en tu equipo con el escenario vigente, sin conexión.</p>
+
+        <details class="precision" id="precision">
+          <summary>Ver precisión del cálculo</summary>
+          <div class="precision-body">
+            <dl id="precision-list"></dl>
+            <p class="field-help">Valores internos en doble precisión (IEEE 754), sin redondeo intermedio; aquí se muestran hasta 6 decimales. La conversión de divisas, si existe, se aplica sobre el resultado base.</p>
+          </div>
+        </details>
+        <div class="visually-hidden" aria-live="polite" aria-atomic="true" id="live-results"></div>
+        <div class="visually-hidden" aria-live="polite" aria-atomic="true" id="live-charts"></div>
+      </section>
+    <section class="charts-block" id="graficas" aria-labelledby="charts-title">
+      <div class="section-head">
+        <h2 id="charts-title">Composición y evolución</h2>
+        <p class="stale-chip" data-stale-chip hidden>Resultado anterior: corrige los datos para actualizar</p>
+      </div>
+      <div class="grid-2">
+        <article class="card chart-card" aria-labelledby="donut-title">
+          <h3 class="card-title" id="donut-title">Composición del total pagado</h3>
+          <p class="card-sub">Capital frente a intereses de toda la operación (no de una sola cuota).</p>
+          <p class="empty-note" data-empty>Pulsa «Calcular» para ver la gráfica.</p>
+          <div class="donut-layout" data-filled hidden>
+            <div class="chart-plot donut-plot" id="donut-plot" tabindex="0" role="group" aria-label="Anillo de composición. Usa las flechas para alternar entre capital e intereses.">
+              <svg class="chart-svg" id="donut-svg" role="img" aria-labelledby="donut-svg-title donut-svg-desc"><title id="donut-svg-title">Composición del total pagado</title><desc id="donut-svg-desc"></desc></svg>
+              <div class="chart-tooltip" id="donut-tooltip" hidden></div>
+            </div>
+            <ul class="legend" id="donut-legend"></ul>
+          </div>
+        </article>
+
+        <article class="card chart-card" aria-labelledby="balance-title">
+          <h3 class="card-title" id="balance-title">Evolución de saldos: <span id="balance-view-name">deuda pendiente</span></h3>
+          <fieldset class="segmented balance-toggle">
+            <legend class="visually-hidden">Vista de la evolución de saldos</legend>
+            <label class="seg"><input type="radio" name="balanceView" value="debt" checked><span>Deuda pendiente</span></label>
+            <label class="seg"><input type="radio" name="balanceView" value="cash"><span>Efectivo acumulado</span></label>
+          </fieldset>
+          <p class="card-sub" id="balance-explain"></p>
+          <p class="empty-note" data-empty>Pulsa «Calcular» para ver la gráfica.</p>
+          <div data-filled hidden>
+            <div class="chart-plot line-plot" id="balance-plot" tabindex="0" role="group" aria-label="Gráfica de saldos. Usa las flechas izquierda y derecha para recorrer los meses.">
+              <svg class="chart-svg" id="balance-svg" role="img" aria-labelledby="balance-svg-title balance-svg-desc"><title id="balance-svg-title"></title><desc id="balance-svg-desc"></desc></svg>
+              <div class="chart-tooltip" id="balance-tooltip" hidden></div>
+            </div>
+            <p class="chart-hint">Pasa el cursor, toca o usa las flechas ← → para ver cada mes.</p>
+            <details class="data-table" id="balance-data-details">
+              <summary>Ver datos de ambas vistas en tabla</summary>
+              <div class="table-scroll small" id="balance-data" tabindex="0" role="region" aria-label="Datos de saldos por mes"></div>
+            </details>
+          </div>
+          <div class="print-only" id="balance-print"></div>
+        </article>
+      </div>
+    </section>
+    </div>
+  </div>
+
+  <section class="container section" id="flujo" aria-labelledby="flow-title">
+    <div class="section-head">
+      <h2 id="flow-title">Diagrama de flujo de efectivo</h2>
+      <p class="stale-chip" data-stale-chip hidden>Resultado anterior: corrige los datos para actualizar</p>
+    </div>
+    <article class="card">
+      <p class="card-sub">Perspectiva del deudor: el desembolso es una entrada (+, hacia arriba) y cada cuota es una salida completa (−, hacia abajo).</p>
+      <div class="flow-controls">
+        <fieldset class="segmented">
+          <legend class="visually-hidden">Escala del diagrama</legend>
+          <label class="seg"><input type="radio" name="flowMode" value="schema" checked><span>Esquema</span></label>
+          <label class="seg"><input type="radio" name="flowMode" value="proportional"><span>Escala proporcional</span></label>
+        </fieldset>
+        <button type="button" class="btn btn-ghost" id="flow-all-btn" aria-expanded="false" aria-controls="flow-all-panel" disabled>Ver todos los meses</button>
+      </div>
+      <p class="empty-note" data-empty>Pulsa «Calcular» para ver el diagrama.</p>
+      <div data-filled hidden>
+        <div class="chart-plot flow-plot" id="flow-plot" tabindex="0" role="group" aria-label="Diagrama de flujo. Usa las flechas izquierda y derecha para recorrer los meses.">
+          <svg class="chart-svg" id="flow-svg" role="img" aria-labelledby="flow-svg-title flow-svg-desc"><title id="flow-svg-title">Diagrama de flujo de efectivo del deudor</title><desc id="flow-svg-desc"></desc></svg>
+          <div class="chart-tooltip" id="flow-tooltip" hidden></div>
+        </div>
+        <p class="scale-note" id="flow-scale-note"></p>
+        <p class="flow-legend"><span class="legend-item"><span class="legend-arrow up" aria-hidden="true"></span>Entrada: desembolso recibido</span> <span class="legend-item"><span class="legend-arrow down" aria-hidden="true"></span>Salida: cuota mensual (capital + intereses)</span></p>
+        <ul class="tramo-list" id="flow-tramos" hidden></ul>
+        <p class="flow-summary" id="flow-summary"></p>
+        <div class="flow-all" id="flow-all-panel" hidden>
+          <p class="scroll-hint" id="flow-all-hint"></p>
+          <div class="flow-all-scroll" id="flow-all-scroll" tabindex="0" role="group" aria-label="Diagrama detallado con todos los meses. Usa las flechas izquierda y derecha para recorrerlos.">
+            <div class="chart-plot" id="flow-all-plot">
+              <svg class="chart-svg wide" id="flow-all-svg" role="img" aria-labelledby="flow-all-title"><title id="flow-all-title">Diagrama de flujo de efectivo con todos los meses</title></svg>
+              <div class="chart-tooltip" id="flow-all-tooltip" hidden></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="container section" id="amortizacion" aria-labelledby="table-title">
+    <div class="section-head">
+      <h2 id="table-title">Tabla de amortización</h2>
+      <p class="stale-chip" data-stale-chip hidden>Resultado anterior: corrige los datos para actualizar</p>
+    </div>
+    <article class="card">
+      <p class="empty-note" data-empty>Pulsa «Calcular» para ver cada pago.</p>
+      <div data-filled hidden>
+        <p class="disbursement" id="disbursement-row"></p>
+        <div class="table-tools">
+          <p class="table-range" id="table-range"></p>
+          <div class="table-buttons">
+            <button type="button" class="btn btn-ghost btn-sm" id="tbl-first">Primer mes</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="tbl-prev">Anterior</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="tbl-next">Siguiente</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="tbl-last">Ir al último mes</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="tbl-all" aria-pressed="false" hidden>Mostrar todos</button>
+          </div>
+        </div>
+        <p class="scroll-hint" id="table-scroll-hint" hidden>Desliza la tabla para ver todas las columnas.</p>
+        <div class="table-wrap" id="table-wrap" tabindex="0" role="region" aria-labelledby="table-title">
+          <table class="amort">
+            <caption class="visually-hidden" id="table-caption">Tabla de amortización</caption>
+            <thead><tr><th scope="col">Mes</th><th scope="col">Cuota</th><th scope="col">Capital</th><th scope="col">Intereses</th><th scope="col">Saldo restante</th></tr></thead>
+            <tbody id="amort-body"></tbody>
+            <tfoot><tr><th scope="row">Totales</th><td id="ft-pay"></td><td id="ft-principal"></td><td id="ft-interest"></td><td id="ft-balance"></td></tr></tfoot>
+          </table>
+        </div>
+        <p class="note">Cálculo con precisión completa; importes mostrados a dos decimales. La suma de valores redondeados puede diferir del total calculado.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="container section" id="analisis" aria-labelledby="analysis-title">
+    <div class="section-head">
+      <h2 id="analysis-title">Análisis crítico</h2>
+      <p class="stale-chip" data-stale-chip hidden>Resultado anterior: corrige los datos para actualizar</p>
+    </div>
+    <article class="card analysis-card">
+      <p class="empty-note" data-empty>Pulsa «Calcular» para generar la lectura del escenario.</p>
+      <div data-filled hidden>
+        <p class="card-sub">Lectura generada en tu equipo a partir del escenario actual; cada cifra proviene del cálculo.</p>
+        <div class="prose" id="analysis-text"></div>
+        <h3 class="subhead" id="compare-title">Comparación de plazo</h3>
+        <div class="table-scroll">
+          <table class="compare" aria-labelledby="compare-title">
+            <thead><tr><th scope="col">Concepto</th><th scope="col" id="cmp-h-cur">Actual</th><th scope="col" id="cmp-h-alt">Alternativo</th><th scope="col">Diferencia</th></tr></thead>
+            <tbody id="compare-body"></tbody>
+          </table>
+        </div>
+        <div class="compare-actions">
+          <button type="button" class="btn btn-secondary" id="use-alt-btn">Usar este plazo</button>
+          <p class="field-help">El préstamo activo no cambia hasta que pulses el botón.</p>
+        </div>
+        <details class="formulas" id="formulas-details">
+          <summary>Fórmulas, variables y sustitución</summary>
+          <div class="formulas-body" id="formulas"></div>
+        </details>
+      </div>
+      <details class="assumptions" id="assumptions-details">
+        <summary>Modelo y supuestos</summary>
+        <ul id="assumptions-list"></ul>
+      </details>
+      <div class="result-actions">
+        <button type="button" class="btn btn-secondary btn-pdf" data-export-pdf disabled>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path class="icon-arrow" d="M12 11v6m-3-3 3 3 3-3"/></svg>
+          <span>Exportar informe PDF</span>
+        </button>
+        <p class="export-status" data-pdf-status role="status"></p>
+      </div>
+    </article>
+  </section>
+
+  <section class="container section" id="exportar" aria-labelledby="export-title">
+    <div class="section-head">
+      <h2 id="export-title">Exportar y conectar</h2>
+      <p class="stale-chip" data-stale-chip hidden>Resultado anterior: corrige los datos para actualizar</p>
+    </div>
+    <div class="grid-2">
+      <article class="card" aria-labelledby="pdf-card-title">
+        <h3 class="card-title" id="pdf-card-title">Informe PDF</h3>
+        <p>Incluye portada con parámetros, resumen, supuestos, gráficas con ejes y leyendas, flujo de efectivo, efectivo acumulado, análisis con fórmulas y la tabla completa de todos los meses. El texto es seleccionable.</p>
+        <div class="result-actions">
+          <button type="button" class="btn btn-secondary btn-pdf" data-export-pdf disabled>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path class="icon-arrow" d="M12 11v6m-3-3 3 3 3-3"/></svg>
+            <span>Exportar informe PDF</span>
+          </button>
+          <p class="export-status" data-pdf-status role="status"></p>
+        </div>
+        <div class="print-alt">
+          <button type="button" class="btn btn-ghost" id="print-btn" disabled aria-describedby="print-help">Imprimir / guardar como PDF</button>
+          <p class="field-help" id="print-help">Abre el diálogo de impresión del navegador; desde ahí puedes guardar como PDF. Es el respaldo si la descarga directa falla.</p>
+        </div>
+        <p class="scenario-line">Escenario vigente: <span class="mono" id="scenario-id">sin calcular</span></p>
+      </article>
+
+      <article class="card" id="powerbi" aria-labelledby="pbi-title">
+        <h3 class="card-title" id="pbi-title">Usar en Power BI</h3>
+        <p>El panel de TRAZA funciona sin Power BI. Para crear un reporte en Power BI Desktop, descarga los datos del escenario vigente e impórtalos. Es una exportación: Power BI no se actualiza solo al mover un deslizador.</p>
+        <div class="csv-buttons">
+          <button type="button" class="btn btn-secondary btn-csv" data-csv="escenario" disabled><span>traza_escenario.csv</span><span class="csv-meta" data-csv-meta="escenario">1 fila</span></button>
+          <button type="button" class="btn btn-secondary btn-csv" data-csv="amortizacion" disabled><span>traza_amortizacion.csv</span><span class="csv-meta" data-csv-meta="amortizacion">n filas</span></button>
+          <button type="button" class="btn btn-secondary btn-csv" data-csv="flujos" disabled><span>traza_flujos.csv</span><span class="csv-meta" data-csv-meta="flujos">n + 1 filas</span></button>
+        </div>
+        <p class="export-status" id="csv-status" role="status"></p>
+        <details class="pbi-details">
+          <summary>Guía de importación en Power BI Desktop</summary>
+          <ol class="steps">
+            <li>Abre Power BI Desktop (requiere un equipo con Windows compatible; TRAZA no lo instala ni lo sustituye).</li>
+            <li>Elige <strong>Obtener datos → Texto/CSV</strong> e importa <code>traza_escenario.csv</code>, <code>traza_amortizacion.csv</code> y <code>traza_flujos.csv</code>.</li>
+            <li>En cada archivo confirma: origen UTF-8, delimitador coma y configuración regional con punto decimal (por ejemplo, «Inglés (Estados Unidos)»). Asigna tipo numérico decimal a los importes.</li>
+            <li>Renombra las tablas como <strong>Escenario</strong>, <strong>Amortizacion</strong> y <strong>Flujos</strong> y relaciónalas por <code>scenario_id</code>.</li>
+            <li>Construye los visuales sugeridos. Tras una nueva exportación, reemplaza los archivos y pulsa <strong>Actualizar</strong> manualmente.</li>
+          </ol>
+        </details>
+        <details class="pbi-details">
+          <summary>Modelo de datos y medidas DAX</summary>
+          <div class="model-diagram" role="img" aria-label="Modelo: Escenario en el lado uno, relacionado por scenario_id con Amortizacion y con Flujos en el lado muchos. Sin relación directa entre Amortizacion y Flujos.">
+            <div class="entity"><strong>Escenario</strong><span>1 fila por escenario</span></div>
+            <div class="rel" aria-hidden="true"><span>1</span><span class="rel-line"></span><span>*</span></div>
+            <div class="entity"><strong>Amortizacion</strong><span>n filas (meses 1…n)</span></div>
+            <div class="rel" aria-hidden="true"><span>1</span><span class="rel-line"></span><span>*</span></div>
+            <div class="entity"><strong>Flujos</strong><span>n + 1 filas (meses 0…n)</span></div>
+          </div>
+          <p class="field-help">Filtro desde Escenario hacia ambas tablas; sin relación directa entre Amortizacion y Flujos. Para KPIs escalares, selecciona un único escenario y no agregues importes de monedas distintas.</p>
+          <pre class="code"><code id="dax-code">Cuota = SELECTEDVALUE(Escenario[payment])
+Capital = SELECTEDVALUE(Escenario[principal_display])
+Intereses = SUM(Amortizacion[interest_component])
+TotalPagado = SUM(Amortizacion[payment])
+PorcentajeIntereses = DIVIDE([Intereses], [TotalPagado], 0)</code></pre>
+          <button type="button" class="btn btn-ghost btn-sm" id="copy-dax">Copiar medidas</button>
+          <p class="export-status" id="copy-status" role="status"></p>
+        </details>
+        <details class="pbi-details">
+          <summary>Diseño de reporte sugerido</summary>
+          <ul class="steps">
+            <li>Tarjetas: cuota, capital, interés total y total pagado.</li>
+            <li>Anillo: capital frente a interés total, con los colores de TRAZA (salvia #A7C8B9 y cobre #B86A45).</li>
+            <li>Línea: deuda por mes (<code>Flujos[debt_balance]</code>).</li>
+            <li>Columnas divergentes: flujo mensual firmado (<code>Flujos[cash_flow]</code>).</li>
+            <li>Línea escalonada: efectivo acumulado (<code>Flujos[cumulative_cash]</code>).</li>
+            <li>Matriz: amortización completa.</li>
+            <li>Segmentador: escenario, mostrando moneda y fecha de referencia. Los saldos no se suman entre meses.</li>
+          </ul>
+        </details>
+        <div class="pbi-report" id="pbi-report">
+          <p class="status-line" id="pbi-status">Sin reporte externo configurado. La integración con un reporte publicado queda pendiente de una URL de inserción y un acceso válidos del equipo; no se muestra ningún reporte simulado.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="container section" id="equipo" aria-labelledby="team-title">
+    <div class="section-head">
+      <h2 id="team-title">Créditos del equipo</h2>
+    </div>
+    <div class="credits" id="credits" data-face="front">
+      <div class="credits-tilt" aria-hidden="true"></div>
+      <div class="credits-inner">
+        <div class="credits-face credits-front" id="credits-front">
+          <p class="eyebrow" id="credits-course"></p>
+          <h3 class="credits-title">Equipo</h3>
+          <ul class="team-list" id="team-list"></ul>
+          <p class="credits-hint">Toca para ver el contacto</p>
+          <button type="button" class="btn btn-secondary" id="credits-open" aria-controls="credits-back">Ver contacto del coordinador</button>
+        </div>
+        <div class="credits-face credits-back" id="credits-back" aria-hidden="true">
+          <p class="eyebrow">Contacto</p>
+          <h3 class="credits-title" id="credits-back-title" tabindex="-1">Coordinación del equipo</h3>
+          <div class="credits-contact" id="credits-contact"></div>
+          <button type="button" class="btn btn-on-dark" id="credits-close">Volver a los créditos</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <svg class="brand-symbol" viewBox="0 0 50.16 32.102" aria-hidden="true" focusable="false">
+        <g stroke="currentColor" fill="none">
+          <line x1="0" y1="13.543" x2="50.16" y2="13.543" stroke-width="3.952"/>
+          <line x1="12.038" y1="13.543" x2="12.038" y2="2.508" stroke-width="3.876"/>
+          <line x1="24.578" y1="13.543" x2="24.578" y2="32.102" stroke-width="3.876"/>
+          <line x1="37.62" y1="13.543" x2="37.62" y2="0" stroke-width="3.876"/>
+        </g>
+        <circle cx="24.578" cy="13.543" r="3.648" fill="currentColor"/>
+      </svg>
+      <span class="wordmark">TRAZA</span>
+      <span class="tagline">Las finanzas con claridad.</span>
+    </div>
+    <p class="footer-note">Herramienta académica de Ingeniería Económica · 2026. Estima un préstamo bajo supuestos explícitos; no es asesoría financiera. Funciona sin conexión y no envía tus datos a ningún servidor.</p>
+    <details class="licenses">
+      <summary>Licencias de terceros</summary>
+<!--INJECT:LICENSES-->
+    </details>
+  </div>
+</footer>
+
+<!--INJECT:VENDOR-->
+<!--INJECT:SCRIPT-->
+</body>
+</html>
