@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAZA · Exportación CSV para Power BI (§12.2)
+   VÉRTICE · Exportación CSV para Power BI (§12.2)
    UTF-8 con BOM, coma como separador, punto decimal, cabeceras estables sin
    tildes, números completos sin símbolos y texto neutralizado ante fórmulas.
    ========================================================================== */
@@ -23,7 +23,7 @@
       h ^= key.charCodeAt(k);
       h = Math.imul(h, 0x01000193) >>> 0;
     }
-    return 'TRZ-' + ('00000000' + h.toString(16).toUpperCase()).slice(-8);
+    return 'VRT-' + ('00000000' + h.toString(16).toUpperCase()).slice(-8);
   }
 
   function csvText(value) {
@@ -89,9 +89,9 @@
     );
 
     return {
-      escenario: { filename: 'traza_escenario.csv', text: escenario, rows: 1 },
-      amortizacion: { filename: 'traza_amortizacion.csv', text: amortizacion, rows: v.schedule.length },
-      flujos: { filename: 'traza_flujos.csv', text: flujos, rows: v.cashFlows.length },
+      escenario: { filename: 'vertice_escenario.csv', text: escenario, rows: 1 },
+      amortizacion: { filename: 'vertice_amortizacion.csv', text: amortizacion, rows: v.schedule.length },
+      flujos: { filename: 'vertice_flujos.csv', text: flujos, rows: v.cashFlows.length },
     };
   }
 
@@ -99,7 +99,7 @@
     var v = snap.view;
     var r = snap.result;
     var cur = r.input.baseCurrency + (v.mode === 'conversion' ? '-en-' + v.currency : '');
-    return 'TRAZA_prestamo_' + cur + '_' + r.input.months + 'm_' + format.isoDateLocal(snap.generatedAt) + '.pdf';
+    return 'VERTICE_prestamo_' + cur + '_' + r.input.months + 'm_' + format.isoDateLocal(snap.generatedAt) + '.pdf';
   }
 
   var api = {

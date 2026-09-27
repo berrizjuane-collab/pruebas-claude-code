@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAZA · Aplicación: estado, eventos, render y exportaciones
+   VÉRTICE · Aplicación: estado, eventos, render y exportaciones
    Una única fuente de datos (state.current) alimenta resultado, tabla,
    gráficas, análisis, PDF y CSV. El DOM nunca se usa como fuente numérica.
    ========================================================================== */
@@ -80,13 +80,14 @@
   /* ------------------------------------------------------------------
      Utilidades
      ------------------------------------------------------------------ */
+  var FONT_UI = '"Segoe UI", VerticeSans, system-ui, -apple-system, sans-serif';
   var measureCtx = document.createElement('canvas').getContext('2d');
   var measureCache = new Map();
   function measure(text, size, weight) {
     var key = weight + '|' + size + '|' + text;
     var w = measureCache.get(key);
     if (w === undefined) {
-      measureCtx.font = weight + ' ' + size + 'px Inter, system-ui, -apple-system, "Segoe UI", sans-serif';
+      measureCtx.font = weight + ' ' + size + 'px ' + FONT_UI;
       w = measureCtx.measureText(text).width * (/\d/.test(text) ? 1.04 : 1.0);
       if (measureCache.size > 4000) measureCache.clear();
       measureCache.set(key, w);
@@ -657,7 +658,7 @@
     node.style.fontSize = size + 'px';
   }
 
-  function heroMaxSize() { return Math.min(48, Math.max(32, window.innerWidth * 0.04)); }
+  function heroMaxSize() { return Math.min(52, Math.max(34, window.innerWidth * 0.042)); }
 
   function animateHero(target, cur, animate) {
     var h = state.hero;
@@ -665,7 +666,7 @@
     h.raf = 0;
     var from = h.value;
     var fmt = function (x) { return format.formatMoney(x, cur); };
-    fitText(el.heroAmount.parentElement, [fmt(target), from !== null && h.currency === cur ? fmt(from) : fmt(target)], heroMaxSize(), 20, 700);
+    fitText(el.heroAmount.parentElement, [fmt(target), from !== null && h.currency === cur ? fmt(from) : fmt(target)], heroMaxSize(), 20, 600);
     if (!animate || reduced() || from === null || h.currency !== cur || from === target) {
       el.heroAmount.textContent = fmt(target);
     } else {
@@ -727,13 +728,13 @@
     var grid = $('kpis');
     grid.classList.remove('kpis-wide');
     var fits = function () {
-      nodes.forEach(function (k) { fitText(k, [k.textContent], 22, 15, 700); });
+      nodes.forEach(function (k) { fitText(k, [k.textContent], 22, 15, 600); });
       return nodes.every(function (k) { return k.scrollWidth <= k.clientWidth + 1; }) &&
         nodes.every(function (k) { return parseFloat(k.style.fontSize || '22') >= 15; });
     };
     if (!fits()) {
       grid.classList.add('kpis-wide');
-      nodes.forEach(function (k) { fitText(k, [k.textContent], 22, 12, 700); });
+      nodes.forEach(function (k) { fitText(k, [k.textContent], 22, 12, 600); });
     }
   }
 
@@ -975,12 +976,12 @@
     if (kind === 'balance') {
       var vals = balanceSeries();
       var y = L.yOf(vals[m]);
-      g.appendChild(svgEl('line', { x1: x, y1: L.y0, x2: x, y2: L.y1, stroke: '#142D34', 'stroke-width': 1, 'stroke-dasharray': '3 3' }));
-      g.appendChild(svgEl('circle', { cx: x, cy: y, r: 5.5, fill: '#FFFFFF', stroke: state.balanceView === 'debt' ? '#2C6266' : '#142D34', 'stroke-width': 2.5 }));
+      g.appendChild(svgEl('line', { x1: x, y1: L.y0, x2: x, y2: L.y1, stroke: '#2B3430', 'stroke-width': 1, 'stroke-dasharray': '3 3' }));
+      g.appendChild(svgEl('circle', { cx: x, cy: y, r: 5.5, fill: '#FCFBF7', stroke: state.balanceView === 'debt' ? '#10372F' : '#2B3430', 'stroke-width': 2.5 }));
       anchorY = y;
     } else {
       var half = Math.max(5, L.stepPx / 2);
-      g.appendChild(svgEl('rect', { x: x - half, y: L.top - 6, width: half * 2, height: L.bottom - L.top + 12, rx: 4, fill: '#2C6266', 'fill-opacity': 0.1, stroke: '#2C6266', 'stroke-width': 1 }));
+      g.appendChild(svgEl('rect', { x: x - half, y: L.top - 6, width: half * 2, height: L.bottom - L.top + 12, rx: 4, fill: '#C5A25D', 'fill-opacity': 0.22, stroke: '#10372F', 'stroke-width': 1 }));
       anchorY = m === 0 ? L.top : L.axisY;
     }
     svg.appendChild(g);
@@ -1285,7 +1286,18 @@
   }
 
   function readFonts() {
-    return { regular: $('font-inter-regular').textContent.trim(), bold: $('font-inter-bold').textContent.trim() };
+    return {
+      sans: $('font-vsans-regular').textContent.trim(),
+      sansSemibold: $('font-vsans-semibold').textContent.trim(),
+      serif: $('font-vserif-regular').textContent.trim(),
+    };
+  }
+
+  /* El emblema oficial vive una sola vez en la hoja de estilos (--emblem). */
+  function readEmblem() {
+    var raw = getComputedStyle(document.documentElement).getPropertyValue('--emblem');
+    var m = /url\((['"]?)(data:image\/png;base64,[^'")\s]+)\1\)/.exec(raw || '');
+    return m ? m[2] : null;
   }
 
   async function exportPdf() {
@@ -1300,7 +1312,7 @@
     try {
       await nextFrame();
       var jsPDF = ensurePdfLib();
-      var out = await T.pdf.generatePdf(snap, { jsPDF: jsPDF, fonts: readFonts(), cmap: T.pdfCmap });
+      var out = await T.pdf.generatePdf(snap, { jsPDF: jsPDF, fonts: readFonts(), cmap: T.pdfCmap, emblem: readEmblem() });
       downloadBlob(out.blob, out.filename);
       setPdfStatus('Informe descargado: ' + out.filename + ' (' + out.pages + ' páginas, escenario ' + snap.scenarioId + ').', 'ok');
     } catch (err) {
@@ -1539,7 +1551,7 @@
         if (!state.current) return;
         renderCharts();
         updateTableHint();
-        fitText(el.heroAmount.parentElement, [el.heroAmount.textContent], heroMaxSize(), 20, 700);
+        fitText(el.heroAmount.parentElement, [el.heroAmount.textContent], heroMaxSize(), 20, 600);
         fitKpis();
       });
     };

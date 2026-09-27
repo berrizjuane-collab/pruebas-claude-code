@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAZA · Formato de presentación
+   VÉRTICE · Formato de presentación
    Recibe números y produce cadenas (nunca al revés). Convención visible:
    punto de miles, coma decimal, signo menos tipográfico (U+2212).
    ========================================================================== */

@@ -1,4 +1,4 @@
-// Verificación de extremo a extremo de traza/index.html en Chromium (Playwright).
+// Verificación de extremo a extremo de traza/index.html (VÉRTICE) en Chromium (Playwright).
 // Uso: NODE_PATH=$(npm root -g) node traza/tests/e2e.cjs [carpeta_de_salida]
 // Recorre la matriz V01–V28 del plan maestro que puede automatizarse y deja
 // capturas, PDF y CSV descargados en la carpeta de salida.
@@ -9,7 +9,7 @@ const os = require('os');
 const engine = require('../src/engine.js');
 const format = require('../src/format.js');
 
-const OUT = path.resolve(process.argv[2] || fs.mkdtempSync(path.join(os.tmpdir(), 'traza-e2e-')));
+const OUT = path.resolve(process.argv[2] || fs.mkdtempSync(path.join(os.tmpdir(), 'vertice-e2e-')));
 fs.mkdirSync(OUT, { recursive: true });
 const INDEX = path.resolve(__dirname, '..', 'index.html');
 const FILE = 'file://' + INDEX;
@@ -63,6 +63,41 @@ function parseCsv(text) {
   check('INI-orientación', await page.isVisible('#hero-empty') && !(await page.isVisible('#hero-result')), 'tarjeta de orientación sin cifras');
   check('INI-exportaciones deshabilitadas', await page.$eval('[data-export-pdf]', (b) => b.disabled) && await page.$eval('[data-csv]', (b) => b.disabled));
   check('INI-una sola h1', (await page.$$eval('h1', (a) => a.length)) === 1);
+
+  /* Identidad VÉRTICE: nombre, emblema, tipografías y paleta (solo presentación) */
+  const brand = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const css = (el, prop) => getComputedStyle(el).getPropertyValue(prop).trim();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+    const attrs = [];
+    for (let el = walker.currentNode; el; el = walker.nextNode()) {
+      if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') continue;
+      for (const a of el.attributes) attrs.push(a.value);
+    }
+    const tile = document.querySelector('header .brand-tile');
+    const tb = tile.getBoundingClientRect();
+    const faces = Array.from(document.fonts).filter((f) => /Vertice/.test(f.family)).map((f) => f.family.replace(/"/g, '') + ' ' + f.weight + ' ' + f.status);
+    return {
+      title: document.title,
+      visibleOld: /traza/i.test(document.body.innerText) || attrs.some((v) => /traza/i.test(v)) || /traza/i.test(document.title),
+      wordmark: document.querySelector('header .wordmark').textContent + ' / ' + document.querySelector('header .descriptor').textContent,
+      tagline: document.querySelector('footer .tagline').textContent,
+      emblem: /^url\("?data:image\/png;base64,/.test(css(document.documentElement, '--emblem')),
+      tileBg: /data:image\/png;base64,/.test(getComputedStyle(tile).backgroundImage),
+      tileBox: Math.round(tb.width) + 'x' + Math.round(tb.height),
+      tileColor: getComputedStyle(tile).backgroundColor,
+      favicon: /^data:image\/png;base64,/.test(document.querySelector('link[rel="icon"]').getAttribute('href')),
+      faces,
+      h1Font: getComputedStyle(document.querySelector('h1')).fontFamily,
+      bodyFont: getComputedStyle(document.body).fontFamily,
+      header: getComputedStyle(document.querySelector('.site-header') || document.querySelector('header')).backgroundColor,
+      page: getComputedStyle(document.body).backgroundColor,
+    };
+  });
+  check('MARCA título y textos', brand.title.includes('VÉRTICE') && !brand.visibleOld && brand.wordmark === 'VÉRTICE / Ingeniería Económica' && brand.tagline === 'El valor correcto. En la fecha correcta.', brand.title);
+  check('MARCA emblema original y favicon', brand.emblem && brand.tileBg && brand.tileBox === '40x40' && brand.tileColor === 'rgb(244, 241, 232)' && brand.favicon, brand.tileBox + ' ' + brand.tileColor);
+  check('MARCA tipografías cargadas', ['VerticeSans 400 loaded', 'VerticeSans 600 loaded', 'VerticeSerif 400 loaded'].every((f) => brand.faces.includes(f)) && /^Georgia, VerticeSerif/.test(brand.h1Font) && /^"Segoe UI", VerticeSans/.test(brand.bodyFont), brand.faces.join(', '));
+  check('MARCA paleta', brand.header === 'rgb(16, 55, 47)' && brand.page === 'rgb(244, 241, 232)', brand.header + ' / ' + brand.page);
 
   /* V01 */
   await setField(page, '#amount-input', '12.000,50');
@@ -152,7 +187,7 @@ function parseCsv(text) {
   const eur1 = await heroValue(page);
   const r09 = pay(12000, 12, 24);
   check('V09a conversión aplicada', eur1 === fm(r09.payment * 0.92, 'EUR') && (await page.textContent('#hero-currency')).includes('1 USD = 0,92 EUR'), eur1);
-  const csvConv = await download(page, '[data-csv="escenario"]', 'conv_traza_escenario.csv');
+  const csvConv = await download(page, '[data-csv="escenario"]', 'conv_vertice_escenario.csv');
   const esc = parseCsv(fs.readFileSync(csvConv.file, 'utf8'))[0];
   check('V09b metadatos CSV', esc.currency_mode === 'conversion' && esc.fx_rate === '0.92' && esc.fx_date === '2026-09-26' && esc.display_currency === 'EUR' && esc.base_currency === 'USD' && esc.principal_base === '12000');
   await page.selectOption('#convert-target', 'GBP');
@@ -170,7 +205,7 @@ function parseCsv(text) {
   const bodyText = await page.textContent('main');
   check('V10 tasa cero y n = 1', (await heroValue(page)) === '$ 12.000,00' && donut.length === 1 && donut[0] === 'circle:capital' && !/NaN|Infinity|undefined/.test(bodyText), donut.join(','));
   const pdf1 = await download(page, '[data-export-pdf]', 'pdf_1m.pdf');
-  check('V16a PDF de 1 mes', fs.statSync(pdf1.file).size > 20000 && /^TRAZA_prestamo_USD_1m_\d{4}-\d{2}-\d{2}\.pdf$/.test(pdf1.suggested), pdf1.suggested);
+  check('V16a PDF de 1 mes', fs.statSync(pdf1.file).size > 20000 && /^VERTICE_prestamo_USD_1m_\d{4}-\d{2}-\d{2}\.pdf$/.test(pdf1.suggested), pdf1.suggested);
 
   /* V11 */
   await setScenario(page, '1.000.000.000', '100', '600');
@@ -187,8 +222,8 @@ function parseCsv(text) {
   const t0 = Date.now();
   const pdf600 = await download(page, '[data-export-pdf]', 'pdf_600m.pdf');
   check('V16b PDF de 600 meses', fs.statSync(pdf600.file).size > 60000, ((Date.now() - t0) / 1000).toFixed(1) + ' s');
-  const am600 = await download(page, '[data-csv="amortizacion"]', 'am600_traza_amortizacion.csv');
-  const fl600 = await download(page, '[data-csv="flujos"]', 'fl600_traza_flujos.csv');
+  const am600 = await download(page, '[data-csv="amortizacion"]', 'am600_vertice_amortizacion.csv');
+  const fl600 = await download(page, '[data-csv="flujos"]', 'fl600_vertice_flujos.csv');
   const amRows = parseCsv(fs.readFileSync(am600.file, 'utf8'));
   const flRows = parseCsv(fs.readFileSync(fl600.file, 'utf8'));
   check('V15d CSV completo sin página', amRows.length === 600 && flRows.length === 601 && new Set(amRows.map((r) => r.month)).size === 600);
@@ -252,13 +287,14 @@ function parseCsv(text) {
   await page.evaluate(() => { TRAZA.pdf.generatePdf = window.__orig; });
 
   /* V19 */
-  const c1 = await download(page, '[data-csv="escenario"]', 'n01_traza_escenario.csv');
-  const c2 = await download(page, '[data-csv="amortizacion"]', 'n01_traza_amortizacion.csv');
-  const c3 = await download(page, '[data-csv="flujos"]', 'n01_traza_flujos.csv');
+  const c1 = await download(page, '[data-csv="escenario"]', 'n01_vertice_escenario.csv');
+  const c2 = await download(page, '[data-csv="amortizacion"]', 'n01_vertice_amortizacion.csv');
+  const c3 = await download(page, '[data-csv="flujos"]', 'n01_vertice_flujos.csv');
   const e19 = parseCsv(fs.readFileSync(c1.file, 'utf8'));
   const a19 = parseCsv(fs.readFileSync(c2.file, 'utf8'));
   const f19 = parseCsv(fs.readFileSync(c3.file, 'utf8'));
   const ids = new Set([...e19, ...a19, ...f19].map((r) => r.scenario_id));
+  check('MARCA nombres de archivo', [c1, c2, c3].map((d) => d.suggested).join('|') === 'vertice_escenario.csv|vertice_amortizacion.csv|vertice_flujos.csv' && /^VRT-[0-9A-F]{8}$/.test([...ids][0]), [c1, c2, c3].map((d) => d.suggested).join(' '));
   check('V19 tres CSV coherentes', ids.size === 1 && a19.length === 24 && f19.length === 25 && Math.abs(Number(e19[0].payment) - 564.8816666791765) < 1e-9 && e19[0].fx_rate === '1' && e19[0].fx_date === '', [...ids][0]);
   const pdf24 = await download(page, '[data-export-pdf]', 'pdf_24m.pdf');
   check('V16c PDF de 24 meses', fs.statSync(pdf24.file).size > 20000, pdf24.suggested);
@@ -366,7 +402,7 @@ function parseCsv(text) {
   await po.goto(FILE);
   await po.click('#calc-btn');
   const offPdf = await download(po, '[data-export-pdf]', 'offline.pdf');
-  const offCsv = await download(po, '[data-csv="flujos"]', 'offline_traza_flujos.csv');
+  const offCsv = await download(po, '[data-csv="flujos"]', 'offline_vertice_flujos.csv');
   check('V27 sin conexión', (await heroValue(po)) === '$ 564,88' && fs.statSync(offPdf.file).size > 20000 && fs.statSync(offCsv.file).size > 500);
   await off.close();
 
@@ -374,7 +410,7 @@ function parseCsv(text) {
   const html = fs.readFileSync(INDEX, 'utf8');
   const variants = {
     largo: html.replace("'Stephy Batiuk',", "'María de los Ángeles Fernández-Villavicencio Rodríguez de la Santísima Trinidad', 'Stephy Batiuk',")
-      .replace("coordinatorEmail: 'jeberrizbeitia.25@est.ucab.edu.ve'", "coordinatorEmail: 'coordinacion.academica.ingenieria.economica.seccion.402.grupo.traza@est.ucab.edu.ve'"),
+      .replace("coordinatorEmail: 'jeberrizbeitia.25@est.ucab.edu.ve'", "coordinatorEmail: 'coordinacion.academica.ingenieria.economica.seccion.402.grupo.vertice@est.ucab.edu.ve'"),
     vacio: html.replace(/teamMembers: \[[\s\S]*?\],/, 'teamMembers: [],').replace("coordinatorEmail: 'jeberrizbeitia.25@est.ucab.edu.ve'", "coordinatorEmail: 'XXX@ucab'").replace("coordinatorName: 'Juan Berrizbeitia'", "coordinatorName: ''"),
   };
   for (const [name, content] of Object.entries(variants)) {

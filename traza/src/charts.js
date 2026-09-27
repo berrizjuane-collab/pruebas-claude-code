@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAZA · Gráficas
+   VÉRTICE · Gráficas
    Cada gráfica se describe como una escena de primitivas independiente del
    medio. La misma escena se dibuja en SVG (pantalla) o con vectores jsPDF
    (informe), así ambas salidas comparten datos, escalas y rótulos.
@@ -9,22 +9,27 @@
 
   var format = (typeof module === 'object' && module.exports) ? require('./format.js') : root.TRAZA.format;
 
+  /* Paleta VÉRTICE: verde y grafito explican; cobre y oro destacan.
+     Verde = capital, deuda y entradas; cobre = intereses y salidas. */
   var COLORS = Object.freeze({
-    ink: '#142D34',
-    accent: '#2C6266',
-    canvas: '#F5F2EA',
-    capital: '#A7C8B9',
-    interest: '#B86A45',
-    border: '#E4E8E4',
-    surface: '#FFFFFF',
-    muted: '#52636A',
-    grid: '#E4E8E4',
-    negativeZone: '#F7EDE7',
-    band: '#F3E4DB',
+    ink: '#2B3430',
+    accent: '#10372F',
+    green2: '#174B3D',
+    canvas: '#F4F1E8',
+    capital: '#10372F',
+    interest: '#B56C4D',
+    gold: '#C5A25D',
+    axis: '#648477',
+    border: '#DDE2DD',
+    surface: '#FCFBF7',
+    muted: '#5F6963',
+    grid: '#E2E6E1',
+    negativeZone: '#F6ECE6',
+    band: '#F1E3DA',
   });
 
-  /* Proporciones tipográficas de Inter para ubicar líneas base. */
-  var CAP = 0.727;
+  /* Altura de mayúsculas de la tipografía de interfaz, para ubicar líneas base. */
+  var CAP = 0.72;
 
   function r2(v) { return Math.round(v * 100) / 100; }
 
@@ -182,17 +187,17 @@
     var value = o.centerValue;
     var unit = null;
     var vSize = vMax;
-    while (vSize > vMin && o.measure(value, vSize, 700) > maxW) vSize -= 0.5;
-    if (o.measure(value, vSize, 700) > maxW && o.centerCompact) {
+    while (vSize > vMin && o.measure(value, vSize, 600) > maxW) vSize -= 0.5;
+    if (o.measure(value, vSize, 600) > maxW && o.centerCompact) {
       value = o.centerCompact.value;
       unit = o.centerCompact.unit;
       vSize = vMax;
-      while (vSize > vMin && o.measure(value, vSize, 700) > maxW) vSize -= 0.5;
+      while (vSize > vMin && o.measure(value, vSize, 600) > maxW) vSize -= 0.5;
     }
     var lSize = Math.min(o.centerLabelSize || 11, vSize);
     var shift = unit ? lSize * 0.7 : 0;
     sc.text(cx, cy - 3 - shift, o.centerLabel, lSize, { anchor: 'middle', weight: 600, fill: COLORS.muted });
-    sc.text(cx, cy + 3 - shift, value, vSize, { anchor: 'middle', weight: 700, baseline: 'top' });
+    sc.text(cx, cy + 3 - shift, value, vSize, { anchor: 'middle', weight: 600, baseline: 'top' });
     if (unit) sc.text(cx, cy + 6 - shift + vSize * CAP + lSize, unit, lSize, { anchor: 'middle', weight: 600, fill: COLORS.muted });
 
     if (o.legend) {
@@ -204,7 +209,7 @@
         var y = y0 + k * lh;
         if (row.color) sc.rect(lx, y, 9, 9, { fill: row.color, r: 2 });
         var tx = row.color ? lx + 15 : lx;
-        sc.text(tx, y - 1, row.name, o.legendSize || 9, { weight: 700, baseline: 'top' });
+        sc.text(tx, y - 1, row.name, o.legendSize || 9, { weight: 600, baseline: 'top' });
         sc.text(tx, y + (o.legendSize || 9) + 3, row.value, o.legendSize || 9, { baseline: 'top', fill: COLORS.ink });
       });
     }
@@ -234,7 +239,7 @@
        fuera del área de datos para no tapar la serie. */
     var endText = o.endLabel || '';
     var unitW = measure(o.unitLabel + ' · M = millones', fsLabel, 600);
-    var endW = endText ? measure(endText, fsTick, 700) + 14 : 0;
+    var endW = endText ? measure(endText, fsTick, 600) + 14 : 0;
     var twoLines = endText && unitW + endW + 16 > w;
     var top = fsLabel + 16 + (twoLines ? fsTick + 8 : 0);
     var bottom = fsTick + 26;
@@ -287,9 +292,9 @@
     /* Valor final legible sin tooltip, con un punto del color de la serie. */
     if (endText) {
       var ly = twoLines ? fsLabel + 8 : 0;
-      var tw = measure(endText, fsTick, 700);
+      var tw = measure(endText, fsTick, 600);
       sc.circle(w - tw - 9, ly + (CAP * fsTick) / 2, 3.2, { fill: o.kind === 'debt' ? COLORS.accent : COLORS.interest });
-      sc.text(w, ly, endText, fsTick, { anchor: 'end', weight: 700, baseline: 'top' });
+      sc.text(w, ly, endText, fsTick, { anchor: 'end', weight: 600, baseline: 'top' });
     }
 
     sc.layout = { x0: x0, x1: x1, y0: y0, y1: y1, n: n, xOf: xOf, yOf: yOf };
@@ -354,8 +359,8 @@
     var downTipOf = function (amount) { return proportional ? yOfV(-amount) : plotBottom; };
 
     /* Eje temporal con flecha. */
-    sc.line(x0 - 10, axisY, x0 + plotW + 16, axisY, COLORS.ink, 1.5);
-    sc.poly([x0 + plotW + 18, axisY, x0 + plotW + 11, axisY - 4, x0 + plotW + 11, axisY + 4], { fill: COLORS.ink, closed: true });
+    sc.line(x0 - 10, axisY, x0 + plotW + 16, axisY, COLORS.axis, 1.3);
+    sc.poly([x0 + plotW + 18, axisY, x0 + plotW + 11, axisY - 4, x0 + plotW + 11, axisY + 4], { fill: COLORS.axis, closed: true });
 
     /* Rótulos de meses: el 0 bajo el eje (arriba está la entrada); el resto sobre el eje. */
     var labelMonths;
@@ -370,20 +375,21 @@
     }
     var drawMonthLabels = function () {
       labelMonths.forEach(function (t) {
-        sc.line(xOf(t), axisY - 3, xOf(t), axisY + 3, COLORS.ink, 1);
+        sc.line(xOf(t), axisY - 3, xOf(t), axisY + 3, COLORS.axis, 1);
         if (t === 0) sc.text(xOf(0) - 5, axisY + 7, '0', fsTick, { anchor: 'end', baseline: 'top', fill: COLORS.muted });
         else sc.text(xOf(t), axisY - 6, String(t), fsTick, { anchor: 'middle', fill: COLORS.muted });
       });
     };
 
-    /* Entrada inicial (petróleo, hacia arriba). */
-    arrow(sc, xOf(0), axisY, upTip, COLORS.accent, 2.6, 10, { data: { month: 0 } });
+    /* Entrada inicial (verde, hacia arriba) con su punto de referencia en el eje. */
+    arrow(sc, xOf(0), axisY, upTip, COLORS.accent, 2.2, 10, { data: { month: 0 } });
+    sc.circle(xOf(0), axisY, 3.2, { fill: COLORS.accent });
     var pLabel = o.money(P, 'always');
-    var pAnchor = measure(pLabel, fs, 700) / 2 > xOf(0) ? 'start' : 'middle';
-    sc.text(pAnchor === 'start' ? 2 : xOf(0), upTip - 7, pLabel, fs, { anchor: pAnchor, weight: 700 });
+    var pAnchor = measure(pLabel, fs, 600) / 2 > xOf(0) ? 'start' : 'middle';
+    sc.text(pAnchor === 'start' ? 2 : xOf(0), upTip - 7, pLabel, fs, { anchor: pAnchor, weight: 600 });
 
     /* Salidas (cobre, hacia abajo). */
-    var shaft = full ? 2 : Math.max(1, Math.min(2.2, stepPx * 0.3));
+    var shaft = full ? 1.8 : Math.max(1, Math.min(1.8, stepPx * 0.3));
     var headMax = full ? 7 : Math.max(0, Math.min(7, stepPx * 0.42));
     var drawEach = full || stepPx >= 3;
     var tramos = grouped ? makeTramos(n) : null;
@@ -411,21 +417,21 @@
         : same ? o.money(-pays[0]) + ' por mes (1 a ' + n + ')'
           : o.money(-pays[0]) + ' por mes; último pago ' + o.money(-pays[n - 1]);
       var cx = (xOf(1) + xOf(n)) / 2;
-      var tw = measure(text, fs, 700);
+      var tw = measure(text, fs, 600);
       var tx = Math.min(Math.max(cx, tw / 2 + 2), w - tw / 2 - 2);
-      sc.text(tx, Math.max(tipLevel, axisY) + 8, text, fs, { anchor: 'middle', weight: 700, baseline: 'top' });
+      sc.text(tx, Math.max(tipLevel, axisY) + 8, text, fs, { anchor: 'middle', weight: 600, baseline: 'top' });
     } else {
       var braceY = Math.max(tipLevel, axisY) + 5;
       tramos.forEach(function (tr) {
         var xa = xOf(tr.from) - Math.min(stepPx / 2, 4) + 2;
         var xb = xOf(tr.to) + Math.min(stepPx / 2, 4) - 2;
         if (xb - xa < 6) { xa -= 3; xb += 3; }
-        sc.path(bracePath(xa, xb, braceY, 8), { stroke: COLORS.ink, sw: 1.1 });
+        sc.path(bracePath(xa, xb, braceY, 8), { stroke: COLORS.axis, sw: 1.1 });
         var mid = (xa + xb) / 2;
         var room = xb - xa + 6;
         var l1 = tr.from === tr.to ? 'Mes ' + tr.from : 'Meses ' + tr.from + '–' + tr.to;
-        if (measure(l1, fsTick, 700) > room) l1 = tr.from === tr.to ? String(tr.from) : tr.from + '–' + tr.to;
-        sc.text(mid, braceY + 12, l1, fsTick, { anchor: 'middle', weight: 700, baseline: 'top' });
+        if (measure(l1, fsTick, 600) > room) l1 = tr.from === tr.to ? String(tr.from) : tr.from + '–' + tr.to;
+        sc.text(mid, braceY + 12, l1, fsTick, { anchor: 'middle', weight: 600, baseline: 'top' });
         var count = tr.to - tr.from + 1;
         var l2 = count + ' × ' + o.money(-pays[tr.from - 1]);
         if (measure(l2, fsTick, 400) > room) l2 = count + ' pagos';
@@ -534,7 +540,7 @@
      --------------------------------------------------------------------- */
   function drawPdf(doc, scene, ox, oy, opts) {
     opts = opts || {};
-    var font = opts.fontName || 'Inter';
+    var font = opts.fontName || 'VerticeSans';
     var X = function (v) { return ox + v; };
     var Y = function (v) { return oy + v; };
     doc.setLineJoin('round');

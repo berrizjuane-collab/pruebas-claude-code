@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAZA · Entrada numérica localizada y validación (§5)
+   VÉRTICE · Entrada numérica localizada y validación (§5)
    Convención: punto de miles y coma decimal (12.000,50). Nunca parseFloat
    sobre texto localizado; nunca vacío → 0; nunca redondeo silencioso.
    ========================================================================== */

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAZA · Análisis crítico determinista (§10)
+   VÉRTICE · Análisis crítico determinista (§10)
    Plantillas locales: cada cifra proviene del resultado o del escenario
    alternativo; las direcciones de cambio se verifican con los números.
    ========================================================================== */

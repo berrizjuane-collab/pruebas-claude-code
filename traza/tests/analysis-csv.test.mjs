@@ -6,7 +6,9 @@ import engine from '../src/engine.js';
 import analysis from '../src/analysis.js';
 import csv from '../src/csv.js';
 
-const covered = new Set(JSON.parse(readFileSync(new URL('../vendor/fonts/pdf-cmap.json', import.meta.url))));
+const pdfCmap = JSON.parse(readFileSync(new URL('../vendor/fonts/pdf-cmap.json', import.meta.url)));
+const covered = new Set(pdfCmap.sans);
+const coveredSerif = new Set(pdfCmap.serif);
 
 function scenario(P, rate, n, type = 'nominal_annual', presentation = { mode: 'denomination', displayCurrency: 'USD', fxRate: 1 }) {
   const result = engine.calculateLoan({ principalBase: P, baseCurrency: 'USD', annualRatePercent: rate, rateType: type, months: n });
@@ -80,6 +82,19 @@ test('Todo el texto del análisis está cubierto por la fuente del PDF', () => {
   }
 });
 
+test('Los títulos serif del PDF están cubiertos por VerticeSerif', () => {
+  const titles = [
+    'VÉRTICE', 'El valor correcto. En la fecha correcta.', 'Informe de préstamo', 'Parámetros del escenario', 'Resumen',
+    'Supuestos del modelo', 'Composición y saldo', 'Composición del total pagado y saldo de deuda', 'Composición del total pagado',
+    'Deuda pendiente al final de cada mes', 'Diagrama de flujo de efectivo · perspectiva del deudor', 'Efectivo acumulado del préstamo',
+    'Lectura del escenario', 'Comparación de plazo (n + 12 meses)', 'Comparación de plazo (n − 12 meses)',
+    'Fórmulas, variables y sustitución', 'Tabla de amortización completa (1 mes)', 'Tabla de amortización completa (600 meses)', 'Equipo y contacto',
+  ].join('');
+  const missing = [...new Set([...titles].filter((ch) => !coveredSerif.has(ch.codePointAt(0))))];
+  assert.deepEqual(missing, [], 'caracteres sin glifo serif: ' + missing.map((c) => 'U+' + c.codePointAt(0).toString(16)).join(' '));
+  for (const ch of 'INGENIERÍA ECONÓMICA€$Bs.·–—×≈≤≥↑↓→▲▼✓') assert.ok(covered.has(ch.codePointAt(0)), 'VerticeSans cubre ' + ch);
+});
+
 function parseCsv(text) {
   assert.equal(text.charCodeAt(0), 0xfeff, 'BOM UTF-8');
   const lines = text.slice(1).split('\r\n').filter(Boolean);
@@ -138,5 +153,6 @@ test('ID estable y cambiante; texto neutralizado ante fórmulas', () => {
   assert.equal(csv.csvText('=HYPERLINK("x")'), '"\'=HYPERLINK(""x"")"');
   assert.equal(csv.csvText('+1'), "'+1");
   assert.equal(csv.csvText('Banco, S.A.'), '"Banco, S.A."');
-  assert.equal(csv.pdfFilename({ view: c.view, result: c.result, generatedAt: new Date(2026, 8, 26, 10) }), 'TRAZA_prestamo_USD_24m_2026-09-26.pdf');
+  assert.match(csv.scenarioId(c.result.input, c.presentation), /^VRT-[0-9A-F]{8}$/);
+  assert.equal(csv.pdfFilename({ view: c.view, result: c.result, generatedAt: new Date(2026, 8, 26, 10) }), 'VERTICE_prestamo_USD_24m_2026-09-26.pdf');
 });

@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TRAZA · Calculadora de préstamos</title>
-<meta name="description" content="TRAZA: calculadora visual de préstamos (sistema francés) para Ingeniería Económica. Las finanzas con claridad.">
+<title>VÉRTICE · Calculadora de préstamos</title>
+<meta name="description" content="VÉRTICE: calculadora visual de préstamos (sistema francés) para Ingeniería Económica. El valor correcto. En la fecha correcta.">
 <meta name="color-scheme" content="light">
-<meta name="theme-color" content="#142D34">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23142D34'/%3E%3Cg transform='translate(10.4 16) scale(.8611)' stroke='%23FFFFFF' fill='none'%3E%3Cpath stroke-width='3.952' d='M0 13.543H50.16'/%3E%3Cpath stroke-width='3.876' d='M12.038 13.543V2.508M24.578 13.543V32.102M37.62 13.543V0'/%3E%3C/g%3E%3Ccircle cx='31.56' cy='27.66' r='3.14' fill='%23FFFFFF'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#10372F">
+<link rel="icon" type="image/png" href="{{FAVICON}}">
 <!--INJECT:STYLE-->
 </head>
 <body>
@@ -15,17 +15,12 @@
 
 <header class="site-header">
   <div class="container header-inner">
-    <a class="brand" href="#inicio" aria-label="TRAZA, ir al inicio">
-      <svg class="brand-symbol" viewBox="0 0 50.16 32.102" aria-hidden="true" focusable="false">
-        <g stroke="currentColor" fill="none">
-          <line x1="0" y1="13.543" x2="50.16" y2="13.543" stroke-width="3.952"/>
-          <line x1="12.038" y1="13.543" x2="12.038" y2="2.508" stroke-width="3.876"/>
-          <line x1="24.578" y1="13.543" x2="24.578" y2="32.102" stroke-width="3.876"/>
-          <line x1="37.62" y1="13.543" x2="37.62" y2="0" stroke-width="3.876"/>
-        </g>
-        <circle cx="24.578" cy="13.543" r="3.648" fill="currentColor"/>
-      </svg>
-      <span class="wordmark" aria-hidden="true">TRAZA</span>
+    <a class="brand" href="#inicio" aria-label="VÉRTICE, Ingeniería Económica, ir al inicio">
+      <span class="brand-tile" aria-hidden="true"></span>
+      <span class="brand-text" aria-hidden="true">
+        <span class="wordmark">VÉRTICE</span>
+        <span class="descriptor">Ingeniería Económica</span>
+      </span>
     </a>
     <nav class="site-nav" aria-label="Secciones">
       <ul>
@@ -40,7 +35,7 @@
 
 <noscript>
   <div class="container noscript">
-    <strong>TRAZA necesita JavaScript.</strong> El cálculo de la cuota, las gráficas, el análisis y las exportaciones funcionan en tu navegador, sin conexión. Activa JavaScript y vuelve a abrir este archivo.
+    <strong>VÉRTICE necesita JavaScript.</strong> El cálculo de la cuota, las gráficas, el análisis y las exportaciones funcionan en tu navegador, sin conexión. Activa JavaScript y vuelve a abrir este archivo.
   </div>
 </noscript>
 
@@ -48,10 +43,10 @@
   <section class="container intro" aria-labelledby="page-title">
     <p class="eyebrow">Ingeniería Económica · Sistema francés</p>
     <h1 id="page-title">Calculadora de préstamos</h1>
-    <p class="lead">TRAZA te ayuda a estimar la cuota de un préstamo y entender cuánto pagas por capital e intereses. Explora el efecto de la tasa y del plazo, revisa cada mensualidad y genera un informe para tu análisis de Ingeniería Económica.</p>
+    <p class="lead">VÉRTICE te ayuda a estimar la cuota de un préstamo y entender cuánto pagas por capital e intereses. Explora el efecto de la tasa y del plazo, revisa cada mensualidad y genera un informe para tu análisis de Ingeniería Económica.</p>
     <p class="scope-note">Modelo de tasa fija y pagos al final de cada mes. Los resultados no incluyen comisiones, seguros ni impuestos.</p>
     <details class="howto" id="como-usar">
-      <summary>Cómo usar TRAZA</summary>
+      <summary>Cómo usar VÉRTICE</summary>
       <div class="howto-body">
         <ol>
           <li><strong>Configura</strong> la moneda, el monto, la tasa anual (nominal o efectiva) y el plazo en meses.</li>
@@ -158,7 +153,7 @@
               <p class="field-error" id="fx-date-error" hidden></p>
               <label class="field-label" for="fx-source">Fuente</label>
               <input id="fx-source" class="plain-input" type="text" maxlength="120" autocomplete="off" value="Tipo de cambio ingresado manualmente">
-              <p class="field-help" id="fx-help">TRAZA no consulta cotizaciones: escribe el tipo de cambio (hasta 8 decimales), su fecha y su fuente. Convertir no modifica el préstamo.</p>
+              <p class="field-help" id="fx-help">VÉRTICE no consulta cotizaciones: escribe el tipo de cambio (hasta 8 decimales), su fecha y su fuente. Convertir no modifica el préstamo.</p>
             </div>
             <p class="status-line" id="convert-status" aria-live="polite"></p>
           </div>
@@ -400,18 +395,18 @@
 
       <article class="card" id="powerbi" aria-labelledby="pbi-title">
         <h3 class="card-title" id="pbi-title">Usar en Power BI</h3>
-        <p>El panel de TRAZA funciona sin Power BI. Para crear un reporte en Power BI Desktop, descarga los datos del escenario vigente e impórtalos. Es una exportación: Power BI no se actualiza solo al mover un deslizador.</p>
+        <p>El panel de VÉRTICE funciona sin Power BI. Para crear un reporte en Power BI Desktop, descarga los datos del escenario vigente e impórtalos. Es una exportación: Power BI no se actualiza solo al mover un deslizador.</p>
         <div class="csv-buttons">
-          <button type="button" class="btn btn-secondary btn-csv" data-csv="escenario" disabled><span>traza_escenario.csv</span><span class="csv-meta" data-csv-meta="escenario">1 fila</span></button>
-          <button type="button" class="btn btn-secondary btn-csv" data-csv="amortizacion" disabled><span>traza_amortizacion.csv</span><span class="csv-meta" data-csv-meta="amortizacion">n filas</span></button>
-          <button type="button" class="btn btn-secondary btn-csv" data-csv="flujos" disabled><span>traza_flujos.csv</span><span class="csv-meta" data-csv-meta="flujos">n + 1 filas</span></button>
+          <button type="button" class="btn btn-secondary btn-csv" data-csv="escenario" disabled><span>vertice_escenario.csv</span><span class="csv-meta" data-csv-meta="escenario">1 fila</span></button>
+          <button type="button" class="btn btn-secondary btn-csv" data-csv="amortizacion" disabled><span>vertice_amortizacion.csv</span><span class="csv-meta" data-csv-meta="amortizacion">n filas</span></button>
+          <button type="button" class="btn btn-secondary btn-csv" data-csv="flujos" disabled><span>vertice_flujos.csv</span><span class="csv-meta" data-csv-meta="flujos">n + 1 filas</span></button>
         </div>
         <p class="export-status" id="csv-status" role="status"></p>
         <details class="pbi-details">
           <summary>Guía de importación en Power BI Desktop</summary>
           <ol class="steps">
-            <li>Abre Power BI Desktop (requiere un equipo con Windows compatible; TRAZA no lo instala ni lo sustituye).</li>
-            <li>Elige <strong>Obtener datos → Texto/CSV</strong> e importa <code>traza_escenario.csv</code>, <code>traza_amortizacion.csv</code> y <code>traza_flujos.csv</code>.</li>
+            <li>Abre Power BI Desktop (requiere un equipo con Windows compatible; VÉRTICE no lo instala ni lo sustituye).</li>
+            <li>Elige <strong>Obtener datos → Texto/CSV</strong> e importa <code>vertice_escenario.csv</code>, <code>vertice_amortizacion.csv</code> y <code>vertice_flujos.csv</code>.</li>
             <li>En cada archivo confirma: origen UTF-8, delimitador coma y configuración regional con punto decimal (por ejemplo, «Inglés (Estados Unidos)»). Asigna tipo numérico decimal a los importes.</li>
             <li>Renombra las tablas como <strong>Escenario</strong>, <strong>Amortizacion</strong> y <strong>Flujos</strong> y relaciónalas por <code>scenario_id</code>.</li>
             <li>Construye los visuales sugeridos. Tras una nueva exportación, reemplaza los archivos y pulsa <strong>Actualizar</strong> manualmente.</li>
@@ -439,7 +434,7 @@ PorcentajeIntereses = DIVIDE([Intereses], [TotalPagado], 0)</code></pre>
           <summary>Diseño de reporte sugerido</summary>
           <ul class="steps">
             <li>Tarjetas: cuota, capital, interés total y total pagado.</li>
-            <li>Anillo: capital frente a interés total, con los colores de TRAZA (salvia #A7C8B9 y cobre #B86A45).</li>
+            <li>Anillo: capital frente a interés total, con los colores de VÉRTICE (verde #10372F y cobre #B56C4D).</li>
             <li>Línea: deuda por mes (<code>Flujos[debt_balance]</code>).</li>
             <li>Columnas divergentes: flujo mensual firmado (<code>Flujos[cash_flow]</code>).</li>
             <li>Línea escalonada: efectivo acumulado (<code>Flujos[cumulative_cash]</code>).</li>
@@ -482,18 +477,13 @@ PorcentajeIntereses = DIVIDE([Intereses], [TotalPagado], 0)</code></pre>
 <footer class="site-footer">
   <div class="container footer-inner">
     <div class="footer-brand">
-      <svg class="brand-symbol" viewBox="0 0 50.16 32.102" aria-hidden="true" focusable="false">
-        <g stroke="currentColor" fill="none">
-          <line x1="0" y1="13.543" x2="50.16" y2="13.543" stroke-width="3.952"/>
-          <line x1="12.038" y1="13.543" x2="12.038" y2="2.508" stroke-width="3.876"/>
-          <line x1="24.578" y1="13.543" x2="24.578" y2="32.102" stroke-width="3.876"/>
-          <line x1="37.62" y1="13.543" x2="37.62" y2="0" stroke-width="3.876"/>
-        </g>
-        <circle cx="24.578" cy="13.543" r="3.648" fill="currentColor"/>
-      </svg>
-      <span class="wordmark">TRAZA</span>
-      <span class="tagline">Las finanzas con claridad.</span>
+      <span class="brand-tile" aria-hidden="true"></span>
+      <span class="brand-text">
+        <span class="wordmark">VÉRTICE</span>
+        <span class="descriptor">Ingeniería Económica</span>
+      </span>
     </div>
+    <p class="tagline">El valor correcto. En la fecha correcta.</p>
     <p class="footer-note">Herramienta académica de Ingeniería Económica · 2026. Estima un préstamo bajo supuestos explícitos; no es asesoría financiera. Funciona sin conexión y no envía tus datos a ningún servidor.</p>
     <details class="licenses">
       <summary>Licencias de terceros</summary>

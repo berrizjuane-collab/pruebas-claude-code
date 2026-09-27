@@ -2,7 +2,7 @@
   "name": "traza",
   "private": true,
   "version": "1.0.0",
-  "description": "TRAZA: calculadora visual de préstamos para Ingeniería Económica (un único index.html).",
+  "description": "VÉRTICE: calculadora visual de préstamos para Ingeniería Económica (un único index.html).",
   "type": "commonjs",
   "scripts": {
     "build": "node tools/build.mjs",

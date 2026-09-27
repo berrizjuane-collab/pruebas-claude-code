@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRAZA · Motor financiero puro
+   VÉRTICE · Motor financiero puro
    Sistema francés, pagos mensuales vencidos, tasa fija, amortización completa.
    No conoce el DOM ni símbolos de moneda: recibe números y devuelve números.
    ========================================================================== */

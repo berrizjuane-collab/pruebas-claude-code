@@ -1,13 +1,13 @@
 /* ==========================================================================
-   TRAZA · APP_CONFIG — datos del equipo y de integraciones (§13.1, §12.4)
+   VÉRTICE · APP_CONFIG — datos del equipo y de integraciones (§13.1, §12.4)
    Esta es la única sección que hay que editar para personalizar la entrega.
    ========================================================================== */
 (function (root) {
   'use strict';
 
   var APP_CONFIG = {
-    appName: 'TRAZA',
-    tagline: 'Las finanzas con claridad.',
+    appName: 'VÉRTICE',
+    tagline: 'El valor correcto. En la fecha correcta.',
     version: '1.0.0',
     course: 'Ingeniería Económica',
 
