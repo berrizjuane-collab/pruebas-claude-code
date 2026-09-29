@@ -54,7 +54,7 @@ integrados, pico verdadero −1 dBFS.
 ## Reconstruir
 
 Requisitos: Node 18+ con Playwright (Chromium), Python 3 con `numpy` y `scipy`, y `ffmpeg`
-con `libx264`.
+con `libx264` y `libmp3lame` (el HTML lleva el audio en MP3, que reproduce cualquier navegador).
 
 ```bash
 ./tools/make.sh            # marcas → audio → fotogramas → MP4 → HTML autocontenido
