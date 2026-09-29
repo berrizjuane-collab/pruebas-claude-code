@@ -1,3 +1,5 @@
 .frames/
 .stills/
 *.wav
+*.m4a
+__pycache__/
