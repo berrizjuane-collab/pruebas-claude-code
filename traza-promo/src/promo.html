@@ -1,0 +1,1356 @@
+<!doctype html>
+<!-- TRAZA · Spot promocional de 15 s. Animación determinista: todo se deriva de render(t). -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRAZA · Spot 15 s</title>
+<meta name="description" content="Animación promocional de 15 segundos para TRAZA, la calculadora visual de préstamos de Ingeniería Económica.">
+<style>
+/* Inter 4.1 (subconjunto variable 400–700) · © The Inter Project Authors · SIL Open Font License 1.1 */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400 700; font-display: block; src: url("inter.woff2") format("woff2"); }
+
+/* Identidad visual de TRAZA: tinta, petróleo, marfil, salvia, cobre, niebla y blanco. */
+:root {
+  --ink: #142D34; --accent: #2C6266; --canvas: #F5F2EA; --capital: #A7C8B9; --interest: #B86A45;
+  --border: #E4E8E4; --surface: #FFFFFF; --muted: #52636A; --control-border: #7F8D90; --canvas-light: #FBFAF6;
+  --accent-hover: #24545A; --accent-soft: #EAF1EF; --interest-soft: #F7EDE7; --on-dark-muted: #D8E4DF; --track: #D3DAD7;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #0B1C20; overflow: hidden; }
+p, h3, ul, li { margin: 0; padding: 0; list-style: none; }
+#stage {
+  position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0;
+  background: var(--canvas); color: var(--ink); font-family: Inter, system-ui, sans-serif; font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums lining-nums; user-select: none; cursor: pointer;
+}
+.abs { position: absolute; left: 0; top: 0; }
+#content { width: 1920px; height: 1080px; transform-origin: 960px 540px; }
+#grid {
+  width: 1920px; height: 1080px; z-index: 0;
+  background-image: radial-gradient(circle, rgba(20, 45, 52, .12) 1.25px, transparent 1.75px);
+  background-size: 40px 40px; background-position: 20px 20px;
+}
+
+/* ---------- Cifras que ruedan como un contador mecánico ---------- */
+.reel { display: inline-flex; white-space: pre; overflow: hidden; vertical-align: top; }
+.reel .rc { display: inline-block; overflow: hidden; }
+.reel .rs { display: flex; flex-direction: column; }
+.reel .rs > span, .reel .rx { display: block; }
+.wreel { position: relative; overflow: hidden; }
+.wreel > div { position: absolute; left: 0; top: 0; white-space: nowrap; }
+
+/* ---------- Gancho: diagrama de flujo ---------- */
+#hook { z-index: 30; font-family: Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; overflow: visible; }
+#headline { z-index: 5; left: 200px; top: 128px; font-weight: 700; letter-spacing: -.022em; white-space: nowrap; }
+#headline .hl { position: absolute; left: 0; top: 0; font-size: 72px; line-height: 1.12; }
+#headline .q { font-size: 84px; }
+.mw { display: inline-block; overflow: hidden; vertical-align: top; padding: .12em 0 .18em; margin: -.12em 0 -.18em; }
+.mw > span { display: inline-block; }
+#qline { position: absolute; height: 7px; border-radius: 4px; background: var(--interest); transform-origin: 0 50%; }
+
+/* ---------- Rótulo lateral (pasos) ---------- */
+#cap { z-index: 6; left: 150px; top: 388px; width: 560px; }
+.eyebrow { display: flex; align-items: center; gap: 16px; height: 30px; font-size: 22px; font-weight: 600; color: var(--accent); letter-spacing: .04em; }
+.eyebrow .wreel { width: 30px; height: 30px; }
+.eyebrow .wreel > div { line-height: 30px; }
+.progress { position: relative; width: 132px; height: 4px; border-radius: 2px; background: var(--track); }
+.progress .pf { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: var(--accent); }
+.progress .pd { position: absolute; top: 2px; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--accent); }
+#capWord { margin-top: 10px; width: 600px; }
+#capWord > div { font-size: 108px; font-weight: 700; letter-spacing: -.035em; line-height: 128px; }
+#capSub { margin-top: 6px; width: 560px; }
+#capSub > div { font-size: 31px; font-weight: 500; color: var(--muted); line-height: 42px; letter-spacing: -.005em; }
+#capSub .neq { color: var(--interest); font-weight: 700; }
+#capSub b { color: var(--ink); font-weight: 600; }
+
+#mark { z-index: 6; left: 150px; top: 76px; display: flex; align-items: center; gap: 14px; }
+#mark svg { width: 38px; height: 25px; }
+#mark span { font-size: 29px; font-weight: 700; letter-spacing: .02em; line-height: 1; }
+
+/* ---------- Componentes calcados de la interfaz de TRAZA ---------- */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 22px 56px rgba(20, 45, 52, .10), 0 2px 8px rgba(20, 45, 52, .05); }
+#panel { width: 360px; padding: 26px 28px 28px; }
+.panel-title { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
+.chip { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 54px; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--surface); line-height: 1.15; }
+.chip .sym { font-size: 18px; font-weight: 700; }
+.chip .code { font-size: 12px; font-weight: 600; color: var(--muted); }
+.chip.on { background: var(--accent); color: #fff; }
+.chip.on .code { color: #fff; }
+.field { margin-bottom: 14px; }
+.field-label { font-size: 15px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+.input-affix { display: flex; align-items: center; height: 52px; border: 1px solid var(--control-border); border-radius: 10px; background: var(--surface); position: relative; }
+.input-affix .val { flex: 1; padding: 0 14px; font-size: 18px; font-weight: 600; white-space: pre; position: relative; }
+.affix { flex: none; color: var(--muted); font-weight: 600; font-size: 16px; }
+.affix.prefix { padding-left: 14px; margin-right: -6px; color: var(--ink); font-weight: 700; }
+.affix.suffix { padding-right: 14px; }
+.slider { position: relative; height: 30px; margin-top: 6px; }
+.slider .track { position: absolute; left: 0; right: 0; top: 12px; height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+.slider .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.slider .thumb { position: absolute; left: 0; top: 3px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); box-shadow: 0 1px 3px rgba(20, 45, 52, .25); }
+.segs { display: flex; gap: 8px; margin-top: 8px; }
+.seg { flex: 1; display: flex; align-items: center; justify-content: center; height: 40px; border: 1.5px solid var(--accent); border-radius: 10px; font-size: 14px; font-weight: 600; }
+.seg.on { background: var(--accent); color: #fff; }
+.btn-primary { display: flex; align-items: center; justify-content: center; height: 52px; margin-top: 18px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 600; }
+.sel { background: #CFE1DA; border-radius: 3px; }
+.caret { display: inline-block; width: 2px; height: 22px; margin-left: 1px; background: var(--ink); vertical-align: -4px; }
+
+#world { z-index: 10; transform-origin: 0 0; }
+#world > * { position: absolute; }
+.hero { background: var(--ink); color: #fff; border-radius: 12px; padding: 24px 28px; box-shadow: 0 22px 56px rgba(20, 45, 52, .16); }
+.hero-label { color: var(--capital); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.hero-amount { font-size: 48px; font-weight: 700; margin: 6px 0 8px; letter-spacing: -.01em; height: 58px; line-height: 58px; }
+.hero-meta { color: var(--on-dark-muted); font-size: 15px; line-height: 23px; white-space: nowrap; }
+.hero-state { position: absolute; left: 28px; right: 28px; top: 42px; }
+.hero-orient { margin-top: 12px; font-size: 17px; line-height: 1.5; max-width: 46ch; color: #fff; }
+.hero-steps { display: flex; gap: 8px; margin-top: 16px; }
+.hero-steps li { font-size: 13px; color: var(--on-dark-muted); border: 1px solid rgba(167, 200, 185, .45); border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
+.dash { position: absolute; left: 16px; bottom: 16px; font-size: 22px; font-weight: 700; line-height: 28px; }
+.empty-note { position: absolute; left: 20px; right: 20px; bottom: 22px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 14px; color: var(--muted); border: 1px dashed var(--control-border); border-radius: 10px; background: var(--canvas-light); }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; box-shadow: 0 14px 36px rgba(20, 45, 52, .08), 0 1px 4px rgba(20, 45, 52, .04); transform-origin: 50% 100%; }
+.kpi-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); line-height: 1.3; height: 34px; }
+.kpi-value { font-size: 22px; font-weight: 700; margin-top: 12px; line-height: 28px; height: 28px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.swatch.capital { background: var(--capital); box-shadow: inset 0 0 0 1px rgba(20, 45, 52, .35); }
+.swatch.interest { background: var(--interest); }
+.chart { padding: 22px 20px; }
+.card-title { font-size: 16px; font-weight: 600; line-height: 1.35; }
+.card-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.donut-row { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.donut-box { position: relative; width: 172px; height: 172px; flex: none; }
+.donut-center { position: absolute; left: 0; right: 0; top: 61px; text-align: center; }
+.donut-center .dl { font-size: 12px; font-weight: 600; color: var(--muted); }
+.donut-center .dv { font-size: 16px; font-weight: 700; margin-top: 1px; line-height: 20px; height: 20px; }
+.legend { flex: 1; min-width: 0; display: grid; gap: 10px; }
+.legend li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; column-gap: 8px; align-items: baseline; font-size: 14px; }
+.legend .swatch { align-self: center; }
+.legend .l-name { font-weight: 600; }
+.legend .l-pct { color: var(--muted); font-size: 13px; line-height: 18px; }
+.legend .l-val { grid-column: 2 / 4; font-weight: 700; font-size: 16px; white-space: nowrap; line-height: 21px; }
+.legend .l-name { white-space: nowrap; }
+.legend li.total { border-top: 1px solid var(--border); padding-top: 10px; }
+.bal-head { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 12px; }
+.bal-head .unit { font-weight: 600; color: var(--muted); }
+.bal-head .endl { display: flex; align-items: center; gap: 6px; font-weight: 700; line-height: 16px; }
+.bal-head .endl > span { white-space: pre; }
+.bal-head .endl i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+#bal { display: block; margin-top: 8px; overflow: visible; font-family: Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; }
+#plazoCard { width: 262px; padding: 16px 18px 12px; transform-origin: 50% 50%; box-shadow: 0 24px 60px rgba(8, 20, 24, .38), 0 2px 8px rgba(8, 20, 24, .2); border-color: transparent; }
+#plazoCard .field-label { font-size: 14px; margin-bottom: 6px; }
+#plazoCard .input-affix { height: 46px; }
+#plazoCard .input-affix .val { font-size: 17px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-weight: 600; border-radius: 999px; transform-origin: 0 50%; }
+#pillA { left: 262px; top: 56px; padding: 6px 14px; font-size: 14px; color: #fff; background: rgba(167, 200, 185, .14); border: 1.5px solid var(--capital); }
+#pillB { z-index: 5; transform-origin: 50% 0; padding: 6px 14px 6px 12px; font-size: 14px; color: var(--ink); background: var(--interest-soft); border: 1.5px solid var(--interest); box-shadow: 0 10px 24px rgba(184, 106, 69, .18); }
+#pillB::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--interest); }
+
+/* Informe PDF */
+.page { background: #fff; border-radius: 8px; box-shadow: 0 40px 90px rgba(20, 45, 52, .20), 0 4px 14px rgba(20, 45, 52, .08); transform-origin: 50% 50%; }
+.pg-head { position: absolute; left: 60px; right: 60px; top: 34px; display: flex; align-items: center; gap: 16px; }
+.pg-head svg { width: 52px; height: 34px; }
+.pg-head .wm { font-size: 36px; font-weight: 700; letter-spacing: .02em; }
+.pg-head .tt { font-size: 22px; color: var(--muted); font-weight: 600; margin-left: 10px; padding-left: 20px; border-left: 2px solid var(--border); }
+.pg-badge { position: absolute; right: 60px; top: 30px; font-size: 26px; font-weight: 700; letter-spacing: .06em; color: #fff; background: var(--interest); border-radius: 8px; padding: 6px 16px; }
+.pg-sub { position: absolute; left: 60px; top: 90px; font-size: 18px; color: var(--muted); }
+.pg-table { position: absolute; left: 60px; right: 60px; top: 842px; }
+.pg-th { height: 46px; border-radius: 6px 6px 0 0; background: var(--ink); }
+.pg-tr { height: 40px; border-bottom: 1px solid var(--border); position: relative; }
+.pg-tr:nth-child(even) { background: var(--canvas); }
+.pg-tr i { position: absolute; top: 16px; height: 9px; border-radius: 5px; background: #D9DFDC; }
+
+#csv { z-index: 12; left: 1398px; top: 356px; width: 390px; }
+#csv .eyebrow2 { font-size: 17px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+.csvchip { position: relative; display: flex; align-items: center; justify-content: space-between; height: 66px; padding: 0 22px; margin-bottom: 18px; border: 1.5px solid var(--accent); border-radius: 14px; background: #fff; font-size: 20px; font-weight: 600; box-shadow: 0 16px 40px rgba(20, 45, 52, .10); }
+.csvchip .meta { font-size: 16px; color: var(--muted); font-weight: 600; }
+
+#cursor { z-index: 40; width: 46px; height: 58px; transform-origin: 3px 3px; filter: drop-shadow(0 4px 6px rgba(20, 45, 52, .25)); }
+
+/* ---------- Cierre ---------- */
+#cline { z-index: 60; left: 77px; top: 538px; width: 1766px; height: 4px; background: var(--ink); }
+#ink { z-index: 61; width: 1920px; height: 1080px; background: var(--ink); transform-origin: 960px 540px; }
+#end { z-index: 62; width: 1920px; height: 1080px; }
+#logo { overflow: visible; }
+#word { position: relative; font-size: 147px; font-weight: 700; letter-spacing: .02em; line-height: 1; color: #fff; white-space: nowrap; }
+#tagline { position: absolute; left: 0; width: 1920px; text-align: center; font-size: 46px; font-weight: 600; color: var(--capital); letter-spacing: -.01em; white-space: nowrap; }
+#desc { position: absolute; left: 0; width: 1920px; text-align: center; font-size: 24px; font-weight: 500; color: var(--on-dark-muted); letter-spacing: .01em; }
+
+/* ---------- Reproductor (solo en vivo) ---------- */
+#bar { position: fixed; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255, 255, 255, .08); z-index: 100; }
+#bar i { position: absolute; left: 0; top: 0; bottom: 0; background: #A7C8B9; }
+#hint { position: fixed; right: 14px; bottom: 12px; z-index: 100; font: 500 12px/1 Inter, system-ui, sans-serif; color: rgba(255, 255, 255, .55); }
+body.render #bar, body.render #hint, body.render #play { display: none; }
+#play {
+  position: fixed; left: 50%; top: 50%; z-index: 101; transform: translate(-50%, -50%);
+  display: inline-flex; align-items: center; gap: 12px; padding: 18px 30px; border: 0; border-radius: 999px;
+  background: #F5F2EA; color: #142D34; font: 600 19px/1 Inter, system-ui, sans-serif; cursor: pointer;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+}
+#play::before { content: ""; border-style: solid; border-width: 8px 0 8px 13px; border-color: transparent transparent transparent #B86A45; }
+#play:focus-visible { outline: 3px solid #A7C8B9; outline-offset: 3px; }
+#play[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="content" class="abs">
+    <div id="grid" class="abs"></div>
+
+    <div id="headline" class="abs">
+      <p class="hl" id="hl1"></p>
+      <p class="hl" id="hl2" style="top:88px"></p>
+      <p class="hl q" id="hlq"></p>
+      <div id="qline"></div>
+    </div>
+
+    <div id="mark" class="abs" aria-hidden="true">
+      <svg viewBox="0 0 50.16 32.102"><g stroke="#142D34" fill="none"><line x1="0" y1="13.543" x2="50.16" y2="13.543" stroke-width="3.952"/><line x1="12.038" y1="13.543" x2="12.038" y2="2.508" stroke-width="3.876"/><line x1="24.578" y1="13.543" x2="24.578" y2="32.102" stroke-width="3.876"/><line x1="37.62" y1="13.543" x2="37.62" y2="0" stroke-width="3.876"/></g><circle cx="24.578" cy="13.543" r="3.648" fill="#142D34"/></svg>
+      <span>TRAZA</span>
+    </div>
+
+    <div id="cap" class="abs">
+      <div class="eyebrow"><div class="wreel" id="capNum"></div><div class="progress"><div class="pf" id="capPf"></div><div class="pd" id="capPd"></div></div><span>04</span></div>
+      <div class="wreel" id="capWord"></div>
+      <div class="wreel" id="capSub"></div>
+    </div>
+
+    <div id="world" class="abs">
+      <div class="page" id="page" style="left:-60px;top:-128px;width:940px;height:1329px">
+        <div class="pg-head">
+          <svg viewBox="0 0 50.16 32.102"><g stroke="#142D34" fill="none"><line x1="0" y1="13.543" x2="50.16" y2="13.543" stroke-width="3.952"/><line x1="12.038" y1="13.543" x2="12.038" y2="2.508" stroke-width="3.876"/><line x1="24.578" y1="13.543" x2="24.578" y2="32.102" stroke-width="3.876"/><line x1="37.62" y1="13.543" x2="37.62" y2="0" stroke-width="3.876"/></g><circle cx="24.578" cy="13.543" r="3.648" fill="#142D34"/></svg>
+          <span class="wm">TRAZA</span><span class="tt">Informe del préstamo</span>
+        </div>
+        <div class="pg-badge">PDF</div>
+        <p class="pg-sub">Escenario vigente · $ 12.000,00 · 12,00 % nominal anual · 60 meses</p>
+        <div class="pg-table" id="pgTable"><div class="pg-th"></div></div>
+      </div>
+
+      <div class="card" id="panel" style="left:-376px;top:0">
+        <p class="panel-title" data-in="0">Configura tu préstamo</p>
+        <div class="chips" data-in="1">
+          <div class="chip on"><span class="sym">$</span><span class="code">USD</span></div>
+          <div class="chip"><span class="sym">€</span><span class="code">EUR</span></div>
+          <div class="chip"><span class="sym">£</span><span class="code">GBP</span></div>
+          <div class="chip"><span class="sym">Bs.</span><span class="code">VES</span></div>
+        </div>
+        <div class="field">
+          <p class="field-label" data-in="1">Monto del préstamo</p>
+          <div class="input-affix" data-in="1"><span class="affix prefix">$</span><span class="val" id="vMonto"></span></div>
+          <div class="slider" id="sMonto"><div class="track"><div class="fill"></div></div><div class="thumb"></div></div>
+        </div>
+        <div class="field" data-in="2">
+          <p class="field-label">Tasa de interés anual</p>
+          <div class="input-affix"><span class="val" id="vTasa"></span><span class="affix suffix">%</span></div>
+          <div class="slider" id="sTasa"><div class="track"><div class="fill"></div></div><div class="thumb"></div></div>
+          <div class="segs"><div class="seg on">Nominal anual</div><div class="seg">Efectiva anual</div></div>
+        </div>
+        <div class="field" data-in="3">
+          <p class="field-label">Plazo</p>
+          <div class="input-affix"><span class="val" id="vPlazo"></span><span class="affix suffix">meses</span></div>
+          <div class="slider" id="sPlazo"><div class="track"><div class="fill"></div></div><div class="thumb"></div></div>
+        </div>
+        <div class="btn-primary" id="btnCalc" data-in="4">Calcular</div>
+      </div>
+
+      <div class="hero" id="hero" style="left:0;top:0;width:820px;height:196px">
+        <p class="hero-label" id="heroLabel">Cuota mensual estimada</p>
+        <div class="hero-state" id="heroEmpty">
+          <p class="hero-orient">Configura el préstamo y pulsa <strong>«Calcular»</strong>. Aquí verás la cuota mensual, el costo total y cómo se reparte cada pago entre capital e intereses.</p>
+        </div>
+        <div class="hero-state" id="heroResult">
+          <p class="hero-amount" id="heroAmt"></p>
+          <p class="hero-meta" id="heroMeta1"></p>
+          <p class="hero-meta" id="heroMeta2">Tasa mensual equivalente: 1,00 % · TEA equivalente 12,6825 %</p>
+        </div>
+        <div class="pill abs" id="pillA"></div>
+      </div>
+
+      <div class="kpi" id="k0" style="left:0;top:212px;width:196px;height:104px"><p class="kpi-label"><span class="swatch capital"></span>Capital inicial</p><p class="kpi-value" id="kv0"></p><span class="dash">—</span></div>
+      <div class="kpi" id="k1" style="left:208px;top:212px;width:196px;height:104px"><p class="kpi-label"><span class="swatch interest"></span>Interés total</p><p class="kpi-value" id="kv1"></p><span class="dash">—</span></div>
+      <div class="kpi" id="k2" style="left:416px;top:212px;width:196px;height:104px"><p class="kpi-label">Total pagado</p><p class="kpi-value" id="kv2"></p><span class="dash">—</span></div>
+      <div class="kpi" id="k3" style="left:624px;top:212px;width:196px;height:104px"><p class="kpi-label">Intereses del total pagado</p><p class="kpi-value" id="kv3"></p><span class="dash">—</span></div>
+
+      <div class="card chart" id="cDonut" style="left:0;top:332px;width:404px;height:330px">
+        <h3 class="card-title">Composición del total pagado</h3>
+        <p class="card-sub">Capital frente a intereses de toda la operación.</p>
+        <p class="empty-note" style="top:88px">Pulsa «Calcular» para ver la gráfica.</p>
+        <div class="donut-row">
+          <div class="donut-box"><svg id="donut" width="172" height="172" viewBox="0 0 172 172"></svg>
+            <div class="donut-center" id="donutCenter"><p class="dl">Total pagado</p><p class="dv" id="dv"></p></div></div>
+          <ul class="legend" id="legend">
+            <li><span class="swatch capital"></span><span class="l-name">Capital</span><span class="l-pct" id="lp0"></span><span class="l-val">$ 12.000,00</span></li>
+            <li><span class="swatch interest"></span><span class="l-name">Intereses</span><span class="l-pct" id="lp1"></span><span class="l-val" id="lv1"></span></li>
+            <li class="total"><span></span><span class="l-name">Total pagado</span><span class="l-pct">100,0 %</span><span class="l-val" id="lv2"></span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card chart" id="cBal" style="left:416px;top:332px;width:404px;height:330px">
+        <h3 class="card-title">Evolución de saldos: deuda pendiente</h3>
+        <p class="empty-note" style="top:64px">Pulsa «Calcular» para ver la gráfica.</p>
+        <div id="balBody">
+          <div class="bal-head"><span class="unit">Deuda pendiente (USD)</span><span class="endl" id="endl"><i></i><span>Mes <span id="endMes"></span>: $ 0,00</span></span></div>
+          <svg id="bal" width="364" height="232" viewBox="0 0 364 232"></svg>
+        </div>
+      </div>
+
+      <div class="card" id="plazoCard" style="left:540px;top:23px">
+        <p class="field-label">Plazo</p>
+        <div class="input-affix"><span class="val" id="pzVal"></span><span class="affix suffix">meses</span></div>
+        <div class="slider" id="pzSlider"><div class="track"><div class="fill"></div></div><div class="thumb"></div></div>
+      </div>
+      <div class="pill" id="pillB"></div>
+    </div>
+
+    <div id="csv" class="abs">
+      <p class="eyebrow2" id="csvEb">Datos para Power BI</p>
+      <div class="csvchip"><span>traza_escenario.csv</span><span class="meta">1 fila</span></div>
+      <div class="csvchip"><span>traza_amortizacion.csv</span><span class="meta">60 filas</span></div>
+      <div class="csvchip"><span>traza_flujos.csv</span><span class="meta">61 filas</span></div>
+    </div>
+
+    <svg id="hook" class="abs" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+
+    <svg id="cursor" class="abs" viewBox="-3 -3 31 39" aria-hidden="true"><path d="M0 0V26.6L6.9 20.4L11.3 30.5L15.7 28.6L11.4 18.7H20.3Z" fill="#142D34" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>
+  </div>
+
+  <div id="cline" class="abs"></div>
+  <div id="ink" class="abs"></div>
+  <div id="end" class="abs">
+    <svg id="logo" class="abs" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+    <div id="wordWrap" class="abs"><div id="word">TRAZA</div></div>
+    <p id="tagline"></p>
+    <p id="desc">Calculadora de préstamos · Ingeniería Económica</p>
+  </div>
+</div>
+<div id="bar"><i></i></div>
+<button id="play" type="button" hidden>Ver con sonido</button>
+<div id="hint">clic: pausa · ← →: buscar</div>
+
+<script>
+(() => {
+'use strict';
+
+/* =========================================================================
+   Parámetros generales
+   ========================================================================= */
+const W = 1920, H = 1080, FPS = 60, DUR = 15;
+const COL = {
+  ink: '#142D34', accent: '#2C6266', canvas: '#F5F2EA', capital: '#A7C8B9', interest: '#B86A45',
+  border: '#E4E8E4', white: '#FFFFFF', muted: '#52636A', track: '#D3DAD7', hover: '#24545A',
+};
+const NB = ' ', MINUS = '−';
+
+/* =========================================================================
+   Matemática del movimiento
+   ========================================================================= */
+const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const lerp = (a, b, p) => a + (b - a) * p;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const E = {
+  lin: p => p,
+  inQuad: p => p * p,
+  outQuad: p => 1 - (1 - p) * (1 - p),
+  inOutQuad: p => (p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2),
+  inCubic: p => p * p * p,
+  outCubic: p => 1 - Math.pow(1 - p, 3),
+  inOutCubic: p => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2),
+  outQuart: p => 1 - Math.pow(1 - p, 4),
+  inOutQuart: p => (p < .5 ? 8 * p * p * p * p : 1 - Math.pow(-2 * p + 2, 4) / 2),
+  outQuint: p => 1 - Math.pow(1 - p, 5),
+  inExpo: p => (p <= 0 ? 0 : Math.pow(2, 10 * p - 10)),
+  outExpo: p => (p >= 1 ? 1 : 1 - Math.pow(2, -10 * p)),
+  inOutExpo: p => (p <= 0 ? 0 : p >= 1 ? 1 : p < .5 ? Math.pow(2, 20 * p - 10) / 2 : (2 - Math.pow(2, -20 * p + 10)) / 2),
+  outBack: (p, s = 1.70158) => 1 + (s + 1) * Math.pow(p - 1, 3) + s * Math.pow(p - 1, 2),
+};
+/* Muelle subamortiguado 0 → 1 que se asienta exactamente en p = 1. */
+function spring(p, zeta = 0.42, cycles = 2.2) {
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  const wd = 2 * Math.PI * cycles, w = wd / Math.sqrt(1 - zeta * zeta);
+  const f = q => 1 - Math.exp(-zeta * w * q) * (Math.cos(wd * q) + (zeta / Math.sqrt(1 - zeta * zeta)) * Math.sin(wd * q));
+  return f(p) + (1 - f(1)) * p;
+}
+/* Oscilación amortiguada que empieza en 1 y termina en 0 (para aplastar y estirar). */
+const wobble = (p, cycles = 1.6, decay = 5) => (p <= 0 || p >= 1 ? (p <= 0 ? 1 : 0) : Math.exp(-decay * p) * Math.cos(2 * Math.PI * cycles * p) * (1 - p));
+function mixHex(a, b, p) {
+  const A = parseInt(a.slice(1), 16), B = parseInt(b.slice(1), 16);
+  const c = s => Math.round(lerp((A >> s) & 255, (B >> s) & 255, p));
+  return `rgb(${c(16)},${c(8)},${c(0)})`;
+}
+
+/* =========================================================================
+   Formato (mismo criterio visible que TRAZA: punto de miles, coma decimal)
+   ========================================================================= */
+function fmtNum(x, d = 2) {
+  const r = Math.round(Math.abs(x) * Math.pow(10, d)) / Math.pow(10, d);
+  const parts = r.toFixed(d).split('.');
+  const ip = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (x < 0 && r !== 0 ? MINUS : '') + (parts[1] ? ip + ',' + parts[1] : ip);
+}
+const money = (x, d = 2) => '$' + NB + fmtNum(x, d);
+const pct1 = x => fmtNum(x, 1) + NB + '%';
+
+/* =========================================================================
+   Motor: sistema francés (las mismas fórmulas que el motor de TRAZA)
+   ========================================================================= */
+function loan(P, ratePct, n) {
+  const i = ratePct / 100 / 12, z = Math.log1p(i);
+  const A = P * i / -Math.expm1(-n * z);
+  const bal = [];
+  for (let t = 0; t <= n; t++) bal.push(t === n ? 0 : A * -Math.expm1(-(n - t) * z) / i);
+  const T = A * n, J = T - P, tenths = Math.round(1000 * J / T);
+  return { P, n, A, T, J, bal, share: J / T, pctJ: tenths / 10, pctK: (1000 - tenths) / 10 };
+}
+const LA = loan(12000, 12, 24), LB = loan(12000, 12, 60);
+const S = {
+  A: [money(LA.A), money(LB.A)], J: [money(LA.J), money(LB.J)], T: [money(LA.T), money(LB.T)],
+  pJ: [pct1(LA.pctJ), pct1(LB.pctJ)], pK: [pct1(LA.pctK), pct1(LB.pctK)],
+  dA: money(LA.A - LB.A), dJ: money(LB.J - LA.J),
+};
+
+/* =========================================================================
+   Utilidades DOM (escrituras con caché: solo se toca lo que cambia)
+   ========================================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function h(tag, attrs, parent, text) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) { if (k === 'class') e.className = attrs[k]; else if (k === 'style') e.style.cssText = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  if (text !== undefined) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const SVGNS = 'http://www.w3.org/2000/svg';
+function sv(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function css(e, prop, v) { const k = '_c_' + prop; if (e[k] !== v) { e.style[prop] = v; e[k] = v; } }
+const tf = (e, v) => css(e, 'transform', v);
+function op(e, v) {
+  v = Math.round(clamp(v) * 1000) / 1000;
+  css(e, 'opacity', String(v));
+  css(e, 'visibility', v <= 0 ? 'hidden' : 'visible');
+}
+function at(e, k, v) { const key = '_a_' + k; if (typeof v === 'number') v = Math.round(v * 100) / 100; if (e[key] !== v) { e.setAttribute(k, v); e[key] = v; } }
+function txt(e, v) { if (e._t !== v) { e.textContent = v; e._t = v; } }
+const px = v => (Math.round(v * 100) / 100) + 'px';
+
+/* =========================================================================
+   Guion sonoro: cada evento visual deja una marca que usa el sintetizador.
+   ========================================================================= */
+const CUES = [];
+const cue = (t, type, extra) => CUES.push(Object.assign({ t: Math.round(t * 1e4) / 1e4, type }, extra || {}));
+
+/* =========================================================================
+   Carretes de cifras: cada dígito es una tira 0–9 que rueda.
+   ========================================================================= */
+class Reel {
+  constructor(host, str) {
+    /* La celda mide exactamente lo mismo que la línea del texto anfitrión: así las líneas base coinciden. */
+    const cs = getComputedStyle(host), fs = parseFloat(cs.fontSize);
+    this.ch = Math.round(parseFloat(cs.lineHeight) || fs * 1.22);
+    host.style.lineHeight = this.ch + 'px';
+    this.root = h('span', { class: 'reel', style: `height:${this.ch}px;line-height:${this.ch}px` }, host);
+    this.cols = [];
+    this.stat = [];
+    for (let i = 0; i < str.length; i++) {
+      const c = str[i];
+      if (c >= '0' && c <= '9') {
+        const box = h('span', { class: 'rc', style: `height:${this.ch}px` }, this.root);
+        const strip = h('span', { class: 'rs' }, box);
+        for (let d = 0; d <= 10; d++) h('span', { style: `height:${this.ch}px` }, strip, String(d % 10));
+        this.cols.push({ i, box, strip });
+      } else {
+        this.stat.push(h('span', { class: 'rx', style: `height:${this.ch}px` }, this.root, c));
+      }
+    }
+  }
+  /* from → to (misma forma); p ∈ [0, 1]. Los dígitos de menor orden dan más vueltas. */
+  set(from, to, p, o) {
+    o = o || {};
+    const n = this.cols.length, st = o.stagger === undefined ? 0.07 : o.stagger;
+    const smin = o.spinsMin || 0, smax = o.spinsMax === undefined ? 1 : o.spinsMax;
+    const dir = o.dir || 1, ease = o.ease || E.outCubic, span = Math.max(0.05, 1 - st * (n - 1));
+    for (let j = 0; j < n; j++) {
+      const col = this.cols[j], r = n - 1 - j, k = o.order === 'ltr' ? j : r;
+      const lp = clamp((p - k * st) / span), e = ease(lp);
+      const a = from.charCodeAt(col.i) - 48, b = to.charCodeAt(col.i) - 48;
+      const spins = Math.round(lerp(smax, smin, n > 1 ? r / (n - 1) : 0) * 1);
+      let d = dir > 0 ? (((b - a) % 10) + 10) % 10 : -((((a - b) % 10) + 10) % 10);
+      if (d !== 0 || spins) d += dir * 10 * (a === b && d === 0 ? spins : spins);
+      const m = ((a + d * e) % 10 + 10) % 10;
+      tf(col.strip, `translateY(${(-m * this.ch).toFixed(2)}px)`);
+      op(col.box, o.reveal ? clamp(lp * 3.5) : 1);
+    }
+    for (const s of this.stat) op(s, o.reveal ? clamp(p * 5) : 1);
+  }
+  show(str) { this.set(str, str, 1); }
+}
+
+/* Rodillo de palabras: una ventana que deja ver un elemento a la vez. */
+class WordReel {
+  constructor(host, items, itemH) {
+    this.h = itemH;
+    host.style.height = itemH + 'px';
+    this.els = items.map(html => { const d = h('div', null, host); d.innerHTML = html; return d; });
+  }
+  set(pos) {
+    this.els.forEach((e, k) => {
+      const d = k - pos;
+      if (Math.abs(d) >= 1) { op(e, 0); return; }
+      op(e, 1 - Math.pow(Math.abs(d), 3) * 0.6);
+      tf(e, `translateY(${(d * this.h).toFixed(2)}px)`);
+    });
+  }
+}
+/* Posición de un rodillo a partir de una lista de cambios [instante, duración]. */
+function reelPos(t, steps, ease) {
+  let pos = 0;
+  for (const s of steps) pos += (ease || (p => E.outBack(p, 1.25)))(prog(t, s[0], s[0] + s[1]));
+  return pos;
+}
+
+/* Palabras que suben detrás de una máscara. */
+function maskWords(host, text) {
+  const out = [];
+  /* «?» final va en su propia máscara (sin espacio) para poder animarlo aparte. */
+  const tokens = text.replace(/\?$/, ' \u0000?').split(' ');
+  tokens.forEach((w, i) => {
+    const glued = w.charAt(0) === '\u0000';
+    if (i > 0 && !glued) host.appendChild(document.createTextNode(' '));
+    const m = h('span', { class: 'mw' }, host);
+    out.push(h('span', null, m, glued ? w.slice(1) : w));
+  });
+  return out;
+}
+function wordsIO(t, spans, tIn, tOut, o) {
+  o = o || {};
+  const st = o.stagger || 0.045, dIn = o.dIn || 0.5, dOut = o.dOut || 0.32, stOut = o.stOut || 0.03;
+  spans.forEach((s, i) => {
+    const pin = E.outExpo(prog(t, tIn + i * st, tIn + i * st + dIn));
+    const pout = tOut === null ? 0 : E.inCubic(prog(t, tOut + i * stOut, tOut + i * stOut + dOut));
+    tf(s, `translateY(${((1 - pin) * 112 - pout * 112).toFixed(2)}%)`);
+    op(s, pin > 0 && pout < 1 ? 1 : 0);
+  });
+}
+
+/* =========================================================================
+   Tiempos del guion (segundos)
+   ========================================================================= */
+const T = {
+  drop: 0.0, land: 0.34, axis: 0.40, hop: 0.74, hopLand: 1.05,
+  head1: 0.96, rain: 1.28, rainLen: 0.72, head2: 1.36, downLbl: 1.95,
+  headOut: 2.10, q: 2.34, qLine: 2.74, qOut: 3.26,
+  hookOut: 3.20, morph: 3.30, morphEnd: 3.74, panel: 3.66, panelEnd: 4.12, dash: 3.86, cap1: 3.48, mark: 3.62,
+  sM: 3.92, sT: 4.12, sP: 4.32, sLen: 0.66,
+  cur1: 4.62, click1: 5.08,
+  pan: 5.16, panEnd: 5.70, cap2: 5.26,
+  heroAmt: 5.50, heroMeta: 5.82, kpi: 5.96, kpiFocus: 6.70,
+  cam4: 7.05, cam4End: 7.65, cap3: 7.10, charts: 7.15, donut: 7.35, donutEnd: 8.15, bal: 7.52, balEnd: 8.36,
+  pzCard: 8.25, cur2: 8.30, click2: 8.74, sel: 8.80, type1: 8.92, type2: 9.02,
+  upd: 9.08, pillA: 9.52, sub3b: 9.54, pillB: 9.66, twistOut: 10.60,
+  cam5: 10.70, cam5End: 11.26, cap4: 10.74, page: 10.76, csv: 11.10,
+  collapse: 12.02, collapseEnd: 12.30, ink: 12.28, inkEnd: 12.62, line: 12.40, lineEnd: 12.70,
+  strokes: 12.66, dot: 12.84, dotLand: 13.08, slide: 13.22, slideEnd: 13.72, tag: 13.62, desc: 13.82,
+};
+
+/* =========================================================================
+   Construcción de la escena
+   ========================================================================= */
+const stage = $('#stage'), content = $('#content');
+const el = {};
+
+/* ---------- Gancho: diagrama de flujo del deudor ---------- */
+const AX_Y = 640, AX_L = 200, AX_R = 1720, M0 = 250, M24 = 1650;
+const mx = m => M0 + (m * (M24 - M0)) / 24;
+const UP_LEN = 262, DN_LEN = 188;
+const rainT = k => T.rain + T.rainLen * Math.pow(k / 23, 0.78); /* k = 0..23: cada vez más rápido */
+
+function makeArrow(parent, color, sw, head) {
+  const g = sv('g', {}, parent);
+  const line = sv('line', { stroke: color, 'stroke-width': sw, 'stroke-linecap': 'butt' }, g);
+  const tri = sv('polygon', { fill: color }, g);
+  return { g, line, tri, sw, head };
+}
+function drawArrow(a, x, y0, len, dir) {
+  if (len < 0.6) { at(a.g, 'visibility', 'hidden'); return; }
+  at(a.g, 'visibility', 'visible');
+  const tip = y0 + dir * len, hd = Math.min(a.head, len * 0.55), hw = Math.max(hd * 0.62, a.sw);
+  at(a.line, 'x1', x); at(a.line, 'x2', x); at(a.line, 'y1', y0); at(a.line, 'y2', tip - dir * hd * 0.9);
+  at(a.tri, 'points', `${(x - hw).toFixed(2)},${(tip - dir * hd).toFixed(2)} ${(x + hw).toFixed(2)},${(tip - dir * hd).toFixed(2)} ${x.toFixed(2)},${tip.toFixed(2)}`);
+}
+
+function buildHook() {
+  const svg = $('#hook');
+  el.axisLine = sv('line', { stroke: COL.ink, 'stroke-width': 4 }, svg);
+  el.axisFill = sv('line', { stroke: COL.accent, 'stroke-width': 4, visibility: 'hidden' }, svg);
+  el.axisHead = sv('polygon', { fill: COL.ink }, svg);
+  el.up = makeArrow(svg, COL.accent, 6, 26);
+  el.downs = [];
+  for (let k = 1; k <= 24; k++) el.downs.push(makeArrow(svg, COL.interest, 4.5, 19));
+  el.mlabels = [];
+  for (let k = 0; k <= 24; k++) {
+    const tx = sv('text', { x: k === 0 ? M0 - 16 : mx(k), y: k === 0 ? AX_Y + 34 : AX_Y - 16, 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 500, fill: COL.muted }, svg);
+    tx.textContent = String(k);
+    el.mlabels.push(tx);
+  }
+  el.upLbl = sv('text', { x: M0 + 30, y: AX_Y - UP_LEN + 20, 'font-size': 34, 'font-weight': 700, fill: COL.ink }, svg);
+  el.upLbl.textContent = '+$' + NB + '12.000,00';
+  el.upLblSub = sv('text', { x: M0 + 30, y: AX_Y - UP_LEN + 52, 'font-size': 20, 'font-weight': 500, fill: COL.muted }, svg);
+  el.upLblSub.textContent = 'Entrada: desembolso recibido';
+  el.dnLbl = sv('text', { x: (mx(1) + mx(24)) / 2, y: AX_Y + DN_LEN + 62, 'text-anchor': 'middle', 'font-size': 32, 'font-weight': 700, fill: COL.ink }, svg);
+  el.dnLbl.textContent = MINUS + '$' + NB + '564,88 por mes (1 a 24)';
+  el.dot = sv('ellipse', { fill: COL.ink, 'stroke-width': 0, stroke: COL.accent }, svg);
+}
+
+/* ---------- Titulares del gancho ---------- */
+function buildHeadlines() {
+  el.h1 = maskWords($('#hl1'), 'Recibes $' + NB + '12.000.');
+  el.h2 = maskWords($('#hl2'), 'Devuelves 24 cuotas.');
+  el.hq = maskWords($('#hlq'), '¿Cuánto te cuesta realmente?');
+}
+
+/* ---------- Rótulo lateral ---------- */
+function buildCaption() {
+  el.capNum = new WordReel($('#capNum'), ['01', '02', '03', '04'], 30);
+  el.capWord = new WordReel($('#capWord'), ['Configura.', 'Calcula.', 'Entiende.', 'Exporta.'], 128);
+  el.capSub = new WordReel($('#capSub'), [
+    'Monto, tasa y plazo.',
+    'Cuota, intereses y total pagado.',
+    'Capital, intereses y saldo, mes a mes.',
+    '<b>Cuota más baja</b> <span class="neq">≠</span> <b>costo más bajo.</b>',
+    'Informe PDF y CSV para Power BI.',
+  ], 42);
+}
+
+/* ---------- Panel de configuración ---------- */
+function slider(id) {
+  const r = $(id);
+  return { r, fill: r.querySelector('.fill'), thumb: r.querySelector('.thumb'), track: r.querySelector('.track') };
+}
+function setSlider(s, f) {
+  const w = s.track.offsetWidth || s.w;
+  s.w = w;
+  const x = 12 + f * (w - 24);
+  css(s.fill, 'width', px(x));
+  css(s.thumb, 'left', px(x));
+}
+
+/* ---------- Cámara del mundo: panel → cuota → tablero → informe ---------- */
+/* El mundo reproduce el diseño real de TRAZA: panel a la izquierda (x < 0) y resultados a la derecha. */
+const CAM2 = { px: -196, py: 331, s: 1.36, cx: 1160, cy: 540, r: 0 };
+const CAM3 = { px: 410, py: 158, s: 1.25, cx: 1270, cy: 540, r: 0 };
+const CAM4 = { px: 410, py: 331, s: 1.24, cx: 1270, cy: 546, r: 0 };
+const CAM5 = { px: 410, py: 536.5, s: 0.5, cx: 1062, cy: 546, r: -3 };
+function camMix(a, b, p) {
+  return { px: lerp(a.px, b.px, p), py: lerp(a.py, b.py, p), s: Math.exp(lerp(Math.log(a.s), Math.log(b.s), p)), cx: lerp(a.cx, b.cx, p), cy: lerp(a.cy, b.cy, p), r: lerp(a.r, b.r, p) };
+}
+function camAt(t) {
+  if (t < T.pan) return CAM2;
+  if (t < T.cam4) return camMix(CAM2, CAM3, E.inOutCubic(prog(t, T.pan, T.panEnd)));
+  if (t < T.cam5) return camMix(CAM3, CAM4, E.inOutCubic(prog(t, T.cam4, T.cam4End)));
+  return camMix(CAM4, CAM5, E.inOutQuart(prog(t, T.cam5, T.cam5End)));
+}
+function camPoint(c, x, y) {
+  const a = c.r * Math.PI / 180, dx = (x - c.px) * c.s, dy = (y - c.py) * c.s;
+  return [c.cx + dx * Math.cos(a) - dy * Math.sin(a), c.cy + dx * Math.sin(a) + dy * Math.cos(a)];
+}
+
+/* ---------- Anillo de composición ---------- */
+const DN = { c: 86, ro: 84, th: 29 };
+DN.ri = DN.ro - DN.th; DN.rm = (DN.ro + DN.ri) / 2; DN.C = 2 * Math.PI * DN.rm;
+function buildDonut() {
+  const svg = $('#donut');
+  const g = sv('g', { transform: `rotate(-90 ${DN.c} ${DN.c})` }, svg);
+  el.dnTrack = sv('circle', { cx: DN.c, cy: DN.c, r: DN.rm, fill: 'none', stroke: '#F1F3F1', 'stroke-width': DN.th }, g);
+  el.dnCap = sv('circle', { cx: DN.c, cy: DN.c, r: DN.rm, fill: 'none', stroke: COL.capital, 'stroke-width': DN.th }, g);
+  el.dnInt = sv('circle', { cx: DN.c, cy: DN.c, r: DN.rm, fill: 'none', stroke: COL.interest, 'stroke-width': DN.th }, g);
+  el.dnSep0 = sv('line', { stroke: '#fff', 'stroke-width': 2.5 }, svg);
+  el.dnSep1 = sv('line', { stroke: '#fff', 'stroke-width': 2.5 }, svg);
+}
+function sepAt(line, frac) {
+  const a = -Math.PI / 2 + frac * 2 * Math.PI;
+  at(line, 'x1', DN.c + (DN.ri - 1) * Math.cos(a)); at(line, 'y1', DN.c + (DN.ri - 1) * Math.sin(a));
+  at(line, 'x2', DN.c + (DN.ro + 1) * Math.cos(a)); at(line, 'y2', DN.c + (DN.ro + 1) * Math.sin(a));
+}
+
+/* ---------- Evolución de saldos ---------- */
+const BL = { x0: 50, x1: 354, y0: 8, y1: 190, vmax: 12500 };
+const bx = u => BL.x0 + u * (BL.x1 - BL.x0);
+const by = v => BL.y1 - (v / BL.vmax) * (BL.y1 - BL.y0);
+function balAt(L, u) {
+  const m = u * L.n, k = Math.min(L.n - 1, Math.floor(m)), f = m - k;
+  return lerp(L.bal[k], L.bal[k + 1], f);
+}
+function buildBalance() {
+  const svg = $('#bal');
+  el.balGrid = [];
+  for (let v = 0; v <= 12500; v += 2500) {
+    const g = sv('g', {}, svg);
+    if (v > 0) sv('line', { x1: BL.x0, x2: BL.x1, y1: by(v), y2: by(v), stroke: COL.border, 'stroke-width': 1 }, g);
+    const tx = sv('text', { x: BL.x0 - 8, y: by(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: COL.muted }, g);
+    tx.textContent = fmtNum(v, 0);
+    el.balGrid.push(g);
+  }
+  el.balAxis = sv('line', { x1: BL.x0, x2: BL.x1, y1: BL.y1, y2: BL.y1, stroke: COL.ink, 'stroke-width': 1.25 }, svg);
+  const ticks = (n, step) => { const g = sv('g', {}, svg); for (let m = 0; m <= n; m += step) { const x = bx(m / n); sv('line', { x1: x, x2: x, y1: BL.y1, y2: BL.y1 + 4, stroke: COL.ink }, g); const tx = sv('text', { x, y: BL.y1 + 18, 'text-anchor': 'middle', 'font-size': 11, fill: COL.muted }, g); tx.textContent = String(m); } return g; };
+  el.ticks24 = ticks(24, 4);
+  el.ticks60 = ticks(60, 12);
+  el.meses = sv('text', { x: BL.x1, y: BL.y1 + 36, 'text-anchor': 'end', 'font-size': 11, 'font-weight': 600, fill: COL.muted }, svg);
+  el.meses.textContent = 'Meses';
+  el.balLine = sv('polyline', { fill: 'none', stroke: COL.accent, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+  el.balDots = [];
+  for (let m = 0; m <= 24; m++) el.balDots.push(sv('circle', { r: 2.8, fill: COL.accent }, svg));
+}
+const BAL_N = 120;
+function balPoints(morph, upto) {
+  const pts = [];
+  const last = Math.max(1, Math.round(BAL_N * upto));
+  for (let k = 0; k <= last; k++) {
+    const u = (k / BAL_N) * (upto >= 1 ? 1 : 1);
+    const uu = Math.min(u, upto);
+    const v = lerp(balAt(LA, uu), balAt(LB, uu), morph);
+    pts.push(bx(uu).toFixed(2) + ',' + by(v).toFixed(2));
+  }
+  return pts.join(' ');
+}
+
+/* ---------- Informe PDF: filas de tabla esquemáticas ---------- */
+function buildPage() {
+  const tb = $('#pgTable');
+  const widths = [[18, 40], [150, 90], [330, 90], [520, 70], [690, 110]];
+  for (let r = 0; r < 9; r++) {
+    const row = h('div', { class: 'pg-tr' }, tb);
+    widths.forEach(([x, w]) => h('i', { style: `left:${x}px;width:${w}px` }, row));
+  }
+}
+
+/* ---------- Logotipo final (geometría exacta del símbolo) ---------- */
+const LG = { k: 190 / 50.16 };
+LG.w = 50.16 * LG.k; LG.h = 32.102 * LG.k; LG.cy = 462; LG.yl = LG.cy - LG.h / 2 + 13.543 * LG.k;
+LG.x0c = 960 - LG.w / 2; LG.x0f = 584;
+function buildLogo() {
+  const svg = $('#logo');
+  el.lgLine = sv('line', { stroke: '#fff', 'stroke-width': 3.952 * LG.k }, svg);
+  el.lgS = [0, 1, 2].map(() => sv('line', { stroke: '#fff', 'stroke-width': 3.876 * LG.k }, svg));
+  el.lgDot = sv('ellipse', { fill: '#fff' }, svg);
+  el.tag = maskWords($('#tagline'), 'Las finanzas con claridad.');
+}
+
+/* =========================================================================
+   Medidas (dependen de la tipografía cargada)
+   ========================================================================= */
+const PS = CAM2.s; /* escala del panel en pantalla */
+let PANEL = null;
+function measure() {
+  const panel = $('#panel');
+  const pr = panel.getBoundingClientRect();
+  const rel = e => { const r = e.getBoundingClientRect(); return { x: r.left - pr.left, y: r.top - pr.top, w: r.width, h: r.height }; };
+  PANEL = { x: -376, y: 0, w: pr.width, h: pr.height };
+  PANEL.track = rel($('#sMonto .track'));
+  PANEL.btn = rel($('#btnCalc'));
+  PANEL.items = $$('#panel [data-in]').map(e => ({ e, k: +e.dataset.in }));
+  const pz = $('#plazoCard');
+  el.pzInput = { x: 540 + pz.querySelector('.input-affix').offsetLeft + 40, y: 23 + pz.querySelector('.input-affix').offsetTop + 26 };
+  const wr = $('#word').getBoundingClientRect();
+  LG.wordW = wr.width;
+  LG.x0f = 960 - (LG.w + (12 / 24) * 147 + LG.wordW) / 2;
+}
+
+/* =========================================================================
+   Construcción completa y guion sonoro
+   ========================================================================= */
+function build() {
+  buildHook();
+  buildHeadlines();
+  buildCaption();
+  buildDonut();
+  buildBalance();
+  buildPage();
+  buildLogo();
+
+  el.sM = slider('#sMonto'); el.sT = slider('#sTasa'); el.sP = slider('#sPlazo'); el.pz = slider('#pzSlider');
+  el.vMonto = $('#vMonto'); el.vTasa = $('#vTasa'); el.vPlazo = $('#vPlazo');
+  el.heroAmt = new Reel($('#heroAmt'), S.A[0]);
+  const m1 = $('#heroMeta1');
+  el.heroMes = new Reel(m1, '24');
+  m1.appendChild(document.createTextNode(' meses · Tasa nominal anual 12,00' + NB + '%'));
+  el.kv = [new Reel($('#kv0'), money(12000)), new Reel($('#kv1'), S.J[0]), new Reel($('#kv2'), S.T[0]), new Reel($('#kv3'), S.pJ[0])];
+  el.dv = new Reel($('#dv'), S.T[0]);
+  el.lp0 = new Reel($('#lp0'), S.pK[0]);
+  el.lp1 = new Reel($('#lp1'), S.pJ[0]);
+  el.lv1 = new Reel($('#lv1'), S.J[0]);
+  el.lv2 = new Reel($('#lv2'), S.T[0]);
+  el.endMes = new Reel($('#endMes'), '24');
+  $('#pillA').textContent = '▼ ' + S.dA + ' menos al mes';
+  $('#pillB').appendChild(document.createTextNode('▲ ' + S.dJ + ' más en intereses'));
+  el.pillA = $('#pillA'); el.pillB = $('#pillB');
+  el.pzVal = $('#pzVal');
+  el.legendLis = $$('#legend li');
+  el.hero = $('#hero'); el.heroLabel = $('#heroLabel'); el.heroMeta1 = m1; el.heroMeta2 = $('#heroMeta2');
+  el.k = [0, 1, 2, 3].map(i => $('#k' + i));
+  el.cDonut = $('#cDonut'); el.cBal = $('#cBal'); el.pzCard = $('#plazoCard'); el.page = $('#page');
+  el.world = $('#world'); el.panel = $('#panel');
+  el.heroEmpty = $('#heroEmpty'); el.heroResult = $('#heroResult');
+  el.dashes = $$('.kpi .dash'); el.notes = $$('.chart .empty-note');
+  el.donutRow = $('#cDonut .donut-row'); el.balBody = $('#balBody'); el.cardSub = $('#cDonut .card-sub');
+  el.csvChips = $$('#csv .csvchip'); el.csvEb = $('#csvEb');
+  el.cursor = $('#cursor'); el.cap = $('#cap'); el.mark = $('#mark'); el.grid = $('#grid');
+  el.qline = $('#qline'); el.hookSvg = $('#hook'); el.headline = $('#headline');
+  el.cline = $('#cline'); el.ink = $('#ink'); el.end = $('#end'); el.wordWrap = $('#wordWrap'); el.word = $('#word');
+  el.desc = $('#desc'); el.donutCenter = $('#donutCenter'); el.endl = $('#endl'); el.btn = $('#btnCalc');
+  el.pgTable = $('#pgTable');
+  measure();
+  /* La línea cobre subraya «realmente». */
+  const w = el.hq[3].parentElement, fsq = parseFloat(getComputedStyle(w).fontSize);
+  el.qlineGeo = { x: w.offsetLeft + 2, y: w.offsetTop + w.offsetHeight - 0.16 * fsq, w: w.offsetWidth - 4 };
+
+  /* Guion sonoro (instantes derivados de la animación). */
+  cue(T.land, 'drop');
+  cue(T.axis, 'whoosh', { dur: 0.45 });
+  cue(T.hop, 'hop');
+  cue(T.hopLand, 'up');
+  cue(T.head1, 'type');
+  for (let k = 0; k < 24; k++) cue(rainT(k), 'rain', { i: k });
+  cue(T.head2, 'type');
+  cue(T.q, 'question');
+  cue(T.qLine, 'swish');
+  cue(T.hookOut, 'retract');
+  cue(T.morph, 'whoosh', { dur: 0.42 });
+  cue(T.cap1, 'reel');
+  [T.sM, T.sT, T.sP].forEach((s, i) => cue(s, 'slide', { i, dur: T.sLen }));
+  cue(T.click1, 'click');
+  cue(T.pan, 'whoosh', { dur: 0.54 });
+  cue(T.cap2, 'reel');
+  cue(T.heroAmt, 'count', { dur: 0.7 });
+  for (let i = 0; i < 4; i++) cue(T.kpi + i * 0.075, 'pop', { i });
+  cue(T.kpiFocus, 'focus');
+  cue(T.cam4, 'whoosh', { dur: 0.6 });
+  cue(T.cap3, 'reel');
+  cue(T.donut, 'sweep', { dur: T.donutEnd - T.donut });
+  for (let m = 0; m <= 24; m++) cue(T.bal + (T.balEnd - T.bal) * (m / 24) * 0.98, 'dot', { i: m });
+  cue(T.pzCard, 'pop', { i: 4 });
+  cue(T.click2, 'click');
+  cue(T.type1, 'key'); cue(T.type2, 'key');
+  cue(T.upd, 'count', { dur: 0.6, down: true });
+  cue(T.pillA, 'note', { v: 'down' });
+  cue(T.sub3b, 'reel');
+  cue(T.pillB, 'uhoh');
+  cue(T.cam5, 'whoosh', { dur: 0.56 });
+  cue(T.cap4, 'reel');
+  cue(T.page + 0.18, 'paper');
+  for (let i = 0; i < 3; i++) cue(T.csv + 0.08 + i * 0.09, 'pop', { i: 5 + i });
+  cue(T.collapse, 'collapse', { dur: T.collapseEnd - T.collapse });
+  cue(T.ink, 'boom');
+  cue(T.line, 'line');
+  for (let i = 0; i < 3; i++) cue(T.strokes + i * 0.07, 'stroke', { i });
+  cue(T.dotLand, 'land');
+  cue(T.slide + 0.08, 'logo');
+  CUES.sort((a, b) => a.t - b.t);
+}
+
+/* =========================================================================
+   Render: cada fotograma se calcula solo a partir de t
+   ========================================================================= */
+function renderHook(t) {
+  const vis = t < T.morphEnd + 0.02;
+  css(el.hookSvg, 'display', vis ? 'block' : 'none');
+  if (!vis) return;
+
+  /* Transición al deslizador: el eje se convierte en la pista y el punto en el pulgar. */
+  const mp = E.inOutCubic(prog(t, T.morph, T.morphEnd));
+  const tr = PANEL.track;
+  const tp0 = camPoint(CAM2, PANEL.x + tr.x, PANEL.y + tr.y + tr.h / 2);
+  const tx0 = tp0[0], tx1 = tx0 + tr.w * PS, ty = tp0[1];
+
+  /* Eje */
+  const ga = E.outExpo(prog(t, T.axis, T.axis + 0.5));
+  let xl = lerp(960, AX_L, ga), xr = lerp(960, AX_R, ga), ay = AX_Y;
+  xl = lerp(xl, tx0, mp); xr = lerp(xr, tx1, mp); ay = lerp(AX_Y, ty, mp);
+  const sw = lerp(4, 6 * PS, mp);
+  at(el.axisLine, 'x1', xl); at(el.axisLine, 'x2', xr); at(el.axisLine, 'y1', ay); at(el.axisLine, 'y2', ay);
+  at(el.axisLine, 'stroke-width', sw);
+  at(el.axisLine, 'stroke', mp > 0 ? mixHex(COL.ink, COL.track, clamp(mp * 1.6)) : COL.ink);
+  at(el.axisLine, 'visibility', ga > 0.001 ? 'visible' : 'hidden');
+  const hv = ga > 0.02 ? 1 - prog(t, T.morph, T.morph + 0.12) : 0;
+  at(el.axisHead, 'points', `${xr + 14},${ay} ${xr - 4},${ay - 9} ${xr - 4},${ay + 9}`);
+  at(el.axisHead, 'opacity', hv);
+
+  /* Punto protagonista */
+  let x = 960, y = -40, rx = 13, ry = 13;
+  if (t < T.land) {
+    const p = prog(t, T.drop, T.land);
+    y = lerp(-40, AX_Y, E.inQuad(p));
+    const st = 1 + 0.32 * E.inQuad(p);
+    rx = 13 / Math.sqrt(st); ry = 13 * st;
+  } else if (t < T.hop) {
+    y = AX_Y;
+    const q = wobble(prog(t, T.land, T.land + 0.42), 1.5, 4.5) * 0.46;
+    rx = 13 * (1 + q); ry = 13 * (1 - q);
+    const ant = E.inOutQuad(prog(t, T.hop - 0.1, T.hop)) * 0.2; /* anticipación antes del salto */
+    rx *= 1 + ant * 0.8; ry *= 1 - ant;
+  } else if (t < T.hopLand) {
+    const p = E.inOutQuad(prog(t, T.hop, T.hopLand));
+    x = lerp(960, M0, p);
+    y = AX_Y - 4 * 120 * p * (1 - p);
+    const st = 1 + 0.18 * Math.sin(Math.PI * p);
+    rx = 13 * st; ry = 13 / st;
+  } else {
+    x = M0; y = AX_Y;
+    const q = wobble(prog(t, T.hopLand, T.hopLand + 0.36), 1.3, 4) * 0.36;
+    rx = 13 * (1 + q); ry = 13 * (1 - q);
+  }
+  /* Hacia el pulgar del deslizador (blanco con borde petróleo). */
+  const thumbX = tx0 + 12 * PS, rT = 12 * PS - 1.5 * PS;
+  if (mp > 0) {
+    x = lerp(M0, thumbX, mp); y = lerp(AX_Y, ty, mp);
+    rx = ry = lerp(13, rT, mp);
+    at(el.dot, 'fill', mixHex(COL.ink, COL.white, clamp(mp * 1.4)));
+    at(el.dot, 'stroke-width', 3 * PS * clamp(mp * 1.4));
+  } else {
+    at(el.dot, 'fill', COL.ink);
+    at(el.dot, 'stroke-width', 0);
+  }
+  at(el.dot, 'cx', x); at(el.dot, 'cy', y); at(el.dot, 'rx', Math.max(0.01, rx)); at(el.dot, 'ry', Math.max(0.01, ry));
+  at(el.dot, 'visibility', t >= 0 ? 'visible' : 'hidden');
+
+  /* Relleno petróleo de la pista al llegar al deslizador */
+  at(el.axisFill, 'visibility', mp > 0.5 ? 'visible' : 'hidden');
+  at(el.axisFill, 'x1', xl); at(el.axisFill, 'x2', lerp(xl, thumbX, 1)); at(el.axisFill, 'y1', ay); at(el.axisFill, 'y2', ay);
+  at(el.axisFill, 'stroke-width', sw); at(el.axisFill, 'opacity', prog(mp, 0.5, 1));
+
+  /* Flecha de entrada (+12.000) */
+  const upOut = E.inCubic(prog(t, T.hookOut, T.hookOut + 0.2));
+  const upLen = UP_LEN * spring(prog(t, T.hopLand, T.hopLand + 0.55), 0.38, 1.6) * (1 - upOut);
+  drawArrow(el.up, M0, AX_Y - 2, upLen, -1);
+  const ul = E.outCubic(prog(t, T.hopLand + 0.14, T.hopLand + 0.44)) * (1 - prog(t, T.hookOut - 0.1, T.hookOut + 0.06));
+  at(el.upLbl, 'opacity', ul); at(el.upLblSub, 'opacity', ul);
+  at(el.upLbl, 'transform', `translate(${(1 - ul) * -14} 0)`);
+  at(el.upLblSub, 'transform', `translate(${(1 - ul) * -14} 0)`);
+
+  /* Lluvia de 24 cuotas */
+  for (let k = 0; k < 24; k++) {
+    const t0 = rainT(k);
+    const pin = prog(t, t0, t0 + 0.26);
+    const outT = T.hookOut + (23 - k) * 0.008;
+    const pout = E.inCubic(prog(t, outT, outT + 0.16));
+    const len = DN_LEN * E.outBack(pin, 2.4) * (1 - pout);
+    drawArrow(el.downs[k], mx(k + 1), AX_Y + 2, len, 1);
+    const lab = el.mlabels[k + 1];
+    const lo = E.outCubic(prog(t, t0, t0 + 0.2)) * (1 - prog(t, T.hookOut - 0.08, T.hookOut + 0.1));
+    at(lab, 'opacity', lo);
+    at(lab, 'transform', `translate(0 ${(1 - E.outCubic(prog(t, t0, t0 + 0.2))) * 8})`);
+  }
+  at(el.mlabels[0], 'opacity', E.outCubic(prog(t, T.hopLand, T.hopLand + 0.25)) * (1 - prog(t, T.hookOut - 0.08, T.hookOut + 0.1)));
+  const dl = E.outCubic(prog(t, T.downLbl, T.downLbl + 0.3)) * (1 - prog(t, T.hookOut - 0.1, T.hookOut + 0.06));
+  at(el.dnLbl, 'opacity', dl);
+  at(el.dnLbl, 'transform', `translate(0 ${(1 - dl) * 14})`);
+}
+
+function renderHeadlines(t) {
+  const vis = t > T.head1 - 0.05 && t < T.qOut + 0.5;
+  css(el.headline, 'display', vis ? 'block' : 'none');
+  if (!vis) return;
+  wordsIO(t, el.h1, T.head1, T.headOut, { dOut: 0.22, stOut: 0.025 });
+  wordsIO(t, el.h2, T.head2, T.headOut, { dOut: 0.22, stOut: 0.025 });
+  wordsIO(t, el.hq, T.q, T.qOut, { stagger: 0.06 });
+  /* «¿…?» se ladea con picardía */
+  const qm = el.hq[el.hq.length - 1];
+  const wig = Math.sin(prog(t, T.q + 0.55, T.q + 1.05) * Math.PI * 3) * (1 - prog(t, T.q + 0.55, T.q + 1.05)) * 4;
+  const cur = qm.style.transform.replace(/ rotate\([^)]*\)/, '');
+  css(qm, 'transform', cur + ` rotate(${wig.toFixed(2)}deg)`);
+  css(qm, 'transformOrigin', '20% 90%');
+  const g = el.qlineGeo;
+  const lp = E.outExpo(prog(t, T.qLine, T.qLine + 0.4)), lo = E.inCubic(prog(t, T.qOut - 0.04, T.qOut + 0.22));
+  css(el.qline, 'left', px(g.x + g.w * lo)); css(el.qline, 'top', px(g.y)); css(el.qline, 'width', px(g.w));
+  tf(el.qline, `scaleX(${(lp * (1 - lo)).toFixed(4)})`);
+  op(el.qline, lp > 0 && lo < 1 ? 1 : 0);
+}
+
+function renderCaption(t) {
+  const on = t > T.cap1 - 0.05;
+  css(el.cap, 'display', on ? 'block' : 'none');
+  css(el.mark, 'display', on ? 'flex' : 'none');
+  if (!on) return;
+  const steps = [[T.cap1, 0.55], [T.cap2, 0.5], [T.cap3, 0.5], [T.cap4, 0.5]];
+  const pos = reelPos(t, steps) - 1;
+  el.capWord.set(pos);
+  el.capNum.set(reelPos(t, steps.map(s => [s[0] + 0.05, s[1]])) - 1);
+  el.capSub.set(reelPos(t, [[T.cap1 + 0.08, 0.55], [T.cap2 + 0.08, 0.5], [T.cap3 + 0.08, 0.5], [T.sub3b, 0.5], [T.cap4 + 0.08, 0.5]]) - 1);
+  const f = clamp(pos / 3);
+  css($('#capPf'), 'width', px(132 * f));
+  css($('#capPd'), 'left', px(132 * f));
+  const eb = E.outCubic(prog(t, T.cap1, T.cap1 + 0.4));
+  op(el.cap.firstElementChild, eb);
+  const mk = E.outCubic(prog(t, T.mark, T.mark + 0.5));
+  op(el.mark, mk);
+  tf(el.mark, `translateY(${((1 - mk) * -12).toFixed(2)}px)`);
+}
+
+function renderPanel(t) {
+  const on = t > T.panel - 0.02 && t < T.panEnd;
+  css(el.panel, 'display', on ? 'block' : 'none');
+  if (!on) return;
+  /* Al pulsar «Calcular» la cámara viaja a los resultados y el panel se desvanece */
+  const out = E.inOutCubic(prog(t, T.pan, T.pan + 0.36));
+  op(el.panel, 1 - out);
+  /* Se despliega desde la pista del deslizador */
+  const rp = E.inOutCubic(prog(t, T.panel, T.panelEnd));
+  const tr = PANEL.track;
+  const top = lerp(tr.y - 2, 0, rp), bot = lerp(PANEL.h - (tr.y + tr.h + 2), 0, rp), side = lerp(tr.x, 0, rp);
+  css(el.panel, 'clipPath', rp >= 1 ? 'none' : `inset(${px(top)} ${px(side)} ${px(bot)} ${px(side)} round 12px)`);
+  for (const it of PANEL.items) {
+    const p = E.outCubic(prog(t, T.panel + 0.1 + it.k * 0.05, T.panel + 0.42 + it.k * 0.05));
+    op(it.e, p);
+    tf(it.e, `translateY(${((1 - p) * 10).toFixed(2)}px)`);
+  }
+  /* El deslizador del monto aparece cuando el eje ya está en su sitio */
+  op(el.sM.r, t >= T.morphEnd ? 1 : 0);
+
+  /* Deslizadores con rebote y cifras que siguen al pulgar */
+  const fM = (120 - 1) / 999, fT = 0.12, fP = (24 - 1) / 599;
+  const pM = E.outBack(prog(t, T.sM, T.sM + T.sLen), 2.2), pT = E.outBack(prog(t, T.sT, T.sT + T.sLen), 2.2), pP = E.outBack(prog(t, T.sP, T.sP + T.sLen), 2.4);
+  setSlider(el.sM, fM * pM); setSlider(el.sT, fT * pT); setSlider(el.sP, fP * pP);
+  txt(el.vMonto, fmtNum(Math.max(100, Math.round((1 + fM * pM * 999)) * 100)));
+  txt(el.vTasa, fmtNum(Math.max(0, Math.round(fT * pT * 1000) / 10)));
+  txt(el.vPlazo, String(Math.max(1, Math.round(1 + fP * pP * 599))));
+  /* Clic */
+  const press = prog(t, T.click1, T.click1 + 0.05) * (1 - prog(t, T.click1 + 0.09, T.click1 + 0.2));
+  tf(el.btn, `scale(${(1 - press * 0.04).toFixed(4)})`);
+  css(el.btn, 'background', mixHex(COL.accent, COL.hover, press));
+}
+
+function renderWorld(t) {
+  const on = t >= T.panel - 0.02 && t < T.collapseEnd + 0.1;
+  css(el.world, 'display', on ? 'block' : 'none');
+  if (!on) return;
+  const c = camAt(t);
+  tf(el.world, `translate(${px(c.cx)},${px(c.cy)}) rotate(${c.r.toFixed(3)}deg) scale(${c.s.toFixed(4)}) translate(${px(-c.px)},${px(-c.py)})`);
+
+  /* El tablero (en su estado vacío, como en TRAZA) entra desde la derecha */
+  const enter = d => { const p = E.outCubic(prog(t, T.dash + d, T.dash + d + 0.6)); return { p, x: (1 - p) * 90 }; };
+
+  /* Tarjeta principal: la cuota */
+  const eh = enter(0);
+  op(el.hero, eh.p);
+  tf(el.hero, `translateX(${eh.x.toFixed(2)}px)`);
+  const emptyOut = E.inCubic(prog(t, T.pan + 0.02, T.pan + 0.22));
+  op(el.heroEmpty, 1 - emptyOut);
+  tf(el.heroEmpty, `translateY(${(-emptyOut * 10).toFixed(2)}px)`);
+  op(el.heroResult, t >= T.heroAmt ? 1 : 0);
+  const twist = prog(t, T.upd, T.upd + 0.56);
+  if (t < T.upd) el.heroAmt.set('$' + NB + '000,00', S.A[0], prog(t, T.heroAmt, T.heroAmt + 0.72), { reveal: true, spinsMax: 3, spinsMin: 1, stagger: 0.09, ease: E.outQuart });
+  else el.heroAmt.set(S.A[0], S.A[1], twist, { dir: -1, spinsMax: 2, spinsMin: 0, stagger: 0.08, ease: E.outQuart });
+  const meta = E.outCubic(prog(t, T.heroMeta, T.heroMeta + 0.36));
+  op(el.heroMeta1, meta); op(el.heroMeta2, prog(t, T.heroMeta + 0.06, T.heroMeta + 0.42));
+  tf(el.heroMeta1, `translateY(${((1 - meta) * 8).toFixed(2)}px)`);
+  el.heroMes.set('24', '60', prog(t, T.upd, T.upd + 0.4), { spinsMax: 1, stagger: 0.1 });
+
+  /* Indicadores: del «—» a la cifra, con un pequeño salto */
+  const kp = i => prog(t, T.kpi + i * 0.075 + 0.04, T.kpi + i * 0.075 + 0.6);
+  el.k.forEach((k, i) => {
+    const ek = enter(0.05 + i * 0.035);
+    const pop = prog(t, T.kpi + i * 0.075, T.kpi + i * 0.075 + 0.42);
+    const bump = Math.sin(Math.PI * pop) * (1 - pop * 0.3);
+    const focus = i === 1 ? E.outCubic(prog(t, T.kpiFocus, T.kpiFocus + 0.3)) * (1 - E.inOutCubic(prog(t, T.cam4, T.cam4 + 0.4))) : 0;
+    tf(k, `translate(${ek.x.toFixed(2)}px,${(-bump * 7 - focus * 8).toFixed(2)}px) scale(${(1 + bump * 0.035 + focus * 0.05).toFixed(4)})`);
+    op(k, ek.p);
+    css(k, 'zIndex', i === 1 ? '2' : '1');
+    op(el.dashes[i], 1 - clamp(kp(i) * 5));
+  });
+  const tw = i => prog(t, T.upd + 0.04 + i * 0.03, T.upd + 0.6 + i * 0.03);
+  el.kv[0].set('$' + NB + '00.000,00', money(12000), kp(0), { reveal: true, spinsMax: 2, ease: E.outQuart });
+  if (t < T.upd) {
+    el.kv[1].set('$' + NB + '0.000,00', S.J[0], kp(1), { reveal: true, spinsMax: 2, ease: E.outQuart });
+    el.kv[2].set('$' + NB + '00.000,00', S.T[0], kp(2), { reveal: true, spinsMax: 2, ease: E.outQuart });
+    el.kv[3].set('00,0' + NB + '%', S.pJ[0], kp(3), { reveal: true, spinsMax: 2, ease: E.outQuart });
+  } else {
+    el.kv[1].set(S.J[0], S.J[1], tw(0), { spinsMax: 2, ease: E.outQuart });
+    el.kv[2].set(S.T[0], S.T[1], tw(1), { spinsMax: 2, ease: E.outQuart });
+    el.kv[3].set(S.pJ[0], S.pJ[1], tw(2), { spinsMax: 1, ease: E.outQuart });
+  }
+  const cf = E.outCubic(prog(t, T.kpiFocus, T.kpiFocus + 0.3));
+  css($('#kv1'), 'color', mixHex(COL.ink, COL.interest, cf));
+  css(el.k[1], 'boxShadow', `0 ${14 + cf * 10}px ${36 + cf * 14}px rgba(184,106,69,${(0.08 + cf * 0.1).toFixed(3)}), 0 1px 4px rgba(20,45,52,.04)`);
+  css(el.k[1], 'borderColor', mixHex(COL.border, '#E6C9B9', cf));
+
+  /* Tarjetas de gráficas: nota vacía → gráfica */
+  [el.cDonut, el.cBal].forEach((card, i) => {
+    const ec = enter(0.12 + i * 0.05);
+    op(card, ec.p);
+    tf(card, `translateX(${ec.x.toFixed(2)}px)`);
+    const n = E.inOutCubic(prog(t, T.charts + i * 0.06, T.charts + 0.26 + i * 0.06));
+    op(el.notes[i], 1 - n);
+    tf(el.notes[i], `scale(${(1 - n * 0.04).toFixed(4)})`);
+  });
+  op(el.donutRow, prog(t, T.charts + 0.12, T.charts + 0.3));
+  op(el.balBody, prog(t, T.charts + 0.18, T.charts + 0.36));
+
+  /* Anillo */
+  const rev = E.inOutCubic(prog(t, T.donut, T.donutEnd));
+  const sh = lerp(LA.share, LB.share, E.inOutCubic(prog(t, T.upd + 0.04, T.upd + 0.64)));
+  const ci = Math.min(rev, sh) * DN.C, cc = Math.max(0, rev - sh) * DN.C;
+  at(el.dnInt, 'stroke-dasharray', `${ci.toFixed(2)} ${DN.C.toFixed(2)}`);
+  at(el.dnCap, 'stroke-dasharray', `${cc.toFixed(2)} ${DN.C.toFixed(2)}`);
+  at(el.dnCap, 'stroke-dashoffset', (-sh * DN.C).toFixed(2));
+  at(el.dnTrack, 'opacity', 1 - rev);
+  sepAt(el.dnSep0, 0); sepAt(el.dnSep1, sh);
+  at(el.dnSep0, 'opacity', rev > 0.99 ? 1 : 0); at(el.dnSep1, 'opacity', rev > sh ? 1 : 0);
+  const dc = E.outCubic(prog(t, T.donut + 0.3, T.donut + 0.7));
+  op(el.donutCenter, dc);
+  const dvP = prog(t, T.donut + 0.3, T.donut + 0.9);
+  if (t < T.upd) el.dv.set('$' + NB + '00.000,00', S.T[0], dvP, { reveal: true, spinsMax: 2, ease: E.outQuart });
+  else el.dv.set(S.T[0], S.T[1], tw(1), { spinsMax: 2, ease: E.outQuart });
+  el.legendLis.forEach((li, i) => {
+    const p = E.outCubic(prog(t, T.donut + 0.35 + i * 0.08, T.donut + 0.7 + i * 0.08));
+    op(li, p);
+    tf(li, `translateX(${((1 - p) * 16).toFixed(2)}px)`);
+  });
+  el.lp0.set(S.pK[0], S.pK[1], tw(2), { dir: -1, spinsMax: 1 });
+  el.lp1.set(S.pJ[0], S.pJ[1], tw(2), { spinsMax: 1 });
+  el.lv1.set(S.J[0], S.J[1], tw(0), { spinsMax: 2, ease: E.outQuart });
+  el.lv2.set(S.T[0], S.T[1], tw(1), { spinsMax: 2, ease: E.outQuart });
+
+  /* Evolución de saldos (24 → 60 meses) */
+  const draw = E.inOutQuad(prog(t, T.bal, T.balEnd));
+  const morph = E.inOutCubic(prog(t, T.upd + 0.06, T.upd + 0.7));
+  at(el.balLine, 'points', balPoints(morph, Math.max(0.0001, draw)));
+  at(el.balLine, 'opacity', draw > 0 ? 1 : 0);
+  el.balDots.forEach((d, m) => {
+    const u = m / 24, pd = spring(prog(draw, u - 0.001, u + 0.08), 0.5, 1.2);
+    const v = lerp(LA.bal[m], balAt(LB, u), morph);
+    at(d, 'cx', bx(u)); at(d, 'cy', by(v));
+    at(d, 'r', 2.8 * (m === 24 ? 1.3 : 1) * pd * (1 - E.inCubic(prog(t, T.upd + 0.06, T.upd + 0.4))));
+  });
+  const gp = E.outCubic(prog(t, T.bal - 0.2, T.bal + 0.2));
+  el.balGrid.forEach(g => at(g, 'opacity', gp));
+  at(el.balAxis, 'opacity', gp); at(el.meses, 'opacity', gp);
+  at(el.ticks24, 'opacity', gp * (1 - morph)); at(el.ticks60, 'opacity', morph);
+  op(el.endl, E.outCubic(prog(t, T.balEnd - 0.1, T.balEnd + 0.2)));
+  el.endMes.set('24', '60', prog(t, T.upd + 0.1, T.upd + 0.5), { spinsMax: 1, stagger: 0.1 });
+
+  /* Plazo: clic, selección y tecleo de «60» */
+  const pzIn = spring(prog(t, T.pzCard, T.pzCard + 0.5), 0.45, 1.5), pzOut = E.inCubic(prog(t, T.twistOut, T.twistOut + 0.16));
+  op(el.pzCard, clamp(prog(t, T.pzCard, T.pzCard + 0.12)) * (1 - pzOut));
+  tf(el.pzCard, `scale(${(0.82 + 0.18 * pzIn - pzOut * 0.06).toFixed(4)}) translateY(${((1 - pzIn) * 14).toFixed(2)}px)`);
+  let val;
+  const caret = t > T.click2 + 0.04 && t < T.upd + 0.5 && Math.floor((t - T.click2) / 0.26) % 2 === 0;
+  if (t < T.sel) val = '24';
+  else if (t < T.type1) val = '<span class="sel">24</span>';
+  else if (t < T.type2) val = '6';
+  else val = '60';
+  const html = val + (caret ? '<span class="caret"></span>' : '');
+  if (el.pzVal._h !== html) { el.pzVal.innerHTML = html; el.pzVal._h = html; }
+  const pzF = lerp(23 / 599, 59 / 599, E.outBack(prog(t, T.upd, T.upd + 0.3), 1.6));
+  setSlider(el.pz, pzF);
+
+  /* Evidencias del giro */
+  const pa = spring(prog(t, T.pillA, T.pillA + 0.5), 0.45, 1.6), pb = spring(prog(t, T.pillB, T.pillB + 0.5), 0.42, 1.7);
+  op(el.pillA, clamp(prog(t, T.pillA, T.pillA + 0.1)) * (1 - pzOut));
+  tf(el.pillA, `scale(${(0.6 + 0.4 * pa).toFixed(4)})`);
+  css(el.pillB, 'left', px(306 - el.pillB.offsetWidth / 2)); css(el.pillB, 'top', px(298));
+  op(el.pillB, clamp(prog(t, T.pillB, T.pillB + 0.1)) * (1 - pzOut));
+  tf(el.pillB, `scale(${(0.6 + 0.4 * pb).toFixed(4)}) rotate(${((1 - pb) * -6).toFixed(2)}deg)`);
+
+  /* Informe PDF */
+  const pg = E.outCubic(prog(t, T.page, T.page + 0.42));
+  op(el.page, pg);
+  tf(el.page, `scale(${(0.94 + 0.06 * pg).toFixed(4)})`);
+  const rows = el.pgTable.children;
+  for (let r = 0; r < rows.length; r++) op(rows[r], E.outCubic(prog(t, T.page + 0.2 + r * 0.03, T.page + 0.45 + r * 0.03)));
+}
+
+function renderCSV(t) {
+  const on = t > T.csv - 0.05;
+  css($('#csv'), 'display', on ? 'block' : 'none');
+  if (!on) return;
+  const eb = E.outCubic(prog(t, T.csv, T.csv + 0.3));
+  op(el.csvEb, eb);
+  tf(el.csvEb, `translateY(${((1 - eb) * 10).toFixed(2)}px)`);
+  el.csvChips.forEach((c, i) => {
+    const t0 = T.csv + 0.08 + i * 0.09;
+    const p = E.outBack(prog(t, t0, t0 + 0.5), 1.5);
+    op(c, clamp(prog(t, t0, t0 + 0.14)));
+    tf(c, `translateX(${((1 - p) * -170).toFixed(2)}px) rotate(${((1 - p) * -4).toFixed(2)}deg)`);
+  });
+}
+
+function cursorAt(t) {
+  const hidden = { x: 0, y: 0, s: 1, o: 0 };
+  const b = PANEL.btn;
+  const btn = camPoint(CAM2, PANEL.x + b.x + b.w * 0.58, PANEL.y + b.y + b.h * 0.55);
+  const pz = camPoint(camAt(T.click2), el.pzInput.x, el.pzInput.y);
+  const seg = (t0, t1, from, to) => {
+    const p = prog(t, t0, t1);
+    return [lerp(from[0], to[0], E.outCubic(p)), lerp(from[1], to[1], E.inOutCubic(p))];
+  };
+  const click = tc => 1 - 0.14 * (prog(t, tc - 0.02, tc + 0.04) * (1 - prog(t, tc + 0.08, tc + 0.18)));
+  if (t >= T.cur1 && t < T.pan + 0.5) {
+    const p = seg(T.cur1, T.click1 - 0.03, [1980, 1170], btn);
+    const lv = prog(t, T.pan + 0.02, T.pan + 0.4);
+    return { x: p[0] + E.inCubic(lv) * 160, y: p[1] + E.inCubic(lv) * 220, s: click(T.click1), o: 1 - lv };
+  }
+  if (t >= T.cur2 && t < T.upd + 0.5) {
+    const p = seg(T.cur2, T.click2 - 0.03, [1990, 1170], pz);
+    const lv = prog(t, T.type2 + 0.04, T.upd + 0.46);
+    return { x: p[0] + E.inCubic(lv) * 170, y: p[1] + E.inCubic(lv) * 230, s: click(T.click2), o: 1 - lv };
+  }
+  return hidden;
+}
+function renderCursor(t) {
+  const c = cursorAt(t);
+  op(el.cursor, c.o);
+  if (c.o > 0) tf(el.cursor, `translate(${px(c.x - 3)},${px(c.y - 3)}) scale(${c.s.toFixed(3)})`);
+}
+
+function renderGrid(t) {
+  /* Deriva lenta: da profundidad sin distraer */
+  const dx = -t * 6, dy = -t * 3;
+  css(el.grid, 'backgroundPosition', `${px(20 + dx)} ${px(20 + dy)}`);
+  op(el.grid, E.outCubic(prog(t, 0.2, 1.4)) * 0.9);
+}
+
+function renderEnd(t) {
+  /* Todo se pliega en una línea… */
+  const cp = E.inExpo(prog(t, T.collapse, T.collapseEnd));
+  if (cp > 0) tf(content, `scale(${(1 - cp * 0.08).toFixed(4)},${Math.max(0.003, 1 - cp).toFixed(4)})`);
+  else tf(content, 'none');
+  css(content, 'display', t < T.inkEnd ? 'block' : 'none');
+  op(el.cline, prog(t, T.collapseEnd - 0.08, T.collapseEnd) * (t < T.inkEnd ? 1 : 0));
+  /* …que se abre en tinta */
+  const ip = E.outExpo(prog(t, T.ink, T.inkEnd));
+  css(el.ink, 'display', ip > 0 ? 'block' : 'none');
+  tf(el.ink, `scale(${lerp(0.92, 1, ip).toFixed(4)},${lerp(4 / 1080, 1, ip).toFixed(5)})`);
+  const on = t > T.line - 0.02;
+  css(el.end, 'display', on ? 'block' : 'none');
+  if (!on) return;
+
+  /* El símbolo: la traza, tres flujos y el punto */
+  const sl = E.inOutCubic(prog(t, T.slide, T.slideEnd));
+  const x0 = lerp(LG.x0c, LG.x0f, sl), k = LG.k, yl = LG.yl;
+  const lp = E.outExpo(prog(t, T.line, T.lineEnd));
+  const xm = x0 + LG.w / 2;
+  at(el.lgLine, 'x1', xm - (LG.w / 2) * lp); at(el.lgLine, 'x2', xm + (LG.w / 2) * lp);
+  at(el.lgLine, 'y1', yl); at(el.lgLine, 'y2', yl);
+  at(el.lgLine, 'visibility', lp > 0.001 ? 'visible' : 'hidden');
+  const strokes = [[12.038, -11.035], [37.62, -13.543], [24.578, 18.559]];
+  strokes.forEach((s, i) => {
+    const p = spring(prog(t, T.strokes + i * 0.07, T.strokes + i * 0.07 + 0.5), 0.36, 1.5);
+    const x = x0 + s[0] * k, len = s[1] * k * p;
+    const ln = el.lgS[i];
+    at(ln, 'x1', x); at(ln, 'x2', x);
+    at(ln, 'y1', yl + (s[1] < 0 ? 3.952 * k * 0.5 : -3.952 * k * 0.5));
+    at(ln, 'y2', yl + len);
+    at(ln, 'visibility', Math.abs(len) > 0.5 ? 'visible' : 'hidden');
+  });
+  const r = 3.648 * k, dx = x0 + 24.578 * k;
+  let dy, rx = r, ry = r;
+  if (t < T.dotLand) {
+    const p = prog(t, T.dot, T.dotLand);
+    dy = lerp(-60, yl, E.inQuad(p));
+    const st = 1 + 0.3 * E.inQuad(p);
+    rx = r / Math.sqrt(st); ry = r * st;
+  } else {
+    dy = yl;
+    const q = wobble(prog(t, T.dotLand, T.dotLand + 0.4), 1.5, 4.5) * 0.42;
+    rx = r * (1 + q); ry = r * (1 - q);
+  }
+  at(el.lgDot, 'cx', dx); at(el.lgDot, 'cy', dy); at(el.lgDot, 'rx', rx); at(el.lgDot, 'ry', ry);
+  at(el.lgDot, 'visibility', t >= T.dot ? 'visible' : 'hidden');
+
+  /* La palabra sale de detrás del símbolo */
+  const gap = 12 / 24 * 147, wordX = LG.x0f + LG.w + gap;
+  const wp = E.outCubic(prog(t, T.slide + 0.04, T.slideEnd + 0.12));
+  const wx = lerp(wordX - 260, wordX, wp);
+  const symRight = x0 + LG.w + 18;
+  const clipL = Math.max(0, symRight - wx);
+  css(el.wordWrap, 'left', px(wx)); css(el.wordWrap, 'top', px(LG.cy - 74));
+  css(el.wordWrap, 'clipPath', `inset(-40px -40px -40px ${px(clipL)})`);
+  op(el.wordWrap, t > T.slide ? 1 : 0);
+
+  /* Lema y descriptor */
+  css($('#tagline'), 'top', px(598));
+  wordsIO(t, el.tag, T.tag, null, { stagger: 0.06, dIn: 0.6 });
+  const dp = E.outCubic(prog(t, T.desc, T.desc + 0.45));
+  css(el.desc, 'top', px(950));
+  op(el.desc, dp);
+  tf(el.desc, `translateY(${((1 - dp) * 10).toFixed(2)}px)`);
+}
+
+function render(t) {
+  t = clamp(t, 0, DUR);
+  renderGrid(t);
+  renderHook(t);
+  renderHeadlines(t);
+  renderCaption(t);
+  renderPanel(t);
+  renderWorld(t);
+  renderCSV(t);
+  renderCursor(t);
+  renderEnd(t);
+}
+
+/* =========================================================================
+   Arranque: modo render (fotograma a fotograma) o reproducción en vivo
+   ========================================================================= */
+const params = new URLSearchParams(location.search);
+const RENDER = params.has('render');
+function fit() {
+  if (RENDER) { stage.style.transform = 'none'; return; }
+  const k = Math.min(innerWidth / W, innerHeight / H);
+  stage.style.transform = `translate(${(innerWidth - W * k) / 2}px, ${(innerHeight - H * k) / 2}px) scale(${k})`;
+}
+
+const ready = document.fonts.ready.then(() => document.fonts.load('700 72px Inter')).then(() => {
+  build();
+  fit();
+  window.__cues = CUES;
+  window.__dur = DUR;
+  window.__fps = FPS;
+  window.__seek = t => { render(t); return true; };
+  /* Tramos de movimiento rápido: el renderizador usa más submuestras de desenfoque. */
+  window.__fast = [[T.axis - 0.02, T.axis + 0.2], [T.hopLand - 0.02, T.hopLand + 0.22], [T.pan, T.panEnd],
+    [T.cam4, T.cam4End], [T.cam5, T.cam5End], [T.collapse, T.inkEnd], [T.dot, T.dotLand + 0.1]];
+  if (RENDER) { document.body.classList.add('render'); render(+params.get('t') || 0); return; }
+
+  let t0 = performance.now(), paused = false, tp = +params.get('t') || 0;
+  const audio = document.getElementById('sfx');
+  /* Con pista de audio, el navegador exige un gesto: se muestra el cartel final como póster. */
+  const play = document.getElementById('play');
+  if (audio && !params.has('t')) {
+    paused = true; tp = DUR; play.hidden = false;
+    play.addEventListener('click', e => {
+      e.stopPropagation(); play.hidden = true; paused = false; tp = 0;
+      t0 = performance.now(); audio.currentTime = 0; audio.play().catch(() => {});
+    });
+  }
+  const bar = document.querySelector('#bar i');
+  const syncAudio = () => { if (!audio) return; audio.currentTime = tp; if (!paused) audio.play().catch(() => {}); else audio.pause(); };
+  t0 -= tp * 1000;
+  const loop = now => {
+    if (!paused) {
+      tp = (now - t0) / 1000;
+      if (tp >= DUR + 1.2) { t0 = now; tp = 0; syncAudio(); }
+    }
+    render(Math.min(tp, DUR));
+    bar.style.width = (Math.min(tp, DUR) / DUR * 100) + '%';
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+  stage.addEventListener('click', () => { paused = !paused; if (!paused) t0 = performance.now() - tp * 1000; syncAudio(); });
+  addEventListener('keydown', e => {
+    if (e.key === ' ') { paused = !paused; if (!paused) t0 = performance.now() - tp * 1000; syncAudio(); e.preventDefault(); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { tp = clamp(tp + (e.key === 'ArrowRight' ? 1 : -1), 0, DUR); t0 = performance.now() - tp * 1000; syncAudio(); }
+  });
+  addEventListener('resize', fit);
+  syncAudio();
+});
+window.__ready = ready;
+})();
+</script>
+</body>
+</html>
