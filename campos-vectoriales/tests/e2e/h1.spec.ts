@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { abrir, registrar, sinErrores } from '../util/app';
+import { abrir, registrar, sinErrores, urlApp } from '../util/app';
 import { angulo, lstarDeGris255, lstarEsperada } from '../util/oraculos';
 import { auditarMaquetacion } from '../../scripts/lib/maquetacion.mjs';
 import { PNG } from 'pngjs';
@@ -38,7 +38,7 @@ test.describe('REN-01 · escena base', () => {
         return (original as any).call(this, tipo, ...resto);
       };
     });
-    await page.goto('/?captura=1');
+    await page.goto(urlApp());
     await expect(page.getByRole('alert')).toContainText('WebGL2');
   });
 });

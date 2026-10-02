@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { hexGris } from '../../design/color';
-import { grisRampaMagnitud } from '../../render/flechas';
+import { grisRampaMagnitud } from '../../geometria/flechas';
 import { formatearCorto } from '../../numerics/format';
 import type { Escala } from '../../numerics/grid';
 import { T } from '../../i18n/es';

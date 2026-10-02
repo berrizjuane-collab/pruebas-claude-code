@@ -1,0 +1,5 @@
+# NUM-06 · Muestreo en el corte · 2026-10-02T05:39:38Z
+ ✓ src/numerics/h3.test.ts > V-NUM-14 · muestreo en el corte > F∥·n = 0 exacto (T-19); F·n y F∥ coherentes con F 13ms
+ ✓ src/numerics/h3.test.ts > V-NUM-14 · muestreo en el corte > T6: div = 2x + 1 en el corte XY coincide con la evaluación directa y cambia de signo en x = −1/2 33ms
+ ✓ src/numerics/h3.test.ts > V-NUM-14 · muestreo en el corte > rotacional: (rot F)·n = 2ω en el corte XY; 0 en los cortes XZ e YZ 5ms
+      Pruebas: 3 superadas

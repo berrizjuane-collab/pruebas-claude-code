@@ -45,8 +45,8 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 | T-04 | Diferencias finitas en campos afines (catálogo) | $\le10^{-8}(1+\lvert v\rvert)$ | exactas salvo redondeo | Truncamiento nulo en campos lineales |
 | T-05 | Orden de las diferencias centradas, T1, $h=0.1\to0.0125$ | $p\in[1.9,\,2.1]$ | 2.000 | Teoría: $p=2$ |
 | T-06 | Rectitud, campo uniforme | desviación $\le10^{-12}L$ | 0 | RK4 es exacto para un campo constante |
-| T-07 | Radio de la circunferencia, rotacional, $h=\Delta/8\approx0.0625$, una vuelta | $\lvert\rho-\rho_0\rvert/\rho_0\le10^{-6}$ | $2.5\times10^{-8}$ | Margen 40×; $10^{-6}$ ≪ 1 px |
-| T-08 | Cierre de órbita | motivo `ORBITA_CERRADA` y longitud $=2\pi\rho_0\pm h$ | error de posición $2.2\times10^{-7}$ | Umbral de cierre $h/2\approx0.03$, cinco órdenes por encima del error |
+| T-07 | Radio de la circunferencia, rotacional, $h=\Delta/8\approx0.0625$, una vuelta | $\lvert\rho-\rho_0\rvert/\rho_0\le10\cdot\tfrac{2\pi}{144}(h/\rho_0)^5$ (amplificación de RK4 por vuelta; para $\rho_0=1$: $4.1\times10^{-7}$) | $2.5\times10^{-8}$ ($\rho_0=1$) | La tolerancia fija de $10^{-6}$ no servía para $\rho_0=0.25$ (θ = h/ρ₀ cuatro veces mayor, error ∝ θ⁵); hallazgo de NUM-03 |
+| T-08 | Cierre de órbita | motivo `ORBITA_CERRADA`; la línea termina exactamente en la semilla sin retroceder; longitud $=2\pi\rho_0$ (relativo $\le10^{-3}$) | error de posición $2.2\times10^{-7}$ | Umbral de cierre $h/2\approx0.03$, cinco órdenes por encima del error. La tolerancia era $\pm h$ hasta que NUM-03 midió un sobrepaso de la semilla (véase §2.1) |
 | T-09 | Paso de hélice $\Delta z=2\pi a$ por vuelta, $a=\pm0.25$, $h\approx0.0625$ | relativo $\le10^{-5}$ | $8.0\times10^{-8}$ | Margen 125× |
 | T-10 | Radio de la hélice | $\le10^{-6}$ | $2.3\times10^{-8}$ | Margen 40× |
 | T-11 | Invariante $xy$ del campo silla, $h=0.0625$ | relativo $\le10^{-5}$ | $2.2\times10^{-7}$ | Margen 45× |
@@ -62,6 +62,28 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 > Los valores observados vienen del prototipo, no de la implementación. Al completar NUM-02,
 > NUM-03 y NUM-05 se registran los errores **medidos en TypeScript** junto a estos. Una
 > discrepancia de más de un orden de magnitud se investiga aunque la prueba pase.
+
+### 2.1 Errores medidos en TypeScript (H3, 2026-10-02)
+
+Salida `MEDIDA` de `npm test` (registro completo en `evidencia/NUM-02/` y `evidencia/NUM-03/`).
+Ninguna medida se aparta más de un orden de magnitud de la calibración.
+
+| # | Caso | Calibración (Python) | Medido (TypeScript) | Comentario |
+| --- | --- | --- | --- | --- |
+| T-03 | T1, 2000 puntos | $1.5\times10^{-10}$ | $1.45\times10^{-10}$ | Coincide |
+| T-04 | Catálogo afín | exactas salvo redondeo | 0 | — |
+| T-05 | Orden de las diferencias centradas | 2.000 | 2.000 / 2.000 / 2.000 | — |
+| T-06 | Rectitud (3 direcciones) | 0 | ≤ $4.7\times10^{-16}$ | Redondeo |
+| T-07 | Radio, $\rho_0=1$ | $2.5\times10^{-8}$ | $2.6\times10^{-8}$ | $\rho_0=0.25$: $2.5\times10^{-5}$ (tolerancia $4.3\times10^{-4}$) |
+| T-08 | Cierre, $\rho_0=1$ | posición $2.2\times10^{-7}$ | posición $2.2\times10^{-7}$; longitud relativa $2.1\times10^{-7}$ | **Hallazgo**: antes del arreglo la línea sobrepasaba la semilla y volvía (retroceso de hasta $h/2$, longitud $+5.9\times10^{-2}$ con $\rho_0=1$). Ahora el paso que pasa junto a la semilla se sustituye por el tramo hasta ella (SPEC §5.7) |
+| T-09 | Paso de hélice, $\rho_0=1$ | $8.0\times10^{-8}$ | $1.1\times10^{-7}$ | — |
+| T-10 | Radio de hélice, $\rho_0=1$ | $2.3\times10^{-8}$ | $1.0\times10^{-7}$ | 4.4×: la prueba toma el máximo sobre ≈ 4 vueltas (el error crece por vuelta) y la calibración, una vuelta |
+| T-11 | Invariante $xy$ | $2.2\times10^{-7}$ | $2.2\times10^{-7}$ | Coincide |
+| T-12 | Orden de RK4 normalizado | 3.92 – 3.95 | 3.925 / 3.916 / 3.950 | Coincide |
+| T-13 | Orden de RK4 en $t$ | 3.97 – 3.99 | 3.973 / 3.985 | Coincide |
+| T-14 | Partículas, $\delta t=0.01$ | $8.3\times10^{-11}$ | $8.30\times10^{-11}$ | Coincide |
+| T-15 | Alineación radial | — | $4.2\times10^{-16}$ | Redondeo |
+| T-16 | Recorte al borde | $h/2^{30}\approx6\times10^{-11}$ | ≤ $4.7\times10^{-11}$ | — |
 
 ---
 
@@ -92,7 +114,7 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 | V-NUM-06 | **Hélices** (a = ±0.25; ρ₀ ∈ {0.5, 1, 2}): paso, radio, quiralidad (signo de $\dot\theta\,\dot z$ igual al de a), longitud por vuelta $2\pi\sqrt{\rho_0^2+a^2}$ (relativo $\le10^{-5}$) | T-09, T-10 |
 | V-NUM-07 | **Silla**: invariante $xy$ a lo largo de cada línea; las líneas sobre $y=0$ y $x=0$ siguen las separatrices | T-11 |
 | V-NUM-08 | **Convergencia RK4**: orden observado en σ (circunferencia, arco 1.5) y en $t$ (silla) | T-12, T-13 |
-| V-NUM-09 | **Criterios de parada**: un caso diseñado por motivo: `SALE_DOMINIO` (uniforme), `CERO` (radial entrante), `NO_DEFINIDO` (T3 integrando hacia $x<0$), `ORBITA_CERRADA` (rotacional), `LONGITUD_MAX` (helicoidal con dominio alto en $z$), `PASOS_MAX` ($L_{\max}$ enorme), `ESTANCADA` ($(-\tanh(1000x),\,10^{-3},\,0)$, zigzag sobre $x=0$) | Motivo esperado en el 100 % de los casos; ninguna línea atraviesa un nodo no definido |
+| V-NUM-09 | **Criterios de parada**: un caso diseñado por motivo: `SALE_DOMINIO` (uniforme), `CERO` (radial entrante), `NO_DEFINIDO` (T3 integrando hacia $x<0$), `ORBITA_CERRADA` (rotacional), `LONGITUD_MAX` (helicoidal con dominio alto en $z$), `PASOS_MAX` ($L_{\max}$ enorme), `ESTANCADA` ($(-x/\lvert x\rvert,\,0,\,0)$, discontinuidad de dirección con ‖F‖ = 1); y un zigzag donde el campo es casi nulo ($(-\tanh(1000x),\,10^{-3},\,0)$) se clasifica como `CERO` | Motivo esperado en el 100 % de los casos; ninguna línea atraviesa un nodo no definido |
 | V-NUM-10 | Malla: coordenadas exactas de los nodos; el origen es nodo con N impar y Ω simétrico; centros de celda correctos; N por eje | Igualdad exacta |
 | V-NUM-11 | $F_{\text{ref}}$: P95 y redondeo a {1, 1.5, 2, 2.5, 3, 4, 5, 6, 8} × 10ᵏ en 10 casos calculados a mano; exclusión de no definidos; campo nulo → 1 con aviso | Igualdad exacta |
 | V-NUM-12 | Semillas: misma semilla → mismos puntos (bit a bit); descarte y recuento en nodos ≈ 0 o no definidos; límite de 256 | Igualdad exacta y recuentos |

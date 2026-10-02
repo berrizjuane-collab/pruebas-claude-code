@@ -84,6 +84,31 @@
   font-variant-numeric: tabular-nums;
 }
 
+.barra-estado-error {
+  color: var(--texto-1);
+}
+
+.boton-enlace {
+  background: none;
+  border: none;
+  padding: 0 var(--e-1);
+  color: var(--texto-1);
+  font-size: var(--t-pie);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.girando {
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .barra-acciones {
   margin-left: auto;
   display: flex;
@@ -365,6 +390,22 @@
 .flotante {
   position: absolute;
   z-index: 5;
+}
+
+/* Aviso en la escena (DESIGN §6.2, «Expresión con error»): centrado arriba, sin ocultar datos. */
+.aviso-escena {
+  top: var(--e-4);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: var(--e-1) var(--e-3);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-2);
+  color: var(--texto-1);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  white-space: nowrap;
 }
 
 .esquina-inferior-derecha {

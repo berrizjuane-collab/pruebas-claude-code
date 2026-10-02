@@ -19,7 +19,7 @@ import {
   type Esferica,
   type Vista,
 } from './camara';
-import type { InstanciasFlechas } from './flechas';
+import type { InstanciasFlechas } from '../geometria/flechas';
 import { CapaEjes } from './layers/ejes';
 import { CapaFlechas } from './layers/flechas3d';
 import { factorEscalaSprites } from './text/etiquetas';

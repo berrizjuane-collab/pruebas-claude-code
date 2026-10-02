@@ -1,0 +1,31 @@
+# CMP-01 · Worker y protocolo (unitarias) · 2026-10-02T05:39:38Z
+ ✓ src/compute/trabajos.test.ts > CMP-01 · trabajos > un campo que no compila produce un error legible con la componente 6ms
+ ✓ src/compute/trabajos.test.ts > CMP-01 · trabajos > la caché devuelve el mismo campo compilado para la misma definición 2ms
+ ✓ src/compute/trabajos.test.ts > CMP-01 · trabajos > trabajoLineas reproduce exactamente la integración secuencial (helicoidal) 42ms
+ ✓ src/compute/trabajos.test.ts > CMP-01 · trabajos > una cancelación detiene trabajoLineas en la primera cesión 6ms
+      Pruebas: 4 superadas
+
+# CMP-01 · e2e (Playwright, Chromium 1194, SwiftShader)
+Servidor de desarrollo:
+✓  1 [chromium] › tests/e2e/h3.spec.ts:48:3 › CMP-01 · worker y protocolo › la malla del worker coincide bit a bit con la calculada en Node (3.5s)
+✓  2 [chromium] › tests/e2e/h3.spec.ts:72:3 › CMP-01 · worker y protocolo › un error dentro del worker se muestra y la interfaz sigue operativa (3.2s)
+HTML autocontenido (file://, CSP estricta): mismas 2 pruebas superadas (OBJETIVO=archivo).
+
+(1) Equivalencia bit a bit entre el worker y Node (huella hexadecimal de los 15 arrays y de los
+escalares; mismo código en ambos lados: compute/trabajos.ts, compute/peticiones.ts, compute/huella.ts):
+  uniforme                           15 arrays ·   77274 bytes · idénticos
+  radial-saliente                    15 arrays ·   77286 bytes · idénticos
+  radial-entrante                    15 arrays ·   77286 bytes · idénticos
+  rotacional                         15 arrays ·   77382 bytes · idénticos
+  helicoidal                         15 arrays ·   77274 bytes · idénticos
+  silla                              15 arrays ·   77382 bytes · idénticos
+  T1 · trascendentes                 15 arrays ·   77766 bytes · idénticos
+  T2 · singular en el origen         15 arrays ·   77286 bytes · idénticos
+  centros, normalizado, log, 13³     15 arrays ·  232882 bytes · idénticos
+  escala fija 0.5 (saturación)       15 arrays ·   77274 bytes · idénticos
+Además, la malla que dibuja la aplicación (su propio worker) coincide con la de Node en los 6 campos.
+
+(2) Error dentro del worker (P = "x+"): la barra muestra «Error: La componente P no es válida: …»
+con role="alert"; la escena conserva las 729 flechas del último campo válido y muestra
+«Mostrando el último campo válido»; los controles siguen respondiendo y al elegir otro campo vuelve
+«Listo». Sin errores de consola.

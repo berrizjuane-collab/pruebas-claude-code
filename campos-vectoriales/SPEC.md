@@ -683,17 +683,18 @@ Cada rama (delante o atrás) termina con **un** motivo registrado, que se resume
 | `SALE_DOMINIO` | Sale de $\Omega$ (recortado al borde) | ninguna (la línea toca la caja) |
 | `CERO` | $\lVert\mathbf F\rVert<\varepsilon_{\text{stop}}F_{\text{ref}}$, $\varepsilon_{\text{stop}}=10^{-3}$ | rombo hueco «≈ 0» |
 | `NO_DEFINIDO` | Evaluación no finita o magnitud > $F_{\max}$ tras reducir el paso | aspa × |
-| `ORBITA_CERRADA` | Vuelve a menos de $h/2$ de la semilla tras recorrer más de $8h$ (se cierra exactamente uniendo con la semilla; la rama hacia atrás ya no se integra) | ninguna |
+| `ORBITA_CERRADA` | Un paso pasa a menos de $h/2$ de la semilla tras recorrer más de $8h$: la línea termina exactamente en la semilla, sin sobrepasarla (el paso se sustituye por el tramo hasta ella), y la rama hacia atrás ya no se integra | ninguna |
 | `LONGITUD_MAX` | Longitud > $L_{\max}$ (por defecto 4 × diagonal de $\Omega$) | ninguna |
 | `PASOS_MAX` | Más de 4000 pasos por rama | ninguna |
-| `ESTANCADA` | El desplazamiento neto en las últimas 50 iteraciones es < $h$ (espiral cerrándose sobre un ciclo o un foco) | ninguna |
+| `ESTANCADA` | El desplazamiento neto en las últimas 50 iteraciones es < $h$, o la dirección gira más de 90° dentro de un paso incluso tras reducirlo 4 veces (discontinuidad de dirección). Si en ese punto $\lVert\mathbf F\rVert<0.05\,F_{\text{ref}}$, se clasifica como `CERO`: al cruzar un sumidero el campo normalizado cambia de sentido y RK4 suma etapas opuestas (hallazgo de NUM-03) | ninguna |
 
 ### 5.8 Partículas
 
 - Integración RK4 en tiempo $t$ con el campo **sin normalizar**. Paso por fotograma
   $\delta t=\tau\cdot\Delta t_{\text{real}}$, dividido en subpasos tales que
-  $\lVert\mathbf F\rVert\,\delta t_{\text{sub}}\le\Delta/4$ (como máximo 8 subpasos; la
-  partícula renace si no basta).
+  $\lVert\mathbf F\rVert\,\delta t_{\text{sub}}\le\Delta/4$, con un máximo de 8 subpasos
+  (si no basta, el paso es mayor pero RK4 sigue siendo estable para los campos del catálogo;
+  la partícula no renace por ello).
 - Por defecto 400 partículas; máximo 2000. Estela de las últimas 12 posiciones.
 - Se ejecuta en el hilo principal: 2000 × 4 etapas × 3 componentes ≈ 24 000 evaluaciones
   por fotograma, del orden de 1 ms. Si la medición lo desmiente, pasa al *worker*

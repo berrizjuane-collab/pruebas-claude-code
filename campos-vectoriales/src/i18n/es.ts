@@ -6,13 +6,16 @@ export const T = {
   estado: {
     listo: 'Listo',
     calculando: 'Calculando…',
+    calculandoLineas: 'Calculando líneas…',
     nodos: (n: number) => `${n} nodos`,
     sinDefinir: (k: number, n: number) => `${k} de ${n} nodos sin definir`,
     campoNulo: 'El campo es nulo en todo el dominio',
+    lineasCanceladas: 'Cálculo de líneas cancelado',
   },
   acciones: {
     restablecerCamara: 'Restablecer cámara',
     restablecer: 'Restablecer',
+    cancelar: 'Cancelar',
   },
   panel: {
     etiqueta: 'Panel del experimento',
@@ -36,6 +39,7 @@ export const T = {
     sinWebgl: 'Este navegador no ofrece WebGL2, necesario para la escena 3D.',
     sinWebglAyuda: 'Prueba con una versión reciente de Chrome, Edge o Firefox, o activa la aceleración por hardware.',
     resumen: (campo: string, flechas: number) => `Campo ${campo}: ${flechas} flechas.`,
+    ultimoValido: 'Mostrando el último campo válido',
   },
   vistas: {
     encuadrar: 'Encuadrar (R)',

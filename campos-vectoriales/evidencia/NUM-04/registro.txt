@@ -1,0 +1,7 @@
+# NUM-04 · Semillas · 2026-10-02T05:39:38Z
+ ✓ src/numerics/h3.test.ts > V-NUM-12 · semillas > rejilla en un plano con rangos: posiciones exactas 3ms
+ ✓ src/numerics/h3.test.ts > V-NUM-12 · semillas > misma semilla → mismos puntos (bit a bit); otra semilla → otros 2ms
+ ✓ src/numerics/h3.test.ts > V-NUM-12 · semillas > descarte y recuento: eje z del rotacional (≈ 0), fuera de Ω, no definidos 3ms
+ ✓ src/numerics/h3.test.ts > V-NUM-12 · semillas > límite de 256 semillas 1ms
+ ✓ src/numerics/h3.test.ts > V-NUM-12 · semillas > desde el punto inspeccionado: P y un anillo de 6 a Δ/4 en el plano normal a F(P) 1ms
+      Pruebas: 5 superadas

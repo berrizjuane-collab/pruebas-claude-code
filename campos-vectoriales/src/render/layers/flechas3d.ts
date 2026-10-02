@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { hexARgb } from '../../design/color';
 import { escena } from '../../design/tokens';
-import type { InstanciasFlechas } from '../flechas';
+import type { InstanciasFlechas } from '../../geometria/flechas';
 import { CapaGlifos, FORMA, glifosUniformes } from '../glifos';
 
 const EJE_Y = new THREE.Vector3(0, 1, 0);

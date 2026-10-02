@@ -51,6 +51,14 @@ export default defineConfig([
     },
   },
   {
+    // Geometría pura de los glifos: la usan render/ y compute/; sin three, React ni DOM.
+    files: ['src/geometria/**/*.ts'],
+    rules: {
+      ...prohibir(['three', 'three/*', 'react', 'react-dom', 'react/*', '**/state/**', '**/compute/**', '**/render/**', '**/ui/**', '**/app/**', '**/export/**'], 'geometria/ es pura.'),
+      'no-restricted-globals': ['error', ...DOM],
+    },
+  },
+  {
     files: ['src/state/**/*.ts'],
     rules: prohibir(['three', 'three/*', 'react', 'react-dom', 'react/*', '**/render/**', '**/ui/**', '**/app/**', '**/compute/**', '**/export/**'], 'state/ no depende de la escena ni de la interfaz.'),
   },

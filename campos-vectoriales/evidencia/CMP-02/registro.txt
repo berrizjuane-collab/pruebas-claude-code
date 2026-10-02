@@ -1,0 +1,34 @@
+# CMP-02 · Orquestación, cancelación y presupuestos (unitarias) · 2026-10-02T05:39:38Z
+ ✓ src/compute/trabajos.test.ts > CMP-01 · trabajos > una cancelación detiene trabajoLineas en la primera cesión 6ms
+ ✓ src/compute/trabajos.test.ts > CMP-02 · troceado dentro de una línea > la rama cede cada 256 pasos y da el mismo resultado que la versión síncrona 34ms
+      Pruebas: 2 superadas
+
+# CMP-02 · e2e (Playwright, Chromium 1194, SwiftShader, 4 núcleos)
+Servidor de desarrollo:
+✓  3 [chromium] › tests/e2e/h3.spec.ts:94:3 › CMP-02 · orquestación, cancelación y presupuestos › 60 cambios de parámetro en 3 s: solo se aplica el último resultado de líneas y no hay tareas largas (6.8s)
+✓  4 [chromium] › tests/e2e/h3.spec.ts:156:3 › CMP-02 · orquestación, cancelación y presupuestos › «Cancelar» detiene el cálculo de líneas en menos de 100 ms (6.1s)
+HTML autocontenido (file://, CSP estricta): mismas 2 pruebas superadas (OBJETIVO=archivo).
+
+Informe de tareas largas y tiempos — servidor de desarrollo:
+  60 cambios del parámetro a en 3103 ms (uno cada 50 ms)
+  Fotogramas en ese intervalo: 52 · mallas aplicadas: 26 (agrupadas por fotograma)
+  Resultados de líneas aplicados: 1 → a = [0.85] a los 3346 ms (último valor: 0.85)
+  Tareas largas (> 50 ms) en el hilo principal: 0
+  Coste de las líneas en el worker: 0.7 ms
+  Cancelación pulsada al 27 % del cálculo (256 semillas, 2 × 4000 pasos por línea)
+  Latencia «Cancelar» → confirmación de parada del worker: 4.8 ms (límite: 100 ms)
+  Después: ningún resultado tardío aplicado = sí; aviso «Cálculo de líneas cancelado» = sí
+
+Informe de tareas largas y tiempos — HTML autocontenido:
+  60 cambios del parámetro a en 3125 ms (uno cada 50 ms)
+  Fotogramas en ese intervalo: 48 · mallas aplicadas: 21 (agrupadas por fotograma)
+  Resultados de líneas aplicados: 1 → a = [0.85] a los 3512 ms (último valor: 0.85)
+  Tareas largas (> 50 ms) en el hilo principal: 0
+  Coste de las líneas en el worker: 1.5 ms
+  Cancelación pulsada al 23 % del cálculo (256 semillas, 2 × 4000 pasos por línea)
+  Latencia «Cancelar» → confirmación de parada del worker: 9.7 ms (límite: 100 ms)
+  Después: ningún resultado tardío aplicado = sí; aviso «Cálculo de líneas cancelado» = sí
+
+Nota: en este entorno la GPU es SwiftShader (software), así que solo hay ≈ 15–17 fotogramas por
+segundo. Por eso se agrupan 60 cambios en 21–26 mallas. En el equipo R1 (144 Hz) habrá más
+fotogramas; las medidas de FPS son de VAL-03.

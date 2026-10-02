@@ -98,6 +98,9 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-26 | Escala legible de $F_{\text{ref}}$ y $V_{\text{ref}}$ con pasos {1, 1.5, 2, 2.5, 3, 4, 5, 6, 8}·10ᵏ | {1, 2, 2.5, 5}·10ᵏ (SPEC §5.1 original) | Con la escala original el helicoidal (P95 ≈ 2.6) saltaba a 5 y todas las flechas se encogían a la mitad; la nueva limita la pérdida a ×1.33 | Sí |
 | D-27 | Pistas de forma en el cono: base más oscura y degradado fijo vértice → base (80 %) | Conos planos (D-08 estricto) | Revisión de capturas de H1: sin ellas, flechas hacia la cámara y en sentido contrario eran indistinguibles; el gris de cilindro y vértice sigue siendo exacto (DESIGN §9.2) | Sí |
 | D-28 | Fracción mínima de escena: 73 % a 1440×900 y 79 % a 1920×1080 | 75 % | La cifra original era geométricamente imposible con panel de 320 px y barra de 48 px; lo detectó la prueba de VIS-03 | Sí |
+| D-29 | Capa pura `geometria/` para las instancias de flechas, compartida por `render/` (dibujo) y `compute/` (worker) | Que `compute/` importe `render/flechas` | El worker calcula las instancias sin depender de la escena; la regla de capas (PLAN §1.5) lo prohíbe y ESLint lo comprueba | Sí |
+| D-30 | Las líneas de corriente ceden el turno también dentro de cada línea (generador que cede cada 256 pasos), no solo entre semillas | Ceder solo entre líneas | Con una expresión cara, una sola línea de 2 × 4000 pasos puede pasar de 100 ms; CMP-02 exige cancelar en menos de 100 ms (medido: 9.5–10.6 ms) | Sí |
+| D-31 | `ORBITA_CERRADA` termina exactamente en la semilla: el paso que pasa a menos de $h/2$ se sustituye por el tramo hasta ella | Unir el punto posterior con la semilla (SPEC original) | La medida de T-08 mostró un retroceso de hasta $h/2$ (≈ 6 px) y una longitud $+5.9\times10^{-2}$; ahora el error relativo es $2.1\times10^{-7}$ | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
@@ -134,7 +137,7 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | R-11 | Ecosistema y TypeScript 7 | Baja | Bajo | TypeScript 6 (D-05) |
 | R-12 | Criterios WCAG y documentación de MDN citados sin acceso a w3.org ni a MDN (bloqueados por la red) | Media | Bajo | Contrastarlos con las fuentes oficiales al implementar VIS-01 y A11Y-01 |
 | R-13 | Muestreo insuficiente engañoso (*aliasing*) en campos oscilantes | Media | Medio | Ejemplo en la ayuda (SPEC §5.10); aviso automático como AMP-11 |
-| R-14 | Evaluación compilada entre 3.4× y 8× más lenta que la nativa (V-PERF-05, medido en MAT-03; objetivo orientativo ≤ 3×). Peor caso estimado de PERF-B ≈ 1.6 s si todas las líneas agotan sus pasos | Media | Medio | Cálculo en el worker, troceado y cancelable con progreso (CMP-02); medir en R1 (VAL-03). Si no basta: evaluación vectorizada por lotes o reducir semillas por defecto |
+| R-14 | Evaluación compilada entre 3.4× y 8× más lenta que la nativa (V-PERF-05, medido en MAT-03; objetivo orientativo ≤ 3×). Peor caso estimado de PERF-B ≈ 1.6 s si todas las líneas agotan sus pasos | Media | Medio | Hecho en CMP-02: cálculo en el worker, troceado también dentro de cada línea (D-30), cancelable en ≈ 10 ms y con progreso a partir de 300 ms. Falta medir en R1 (VAL-03). Si no basta: evaluación vectorizada por lotes o reducir semillas por defecto |
 
 ---
 
@@ -174,6 +177,11 @@ Hallazgos de la revisión del encargo y de los propios documentos, y su resoluci
     enlace compartible, deshacer general y despliegue pasan a ampliaciones (SPEC §2.2).
 16. **Rama de trabajo** por detrás de `main` (era antecesora directa). → Avanzada a `main`
     por avance rápido antes de escribir; sin conflictos.
+17. **Cierre de órbitas** (hallazgo de NUM-03 al registrar las medidas de T-08): la línea
+    sobrepasaba la semilla y volvía hacia atrás. → SPEC §5.7, T-08 y el integrador
+    corregidos (D-31).
+18. **Capas**: el worker necesitaba la geometría de las flechas, que vivía en `render/`. →
+    Nueva capa pura `geometria/` (D-29).
 
 ---
 

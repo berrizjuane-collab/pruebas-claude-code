@@ -1,0 +1,57 @@
+# NUM-03 · Líneas de corriente: RK4 en σ y parada · 2026-10-02T05:39:38Z
+ ✓ src/compute/trabajos.test.ts > CMP-02 · troceado dentro de una línea > la rama cede cada 256 pasos y da el mismo resultado que la versión síncrona 34ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-03 · campo uniforme: rectas > F = (1, 0, 0): rectas paralelas a F que terminan en el borde (T-06, T-16) 8ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-03 · campo uniforme: rectas > F = (0.3, -0.7, 0.2): rectas paralelas a F que terminan en el borde (T-06, T-16) 2ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-03 · campo uniforme: rectas > F = (0, 0, -2): rectas paralelas a F que terminan en el borde (T-06, T-16) 3ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-04 · campos radiales > saliente: semirrectas alineadas con la semilla (T-15) 1ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-04 · campos radiales > entrante: se detiene en «CERO» cerca del origen (‖r‖ ≤ ε·F_ref/k + h) 0ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-05 · campo rotacional: circunferencias > ω = 1, ρ₀ = 0.25: radio conservado, z constante, sentido y cierre exacto en la semilla (T-07, T-08) 2ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-05 · campo rotacional: circunferencias > ω = 1, ρ₀ = 1: radio conservado, z constante, sentido y cierre exacto en la semilla (T-07, T-08) 2ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-05 · campo rotacional: circunferencias > ω = 1, ρ₀ = 1.9: radio conservado, z constante, sentido y cierre exacto en la semilla (T-07, T-08) 2ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-05 · campo rotacional: circunferencias > ω = -1, ρ₀ = 0.25: radio conservado, z constante, sentido y cierre exacto en la semilla (T-07, T-08) 1ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-05 · campo rotacional: circunferencias > ω = -1, ρ₀ = 1: radio conservado, z constante, sentido y cierre exacto en la semilla (T-07, T-08) 2ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-05 · campo rotacional: circunferencias > ω = -1, ρ₀ = 1.9: radio conservado, z constante, sentido y cierre exacto en la semilla (T-07, T-08) 2ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-05 · campo rotacional: circunferencias > las semillas sobre el eje z se descartan como ≈ 0 0ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-06 · campo helicoidal: hélices > a = 0.25, ρ₀ = 0.5: paso 2πa, radio, quiralidad y longitud por vuelta (T-09, T-10) 3ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-06 · campo helicoidal: hélices > a = 0.25, ρ₀ = 1: paso 2πa, radio, quiralidad y longitud por vuelta (T-09, T-10) 3ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-06 · campo helicoidal: hélices > a = 0.25, ρ₀ = 2: paso 2πa, radio, quiralidad y longitud por vuelta (T-09, T-10) 5ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-06 · campo helicoidal: hélices > a = -0.25, ρ₀ = 0.5: paso 2πa, radio, quiralidad y longitud por vuelta (T-09, T-10) 4ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-06 · campo helicoidal: hélices > a = -0.25, ρ₀ = 1: paso 2πa, radio, quiralidad y longitud por vuelta (T-09, T-10) 4ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-06 · campo helicoidal: hélices > a = -0.25, ρ₀ = 2: paso 2πa, radio, quiralidad y longitud por vuelta (T-09, T-10) 5ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-07 · campo silla: invariante xy > xy constante a lo largo de cada línea (T-11) y separatrices 4ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-08 · orden de convergencia de RK4 normalizado > arco σ = 1.5 de la circunferencia unidad, h = 0.3 → 0.0375: p ∈ [3.7, 4.3] (T-12) 1ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-09 · criterios de parada > SALE_DOMINIO (uniforme) y CERO (radial entrante) 0ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-09 · criterios de parada > NO_DEFINIDO: la línea se detiene antes de entrar en x < 0 y ningún punto queda sin definir 3ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-09 · criterios de parada > ORBITA_CERRADA (rotacional), LONGITUD_MAX y PASOS_MAX (helicoidal en un dominio alto) 1ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-09 · criterios de parada > ESTANCADA: discontinuidad de dirección con ‖F‖ = 1 a ambos lados (−x/|x|) 1ms
+ ✓ src/numerics/streamlines.test.ts > V-NUM-09 · criterios de parada > un zigzag donde el campo es casi nulo (0.03 % de F_ref) se clasifica como CERO 0ms
+      Pruebas: 26 superadas
+
+Errores medidos frente a la calibración (VALIDATION §2.1):
+MEDIDA T-06 · rectitud, F = (1, 0, 0), desviación máxima: 0.00e+0 (calibración: 0)
+MEDIDA T-16 · recorte al borde, F = (1, 0, 0), distancia máxima a la cara: 3.49e-11 (calibración: h/2³⁰ ≈ 6e-11)
+MEDIDA T-06 · rectitud, F = (0.3, -0.7, 0.2), desviación máxima: 4.71e-16 (calibración: 0)
+MEDIDA T-16 · recorte al borde, F = (0.3, -0.7, 0.2), distancia máxima a la cara: 4.25e-11 (calibración: h/2³⁰ ≈ 6e-11)
+MEDIDA T-06 · rectitud, F = (0, 0, -2), desviación máxima: 0.00e+0 (calibración: 0)
+MEDIDA T-16 · recorte al borde, F = (0, 0, -2), distancia máxima a la cara: 4.66e-11 (calibración: h/2³⁰ ≈ 6e-11)
+MEDIDA T-15 · alineación radial, máximo: 4.16e-16 (calibración: —)
+MEDIDA T-07 · radio, ρ₀ = 0.25, |ρ − ρ₀|/ρ₀ máximo: 2.52e-5 (tolerancia 4.26e-4) (calibración: —)
+MEDIDA T-08 · cierre, ρ₀ = 0.25, error de posición máximo: 6.30e-6; |longitud − 2πρ₀|/2πρ₀ = 1.51e-4 (calibración: —)
+MEDIDA T-07 · radio, ρ₀ = 1, |ρ − ρ₀|/ρ₀ máximo: 2.59e-8 (tolerancia 4.16e-7) (calibración: 2.5e-8)
+MEDIDA T-08 · cierre, ρ₀ = 1, error de posición máximo: 2.19e-7; |longitud − 2πρ₀|/2πρ₀ = 2.08e-7 (calibración: 2.2e-7)
+MEDIDA T-07 · radio, ρ₀ = 1.9, |ρ − ρ₀|/ρ₀ máximo: 1.04e-9 (tolerancia 1.68e-8) (calibración: —)
+MEDIDA T-08 · cierre, ρ₀ = 1.9, error de posición máximo: 3.73e-8; |longitud − 2πρ₀|/2πρ₀ = 2.39e-7 (calibración: —)
+MEDIDA T-09 · paso de hélice, ρ₀ = 0.5, relativo: 1.30e-6 (calibración: —)
+MEDIDA T-10 · radio de hélice, ρ₀ = 0.5, relativo máximo: 4.57e-6 (calibración: —)
+MEDIDA T-09 · paso de hélice, ρ₀ = 1, relativo: 1.12e-7 (calibración: 8.0e-8)
+MEDIDA T-10 · radio de hélice, ρ₀ = 1, relativo máximo: 1.02e-7 (calibración: 2.3e-8)
+MEDIDA T-09 · paso de hélice, ρ₀ = 2, relativo: 7.70e-9 (calibración: —)
+MEDIDA T-10 · radio de hélice, ρ₀ = 2, relativo máximo: 1.74e-9 (calibración: —)
+MEDIDA T-11 · invariante xy, relativo máximo (3 líneas): 2.16e-7 (calibración: 2.2e-7)
+MEDIDA T-12 · orden de RK4 normalizado (arco 1.5): 3.925 / 3.916 / 3.950 (calibración: 3.92 – 3.95)
+
+Hallazgo (D-31): al registrar T-08 se vio que, al cerrar una órbita, la línea sobrepasaba la
+semilla y volvía hacia atrás (retroceso de hasta h/2 y longitud +5.9e-2 con ρ₀ = 1). Corregido:
+el paso que pasa a menos de h/2 de la semilla se sustituye por el tramo hasta ella. Error relativo
+de longitud tras el arreglo: 2.1e-7 (ρ₀ = 1). La prueba comprueba además que el último tramo
+avanza y que el extremo es exactamente la semilla.

@@ -94,8 +94,9 @@ Reglas de importación (comprobadas por ESLint en `npm run lint`):
 | `math/` | `math/` | DOM, `three`, `react`, cualquier otra capa |
 | `numerics/` | `math/`, `numerics/` | DOM, `three`, `react` |
 | `state/` | `math/` (tipos), `numerics/format` | DOM (salvo `persist.ts`, que recibe un adaptador de almacenamiento), `three`, `react` |
-| `compute/` | `math/`, `numerics/`, `state/` (tipos) | `three`, `react`, `render/`, `ui/` |
-| `render/` | `three`, `math/` (tipos), `numerics/format`, `design/tokens` | `react`, `state/store`, `ui/` |
+| `geometria/` | `math/` (tipos), `numerics/`, `design/` (color y tokens) | DOM, `three`, `react`, `state/`, `compute/`, `render/`, `ui/` (D-29) |
+| `compute/` | `math/`, `numerics/`, `geometria/`, `state/` (tipos) | `three`, `react`, `render/`, `ui/`, `app/` |
+| `render/` | `three`, `math/` (tipos), `numerics/format`, `geometria/`, `design/tokens` | `react`, `state/store`, `ui/` |
 | `export/` | `render/` (API pública), `state/`, `i18n/`, `numerics/format` | `react` |
 | `ui/`, `app/` | Todo lo anterior | — |
 
@@ -155,10 +156,11 @@ campos-vectoriales/
 │   │   ├── field.ts               especificación → campo compilado (F, J, div, rot)
 │   │   └── catalog/               6 campos: expresiones + oráculo nativo + ficha
 │   ├── numerics/                  ── PURO ──
-│   │   ├── grid.ts  finiteDiff.ts  rk4.ts  streamlines.ts  seeds.ts
-│   │   ├── particles.ts  slice.ts  stats.ts  format.ts
+│   │   ├── grid.ts  finiteDiff.ts  streamlines.ts (RK4 en σ)  seeds.ts
+│   │   ├── particles.ts (RK4 en t)  slice.ts  stats.ts  format.ts
+│   ├── geometria/                 ── PURO ── flechas.ts: instancias de flechas (render/ y compute/)
 │   ├── state/                     schema, store, actions, selectors, persist
-│   ├── compute/                   protocol, client, worker
+│   ├── compute/                   protocol, client, worker, trabajos, peticiones, huella
 │   ├── render/
 │   │   ├── SceneController.ts  camera.ts  palette.ts  picking.ts
 │   │   ├── layers/                axes, box, arrows, streamlines, particles,
@@ -610,7 +612,8 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 #### NUM-03 · Líneas de corriente: RK4 en σ y parada — Pendiente
 - **Objetivo**: integración normalizada en ambos sentidos con todos los motivos de parada.
 - **Dependencias**: NUM-01, MAT-03.
-- **Componentes**: `numerics/rk4.ts`, `streamlines.ts`.
+- **Componentes**: `numerics/streamlines.ts` (el paso RK4 en σ es la clase `PasoRK4`; las
+  partículas tienen el suyo en $t$ en `particles.ts`, así que no hace falta un `rk4.ts` aparte).
 - **Procedimiento**: SPEC §5.5 y §5.7; recorte por bisección; cierre de órbitas; reducción
   del paso.
 - **Aceptación**: V-NUM-03 … V-NUM-09 pasan.
@@ -647,7 +650,8 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 #### CMP-01 · *Worker* y protocolo — Pendiente
 - **Objetivo**: cálculo pesado fuera del hilo principal con mensajes tipados.
 - **Dependencias**: MAT-05, NUM-01.
-- **Componentes**: `compute/protocol.ts`, `client.ts`, `worker.ts`.
+- **Componentes**: `compute/protocol.ts`, `client.ts`, `worker.ts`, `trabajos.ts` (mismo código
+  en el worker y en el hilo principal), `peticiones.ts`, `huella.ts`.
 - **Procedimiento**: compilar el campo en el *worker*; malla con resultados transferibles;
   errores del *worker* convertidos en mensajes de interfaz.
 - **Aceptación**: (1) la malla del *worker* coincide bit a bit con la calculada en Node para

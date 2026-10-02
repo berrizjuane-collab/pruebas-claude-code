@@ -1,0 +1,10 @@
+# NUM-05 · Integrador de partículas · 2026-10-02T05:39:38Z
+ ✓ src/numerics/h3.test.ts > V-NUM-13 · partículas > frente a la solución exacta de la silla, δt = 0.01, t = 1: relativo ≤ 10⁻⁸ (T-14) 2ms
+ ✓ src/numerics/h3.test.ts > V-NUM-13 · partículas > orden de convergencia en t: p ∈ [3.8, 4.2] (T-13) 1ms
+ ✓ src/numerics/h3.test.ts > V-NUM-13 · partículas > la velocidad de cada partícula es F en su posición; renacen al salir de Ω 18ms
+ ✓ src/numerics/h3.test.ts > V-NUM-13 · partículas > reproducible: misma semilla → mismas trayectorias 2ms
+      Pruebas: 4 superadas
+
+Errores medidos frente a la calibración (VALIDATION §2.1):
+MEDIDA T-14 · partículas en la silla, δt = 0.01, error relativo: 8.30e-11 (calibración: 8.3e-11)
+MEDIDA T-13 · orden de RK4 en t (silla): 3.973 / 3.985 (calibración: 3.97 – 3.99)

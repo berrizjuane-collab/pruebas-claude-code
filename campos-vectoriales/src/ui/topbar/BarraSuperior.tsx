@@ -1,19 +1,24 @@
-import { CircleCheck, RotateCcw, TriangleAlert } from 'lucide-react';
+import { CircleCheck, LoaderCircle, OctagonAlert, RotateCcw, TriangleAlert } from 'lucide-react';
 import { T } from '../../i18n/es';
 
-export interface EstadoCalculo {
-  tipo: 'listo' | 'calculando' | 'aviso';
+export interface EstadoCalculoBarra {
+  tipo: 'listo' | 'calculando' | 'aviso' | 'error';
   texto: string;
+  cancelable?: boolean;
 }
 
 interface Props {
   nombre: string;
-  estadoCalculo: EstadoCalculo;
+  estadoCalculo: EstadoCalculoBarra;
   alRestablecerCamara: () => void;
+  alCancelar: () => void;
 }
 
-export function BarraSuperior({ nombre, estadoCalculo, alRestablecerCamara }: Props) {
-  const Icono = estadoCalculo.tipo === 'aviso' ? TriangleAlert : CircleCheck;
+const ICONO = { listo: CircleCheck, calculando: LoaderCircle, aviso: TriangleAlert, error: OctagonAlert };
+const PREFIJO = { listo: '', calculando: '', aviso: 'Aviso: ', error: 'Error: ' };
+
+export function BarraSuperior({ nombre, estadoCalculo, alRestablecerCamara, alCancelar }: Props) {
+  const Icono = ICONO[estadoCalculo.tipo];
   return (
     <header className="barra" data-region="barra">
       <div className="barra-marca">
@@ -27,9 +32,17 @@ export function BarraSuperior({ nombre, estadoCalculo, alRestablecerCamara }: Pr
       <h1 className="barra-nombre" data-prueba="nombre-experimento">
         {nombre}
       </h1>
-      <p className="barra-estado" role="status" data-prueba="estado-calculo">
-        <Icono size={14} strokeWidth={1.5} aria-hidden="true" />
-        <span>{estadoCalculo.texto}</span>
+      <p className={`barra-estado barra-estado-${estadoCalculo.tipo}`} role={estadoCalculo.tipo === 'error' ? 'alert' : 'status'} data-prueba="estado-calculo">
+        <Icono size={14} strokeWidth={1.5} aria-hidden="true" className={estadoCalculo.tipo === 'calculando' ? 'girando' : undefined} />
+        <span>
+          {PREFIJO[estadoCalculo.tipo]}
+          {estadoCalculo.texto}
+        </span>
+        {estadoCalculo.cancelable ? (
+          <button type="button" className="boton-enlace" onClick={alCancelar} data-prueba="cancelar-calculo">
+            {T.acciones.cancelar}
+          </button>
+        ) : null}
       </p>
       <div className="barra-acciones">
         <button type="button" className="boton" onClick={alRestablecerCamara} data-ayuda={`${T.acciones.restablecerCamara} (R)`}>

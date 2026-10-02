@@ -1,0 +1,15 @@
+# NUM-02 · Diferencias finitas · 2026-10-02T05:39:38Z
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-01 · diferencias finitas frente a valores analíticos > catálogo (campos afines): T-04, ≤ 10⁻⁸(1 + |v|) 150ms
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-01 · diferencias finitas frente a valores analíticos > T1 en 2000 puntos: T-03, ≤ 10⁻⁷(1 + |v|); se registra el error máximo 10ms
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-02 · orden de convergencia de las diferencias centradas > T1, ∂Q/∂x − ∂P/∂y en (0.7, −1.1, 0.4) con h = 0.1 → 0.0125: p ∈ [1.9, 2.1] (T-05) 1ms
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-16 · derivadas no finitas y puntos especiales > √x en x = 0: «no acotada (∞)» 4ms
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-16 · derivadas no finitas y puntos especiales > (√x)² en x = 0 (forma 0·∞): diferencia unilateral = 1 ± 10⁻⁶, método «numérica» 1ms
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-16 · derivadas no finitas y puntos especiales > √x en x = −1: F no definido 0ms
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-16 · derivadas no finitas y puntos especiales > |x| en x = 0: no diferenciable 1ms
+ ✓ src/numerics/finiteDiff.test.ts > V-NUM-16 · derivadas no finitas y puntos especiales > sin jacobiana simbólica: todas las derivadas numéricas 0ms
+      Pruebas: 8 superadas
+
+Errores medidos frente a la calibración (VALIDATION §2.1):
+MEDIDA T-04 · catálogo, error máximo relativo: 0.00e+0 (calibración: exactas salvo redondeo)
+MEDIDA T-03 · T1 en 2000 puntos, error máximo relativo: 1.45e-10 (calibración: 1.5e-10)
+MEDIDA T-05 · orden de las diferencias centradas: 2.000 / 2.000 / 2.000 (calibración: 2.000)
