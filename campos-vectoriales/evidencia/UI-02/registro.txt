@@ -1,0 +1,10 @@
+# UI-02 · Editor de ecuaciones (V-FUN-02) · 2026-10-02T07:07:21Z
+✓   9 [chromium] › tests/e2e/h4.spec.ts:247:3 › UI-02 · editor de ecuaciones (V-FUN-02) › una expresión válida se aplica 300 ms después de la última tecla (3.1s)
+✓  10 [chromium] › tests/e2e/h4.spec.ts:283:3 › UI-02 · editor de ecuaciones (V-FUN-02) › «incompleta» con el foco; error con posición y aviso de escena al salir; Esc recupera el último valor válido (2.1s)
+✓  11 [chromium] › tests/e2e/h4.spec.ts:307:3 › UI-02 · editor de ecuaciones (V-FUN-02) › «incompleta» pasa a error tras 800 ms sin teclear (3.3s)
+✓  12 [chromium] › tests/e2e/h4.spec.ts:318:3 › UI-02 · editor de ecuaciones (V-FUN-02) › un identificador no declarado ofrece «Añadir como parámetro», que lo crea y aplica el campo (1.4s)
+HTML autocontenido (file://, CSP estricta): las mismas pruebas superadas con OBJETIVO=archivo.
+
+Retraso medido entre la última tecla y la aplicación del campo: 333 ms (rebote de 300 ms; tolerancia
+290–400 ms en el entorno de integración).
+Captura C5 (V1–V3): evidencia/REV-02/capturas/C5-V*.png

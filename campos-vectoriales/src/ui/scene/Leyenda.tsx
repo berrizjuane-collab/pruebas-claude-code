@@ -14,6 +14,8 @@ export interface DatosLeyenda {
   indefinidos: number;
   saturadas: number;
   flechas: boolean;
+  /** Flechas dibujadas (sin marcas ≈ 0 ni aspas): sin ellas no hay rampa, sentido ni escala. */
+  nFlechas: number;
 }
 
 /** Degradado de la rampa de magnitud con paradas en L* uniforme (11 paradas: el 50 % es exacto). */
@@ -51,6 +53,7 @@ function LeyendaBase({ datos }: { datos: DatosLeyenda }) {
   const [plegada, setPlegada] = useState(false);
   const idCuerpo = useId();
   const ref = formatearCorto(datos.escala.ref);
+  const hayFlechas = datos.nFlechas > 0;
   return (
     <section className="leyenda flotante" data-flotante="leyenda" aria-labelledby="titulo-leyenda">
       <button
@@ -66,20 +69,24 @@ function LeyendaBase({ datos }: { datos: DatosLeyenda }) {
       <div id={idCuerpo} className="leyenda-cuerpo" hidden={plegada}>
         {datos.flechas ? (
           <>
-            <div className="leyenda-rampa">
-              <span className="leyenda-rampa-titulo">{T.leyenda.magnitud}</span>
-              <div className="leyenda-barra" style={{ backgroundImage: degradadoMagnitud() }} data-prueba="barra-magnitud" />
-              <div className="leyenda-marcas num" aria-hidden="true">
-                <span>0</span>
-                <span>{formatearCorto(datos.escala.ref / 2)}</span>
-                <span>≥ {ref}</span>
+            {hayFlechas ? (
+              <div className="leyenda-rampa">
+                <span className="leyenda-rampa-titulo">{T.leyenda.magnitud}</span>
+                <div className="leyenda-barra" style={{ backgroundImage: degradadoMagnitud() }} data-prueba="barra-magnitud" />
+                <div className="leyenda-marcas num" aria-hidden="true">
+                  <span>0</span>
+                  <span>{formatearCorto(datos.escala.ref / 2)}</span>
+                  <span>≥ {ref}</span>
+                </div>
               </div>
-            </div>
+            ) : null}
             <ul className="leyenda-lista">
-              <li>
-                {GLIFO.flecha}
-                <span>{datos.modo === 'normalizado' ? T.leyenda.normalizada : T.leyenda.sentido}</span>
-              </li>
+              {hayFlechas ? (
+                <li>
+                  {GLIFO.flecha}
+                  <span>{datos.modo === 'normalizado' ? T.leyenda.normalizada : T.leyenda.sentido}</span>
+                </li>
+              ) : null}
               {datos.saturadas > 0 && datos.modo === 'proporcional' ? (
                 <li>
                   {GLIFO.doble}
@@ -99,11 +106,13 @@ function LeyendaBase({ datos }: { datos: DatosLeyenda }) {
                 </li>
               ) : null}
             </ul>
-            <p className="leyenda-pie num" data-prueba="leyenda-escala">
-              {T.leyenda.escala(ref, datos.escala.origen === 'auto' ? T.leyenda.escalaAuto : T.leyenda.escalaFija)}
-              <br />
-              {T.leyenda.longitudMax(formatearCorto(Number(datos.lMax.toPrecision(3))))}
-            </p>
+            {hayFlechas ? (
+              <p className="leyenda-pie num" data-prueba="leyenda-escala">
+                {T.leyenda.escala(ref, datos.escala.origen === 'auto' ? T.leyenda.escalaAuto : T.leyenda.escalaFija)}
+                <br />
+                {T.leyenda.longitudMax(formatearCorto(Number(datos.lMax.toPrecision(3))))}
+              </p>
+            ) : null}
           </>
         ) : null}
       </div>

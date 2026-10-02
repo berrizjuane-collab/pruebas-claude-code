@@ -4,7 +4,7 @@
  * error) con una etiqueta visible; hover, foco y pulsado se fuerzan con `data-forzar`.
  * Todos los controles siguen siendo operables (pruebas de teclado y axe-core).
  */
-import { useMemo, useState, type ReactNode } from 'react';
+import { useId, useMemo, useState, type ReactNode } from 'react';
 import { CircleOff, Copy, Download, Plus, RotateCcw, Scan, Trash2 } from 'lucide-react';
 import { T } from '../../i18n/es';
 import { Aviso } from '../controls/Aviso';
@@ -22,9 +22,10 @@ import { Segmentado } from '../controls/Segmentado';
 import { AvisoEscena, Carga, EstadoVacio } from '../scene/Mensajes';
 
 function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
+  const id = useId();
   return (
-    <section className="galeria-grupo" aria-labelledby={`g-${titulo}`}>
-      <h2 className="galeria-titulo" id={`g-${titulo}`}>
+    <section className="galeria-grupo" aria-labelledby={id}>
+      <h2 className="galeria-titulo" id={id}>
         {titulo}
       </h2>
       <div className="galeria-estados">{children}</div>

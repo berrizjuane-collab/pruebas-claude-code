@@ -27,6 +27,8 @@ export interface TextosFicha {
 export interface CampoCatalogo {
   id: IdCampo;
   nombre: string;
+  /** Nombre de una línea para las tarjetas de 56 px (DESIGN §6.1); el nombre completo va en su etiqueta. */
+  nombreCorto: string;
   expresiones: { P: string; Q: string; R: string };
   parametros: readonly DeclParametro[];
   semillas: EspecSemillas;
@@ -61,6 +63,7 @@ export const CATALOGO: readonly CampoCatalogo[] = [
   {
     id: 'uniforme',
     nombre: 'Uniforme',
+    nombreCorto: 'Uniforme',
     expresiones: { P: 'a', Q: 'b', R: 'c' },
     parametros: [param('a', 1, -3, 3, 0.1), param('b', 0, -3, 3, 0.1), param('c', 0, -3, 3, 0.1)],
     semillas: { tipo: 'rejilla', plano: 'YZ', c: -1.9, nu: 5, nv: 5 },
@@ -88,6 +91,7 @@ export const CATALOGO: readonly CampoCatalogo[] = [
   {
     id: 'radial-saliente',
     nombre: 'Radial saliente',
+    nombreCorto: 'Radial +',
     expresiones: { P: 'k*x', Q: 'k*y', R: 'k*z' },
     parametros: [param('k', 1, 0.1, 3, 0.05)],
     semillas: { tipo: 'aleatoria', n: 32, semilla: 1 },
@@ -119,6 +123,7 @@ export const CATALOGO: readonly CampoCatalogo[] = [
   {
     id: 'radial-entrante',
     nombre: 'Radial entrante',
+    nombreCorto: 'Radial −',
     expresiones: { P: '-k*x', Q: '-k*y', R: '-k*z' },
     parametros: [param('k', 1, 0.1, 3, 0.05)],
     semillas: { tipo: 'aleatoria', n: 32, semilla: 1 },
@@ -150,6 +155,7 @@ export const CATALOGO: readonly CampoCatalogo[] = [
   {
     id: 'rotacional',
     nombre: 'Rotacional',
+    nombreCorto: 'Rotacional',
     expresiones: { P: '-omega*y', Q: 'omega*x', R: '0' },
     parametros: [param('omega', 1, -3, 3, 0.05)],
     semillas: { tipo: 'rejilla', plano: 'XZ', c: 0, u: [0.3, 1.9], v: [-1.5, 1.5], nu: 6, nv: 3 },
@@ -182,6 +188,7 @@ export const CATALOGO: readonly CampoCatalogo[] = [
   {
     id: 'helicoidal',
     nombre: 'Helicoidal',
+    nombreCorto: 'Helicoidal',
     expresiones: { P: '-y', Q: 'x', R: 'a' },
     parametros: [param('a', 0.25, -1, 1, 0.05)],
     semillas: { tipo: 'rejilla', plano: 'XZ', c: 0, u: [0.5, 2], v: [0, 0], nu: 4, nv: 1 },
@@ -209,6 +216,7 @@ export const CATALOGO: readonly CampoCatalogo[] = [
   {
     id: 'silla',
     nombre: 'Silla',
+    nombreCorto: 'Silla',
     expresiones: { P: 'k*x', Q: '-k*y', R: '0' },
     parametros: [param('k', 1, 0.1, 3, 0.05)],
     semillas: { tipo: 'rejilla', plano: 'XY', c: 0, nu: 7, nv: 7 },

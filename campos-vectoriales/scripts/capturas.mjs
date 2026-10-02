@@ -10,7 +10,27 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { auditarPaleta } from './lib/paleta.mjs';
-import { auditarMaquetacion, auditarTipografia } from './lib/maquetacion.mjs';
+import { auditarAlineacion, auditarDensidad, auditarMaquetacion, auditarTipografia } from './lib/maquetacion.mjs';
+
+/**
+ * Preparación de cada captura (VALIDATION §7.2) con interacciones reales: escribir en las
+ * ecuaciones y salir del campo, como haría el usuario.
+ */
+const PREPARAR = {
+  C5: async (page) => {
+    await page.locator('[data-prueba="expr-Q"]').fill('x*(');
+    await page.locator('[data-prueba="expr-Q"]').press('Tab');
+    await page.locator('[data-prueba="error-Q"]').waitFor();
+    await page.locator('[data-prueba="aviso-escena"]').waitFor();
+  },
+  C10: async (page) => {
+    await page.locator('[data-prueba="expr-P"]').fill('sqrt(-1-x^2)');
+    await page.locator('[data-prueba="expr-P"]').press('Tab');
+    await page.locator('[data-prueba="estado-vacio"]').waitFor();
+  },
+};
+/** Capturas de otras páginas: la galería ocupa toda su altura (se amplía la ventana). */
+const PAGINA = { C8: 'muestras' };
 
 export const TAMANOS = {
   V1: { width: 1920, height: 1080, deviceScaleFactor: 1 },
@@ -56,16 +76,28 @@ try {
       const errores = [];
       page.on('pageerror', (e) => errores.push(e.message));
       page.on('console', (m) => m.type() === 'error' && errores.push(m.text()));
-      await page.goto(`${base}?captura=1&escena=${cap}${consultaCaptura ? `&${consultaCaptura}` : ''}${extra}`);
-      await page.waitForFunction(() => window.__campos?.listo === true && (window.__campos?.escenaLista ?? true) === true, null, { timeout: 60000 });
+      if (PAGINA[cap]) {
+        await page.goto(`${base}?${PAGINA[cap]}`);
+        await page.locator('[data-prueba="galeria"]').waitFor();
+        const alto = await page.evaluate(() => document.querySelector('.galeria').scrollHeight);
+        await page.setViewportSize({ width: TAMANOS[tam].width, height: Math.ceil(alto) });
+      } else {
+        await page.goto(`${base}?captura=1&escena=${cap}${consultaCaptura ? `&${consultaCaptura}` : ''}${extra}`);
+        await page.waitForFunction(() => window.__campos?.listo === true && (window.__campos?.escenaLista ?? true) === true, null, { timeout: 60000 });
+        await PREPARAR[cap]?.(page);
+      }
       await page.waitForTimeout(400);
       const archivo = join(carpeta, `${cap}-${tam}.png`);
       const png = await page.screenshot({ path: archivo });
       const paleta = auditarPaleta(png);
       const maquetacion = await page.evaluate(auditarMaquetacion);
       const tipografia = await page.evaluate(auditarTipografia);
-      informe.resultados.push({ captura: cap, tamano: tam, archivo: `capturas/${cap}-${tam}.png`, paleta, maquetacion: maquetacion.incidencias, tipografia, errores });
-      console.log(`${cap}-${tam}: paleta ${paleta.fuera === 0 ? 'OK' : `${paleta.fuera} px fuera (máx ${paleta.maxDiff})`} · maquetación ${maquetacion.incidencias.length} incidencias · errores ${errores.length}`);
+      const alineacion = await page.evaluate(auditarAlineacion);
+      const densidad = await page.evaluate(auditarDensidad);
+      informe.resultados.push({ captura: cap, tamano: tam, archivo: `capturas/${cap}-${tam}.png`, paleta, maquetacion: maquetacion.incidencias, alineacion, densidad, tipografia, errores });
+      console.log(
+        `${cap}-${tam}: paleta ${paleta.fuera === 0 ? 'OK' : `${paleta.fuera} px fuera (máx ${paleta.maxDiff})`} · maquetación ${maquetacion.incidencias.length} incidencias · alineación ${alineacion.incidencias.length}/${alineacion.anclajes} · errores ${errores.length}`,
+      );
       await page.close();
     }
     await contexto.close();
@@ -75,6 +107,6 @@ try {
   servidor?.kill();
 }
 writeFileSync(resolve('evidencia', tarea, 'capturas.json'), JSON.stringify(informe, null, 2));
-const fallos = informe.resultados.filter((r) => !r.paleta.superada || r.maquetacion.length || r.errores.length);
+const fallos = informe.resultados.filter((r) => !r.paleta.superada || r.maquetacion.length || r.alineacion.incidencias.length || r.errores.length);
 console.log(fallos.length ? `${fallos.length} capturas con incidencias` : 'Todas las capturas superan las auditorías automáticas');
 process.exitCode = fallos.length ? 1 : 0;

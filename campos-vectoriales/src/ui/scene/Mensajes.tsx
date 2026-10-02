@@ -30,10 +30,13 @@ interface PropsVacio {
 export function EstadoVacio({ icono: I, titulo, texto, acciones, rol = 'status' }: PropsVacio) {
   return (
     <div className="estado-vacio" role={rol} data-prueba="estado-vacio">
-      <I size={24} strokeWidth={1.5} aria-hidden="true" />
-      <p className="estado-vacio-titulo">{titulo}</p>
-      <p className="estado-vacio-texto">{texto}</p>
-      {acciones ? <div className="estado-vacio-acciones">{acciones}</div> : null}
+      {/* Tarjeta opaca: el mensaje debe leerse sobre la escena (aspas, ejes, caja). */}
+      <div className="estado-vacio-tarjeta">
+        <I size={24} strokeWidth={1.5} aria-hidden="true" />
+        <p className="estado-vacio-titulo">{titulo}</p>
+        <p className="estado-vacio-texto">{texto}</p>
+        {acciones ? <div className="estado-vacio-acciones">{acciones}</div> : null}
+      </div>
     </div>
   );
 }

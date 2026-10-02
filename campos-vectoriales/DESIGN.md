@@ -277,8 +277,8 @@ caja de 32 px.
 
 | # | Sección | Estado inicial | Contenido |
 | --- | --- | --- | --- |
-| 1 | Campo | Fija | Fórmula KaTeX y valores de los parámetros |
-| 2 | Ejemplos | Fija | Rejilla 3 × 2 de tarjetas compactas (miniatura monocroma de 24 px + nombre). La activa lleva borde de 2 px `--texto-1` y marca ✓; si se ha editado, «modificado» |
+| 1 | Campo | Fija | Fórmula KaTeX y valores de los parámetros; «Sobre este campo ›» (ficha desplegable) a la derecha del título, en la misma fila (REV-02) |
+| 2 | Ejemplos | Fija | Rejilla 3 × 2 de tarjetas compactas (miniatura monocroma de 24 px + nombre corto de una línea). La activa lleva borde de 2 px `--texto-1` y marca ✓; si se ha editado, «•» (modificado) |
 | 3 | Ecuaciones | Fija | P, Q, R con vista previa y validación |
 | 4 | Parámetros | Fija si hay alguno | Deslizador + número + menú ⋯ (rango, paso, restablecer, eliminar); «+ Añadir parámetro» |
 | 5 | Visualización | Abierta | Interruptores: Flechas, Líneas de corriente, Partículas. Segmentado «Glifos: F · rot F» |
@@ -288,8 +288,11 @@ caja de 32 px.
 | 9 | Dominio y muestreo | Plegada | Límites de la caja (cubo enlazado), N, nodos/centros, resolución del corte |
 | 10 | Avanzado | Plegada | Flechas: proporcional/normalizada, escala auto/fija, luminancia lineal/log. Partículas: número, τ, semilla. Cifras significativas |
 
-Objetivo de densidad (VV-06): a 1280×720, con ≤ 3 parámetros y las secciones 6–10
-plegadas, las secciones 1–5 caben **sin desplazamiento**.
+Objetivo de densidad (VV-06, revisado en REV-02, D-33): a 1280×720 y con el experimento
+inicial (un parámetro), las secciones 1–4 (Campo, Ejemplos, Ecuaciones y Parámetros) caben
+enteras **sin desplazamiento**; a 1440×900, también con ≤ 3 parámetros. El resto del panel se
+desplaza; la escena, nunca. El objetivo original (secciones 1–5 a 1280×720) era imposible con
+las medidas de §4.2 y §6.1: medido, las secciones 1–4 ocupaban 816 px de 672 disponibles.
 
 ### 5.4 Puntos de ruptura
 
@@ -320,14 +323,14 @@ plegadas, las secciones 1–5 caben **sin desplazamiento**.
 | **Control segmentado** | 32 px; opción seleccionada **invertida** (fondo `--texto-1`, texto `#101010`) y `aria-pressed` |
 | **Lista desplegable** | Botón de 32 px con ▾; lista en nivel 2; opción activa con ✓ |
 | **Sección desplegable** | Cabecera de 32 px con chevrón (▸ / ▾, que gira 90°), título 13/600 y control opcional a la derecha; `<button aria-expanded>` |
-| **Tarjeta de ejemplo** | 88 × 56 px; miniatura monocroma del campo y nombre de 12 px; seleccionada: borde 2 px `--texto-1` + ✓ |
+| **Tarjeta de ejemplo** | 88 × 56 px; miniatura monocroma del campo y nombre corto de 12 px en una línea («Radial +», «Radial −»); el nombre accesible añade el completo («Radial + (Radial saliente)», WCAG 2.5.3); seleccionada: borde 2 px `--texto-1` + ✓ |
 | **Descripción emergente** | Nivel 2, `--fondo-2`, 12 px, retardo de 400 ms, también con el foco; muestra el atajo en `kbd` |
 | **Aviso en línea** | Icono de 16 px + palabra de estado + texto 12 px (§2.3) |
-| **Notificación** | Tarjeta de nivel 2 con icono, texto y acción opcional («Deshacer») |
+| **Notificación** | Tarjeta de nivel 2 con icono, texto y acción opcional («Deshacer»). Dura 4 s (8 s con «Deshacer»), se pausa con el puntero o el foco encima, y su acción funciona mientras está visible |
 | **Tarjeta del inspector** | Cabecera «Punto P» + ×; filas etiqueta/valor; secciones «Derivadas» y «Jacobiana» plegables; nota del método («Derivadas analíticas» o «numéricas, h = 6.1 × 10⁻⁶»); botón «Copiar valores» |
 | **Leyenda** | Cabecera «Leyenda» plegable; barras de rampa de 160 × 8 px con marcas; filas glifo (16 px) + texto 11–12 px |
 | **Cajón de ayuda** | Pestañas; texto 14/22; fórmulas KaTeX; enlaces internos; botón × y Esc |
-| **Estado vacío** | Centrado en la escena: icono de 24 px, título 16/500, explicación 13 px, una o dos acciones |
+| **Estado vacío** | Centrado en la escena, sobre una tarjeta opaca de nivel 1 (debe leerse sobre las aspas y los ejes): icono de 24 px, título 16/500, explicación 13 px, una o dos acciones |
 | **Teclas (`kbd`)** | 11/500 monoespaciada, borde `--borde`, radio 4 px |
 
 ### 6.2 Estados de pantalla

@@ -1,0 +1,13 @@
+# UI-07 · Mensajes y estados de pantalla · 2026-10-02T07:07:21Z
+✓   5 [chromium] › tests/e2e/h4.spec.ts:184:3 › UI-07 · mensajes y estados de pantalla › un error en línea lleva icono, «Error:» y texto, con role="alert" (1.2s)
+✓   6 [chromium] › tests/e2e/h4.spec.ts:194:3 › UI-07 · mensajes y estados de pantalla › las notificaciones usan role="status", ofrecen «Deshacer» y se pausan con hover y con foco (29.8s)
+✓   7 [chromium] › tests/e2e/h4.spec.ts:222:3 › UI-07 · mensajes y estados de pantalla › estado vacío (C10): campo no definido en todo el dominio, con causa y acción (1.5s)
+✓   8 [chromium] › tests/e2e/h4.spec.ts:236:3 › UI-07 · mensajes y estados de pantalla › estado vacío para el campo nulo (2.8s)
+HTML autocontenido (file://, CSP estricta): las mismas pruebas superadas con OBJETIVO=archivo.
+
+- Aviso en línea: icono + «Error:» + texto, role="alert".
+- Notificaciones: role="status"; «Deshacer»; pausa con el puntero (9 s encima sin cerrarse) y con el
+  foco (9 s); al soltar se cierran en el tiempo restante; «Deshacer» funciona mientras se ve.
+- Estados vacíos: campo no definido en todo Ω (C10) y campo nulo, con causa y «Restablecer ejemplo».
+- Carga y aviso de escena: galería (C8) y C5.
+Capturas: evidencia/REV-02/capturas/C5-V*.png y C10-V*.png

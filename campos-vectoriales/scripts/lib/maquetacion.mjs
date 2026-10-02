@@ -81,3 +81,66 @@ export function auditarTipografia() {
   }
   return { tamanos: [...tamanos].sort((a, b) => a - b), pesos: [...pesos].sort(), familias: [...familias].sort() };
 }
+
+/**
+ * Alineación y ritmo del panel (VV-04): las etiquetas y los anclajes visuales empiezan a
+ * 16 px (±0.5) del borde del panel y la separación vertical entre secciones es múltiplo de 4.
+ */
+export function auditarAlineacion() {
+  const panel = document.querySelector('.panel');
+  if (!panel) return { incidencias: [], anclajes: 0 };
+  const p = panel.getBoundingClientRect();
+  const visible = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && !el.closest('[hidden]');
+  };
+  const selectores = [
+    '.seccion > .seccion-titulo',
+    '.seccion-cabecera > .seccion-titulo:not(:has(button))',
+    '.seccion-boton > .chevron',
+    '.formula-campo',
+    '.valores-parametros',
+    '.ejemplos',
+    '.expresion-etiqueta',
+    '.parametro-nombre',
+    '.boton-anadir > svg',
+    '.interruptor-pista',
+    '.fila-etiqueta',
+    '.limites-eje',
+  ];
+  const incidencias = [];
+  let anclajes = 0;
+  for (const sel of selectores) {
+    for (const el of panel.querySelectorAll(sel)) {
+      if (!visible(el)) continue;
+      anclajes++;
+      const dx = el.getBoundingClientRect().left - p.left;
+      if (Math.abs(dx - 16) > 0.5) incidencias.push({ tipo: 'alineacion', detalle: `${sel}: ${dx.toFixed(1)} px` });
+    }
+  }
+  const secciones = [...panel.children].filter(visible);
+  for (let i = 1; i < secciones.length; i++) {
+    const hueco = secciones[i].getBoundingClientRect().top - secciones[i - 1].getBoundingClientRect().bottom;
+    const resto = ((hueco % 4) + 4) % 4;
+    if (Math.min(resto, 4 - resto) > 0.5) incidencias.push({ tipo: 'ritmo', detalle: `hueco de ${hueco.toFixed(1)} px antes de la sección ${i + 1}` });
+  }
+  return { incidencias, anclajes };
+}
+
+/** Densidad del panel (VV-06): desbordamiento, secciones visibles enteras e interactivos visibles. */
+export function auditarDensidad() {
+  const panel = document.querySelector('.panel');
+  if (!panel) return null;
+  const p = panel.getBoundingClientRect();
+  const enteras = [...panel.children]
+    .filter((s) => {
+      const r = s.getBoundingClientRect();
+      return r.height > 0 && r.top >= p.top - 0.5 && r.bottom <= p.bottom + 0.5;
+    })
+    .map((s) => s.querySelector('h2')?.textContent?.trim() ?? s.className);
+  const interactivos = [...document.querySelectorAll('button, input, select, textarea, [tabindex="0"], [role="slider"], [role="combobox"]')].filter((el) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight && !el.closest('[hidden]') && getComputedStyle(el).visibility !== 'hidden';
+  }).length;
+  return { scrollHeight: panel.scrollHeight, clientHeight: panel.clientHeight, seccionesEnteras: enteras, interactivos };
+}

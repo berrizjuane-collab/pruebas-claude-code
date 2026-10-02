@@ -213,6 +213,7 @@ export function App({ fuentes }: Props) {
         indefinidos: malla.instancias.indefinidos.length / 3,
         saturadas: malla.instancias.nSaturadas,
         flechas: capaFlechas,
+        nFlechas: malla.instancias.n,
       },
     [malla, modoFlechas, capaFlechas],
   );

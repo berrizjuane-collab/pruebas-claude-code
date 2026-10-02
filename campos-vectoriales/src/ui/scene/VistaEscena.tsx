@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { MonitorX } from 'lucide-react';
 import { ControladorEscena } from '../../render/ControladorEscena';
 import { T } from '../../i18n/es';
+import { EstadoVacio } from './Mensajes';
 
 interface Props {
   fuentes: Promise<void>;
@@ -48,11 +49,7 @@ export function VistaEscena({ fuentes, movimientoReducido, resumen, error, alCon
         {resumen}
       </p>
       {error ? (
-        <div className="estado-vacio" role="alert">
-          <MonitorX size={24} strokeWidth={1.5} aria-hidden="true" />
-          <p className="estado-vacio-titulo">{T.escena.sinWebgl}</p>
-          <p className="estado-vacio-texto">{T.escena.sinWebglAyuda}</p>
-        </div>
+        <EstadoVacio icono={MonitorX} titulo={T.escena.sinWebgl} texto={T.escena.sinWebglAyuda} rol="alert" />
       ) : (
         children
       )}

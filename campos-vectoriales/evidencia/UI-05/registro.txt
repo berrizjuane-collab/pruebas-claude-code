@@ -1,0 +1,11 @@
+# UI-05 · Restablecer y deshacer (V-FUN-09) · 2026-10-02T07:07:21Z
+✓  16 [chromium] › tests/e2e/h4.spec.ts:462:3 › UI-05 · restablecer y deshacer (V-FUN-09) › cámara: restablecer y deshacer (también con Ctrl+Z), sin que la inercia de la órbita mueva la pose restaurada (16.7s)
+✓  17 [chromium] › tests/e2e/h4.spec.ts:514:3 › UI-05 · restablecer y deshacer (V-FUN-09) › parámetros y experimento: cada acción da su estado y «Deshacer» restaura el anterior exactamente (4.5s)
+✓  18 [chromium] › tests/e2e/h4.spec.ts:538:3 › UI-05 · restablecer y deshacer (V-FUN-09) › elegir otro ejemplo con el campo editado ofrece «Deshacer» (F1.3) (3.0s)
+HTML autocontenido (file://, CSP estricta): las mismas pruebas superadas con OBJETIVO=archivo.
+
+- Cámara: restablecer y Ctrl+Z devuelven la pose exacta (|Δ| < 10⁻⁹); en plena inercia de la órbita, la
+  pose restaurada queda quieta (sin el arreglo de la inercia, la prueba falla con una deriva de 0.21).
+- Parámetros y experimento: cada acción produce su estado y «Deshacer» restaura el anterior con
+  igualdad profunda; «Parámetros» se deshabilita con motivo si ya están por defecto.
+- Cambiar de ejemplo con el campo editado ofrece «Deshacer» (F1.3).

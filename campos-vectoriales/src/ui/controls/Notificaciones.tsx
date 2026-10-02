@@ -51,7 +51,7 @@ const ICONO = { exito: CircleCheck, info: Info, aviso: TriangleAlert, error: Oct
 function NotificacionesBase({ notificador }: { notificador: Notificador }) {
   const lista = useAlmacen(notificador.almacen, (s) => s);
   return (
-    <div className="notificaciones" data-flotante={lista.length ? 'notificaciones' : undefined} aria-label="Notificaciones">
+    <div className="notificaciones" data-flotante={lista.length ? 'notificaciones' : undefined}>
       {lista.map((n) => (
         <Tarjeta key={n.id} n={n} descartar={notificador.descartar} />
       ))}

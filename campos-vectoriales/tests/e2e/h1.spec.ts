@@ -6,6 +6,12 @@ import { PNG } from 'pngjs';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const gancho = (page: Page, expr: string) => page.evaluate(`(${expr})(window.__campos)`) as Promise<any>;
+/** Espera a que el orquestador haya aplicado la malla del estado vigente (cálculo en el worker). */
+const estable = (page: Page) =>
+  page.waitForFunction(() => {
+    const c = (window as any).__campos;
+    return c.resultados().malla !== null && !c.pendiente().malla;
+  });
 
 test.describe('REN-01 · escena base', () => {
   test('dibujo bajo demanda: 0 fotogramas en 2 s de reposo; la órbita con el ratón dibuja y mueve la cámara', async ({ page }) => {
@@ -105,6 +111,7 @@ test.describe('UI-01 · selección de campo', () => {
       await page.locator(`[data-campo="${id}"]`).click();
       await expect(page.locator(`[data-campo="${id}"]`)).toHaveAttribute('aria-checked', 'true');
       expect((await gancho(page, '(c) => c.estado()')).base).toBe(id);
+      await estable(page);
       const formula = (await page.locator('[data-prueba="formula-campo"]').textContent()) ?? '';
       expect(formula).not.toBe(formulaAnterior);
       formulaAnterior = formula;

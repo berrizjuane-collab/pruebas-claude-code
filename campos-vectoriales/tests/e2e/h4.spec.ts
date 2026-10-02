@@ -37,7 +37,19 @@ test.describe('VIS-02 · biblioteca de controles y galería', () => {
     const r = await axe(page).analyze();
     informe['VIS-02 axe'] = { infracciones: r.violations.map((v) => ({ id: v.id, nodos: v.nodes.map((n) => n.target) })), reglasSuperadas: r.passes.length, incompletas: r.incomplete.map((v) => v.id) };
     expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`)).toEqual([]);
+    // Lo único que axe no puede decidir es `aria-controls` hacia una lista oculta (patrón ARIA válido).
+    const dudosas = r.incomplete.flatMap((v) => v.nodes.map((n) => `${v.id}: ${n.any[0]?.message ?? n.all[0]?.message ?? ''}`));
+    expect(dudosas.filter((d) => !/aria-controls referenced ID exists on the page while using aria-haspopup/.test(d))).toEqual([]);
     sinErrores(reg);
+  });
+
+  test('axe-core no encuentra infracciones en la aplicación con el panel completo', async ({ page }) => {
+    await abrir(page);
+    await page.getByRole('button', { name: 'Dominio y muestreo' }).click();
+    await page.getByRole('button', { name: 'Opciones de a' }).click();
+    const r = await axe(page).analyze();
+    informe['VIS-02 axe aplicación'] = { infracciones: r.violations.map((v) => v.id), reglasSuperadas: r.passes.length };
+    expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`)).toEqual([]);
   });
 
   test('cada estado tiene una señal no tonal: foco de 2 px ≥ 3:1 y deshabilitados con motivo (VV-07)', async ({ page }) => {

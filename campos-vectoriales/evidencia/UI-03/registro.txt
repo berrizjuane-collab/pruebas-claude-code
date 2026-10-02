@@ -1,0 +1,19 @@
+# UI-03 · Parámetros (V-FUN-03) · 2026-10-02T07:07:21Z
+✓  13 [chromium] › tests/e2e/h4.spec.ts:336:3 › UI-03 · parámetros (V-FUN-03) › rotacional, ω → 2: F(1, 0, 0) = (0, 2, 0), la leyenda se actualiza, restablecer, rango y «Eliminar» con motivo (3.5s)
+✓  14 [chromium] › tests/e2e/h4.spec.ts:389:3 › UI-03 · parámetros (V-FUN-03) › añadir y eliminar un parámetro; nombres inválidos con motivo (3.2s)
+HTML autocontenido (file://, CSP estricta): las mismas pruebas superadas con OBJETIVO=archivo.
+
+Rotacional con ω = 2: F(1, 0, 0) = (0, 2, 0) y ‖F‖ = 2 leídos de la malla calculada en el nodo
+(1, 0, 0) (el inspector llega en H6: INS-02 repetirá la comprobación con su tarjeta); F_ref se
+duplica y la leyenda lo muestra; «Restablecer valor» → ω = 1; rango y paso editables con validación;
+«Eliminar» deshabilitado con el motivo «… aparece en las ecuaciones».
+Pruebas unitarias de las acciones (state/actions.ts):
+✓ src/state/state.test.ts > estado del experimento > el experimento inicial es el helicoidal con a = 0.25 (D-14) 3ms
+✓ src/state/state.test.ts > estado del experimento > elegir un campo conserva dominio, capas y cámara, y no comparte parámetros con el catálogo 2ms
+✓ src/state/state.test.ts > estado del experimento > el almacén notifica solo cambios reales 1ms
+✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > aplicar ecuaciones marca «modificado» y renombra «Personalizado (desde …)»; sin cambios devuelve el mismo estado 1ms
+✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > nombres de parámetro: válidos, duplicados, reservados y límite de 8 2ms
+✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > añadir, cambiar rango (recorta el valor), restablecer y eliminar un parámetro 1ms
+✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > restablecer parámetros y experimento 1ms
+✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > dominio: validación, corte recolocado y punto descartado si queda fuera 1ms
+✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > muestreo: N y resolución del corte acotados a SPEC §5.9 1ms

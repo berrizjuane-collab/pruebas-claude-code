@@ -68,11 +68,27 @@ export function Panel({ estado, campo, acciones: a, edicionInvalida }: Props) {
 
 function SeccionCampo({ estado, campo }: { estado: EstadoExperimento; campo: CampoCompilado | null }) {
   const ficha = estado.base ? campoPorId(estado.base) : null;
+  const [fichaAbierta, setFichaAbierta] = useState(false);
+  const idFicha = useId();
   return (
     <section className="seccion" aria-labelledby="titulo-campo">
-      <h2 className="seccion-titulo" id="titulo-campo">
-        {T.panel.campo}
-      </h2>
+      <div className="seccion-cabecera">
+        <h2 className="seccion-titulo" id="titulo-campo">
+          {T.panel.campo}
+        </h2>
+        {ficha ? (
+          <button
+            type="button"
+            className="desplegable-cabecera ficha-boton"
+            aria-expanded={fichaAbierta}
+            aria-controls={idFicha}
+            onClick={() => setFichaAbierta((a) => !a)}
+          >
+            {T.panel.sobreCampo}
+            <ChevronRight className="chevron" size={16} strokeWidth={1.5} aria-hidden="true" />
+          </button>
+        ) : null}
+      </div>
       <div className="formula-campo" data-prueba="formula-campo">
         {campo ? <TeX tex={texCampo(campo)} bloque /> : null}
       </div>
@@ -86,14 +102,12 @@ function SeccionCampo({ estado, campo }: { estado: EstadoExperimento; campo: Cam
           ))}
         </p>
       ) : null}
-      {ficha ? <FichaCampo id={ficha.id} /> : null}
+      {ficha ? <FichaCampo id={ficha.id} idCuerpo={idFicha} abierta={fichaAbierta} /> : null}
     </section>
   );
 }
 
-function FichaCampo({ id }: { id: IdCampo }) {
-  const [abierta, setAbierta] = useState(false);
-  const idCuerpo = useId();
+function FichaCampo({ id, idCuerpo, abierta }: { id: IdCampo; idCuerpo: string; abierta: boolean }) {
   const f = campoPorId(id).ficha;
   const filas: [string, string][] = [
     [T.panel.ficha.divergencia, f.divergencia],
@@ -106,16 +120,6 @@ function FichaCampo({ id }: { id: IdCampo }) {
   ];
   return (
     <div className="desplegable">
-      <button
-        type="button"
-        className="desplegable-cabecera"
-        aria-expanded={abierta}
-        aria-controls={idCuerpo}
-        onClick={() => setAbierta((a) => !a)}
-      >
-        <ChevronRight className="chevron" size={14} strokeWidth={1.5} aria-hidden="true" />
-        {T.panel.sobreCampo}
-      </button>
       <div id={idCuerpo} className="desplegable-cuerpo ficha" hidden={!abierta}>
         <p className="ficha-resumen">
           <TextoMat texto={f.resumen} />
@@ -174,7 +178,11 @@ function Ejemplos({ activo, modificado, alElegir }: { activo: IdCampo | null; mo
               onClick={() => alElegir(c.id)}
             >
               <Miniatura id={c.id} />
-              <span className="tarjeta-nombre">{c.nombre}</span>
+              {/* Etiqueta visible corta; el nombre accesible la contiene y añade el completo (WCAG 2.5.3). */}
+              <span className="tarjeta-nombre" aria-hidden="true">
+                {c.nombreCorto}
+              </span>
+              <span className="solo-lector">{c.nombreCorto === c.nombre ? c.nombre : `${c.nombreCorto} (${c.nombre})`}</span>
               {sel ? (
                 <span className="tarjeta-marca" aria-hidden="true">
                   {modificado ? '•' : '✓'}

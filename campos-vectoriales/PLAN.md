@@ -673,6 +673,10 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Evidencia**: informe de tareas largas y de tiempos.
 
 #### VIS-02 · Biblioteca de controles y galería de estados — Pendiente
+- *Nota (H4)*: componentes en `ui/controls/` con nombres en español (`Boton`, `Descripcion`,
+  `Interruptor`, `Segmentado`, `Deslizador`, `CampoNumerico`, `CampoExpresion`,
+  `ListaDesplegable`, `Menu`, `Seccion`, `Aviso`, `Notificaciones`) y `controles.css`; galería en
+  `ui/gallery/Galeria.tsx`.
 - **Objetivo**: los controles de DESIGN §6 con todos sus estados (§7), en una galería
   capturable.
 - **Dependencias**: VIS-01.
@@ -686,6 +690,8 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Evidencia**: captura C8 y salida de axe.
 
 #### UI-07 · Sistema de mensajes y estados de pantalla — Pendiente
+- *Nota (H4)*: `Alert` → `ui/controls/Aviso.tsx`; `Toast` → `ui/controls/Notificaciones.tsx`;
+  `SceneBanner` y `EmptyState` → `ui/scene/Mensajes.tsx` (`AvisoEscena`, `EstadoVacio`, `Carga`).
 - **Objetivo**: avisos en línea, avisos de escena, notificaciones, estados vacíos, carga y
   cálculo (DESIGN §2.3 y §6.2).
 - **Dependencias**: VIS-02.
@@ -699,6 +705,8 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Evidencia**: capturas y salida.
 
 #### UI-02 · Editor de ecuaciones — Pendiente
+- *Nota (H4)*: `ExpressionField` → `ui/controls/CampoExpresion.tsx`; `Equations` →
+  `ui/panel/Ecuaciones.tsx`.
 - **Objetivo**: P, Q, R con vista previa, validación en vivo, estado «incompleta» y
   aplicación con rebote.
 - **Dependencias**: MAT-04, VIS-02, UI-07, CMP-02.
@@ -709,6 +717,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Evidencia**: salida y captura C5.
 
 #### UI-03 · Parámetros — Pendiente
+- *Nota (H4)*: `ui/panel/Parametros.tsx`; valores de un parámetro nuevo en D-32.
 - **Objetivo**: añadir, editar, restablecer y eliminar parámetros; deslizador y número
   sincronizados.
 - **Dependencias**: UI-02.
@@ -719,6 +728,8 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Evidencia**: salida.
 
 #### UI-04 · Dominio y muestreo — Pendiente
+- *Nota (H4)*: `ui/panel/Dominio.tsx`; reencuadre con `ControladorEscena.reencuadrar` (conserva la
+  orientación).
 - **Objetivo**: límites de Ω, N, nodos/centros y resolución del corte, con validación.
 - **Dependencias**: VIS-02, CMP-02.
 - **Componentes**: `ui/panel/DomainSection.tsx`, `render/camera.ts` (reencuadre).
@@ -728,6 +739,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Evidencia**: salida.
 
 #### UI-05 · Restablecer y deshacer — Pendiente
+- *Nota (H4)*: acciones en `state/actions.ts`; menú y «Deshacer» en `app/edicion.ts`.
 - **Objetivo**: restablecer cámara, parámetros y experimento, con «Deshacer» temporal.
 - **Dependencias**: UI-03, UI-04.
 - **Componentes**: `state/actions.ts`, menú de la barra superior.
@@ -737,6 +749,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Evidencia**: salida.
 
 #### REV-02 · Revisión de capturas de controles y estados — Pendiente
+- *Nota (H4)*: VV-06 revisado tras medirlo (D-33).
 - **Objetivo**: revisar los estados de interacción, la densidad del panel y los mensajes.
 - **Dependencias**: UI-02 … UI-05.
 - **Componentes**: `evidencia/REV-02/`.

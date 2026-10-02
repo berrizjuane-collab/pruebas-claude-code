@@ -85,7 +85,7 @@ function FilaParametro({
         <TeX tex={texNombreParametro(p.nombre)} />
       </span>
       <Deslizador
-        idEtiqueta={`${id}-nombre`}
+        etiqueta={nombreTexto}
         valor={p.valor}
         min={p.min}
         max={p.max}

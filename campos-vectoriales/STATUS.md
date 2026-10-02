@@ -108,6 +108,11 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-29 | Capa pura `geometria/` para las instancias de flechas, compartida por `render/` (dibujo) y `compute/` (worker) | Que `compute/` importe `render/flechas` | El worker calcula las instancias sin depender de la escena; la regla de capas (PLAN §1.5) lo prohíbe y ESLint lo comprueba | Sí |
 | D-30 | Las líneas de corriente ceden el turno también dentro de cada línea (generador que cede cada 256 pasos), no solo entre semillas | Ceder solo entre líneas | Con una expresión cara, una sola línea de 2 × 4000 pasos puede pasar de 100 ms; CMP-02 exige cancelar en menos de 100 ms (medido: 9.5–10.6 ms) | Sí |
 | D-31 | `ORBITA_CERRADA` termina exactamente en la semilla: el paso que pasa a menos de $h/2$ se sustituye por el tramo hasta ella | Unir el punto posterior con la semilla (SPEC original) | La medida de T-08 mostró un retroceso de hasta $h/2$ (≈ 6 px) y una longitud $+5.9\times10^{-2}$; ahora el error relativo es $2.1\times10^{-7}$ | Sí |
+| D-32 | Un parámetro nuevo nace con valor 1, rango [−5, 5] y paso 0.1 | Pedir el rango al crearlo | Un solo paso para crearlo; se ajusta después en «Rango y paso…» | Sí |
+| D-33 | VV-06 revisado: con el experimento inicial, secciones 1–4 enteras a 1280×720; con ≤ 3 parámetros, también a 1440×900 | Secciones 1–5 a 1280×720 (original) | Medido: las secciones 1–4 ocupaban 816 px de 672 disponibles con las medidas de DESIGN §4.2 y §6.1. Se compactó lo compatible con el diseño (tarjetas de 56 px, «Sobre este campo» en la cabecera, 4 px entre ecuaciones) y se conservaron las vistas previas, que son la ayuda principal del editor | Sí |
+| D-34 | Controles deshabilitados con `aria-disabled` (enfocables) y motivo en la descripción emergente | Atributo `disabled` nativo | Un control `disabled` no recibe el foco: el motivo (DESIGN §7) no llegaría al teclado ni al lector de pantalla | Sí |
+| D-35 | Las pruebas de rendimiento (`@rendimiento`) se ejecutan al final, en un proyecto propio de Playwright | Junto al resto, en paralelo | Con dos navegadores con WebGL por software compitiendo por la CPU, una tarea de 52 ms en modo desarrollo medía la carga, no la aplicación; en producción, la ráfaga deja el hilo principal inactivo el 89 % del tiempo | Sí |
+| D-36 | Nombres cortos en las tarjetas de ejemplo («Radial +», «Radial −») y nombre completo en el nombre accesible | Nombres completos en dos líneas (72 px) | Altura de 56 px de DESIGN §6.1 y densidad (D-33); el nombre accesible contiene el visible (WCAG 2.5.3) | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
@@ -189,6 +194,21 @@ Hallazgos de la revisión del encargo y de los propios documentos, y su resoluci
     corregidos (D-31).
 18. **Capas**: el worker necesitaba la geometría de las flechas, que vivía en `render/`. →
     Nueva capa pura `geometria/` (D-29).
+19. **«Deshacer» caducado** (hallazgo de UI-07): el plazo de 8 s corría aunque la
+    notificación estuviera pausada, y un botón «Deshacer» visible no hacía nada. → Ahora
+    vale mientras su notificación esté visible.
+20. **Inercia de la órbita** (hallazgo de UI-05): OrbitControls seguía aplicando el giro
+    pendiente sobre una pose fijada por programa, y «Deshacer» no la restauraba exacta (deriva
+    medida de 0.21 unidades). → La inercia se anula al fijar o encuadrar la cámara.
+21. **Re-renderizado completo** con cada parámetro (722 ms de `jsxDEV` en la ráfaga de CMP-02 y
+    tareas largas de hasta 62 ms en desarrollo). → Componentes memorizados: 0 tareas largas.
+22. **Densidad del panel inalcanzable** (VV-06). → D-33.
+23. **Leyenda y estado vacío** (REV-02): la leyenda mostraba rampa y escala sin flechas en la
+    escena y el estado vacío no se leía sobre las aspas. → Entradas condicionadas y tarjeta
+    opaca.
+24. **Accesibilidad** (axe-core): identificadores con espacios en la galería, `aria-label` en
+    un `div` genérico y deslizador sin nombre (el nombre KaTeX es MathML). → Corregidos; axe sin
+    infracciones en la galería y en la aplicación.
 
 ---
 

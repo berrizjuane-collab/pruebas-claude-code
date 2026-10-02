@@ -217,7 +217,7 @@
 .ecuaciones {
   display: flex;
   flex-direction: column;
-  gap: var(--e-2);
+  gap: var(--e-1);
 }
 
 /* Parámetros */
@@ -299,9 +299,10 @@
   padding: 0 calc(var(--e-2) - 1px);
 }
 
+/* El icono queda a 16 px del borde (VV-04): se compensan el relleno y el borde del botón. */
 .boton-anadir {
   align-self: flex-start;
-  margin-left: calc(-1 * var(--e-3));
+  margin-left: calc(-1 * var(--e-3) - 1px);
 }
 
 .boton-compacto {
@@ -442,7 +443,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--e-1);
-  height: 72px;
+  height: 56px;
   padding: var(--e-2) var(--e-1);
   border-radius: var(--r-3);
   border: 1px solid var(--borde);
@@ -470,7 +471,19 @@
   text-align: center;
   line-height: 14px;
   max-width: 100%;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+}
+
+.ficha-boton {
+  width: auto;
+  gap: var(--e-1);
+  margin-right: calc(-1 * var(--e-1));
+  padding: 0 var(--e-1);
+  font-size: var(--t-pie);
+}
+
+.ficha-boton .chevron {
+  color: var(--texto-2);
 }
 
 .tarjeta-marca {
@@ -793,6 +806,19 @@
 
 .estado-vacio {
   pointer-events: none;
+}
+
+.estado-vacio-tarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e-2);
+  max-width: 480px;
+  padding: var(--e-4) var(--e-5);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-3);
+  box-shadow: var(--sombra-n1);
 }
 
 .estado-vacio-acciones {

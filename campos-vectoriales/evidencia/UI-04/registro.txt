@@ -1,0 +1,7 @@
+# UI-04 · Dominio y muestreo (V-FUN-14) · 2026-10-02T07:07:21Z
+✓  15 [chromium] › tests/e2e/h4.spec.ts:408:3 › UI-04 · dominio y muestreo (V-FUN-14) › N = 21 → 9261 instancias; límites inválidos rechazados; la caja y la cámara se adaptan (6.8s)
+HTML autocontenido (file://, CSP estricta): las mismas pruebas superadas con OBJETIVO=archivo.
+
+N = 21 → 9261 instancias; mínimo ≥ máximo y lado > 1000 rechazados con mensaje sin cambiar el estado;
+[−1, 3]³ → el corte (z = −1.9) se recoloca en el centro y la cámara se reencuadra hacia (1, 1, 1)
+conservando la orientación; desenlazar el cubo y cambiar solo z.
