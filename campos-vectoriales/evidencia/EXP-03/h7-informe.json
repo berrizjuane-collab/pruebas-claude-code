@@ -1,0 +1,196 @@
+{
+  "EXP-01 ida y vuelta": {
+    "archivo": "campo-rotacional-20261002-1924.json",
+    "bytes": 1686,
+    "pixelesDistintos": 0,
+    "camara": {
+      "posicion": [
+        6.099999999999998,
+        -4.299999999999992,
+        3.699999999999996
+      ],
+      "objetivo": [
+        0.19999999999999998,
+        0,
+        -0.09999999999999999
+      ]
+    }
+  },
+  "EXP-01 casos inválidos": {
+    "malformado.json": [
+      "Archivo · no es JSON válido (cerca del carácter 335)"
+    ],
+    "formato-ajeno.json": [
+      "formato · debe ser «campos-vectoriales»; este archivo no es una configuración de esta aplicación"
+    ],
+    "version-futura.json": [
+      "version · el archivo es de la versión 2, posterior a la que entiende esta aplicación (1). Ábrelo con una versión más reciente"
+    ],
+    "fuera-de-rango.json": [
+      "dominio.min[2] · debe ser menor que dominio.max[2]",
+      "muestreo.n[2] · debe ser ≤ 21 (es 50)",
+      "particulas.n · debe ser ≤ 2000 (es 5000)"
+    ],
+    "expresion-501.json": [
+      "campo.P · tiene 501 caracteres; el máximo es 500"
+    ],
+    "300 KB": [
+      "Archivo · ocupa 300 KB; el máximo es 256 KB"
+    ]
+  },
+  "EXP-03 V-FUN-12": [
+    {
+      "tamano": "pantalla",
+      "contenido": "escena",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 742,
+      "ancho": 1120,
+      "alto": 852,
+      "fuera": 0,
+      "desviacion": 42.2,
+      "leyenda": null,
+      "ecuaciones": null
+    },
+    {
+      "tamano": "pantalla",
+      "contenido": "leyenda",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 735,
+      "ancho": 1120,
+      "alto": 852,
+      "fuera": 0,
+      "desviacion": 43.1,
+      "leyenda": {
+        "x": 16,
+        "y": 442,
+        "ancho": 240,
+        "alto": 394
+      },
+      "ecuaciones": null
+    },
+    {
+      "tamano": "pantalla",
+      "contenido": "ecuaciones",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 805,
+      "ancho": 1120,
+      "alto": 852,
+      "fuera": 0,
+      "desviacion": 43.3,
+      "leyenda": {
+        "x": 16,
+        "y": 442,
+        "ancho": 240,
+        "alto": 394
+      },
+      "ecuaciones": {
+        "x": 16,
+        "y": 16,
+        "ancho": 272,
+        "alto": 148
+      }
+    },
+    {
+      "tamano": "fhd",
+      "contenido": "escena",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 930,
+      "ancho": 1920,
+      "alto": 1080,
+      "fuera": 0,
+      "desviacion": 37.3,
+      "leyenda": null,
+      "ecuaciones": null
+    },
+    {
+      "tamano": "fhd",
+      "contenido": "leyenda",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 1081,
+      "ancho": 1920,
+      "alto": 1080,
+      "fuera": 0,
+      "desviacion": 37.9,
+      "leyenda": {
+        "x": 16,
+        "y": 670,
+        "ancho": 240,
+        "alto": 394
+      },
+      "ecuaciones": null
+    },
+    {
+      "tamano": "fhd",
+      "contenido": "ecuaciones",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 936,
+      "ancho": 1920,
+      "alto": 1080,
+      "fuera": 0,
+      "desviacion": 38.1,
+      "leyenda": {
+        "x": 16,
+        "y": 670,
+        "ancho": 240,
+        "alto": 394
+      },
+      "ecuaciones": {
+        "x": 16,
+        "y": 16,
+        "ancho": 272,
+        "alto": 148
+      }
+    },
+    {
+      "tamano": "uhd",
+      "contenido": "escena",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 1652,
+      "ancho": 3840,
+      "alto": 2160,
+      "fuera": 0,
+      "desviacion": 38.2,
+      "leyenda": null,
+      "ecuaciones": null
+    },
+    {
+      "tamano": "uhd",
+      "contenido": "leyenda",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 1838,
+      "ancho": 3840,
+      "alto": 2160,
+      "fuera": 0,
+      "desviacion": 38.9,
+      "leyenda": {
+        "x": 32,
+        "y": 1340,
+        "ancho": 480,
+        "alto": 788
+      },
+      "ecuaciones": null
+    },
+    {
+      "tamano": "uhd",
+      "contenido": "ecuaciones",
+      "nombre": "campo-rotacional-20261002-1925.png",
+      "ms": 3055,
+      "ancho": 3840,
+      "alto": 2160,
+      "fuera": 0,
+      "desviacion": 39,
+      "leyenda": {
+        "x": 32,
+        "y": 1340,
+        "ancho": 480,
+        "alto": 788
+      },
+      "ecuaciones": {
+        "x": 32,
+        "y": 32,
+        "ancho": 544,
+        "alto": 296
+      }
+    }
+  ]
+}

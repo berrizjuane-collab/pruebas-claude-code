@@ -917,7 +917,10 @@ test.describe('REV-03 · movimiento reducido (VV-10)', () => {
     await page.locator('body').press('1');
     const cam = await gancho(page, '(c) => c.camara()');
     await page.waitForTimeout(150);
-    expect(await gancho(page, '(c) => c.camara()')).toEqual(cam);
+    // Sin transición: la cámara no se mueve (más allá del redondeo de OrbitControls, ≈ 10⁻¹⁵, D-52).
+    const despues = await gancho(page, '(c) => c.camara()');
+    const mov = Math.max(...[0, 1, 2].flatMap((k) => [Math.abs(despues.posicion[k] - cam.posicion[k]), Math.abs(despues.objetivo[k] - cam.objetivo[k])]));
+    expect(mov).toBeLessThan(1e-9);
     informe['VV-10'] = { animacionesEnCurso: animaciones, particulasEnPausa: true, camara: 'salta' };
     await contexto.close();
   });

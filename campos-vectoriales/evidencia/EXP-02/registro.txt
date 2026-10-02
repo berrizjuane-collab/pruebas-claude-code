@@ -1,0 +1,13 @@
+# EXP-02 · Autoguardado y recuperación · 2026-10-02T19:26:25Z
+✓  70 [chromium] › tests/e2e/h7.spec.ts:188:3 › EXP-02 · autoguardado y recuperación › V-FUN-11: recargar recupera el experimento y la cámara con un aviso; «Empezar de cero» lo descarta (9.5s)
+✓  73 [chromium] › tests/e2e/h7.spec.ts:222:3 › EXP-02 · autoguardado y recuperación › con localStorage bloqueado la aplicación funciona y no muestra errores técnicos (7.7s)
+✓  75 [chromium] › tests/e2e/h7.spec.ts:245:3 › EXP-02 · autoguardado y recuperación › un autoguardado dañado se ignora sin errores (2.3s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+V-FUN-11:
+- Radial entrante con k = 2, sin líneas y cámara (3, 4, 5) → (0, 0, 0.5): se guarda en localStorage 1 s después del último cambio.
+- Recargar: el mismo experimento (igualdad profunda salvo la cámara, a < 10⁻⁹), la misma cámara y la notificación
+  «Se ha recuperado tu último experimento · Empezar de cero». «Empezar de cero» vuelve al helicoidal con la cámara encuadrada.
+- localStorage bloqueado (el acceso lanza SecurityError): la aplicación funciona, no recupera nada, 0 errores en consola
+  y ningún mensaje técnico. Un autoguardado dañado se ignora sin errores.
+- En el modo de captura no se recupera ni se guarda (D-50): las capturas siguen siendo reproducibles.

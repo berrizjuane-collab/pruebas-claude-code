@@ -27,7 +27,7 @@ async function capturaEscena(page: Page): Promise<Buffer> {
   await gancho(page, '(c) => c.dibujar()');
   const caja = (await page.locator('[data-prueba="lienzo"]').boundingBox())!;
   await page.mouse.move(caja.x + 8, caja.y + 8);
-  return page.locator('[data-prueba="lienzo"]').screenshot({ animations: 'disabled', style: '.notificaciones { visibility: hidden !important; }' });
+  return page.locator('[data-prueba="lienzo"]').screenshot({ animations: 'disabled', style: '.notificaciones { opacity: 0 !important; }' });
 }
 
 function pixelesDistintos(a: Buffer, b: Buffer): number {
@@ -102,7 +102,9 @@ test.describe('EXP-01 · configuración JSON v1', () => {
     informe['EXP-01 ida y vuelta'] = { archivo: nombre, bytes: readFileSync(ruta).length, pixelesDistintos: distintos, camara: camaraA };
     expect(distintos).toBe(0);
 
-    // «Deshacer» restaura exactamente el experimento y la cámara anteriores.
+    // «Deshacer» restaura exactamente el experimento y la cámara anteriores (la notificación sigue
+    // en pausa porque el foco no ha salido de ella: opacity 0 en la captura no lo mueve).
+    await expect(notificacion(page).getByRole('button', { name: 'Deshacer' })).toBeFocused();
     await notificacion(page).getByRole('button', { name: 'Deshacer' }).click();
     expect(await estado(page)).toEqual(estadoB);
     await expect.poll(async () => difCamara(await camara(page), camaraB)).toBeLessThan(1e-9);

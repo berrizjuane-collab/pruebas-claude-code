@@ -1,0 +1,25 @@
+# EXP-01 · Configuración JSON v1 · 2026-10-02T19:26:25Z
+✓  62 [chromium] › tests/e2e/h7.spec.ts:53:3 › EXP-01 · configuración JSON v1 › V-FUN-10: exportar → importar da el mismo estado (igualdad profunda), la misma cámara y la misma escena píxel a píxel; «Deshacer» vuelve atrás (21.7s)
+✓  66 [chromium] › tests/e2e/h7.spec.ts:122:3 › EXP-01 · configuración JSON v1 › casos inválidos: los errores se listan por dato y el estado queda intacto; Esc cierra y el foco vuelve a «Abrir» (5.8s)
+✓  68 [chromium] › tests/e2e/h7.spec.ts:159:3 › EXP-01 · configuración JSON v1 › arrastrar un .json a la ventana lo abre; claves desconocidas y datos ausentes se avisan (2.7s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+Vitest (src/state/persist.test.ts, src/export/json.test.ts): 26 pruebas superadas (validador, migraciones, nombre de archivo).
+
+V-FUN-10 · ida y vuelta (rotacional con ω = 1.5, corte XZ con div F, P = (1, 0.5, −0.5), 5 cifras y cámara propia):
+- Archivo descargado: campo-rotacional-20261002-1924.json (1686 bytes), formato «campos-vectoriales», versión 1.
+- Tras pasar a otro campo, con otro dominio y la vista XY, y abrir el archivo: estado idéntico (igualdad profunda), cámara a < 10⁻⁹ (D-52) y escena idéntica píxel a píxel: 0 píxeles distintos.
+- «Deshacer» devuelve exactamente el experimento y la cámara anteriores.
+
+Casos inválidos (el estado y la cámara quedan intactos en todos; el diálogo empieza con el foco en «Cerrar» y Esc lo devuelve a «Abrir»):
+- malformado.json: Archivo · no es JSON válido (cerca del carácter 335)
+- formato-ajeno.json: formato · debe ser «campos-vectoriales»; este archivo no es una configuración de esta aplicación
+- version-futura.json: version · el archivo es de la versión 2, posterior a la que entiende esta aplicación (1). Ábrelo con una versión más reciente
+- fuera-de-rango.json: dominio.min[2] · debe ser menor que dominio.max[2] | muestreo.n[2] · debe ser ≤ 21 (es 50) | particulas.n · debe ser ≤ 2000 (es 5000)
+- expresion-501.json: campo.P · tiene 501 caracteres; el máximo es 500
+- 300 KB: Archivo · ocupa 300 KB; el máximo es 256 KB
+
+Además: el ejemplo literal de SPEC §7.2 se abre (aviso: falta «cifras»); claves desconocidas se ignoran con aviso;
+arrastrar un .json a la ventana lo abre (con la zona «Suelta el archivo…» mientras se arrastra).
+
+Incidencia encontrada por la comparación píxel a píxel: el triedro leía la matriz de la cámara antes de
+actualizarla y, tras fijar una cámara de golpe, mostraba la orientación anterior. Corregido.

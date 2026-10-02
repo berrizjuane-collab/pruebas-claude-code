@@ -1,0 +1,29 @@
+# EXP-03 · Exportación PNG compuesta · 2026-10-02T19:26:25Z
+✓  76 [chromium] › tests/e2e/h7.spec.ts:269:3 › EXP-03 · exportación PNG compuesta › V-FUN-12: 3 tamaños × 3 contenidos — dimensiones exactas, monocroma, no vacía, leyenda y ecuaciones cuando se piden, nombre según SPEC §7.1 (40.9s)
+HTML autocontenido (file://, CSP estricta): superada con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+V-FUN-12 (rotacional, corte XY en z = −1 con ‖F‖, P = (1, 0, 0)): 9 exportaciones, 3 tamaños × 3 contenidos.
+Criterios: dimensiones exactas; 0 píxeles con max(|R−G|, |G−B|, |R−B|) > 3; desviación típica de la luminancia > 0;
+tarjetas dentro de la imagen y con el fondo de nivel 1 (#181818); textos de la leyenda exportada = textos de la leyenda de
+pantalla; ecuaciones en Unicode lineal; nombre campo-<nombre>-AAAAMMDD-HHMM.png; el lienzo vuelve a su tamaño.
+
+| Tamaño | Contenido | Píxeles | Fuera de paleta | σ luminancia | Leyenda (x, y, ancho, alto) | Ecuaciones | Tiempo (SwiftShader) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| pantalla | escena | 1120 × 852 | 0 | 42.2 | — | — | 742 ms |
+| pantalla | leyenda | 1120 × 852 | 0 | 43.1 | 16, 442, 240, 394 | — | 735 ms |
+| pantalla | ecuaciones | 1120 × 852 | 0 | 43.3 | 16, 442, 240, 394 | 16, 16, 272, 148 | 805 ms |
+| fhd | escena | 1920 × 1080 | 0 | 37.3 | — | — | 930 ms |
+| fhd | leyenda | 1920 × 1080 | 0 | 37.9 | 16, 670, 240, 394 | — | 1081 ms |
+| fhd | ecuaciones | 1920 × 1080 | 0 | 38.1 | 16, 670, 240, 394 | 16, 16, 272, 148 | 936 ms |
+| uhd | escena | 3840 × 2160 | 0 | 38.2 | — | — | 1652 ms |
+| uhd | leyenda | 3840 × 2160 | 0 | 38.9 | 32, 1340, 480, 788 | — | 1838 ms |
+| uhd | ecuaciones | 3840 × 2160 | 0 | 39 | 32, 1340, 480, 788 | 32, 32, 544, 296 | 3055 ms |
+
+3840 × 2160 es 1920 × 1080 a escala 2: las tarjetas miden exactamente el doble (comprobado en la prueba).
+Exportaciones de muestra en exportaciones/ (las 4K se generan igual; se guarda una).
+
+Revisión manual (exportaciones/):
+- La leyenda impresa es la de la pantalla: rampa con 0 · F_ref/2 · ≥ F_ref, glifos de flecha, saturada, ◇, flecha de
+  referencia, líneas, semilla, bloque del corte con su rampa oscura y V_ref.
+- Las ecuaciones se leen en una tarjeta propia: nombre, P, Q, R, parámetros y dominio.
+- En 4K los glifos y el texto son nítidos; los rótulos de la escena se rasterizan a 3× y no se emborronan.
