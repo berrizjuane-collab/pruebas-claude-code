@@ -353,14 +353,14 @@ aceptación con la evidencia indicada.
 | FND-01 | Andamiaje del subproyecto | H0 | PLN-01 | Completada y verificada |
 | FND-02 | Arnés de pruebas, capturas y auditorías | H0 | FND-01 | Completada y verificada |
 | VIS-01 | Sistema visual: tokens y estilos base | H0 | FND-01 | Completada y verificada |
-| MAT-01 | Vec3 y catálogo nativo (oráculos) | H1 | FND-01 | Pendiente |
-| NUM-01 | Malla de muestreo y escala de referencia | H1 | MAT-01 | Pendiente |
-| REN-01 | Escena base | H1 | VIS-01 | Pendiente |
-| REN-02 | Capa de flechas | H1 | REN-01, NUM-01 | Pendiente |
-| VIS-03 | Composición: regiones de la pantalla | H1 | VIS-01 | Pendiente |
-| UI-01 | Selección de campo predefinido | H1 | VIS-03, MAT-01, REN-02 | Pendiente |
-| VIS-04 | Leyenda inicial | H1 | REN-02, VIS-03 | Pendiente |
-| REV-01 | Revisión de capturas de la primera entrega | H1 | FND-02, UI-01, VIS-04 | Pendiente |
+| MAT-01 | Vec3 y catálogo nativo (oráculos) | H1 | FND-01 | Completada y verificada |
+| NUM-01 | Malla de muestreo y escala de referencia | H1 | MAT-01 | Completada y verificada |
+| REN-01 | Escena base | H1 | VIS-01 | Completada y verificada |
+| REN-02 | Capa de flechas | H1 | REN-01, NUM-01 | Completada y verificada |
+| VIS-03 | Composición: regiones de la pantalla | H1 | VIS-01 | Completada y verificada |
+| UI-01 | Selección de campo predefinido | H1 | VIS-03, MAT-01, REN-02 | Completada y verificada |
+| VIS-04 | Leyenda inicial | H1 | REN-02, VIS-03 | Completada y verificada |
+| REV-01 | Revisión de capturas de la primera entrega | H1 | FND-02, UI-01, VIS-04 | Completada y verificada |
 | MAT-02 | Analizador léxico y sintáctico | H2 | FND-01 | Pendiente |
 | MAT-03 | Compilador y evaluación | H2 | MAT-02 | Pendiente |
 | MAT-04 | Derivación simbólica, TeX y Unicode | H2 | MAT-03 | Pendiente |
@@ -466,7 +466,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
   peticiones.
 - **Evidencia**: tabla de contraste generada; registro de red.
 
-#### MAT-01 · Vec3 y catálogo nativo (oráculos) — Pendiente
+#### MAT-01 · Vec3 y catálogo nativo (oráculos) — Completada y verificada
 - **Objetivo**: los seis campos como funciones nativas con J, div y rot analíticos, más sus
   metadatos (parámetros, semillas, ficha, equilibrios).
 - **Dependencias**: FND-01.
@@ -476,7 +476,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida de Vitest.
 
-#### NUM-01 · Malla de muestreo y escala de referencia — Pendiente
+#### NUM-01 · Malla de muestreo y escala de referencia — Completada y verificada
 - **Objetivo**: muestrear F en Ω, clasificar nodos (válido, ≈ 0, no definido, singular) y
   calcular $F_{\text{ref}}$.
 - **Dependencias**: MAT-01.
@@ -486,7 +486,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida de Vitest.
 
-#### REN-01 · Escena base — Pendiente
+#### REN-01 · Escena base — Completada y verificada
 - **Objetivo**: lienzo WebGL2 con cámara $z$ arriba, órbita, ejes etiquetados dentro del
   lienzo, caja del dominio, redimensionado, render bajo demanda y detección de WebGL2.
 - **Dependencias**: VIS-01.
@@ -499,7 +499,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e (contador, captura); ejecución con WebGL desactivado.
 - **Evidencia**: capturas y registro de la prueba.
 
-#### REN-02 · Capa de flechas — Pendiente
+#### REN-02 · Capa de flechas — Completada y verificada
 - **Objetivo**: flechas instanciadas con dirección, longitud y luminancia según DESIGN
   §9.2–9.3, halo, doble punta, rombos y aspas.
 - **Dependencias**: REN-01, NUM-01.
@@ -514,7 +514,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: Vitest sobre la función pura; e2e leyendo los atributos de instancia.
 - **Evidencia**: salidas de las pruebas; captura del radial con el origen marcado.
 
-#### VIS-03 · Composición: regiones de la pantalla — Pendiente
+#### VIS-03 · Composición: regiones de la pantalla — Completada y verificada
 - **Objetivo**: barra superior, panel lateral, escena y zonas de inspector, leyenda, barra
   de la escena y triedro, con las medidas de DESIGN §5.
 - **Dependencias**: VIS-01.
@@ -525,7 +525,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e de geometría DOM.
 - **Evidencia**: capturas y JSON de medidas.
 
-#### UI-01 · Selección de campo predefinido — Pendiente
+#### UI-01 · Selección de campo predefinido — Completada y verificada
 - **Objetivo**: rejilla de ejemplos conectada al almacén y a la escena; fórmula en KaTeX.
 - **Dependencias**: VIS-03, MAT-01, REN-02.
 - **Componentes**: `ui/panel/Examples.tsx`, `FieldSection.tsx`, `state/store.ts` (mínimo).
@@ -536,7 +536,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e V-FUN-01 (parcial, sin ecuaciones editables).
 - **Evidencia**: capturas de los 6 campos.
 
-#### VIS-04 · Leyenda inicial — Pendiente
+#### VIS-04 · Leyenda inicial — Completada y verificada
 - **Objetivo**: barra de magnitud con marcas numéricas, $F_{\text{ref}}$ y entradas de
   flecha, ≈ 0 y no definido.
 - **Dependencias**: REN-02, VIS-03.
@@ -547,7 +547,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e + muestreo de píxeles.
 - **Evidencia**: captura y valores medidos.
 
-#### REV-01 · Revisión de capturas de la primera entrega — Pendiente
+#### REV-01 · Revisión de capturas de la primera entrega — Completada y verificada
 - **Objetivo**: validar pronto la paleta, la jerarquía y la composición.
 - **Dependencias**: FND-02, UI-01, VIS-04.
 - **Componentes**: `evidencia/REV-01/`.

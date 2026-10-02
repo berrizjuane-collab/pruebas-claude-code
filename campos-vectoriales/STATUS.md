@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 completado; H1 en curso |
+| **Fase** | Implementación — H0 y H1 completados; H2 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H1, la primera entrega (§7) |
+| **Siguiente paso** | H2: lenguaje de expresiones (analizador, compilador, derivación simbólica) |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
@@ -20,7 +20,7 @@
 | --- | --- | --- | --- |
 | Planificación | 1 | 1/1 | Aprobada por el usuario |
 | H0 Fundaciones | 3 | 3/3 | — |
-| H1 Primera entrega | 8 | 0/8 | — |
+| H1 Primera entrega | 8 | 8/8 | — |
 | H2 Lenguaje | 4 | 0/4 | Puede ir en paralelo a H1 |
 | H3 Numérico y cómputo | 7 | 0/7 | — |
 | H4 Edición y controles | 7 | 0/7 | — |
@@ -36,6 +36,14 @@
 - FND-01 · 2026-10-02 · `c7d0f1c` · [evidencia/FND-01/](evidencia/FND-01/)
 - FND-02 · 2026-10-02 · `c7d0f1c` · [evidencia/FND-02/](evidencia/FND-02/)
 - VIS-01 · 2026-10-02 · `c7d0f1c` · [evidencia/VIS-01/](evidencia/VIS-01/)
+- MAT-01 · 2026-10-02 · `8b7d9c1` · [evidencia/MAT-01/](evidencia/MAT-01/)
+- NUM-01 · 2026-10-02 · `8b7d9c1` · [evidencia/NUM-01/](evidencia/NUM-01/)
+- REN-01 · 2026-10-02 · `8b7d9c1` · [evidencia/REN-01/](evidencia/REN-01/)
+- REN-02 · 2026-10-02 · `8b7d9c1` · [evidencia/REN-02/](evidencia/REN-02/)
+- VIS-03 · 2026-10-02 · `8b7d9c1` · [evidencia/VIS-03/](evidencia/VIS-03/)
+- UI-01 · 2026-10-02 · `8b7d9c1` · [evidencia/UI-01/](evidencia/UI-01/)
+- VIS-04 · 2026-10-02 · `8b7d9c1` · [evidencia/VIS-04/](evidencia/VIS-04/)
+- REV-01 · 2026-10-02 · `8b7d9c1` · [evidencia/REV-01/](evidencia/REV-01/)
 
 ---
 
@@ -197,6 +205,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | --- | --- |
 | 2026-10-02 | Planificación inicial: SPEC, DESIGN, PLAN, VALIDATION y STATUS; evidencia de calibración y de entorno en `evidencia/PLN-01/` |
 | 2026-10-02 | Plan aprobado. Incorporadas las respuestas: R1 = i9 + RTX 4060 + 144 Hz; público experto; entrega como HTML autocontenido (RNF-14, D-15, D-20 … D-22, ENT-01) |
+| 2026-10-02 | H0 y H1 completados y verificados; HTML provisional en `entrega/`; decisiones D-23 … D-28 |
 
 ---
 
