@@ -9,24 +9,26 @@ import { compilarCampo } from '../math/field';
 import { conDerivadas, inspeccionar } from '../numerics/inspeccion';
 import { CLASE } from '../numerics/grid';
 import { anillosRotacional, calcularFlechas } from '../geometria/flechas';
-import type { ControladorEscena, EstadoCamara } from '../render/ControladorEscena';
+import type { ControladorEscena, EstadoCamara, Proyeccion } from '../render/ControladorEscena';
 import type { Vista } from '../render/camara';
 import { EJES_PLANO, NOMBRE_EJE, type Dominio, type Vec3 } from '../math/tipos';
 import { rotuloCorte } from '../render/layers/corte';
 import type { DatosEscalar } from '../render/layers/escalar';
 import { UMBRAL_CERO } from '../geometria/escalar';
 import { centroDominio, fijarCapa, fijarCorte, fijarGlifos, fijarPunto, moverPunto, seleccionarCampo } from '../state/actions';
-import { recuperarAutoguardado } from '../state/persist';
+import { guardarPreferencia, leerPreferencia, recuperarAutoguardado } from '../state/persist';
 import { EXPERIMENTO_INICIAL, experimentoDesdeCatalogo, type EstadoExperimento } from '../state/schema';
 import { crearAlmacen } from '../state/store';
 import { T } from '../i18n/es';
-import { useAlmacen, usePrefiereMovimientoReducido } from '../ui/hooks';
+import { nivelPantalla, panelFlotante, useAlmacen, useNivelPantalla, usePrefiereMovimientoReducido } from '../ui/hooks';
 import { Panel } from '../ui/panel/Panel';
 import { BarraSuperior, type EstadoCalculoBarra } from '../ui/topbar/BarraSuperior';
 import { Boton } from '../ui/controls/Boton';
 import { crearNotificador, Notificaciones } from '../ui/controls/Notificaciones';
 import { DialogoErrores } from '../ui/topbar/DialogoErrores';
 import { DialogoPng } from '../ui/topbar/DialogoPng';
+import { Ayuda, ContextoAyuda, type EstadoAyuda } from '../ui/help/Ayuda';
+import { apartadoPorId, type IdApartado, type Pestana } from '../ui/help/contenido';
 import { AvisoEscena, Carga, EstadoVacio } from '../ui/scene/Mensajes';
 import { BarraEscena } from '../ui/scene/BarraEscena';
 import { Inspector } from '../ui/scene/Inspector';
@@ -36,7 +38,7 @@ import { VistaEscena } from '../ui/scene/VistaEscena';
 import { ESTADO_CALCULO_INICIAL, Orquestador, type EstadoCalculo } from './orquestador';
 import { modoCaptura, modoPrueba, parametrosUrl, publicarGancho } from './pruebas';
 import { Animacion, datosRueda } from './animacion';
-import { useAtajos } from './atajos';
+import { enCampoDeTexto, useAtajos } from './atajos';
 import { useArchivo } from './archivo';
 import { useExportarPng } from './imagen';
 import { useEdicion } from './edicion';
@@ -50,12 +52,17 @@ function estadoInicial(): { estado: EstadoExperimento; recuperado: boolean } {
   const id = CATALOGO.find((c) => c.id === pedido)?.id;
   if (id) return { estado: experimentoDesdeCatalogo(id), recuperado: false };
   const guardado = modoCaptura() ? null : recuperarAutoguardado();
-  return guardado ? { estado: guardado, recuperado: true } : { estado: EXPERIMENTO_INICIAL, recuperado: false };
+  if (guardado) return { estado: guardado, recuperado: true };
+  // Modo consulta (< 768 px): densidad por defecto 7³ (SPEC §9).
+  if (nivelPantalla() === 'consulta') return { estado: { ...EXPERIMENTO_INICIAL, muestreo: { ...EXPERIMENTO_INICIAL.muestreo, n: [7, 7, 7] } }, recuperado: false };
+  return { estado: EXPERIMENTO_INICIAL, recuperado: false };
 }
 
 interface Props {
   fuentes: Promise<void>;
 }
+
+const CLAVE_ATAJOS = 'campos-vectoriales:atajos-una-tecla';
 
 /** Signos del escalar que se ven en el mapa (|s| ≥ 2 % V_ref) y si hay curva de nivel cero. */
 function signosPresentes(d: DatosEscalar): { positivo: boolean; negativo: boolean; cero: boolean } {
@@ -143,11 +150,12 @@ export function App({ fuentes }: Props) {
   // Al cambiar el dominio, la cámara se reencuadra con transición (salvo movimiento reducido) (F4.3),
   // salvo que se acabe de aplicar una cámara (configuración abierta, autoguardado o «Deshacer»).
   const dominioPrevio = useRef<Dominio | null>(null);
-  const camaraPendiente = useRef<EstadoCamara | null>(inicio.estado.camara);
+  const camaraPendiente = useRef<(EstadoCamara & { tipo?: Proyeccion }) | null>(inicio.estado.camara);
   const aplicarCamara = useCallback(
-    (c: EstadoCamara) => {
+    (c: EstadoCamara & { tipo?: Proyeccion }) => {
       camaraPendiente.current = c;
       controlador?.fijarCamara(c);
+      if (c.tipo) controlador?.fijarProyeccion(c.tipo);
     },
     [controlador],
   );
@@ -156,7 +164,10 @@ export function App({ fuentes }: Props) {
     const previo = dominioPrevio.current;
     controlador.fijarDominio(estado.dominio, false);
     const pendiente = camaraPendiente.current;
-    if (pendiente) controlador.fijarCamara(pendiente);
+    if (pendiente) {
+      controlador.fijarCamara(pendiente);
+      if (pendiente.tipo) controlador.fijarProyeccion(pendiente.tipo);
+    }
     else if (previo && previo !== estado.dominio) controlador.reencuadrar(true);
     dominioPrevio.current = estado.dominio;
   }, [controlador, estado.dominio]);
@@ -280,6 +291,49 @@ export function App({ fuentes }: Props) {
     });
     const quitarTecla = controlador.alTecla((e) => {
       const delta = almacenCalculo.obtener().malla?.deltaRef;
+      if (!e.altKey && !e.ctrlKey && !e.metaKey) {
+        // Escena enfocada (PLAN §3.1): flechas = orbitar 5°; Mayús + flechas = desplazar; + − = acercar.
+        const giro: Record<string, [number, number]> = { ArrowLeft: [-5, 0], ArrowRight: [5, 0], ArrowUp: [0, -5], ArrowDown: [0, 5] };
+        const paso: Record<string, [number, number]> = { ArrowLeft: [-0.05, 0], ArrowRight: [0.05, 0], ArrowUp: [0, 0.05], ArrowDown: [0, -0.05] };
+        if (giro[e.key]) {
+          e.preventDefault();
+          if (e.shiftKey) controlador.desplazar(...(paso[e.key] as [number, number]));
+          else controlador.orbitar(...(giro[e.key] as [number, number]));
+          return;
+        }
+        if (e.key === '+' || e.key === '=' || e.key === '-' || e.key === '−') {
+          e.preventDefault();
+          controlador.acercar(e.key === '+' || e.key === '=' ? 0.9 : 1 / 0.9);
+          return;
+        }
+        if (e.key === 'Enter') {
+          // El nodo cuya proyección cae más cerca del centro de la vista (a igualdad, el más cercano a la cámara).
+          const m = almacenCalculo.obtener().malla;
+          if (!m) return;
+          e.preventDefault();
+          const { ancho, alto } = controlador.tamanoPantalla;
+          const cam = controlador.obtenerCamara().posicion;
+          let mejor = -1;
+          let dMejor = Infinity;
+          let profMejor = Infinity;
+          for (let i = 0; i < m.total; i++) {
+            const p: Vec3 = [m.pos[3 * i] as number, m.pos[3 * i + 1] as number, m.pos[3 * i + 2] as number];
+            const [x, y] = controlador.proyectar(p);
+            const d = Math.hypot(x - ancho / 2, y - alto / 2);
+            const prof = Math.hypot(p[0] - cam[0], p[1] - cam[1], p[2] - cam[2]);
+            if (d < dMejor - 0.5 || (Math.abs(d - dMejor) <= 0.5 && prof < profMejor)) {
+              mejor = i;
+              dMejor = d;
+              profMejor = prof;
+            }
+          }
+          if (mejor >= 0) {
+            const P: Vec3 = [m.pos[3 * mejor] as number, m.pos[3 * mejor + 1] as number, m.pos[3 * mejor + 2] as number];
+            almacen.fijar((s) => fijarPunto(s, P));
+          }
+          return;
+        }
+      }
       if (e.altKey && delta) {
         const mov: Record<string, [0 | 1 | 2, number]> = {
           ArrowLeft: [0, -1],
@@ -294,8 +348,6 @@ export function App({ fuentes }: Props) {
           e.preventDefault();
           almacen.fijar((s) => moverPunto(s, m[0], m[1] * delta));
         }
-      } else if (e.key === 'Escape' && almacen.obtener().punto) {
-        almacen.fijar((s) => fijarPunto(s, null));
       }
     });
     return () => {
@@ -336,6 +388,66 @@ export function App({ fuentes }: Props) {
     controlador?.fijarPausaRueda(!animando);
   }, [animacion, animando, controlador]);
   const conmutarAnimacion = useCallback(() => setAnimando((a) => !a), []);
+  // Proyección (RF-13, tecla 5): vive en el controlador, como la pose de la cámara.
+  const [ortografica, setOrtografica] = useState(false);
+  useEffect(() => {
+    if (!controlador) return;
+    const actualizar = () => setOrtografica(controlador.proyeccion === 'ortografica');
+    actualizar();
+    return controlador.alCambiarCamara(actualizar);
+  }, [controlador]);
+  const conmutarProyeccion = useCallback(() => {
+    controlador?.fijarProyeccion(controlador.proyeccion === 'ortografica' ? 'perspectiva' : 'ortografica');
+  }, [controlador]);
+
+  // Composición según el ancho (VIS-06): panel lateral, cajón superpuesto u hoja inferior.
+  const nivel = useNivelPantalla();
+  const modoPanel = nivel === 'consulta' ? 'hoja' : panelFlotante(nivel) ? 'cajon' : 'lateral';
+  const [panelAbierto, setPanelAbierto] = useState(nivel !== 'consulta');
+  const [nivelPrevio, setNivelPrevio] = useState(nivel);
+  if (nivel !== nivelPrevio) {
+    // Al cambiar de nivel: el cajón empieza abierto (DESIGN §5.4) y la hoja, plegada.
+    setNivelPrevio(nivel);
+    setPanelAbierto(nivel !== 'consulta');
+  }
+  const conmutarPanel = useCallback(() => setPanelAbierto((a) => !a), []);
+
+  // Cajón de ayuda (UI-06): se abre en un apartado desde los «?», con «Ayuda», ? o F1.
+  const [ayuda, setAyuda] = useState<EstadoAyuda | null>(null);
+  const origenAyuda = useRef<HTMLElement | null>(null);
+  const abrirAyuda = useCallback((apartado?: IdApartado) => {
+    const activo = document.activeElement;
+    if (activo instanceof HTMLElement && !activo.closest('[data-prueba="ayuda"]')) origenAyuda.current = activo;
+    const a = apartado ? apartadoPorId(apartado) : undefined;
+    // Con el panel como cajón, los dos cajones no caben a la vez: el de ayuda lo pliega (D-53).
+    if (panelFlotante(nivelPantalla()) && nivelPantalla() !== 'consulta') setPanelAbierto(false);
+    setAyuda((previa) => ({ pestana: a?.pestana ?? previa?.pestana ?? 'conceptos', apartado: a?.id ?? null, vez: (previa?.vez ?? 0) + 1 }));
+  }, []);
+  const cerrarAyuda = useCallback(() => {
+    setAyuda(null);
+    const o = origenAyuda.current;
+    origenAyuda.current = null;
+    if (o?.isConnected) o.focus();
+  }, []);
+  const abrirAyudaGeneral = useCallback(() => abrirAyuda(), [abrirAyuda]);
+  const elegirPestana = useCallback((pestana: Pestana) => setAyuda((a) => (a ? { ...a, pestana, apartado: null } : a)), []);
+  const ayudaAbierta = ayuda !== null;
+  // Esc cierra lo último abierto (PLAN §3.1): menú y diálogo se cierran solos; luego el cajón y luego
+  // el inspector. Los controles que usan Esc (campos, listas, descripciones) lo consumen antes.
+  useEffect(() => {
+    const alPulsar = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      if (ayudaAbierta) {
+        e.preventDefault();
+        cerrarAyuda();
+      } else if (almacen.obtener().punto && !enCampoDeTexto(e.target)) {
+        e.preventDefault();
+        almacen.fijar((s) => fijarPunto(s, null));
+      }
+    };
+    window.addEventListener('keydown', alPulsar);
+    return () => window.removeEventListener('keydown', alPulsar);
+  }, [ayudaAbierta, cerrarAyuda, almacen]);
 
   const { acciones, restablecer, ofrecerDeshacer } = useEdicion(almacen, controlador, notificador);
   const { exportarJson, elegirArchivo, entrada, alElegir, errores: erroresApertura, cerrarErrores, arrastrando } = useArchivo({
@@ -358,10 +470,19 @@ export function App({ fuentes }: Props) {
       c: () => almacen.fijar((s) => fijarCorte(s, { activo: !s.corte.activo })),
       i: abrirInspector,
       ' ': conmutarAnimacion,
+      '?': () => abrirAyuda(),
+      F1: () => abrirAyuda(),
+      '5': conmutarProyeccion,
     }),
-    [almacen, conmutarAnimacion, abrirInspector],
+    [almacen, conmutarAnimacion, abrirInspector, abrirAyuda, conmutarProyeccion],
   );
-  useAtajos(restablecer.camara, vista, atajosLetras);
+  // Preferencia de teclado (WCAG 2.1.4), fuera del experimento: se recuerda en el navegador si se puede.
+  const [atajosUnaTecla, setAtajosUnaTecla] = useState(() => leerPreferencia(CLAVE_ATAJOS) !== 'no');
+  const cambiarAtajos = useCallback((activos: boolean) => {
+    setAtajosUnaTecla(activos);
+    guardarPreferencia(CLAVE_ATAJOS, activos ? 'si' : 'no');
+  }, []);
+  useAtajos(restablecer.camara, vista, atajosLetras, atajosUnaTecla);
   const parametrosPorDefecto = estado.parametros.every((p) => p.valor === p.porDefecto);
   const opcionesRestablecer = useMemo(
     () => [
@@ -640,103 +761,111 @@ export function App({ fuentes }: Props) {
   }, [calculo.error, calculo.progresoLineas, calculo.lineasCanceladas, malla]);
 
   return (
-    <div className="app">
-      <a className="saltar" href="#escena">
-        {T.saltarEscena}
-      </a>
-      <BarraSuperior
-        nombre={estado.nombre}
-        estadoCalculo={estadoBarra}
-        restablecer={opcionesRestablecer}
-        exportar={opcionesExportar}
-        alAbrir={elegirArchivo}
-        alCancelar={cancelarLineas}
-      />
-      <input ref={entrada} type="file" accept=".json,application/json" hidden onChange={alElegir} data-prueba="entrada-archivo" />
-      {erroresApertura ? (
-        <DialogoErrores
-          {...erroresApertura}
-          alCerrar={cerrarErrores}
-          alElegirOtro={() => {
-            cerrarErrores();
-            elegirArchivo();
-          }}
+    <ContextoAyuda.Provider value={abrirAyuda}>
+      <div className={ayuda ? 'app con-ayuda' : 'app'} data-nivel={nivel} data-panel={modoPanel === 'lateral' || panelAbierto ? 'abierto' : 'cerrado'}>
+        <a className="saltar" href="#escena">
+          {T.saltarEscena}
+        </a>
+        <BarraSuperior
+          nombre={estado.nombre}
+          estadoCalculo={estadoBarra}
+          restablecer={opcionesRestablecer}
+          exportar={opcionesExportar}
+          alAbrir={elegirArchivo}
+          alAyuda={abrirAyudaGeneral}
+        nivel={nivel}
+        panelAbierto={panelAbierto}
+        alPanel={conmutarPanel}
+          alCancelar={cancelarLineas}
         />
-      ) : null}
-      {png.abierto ? (
-        <DialogoPng
-          opciones={png.opciones}
-          pantalla={png.pantalla}
-          vistaPrevia={png.vistaPrevia}
-          progreso={png.progreso}
-          exportando={png.exportando}
-          alCambiar={png.setOpciones}
-          alExportar={png.exportar}
-          alCerrar={png.cerrar}
-        />
-      ) : null}
-      {arrastrando ? (
-        <div className="soltar-archivo" aria-hidden="true">
-          <p>{T.archivo.soltar}</p>
-        </div>
-      ) : null}
-      <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} escalaActual={escalaActual} detallesLineas={detallesLineas} />
-      <VistaEscena
-        fuentes={fuentes}
-        movimientoReducido={movimientoReducido}
-        resumen={T.escena.resumen(estado.nombre, malla?.instancias.n ?? 0)}
-        error={errorEscena}
-        alControlador={alControlador}
-      >
-        {(hayEdicionInvalida || calculo.error) && malla ? <AvisoEscena>{T.escena.ultimoValido}</AvisoEscena> : null}
-        {!malla && !calculo.error ? <Carga /> : null}
-        {malla && malla.recuento.validos + malla.recuento.ceros === 0 ? (
-          <EstadoVacio
-            icono={FileQuestion}
-            titulo={T.escena.sinDatosTitulo}
-            texto={T.escena.sinDatosTexto}
-            acciones={
-              <Boton variante="secundario" onClick={restablecer.experimento}>
-                {T.escena.restablecerEjemplo}
-              </Boton>
-            }
-          />
-        ) : malla?.escala.nulo ? (
-          <EstadoVacio
-            icono={CircleOff}
-            titulo={T.escena.nuloTitulo}
-            texto={T.escena.nuloTexto}
-            acciones={
-              <Boton variante="secundario" onClick={restablecer.experimento}>
-                {T.escena.restablecerEjemplo}
-              </Boton>
-            }
+        <input ref={entrada} type="file" accept=".json,application/json" hidden onChange={alElegir} data-prueba="entrada-archivo" />
+        {erroresApertura ? (
+          <DialogoErrores
+            {...erroresApertura}
+            alCerrar={cerrarErrores}
+            alElegirOtro={() => {
+              cerrarErrores();
+              elegirArchivo();
+            }}
           />
         ) : null}
-        <Notificaciones notificador={notificador} />
-        {hayAnimacion ? (
-          <p className="solo-lector" aria-live="polite" data-prueba="anuncio-animacion">
-            {animando ? T.vistas.enMarcha : T.vistas.enPausa}
-          </p>
-        ) : null}
-        {inspeccion && malla ? (
-          <Inspector
-            inspeccion={inspeccion}
-            cifras={estado.cifras}
-            fRef={malla.escala.ref}
-            dominio={dominio}
-            enfocar={enfocarInspector}
-            alPunto={alPuntoInspector}
-            alCerrar={cerrarInspector}
-            alCopiar={copiarValores}
+        {png.abierto ? (
+          <DialogoPng
+            opciones={png.opciones}
+            pantalla={png.pantalla}
+            vistaPrevia={png.vistaPrevia}
+            progreso={png.progreso}
+            exportando={png.exportando}
+            alCambiar={png.setOpciones}
+            alExportar={png.exportar}
+            alCerrar={png.cerrar}
           />
         ) : null}
-        {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} alFijarVRef={fijarVRef} /> : null}
-        <div className="esquina-inferior-derecha">
-          <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} alInspeccionar={abrirInspector} />
-          <Triedro controlador={controlador} />
-        </div>
-      </VistaEscena>
-    </div>
+        {arrastrando ? (
+          <div className="soltar-archivo" aria-hidden="true">
+            <p>{T.archivo.soltar}</p>
+          </div>
+        ) : null}
+        <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} escalaActual={escalaActual} detallesLineas={detallesLineas} atajos={atajosUnaTecla} alAtajos={cambiarAtajos} modo={modoPanel} abierto={panelAbierto} alConmutar={conmutarPanel} />
+        <VistaEscena
+          fuentes={fuentes}
+          movimientoReducido={movimientoReducido}
+          resumen={T.escena.resumen(estado.nombre, malla?.instancias.n ?? 0)}
+          error={errorEscena}
+          alControlador={alControlador}
+        >
+          {(hayEdicionInvalida || calculo.error) && malla ? <AvisoEscena>{T.escena.ultimoValido}</AvisoEscena> : null}
+          {!malla && !calculo.error ? <Carga /> : null}
+          {malla && malla.recuento.validos + malla.recuento.ceros === 0 ? (
+            <EstadoVacio
+              icono={FileQuestion}
+              titulo={T.escena.sinDatosTitulo}
+              texto={T.escena.sinDatosTexto}
+              acciones={
+                <Boton variante="secundario" onClick={restablecer.experimento}>
+                  {T.escena.restablecerEjemplo}
+                </Boton>
+              }
+            />
+          ) : malla?.escala.nulo ? (
+            <EstadoVacio
+              icono={CircleOff}
+              titulo={T.escena.nuloTitulo}
+              texto={T.escena.nuloTexto}
+              acciones={
+                <Boton variante="secundario" onClick={restablecer.experimento}>
+                  {T.escena.restablecerEjemplo}
+                </Boton>
+              }
+            />
+          ) : null}
+          <Notificaciones notificador={notificador} />
+          {hayAnimacion ? (
+            <p className="solo-lector" aria-live="polite" data-prueba="anuncio-animacion">
+              {animando ? T.vistas.enMarcha : T.vistas.enPausa}
+            </p>
+          ) : null}
+          {inspeccion && malla ? (
+            <Inspector
+              inspeccion={inspeccion}
+              cifras={estado.cifras}
+              fRef={malla.escala.ref}
+              dominio={dominio}
+              enfocar={enfocarInspector}
+              alPunto={alPuntoInspector}
+              alCerrar={cerrarInspector}
+              alCopiar={copiarValores}
+              jacobianaAbierta={nivel === 'amplio'}
+            />
+          ) : null}
+          {ayuda ? <Ayuda estado={ayuda} alPestana={elegirPestana} alCerrar={cerrarAyuda} /> : null}
+          {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} alFijarVRef={fijarVRef} plegadaInicial={nivel === 'compacto' || nivel === 'consulta'} /> : null}
+          <div className="esquina-inferior-derecha">
+            <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} ortografica={ortografica} alProyeccion={conmutarProyeccion} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} alInspeccionar={abrirInspector} />
+            <Triedro controlador={controlador} />
+          </div>
+        </VistaEscena>
+      </div>
+    </ContextoAyuda.Provider>
   );
 }

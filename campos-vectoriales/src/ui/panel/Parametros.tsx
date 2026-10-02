@@ -16,6 +16,7 @@ import { Boton } from '../controls/Boton';
 import { CampoNumerico, textoNumero } from '../controls/CampoNumerico';
 import { Deslizador } from '../controls/Deslizador';
 import { Menu } from '../controls/Menu';
+import { BotonAyuda } from '../help/Ayuda';
 
 interface Props {
   parametros: readonly DeclParametro[];
@@ -32,9 +33,12 @@ function ParametrosBase({ parametros, usados, alCambiar, alRango, alRestablecer,
   const lleno = parametros.length >= LIMITES.parametrosMax;
   return (
     <section className="seccion" aria-labelledby="titulo-parametros" data-prueba="parametros">
-      <h2 className="seccion-titulo" id="titulo-parametros">
-        {T.parametros.titulo}
-      </h2>
+      <div className="seccion-cabecera-simple">
+        <h2 className="seccion-titulo" id="titulo-parametros">
+          {T.parametros.titulo}
+        </h2>
+        <BotonAyuda apartado="sintaxis-parametros" />
+      </div>
       {parametros.length ? (
         <ul className="parametros">
           {parametros.map((p) => (

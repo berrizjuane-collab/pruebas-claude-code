@@ -8,6 +8,7 @@ import type { EstadoExperimento } from '../../state/schema';
 import { T } from '../../i18n/es';
 import { Interruptor } from '../controls/Interruptor';
 import { Segmentado } from '../controls/Segmentado';
+import { BotonAyuda } from '../help/Ayuda';
 
 interface Props {
   capas: EstadoExperimento['capas'];
@@ -18,9 +19,12 @@ interface Props {
 function VisualizacionBase({ capas, alCapa, alGlifos }: Props) {
   return (
     <section className="seccion" aria-labelledby="titulo-visualizacion" data-prueba="visualizacion">
-      <h2 className="seccion-titulo" id="titulo-visualizacion">
-        {T.visualizacion.titulo}
-      </h2>
+      <div className="seccion-cabecera-simple">
+        <h2 className="seccion-titulo" id="titulo-visualizacion">
+          {T.visualizacion.titulo}
+        </h2>
+        <BotonAyuda apartado="magnitud" />
+      </div>
       <div className="interruptores">
         <Interruptor etiqueta={T.visualizacion.flechas} atajo="F" activado={capas.flechas} alCambiar={(v) => alCapa('flechas', v)} />
         <Interruptor etiqueta={T.visualizacion.lineas} atajo="L" activado={capas.lineas} alCambiar={(v) => alCapa('lineas', v)} />

@@ -27,6 +27,8 @@ interface Props {
   alPunto: (p: Vec3) => void;
   alCerrar: () => void;
   alCopiar: (texto: string) => void;
+  /** Jacobiana desplegada de entrada (≥ 1600 px, DESIGN §5.4). */
+  jacobianaAbierta?: boolean;
 }
 
 const EJES = ['x', 'y', 'z'] as const;
@@ -68,7 +70,7 @@ function tabular(filas: { etiqueta: string; valor: string[] }[]): string {
   return filas.map((r) => [r.etiqueta, ...r.valor].join('\t')).join('\n');
 }
 
-function InspectorBase({ inspeccion: i, cifras, fRef, dominio, enfocar, alPunto, alCerrar, alCopiar }: Props) {
+function InspectorBase({ inspeccion: i, cifras, fRef, dominio, enfocar, alPunto, alCerrar, alCopiar, jacobianaAbierta = false }: Props) {
   const idTitulo = useId();
   const refX = useRef<HTMLDivElement>(null);
   const { filas, casiCero, texto } = valoresInspector(i, cifras, fRef);
@@ -178,7 +180,7 @@ function InspectorBase({ inspeccion: i, cifras, fRef, dominio, enfocar, alPunto,
             )}
           </Desplegable>
           {d ? (
-            <Desplegable titulo={T.inspector.jacobiana}>
+            <Desplegable titulo={T.inspector.jacobiana} abierto={jacobianaAbierta}>
               <table className="inspector-matriz num" data-prueba="inspector-jacobiana">
                 <tbody>
                   {[0, 1, 2].map((k) => (

@@ -115,6 +115,8 @@ export const T = {
     cifras: 'Cifras',
     cifrasLargo: 'Cifras significativas de los valores',
     entero: (min: number, max: number) => `Un entero entre ${min} y ${max}`,
+    teclado: 'Teclado',
+    atajosLetra: 'Atajos de una sola tecla (letras, números, ?, Espacio)',
   },
   lineas: {
     titulo: 'Líneas de corriente',
@@ -227,6 +229,12 @@ export const T = {
   },
   panel: {
     etiqueta: 'Panel del experimento',
+    boton: 'Panel',
+    mostrar: 'Mostrar el panel',
+    ocultar: 'Ocultar el panel',
+    menu: 'Menú',
+    restablecerOpcion: (que: string) => `Restablecer: ${que}`,
+    exportarOpcion: (que: string) => `Exportar: ${que}`,
     campo: 'Campo',
     ejemplos: 'Ejemplos',
     sobreCampo: 'Sobre este campo',
@@ -265,6 +273,8 @@ export const T = {
     sinAnimacion: 'Activa las partículas (P) o elige un punto para la rueda de paletas',
     enPausa: 'Animación en pausa',
     enMarcha: 'Animación en marcha',
+    ortografica: 'Proyección ortográfica',
+    proyeccionAnuncio: (orto: boolean) => (orto ? 'Proyección ortográfica' : 'Proyección en perspectiva'),
   },
   leyenda: {
     titulo: 'Leyenda',
@@ -341,6 +351,13 @@ export const T = {
     soltar: 'Suelta el archivo para abrir la configuración',
     recuperado: 'Se ha recuperado tu último experimento',
     empezarDeCero: 'Empezar de cero',
+  },
+  ayuda: {
+    boton: 'Ayuda',
+    titulo: 'Ayuda',
+    cerrar: 'Cerrar la ayuda',
+    apartados: 'Apartados de la ayuda',
+    sobre: (titulo: string) => `Ayuda: ${titulo}`,
   },
   imagen: {
     titulo: 'Exportar imagen PNG',

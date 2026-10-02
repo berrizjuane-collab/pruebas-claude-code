@@ -1,5 +1,5 @@
 import { memo, useCallback, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronUp } from 'lucide-react';
 import { CATALOGO, campoPorId, type IdCampo } from '../../math/catalog';
 import { texCampo, type CampoCompilado } from '../../math/field';
 import { texNombreParametro } from '../../math/expr/tex';
@@ -50,54 +50,90 @@ interface Props {
   escalaActual: { fRef: number; delta: number } | null;
   /** Resumen del último cálculo de líneas («Detalles del cálculo»). */
   detallesLineas: DetallesLineas | null;
+  /** Preferencia de teclado (no es parte del experimento). */
+  atajos: boolean;
+  alAtajos: (activos: boolean) => void;
+  /**
+   * Composición (DESIGN §5.4): columna lateral; cajón superpuesto (1024–1279 y 768–1023) u
+   * hoja inferior (< 768) con una cabecera de 64 px con la fórmula que se despliega al 60 %.
+   */
+  modo: 'lateral' | 'cajon' | 'hoja';
+  abierto: boolean;
+  alConmutar: () => void;
 }
 
-export function Panel({ estado, campo, acciones: a, edicionInvalida, escalaActual, detallesLineas }: Props) {
+function PanelBase({ estado, campo, acciones: a, edicionInvalida, escalaActual, detallesLineas, atajos, alAtajos, modo, abierto, alConmutar }: Props) {
   const verEnCorte = useCallback((escalar: 'divergencia' | 'rotacional') => a.alCorte({ activo: true, escalar }), [a]);
   // Los nombres solo cambian al añadir o quitar parámetros (no con sus valores).
   const claveNombres = estado.parametros.map((p) => p.nombre).join('\u0000');
   const nombres = useMemo(() => (claveNombres ? claveNombres.split('\u0000') : []), [claveNombres]);
   // Con ecuaciones inválidas no se sabe qué parámetros se usan: se consideran todos en uso.
   const usados = useMemo(() => campo?.usados ?? new Set(nombres), [campo, nombres]);
+  const oculto = modo !== 'lateral' && !abierto;
   return (
-    <aside className="panel" data-region="panel" aria-label={T.panel.etiqueta}>
-      <SeccionCampo estado={estado} campo={campo} />
-      <EjemplosMemo activo={estado.base} modificado={estado.modificado} alElegir={a.alElegirCampo} />
-      <Ecuaciones
-        campo={estado.campo}
-        parametros={nombres}
-        alAplicar={a.alAplicarEcuaciones}
-        alAnadirParametro={a.alAnadirParametroDesdeEcuacion}
-        edicionInvalida={edicionInvalida}
-      />
-      <Parametros
-        parametros={estado.parametros}
-        usados={usados}
-        alCambiar={a.alCambiarParametro}
-        alRango={a.alRangoParametro}
-        alRestablecer={a.alRestablecerParametro}
-        alEliminar={a.alEliminarParametro}
-        alAnadir={a.alAnadirParametro}
-      />
-      <Visualizacion capas={estado.capas} alCapa={a.alCapa} alGlifos={a.alGlifos} />
-      <Lineas lineas={estado.lineas} dominio={estado.dominio} hayPunto={estado.punto !== null} detalles={detallesLineas} alLineas={a.alLineas} />
-      <Corte corte={estado.corte} dominio={estado.dominio} alCorte={a.alCorte} />
-      <Derivadas campo={campo} glifos={estado.capas.glifos} alVerEnCorte={verEnCorte} alGlifos={a.alGlifos} />
-      <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} />
-      <Avanzado
-        flechas={estado.flechas}
-        particulas={estado.particulas}
-        cifras={estado.cifras}
-        tauActual={escalaActual ? escalaActual.delta / escalaActual.fRef : null}
-        fRefActual={escalaActual?.fRef ?? null}
-        deltaActual={escalaActual?.delta ?? null}
-        alFlechas={a.alFlechas}
-        alParticulas={a.alParticulas}
-        alCifras={a.alCifras}
-      />
+    <aside
+      id="panel"
+      className={`panel panel-${modo}`}
+      data-region="panel"
+      data-abierto={modo === 'lateral' || abierto}
+      aria-label={T.panel.etiqueta}
+      hidden={modo === 'cajon' && !abierto}
+    >
+      {modo === 'hoja' ? (
+        <div className="hoja-cabecera">
+          <button type="button" className="hoja-asa" aria-expanded={abierto} aria-controls="panel-cuerpo" onClick={alConmutar} data-prueba="boton-panel">
+            <ChevronUp className="chevron" size={16} strokeWidth={1.5} aria-hidden="true" />
+            <span>{abierto ? T.panel.ocultar : T.panel.mostrar}</span>
+          </button>
+          <div className="hoja-formula" aria-hidden="true" title={campo ? `F = (${campo.unicode.P}, ${campo.unicode.Q}, ${campo.unicode.R})` : undefined}>
+            {campo ? <TeX tex={texCampo(campo)} /> : null}
+          </div>
+        </div>
+      ) : null}
+      <div id="panel-cuerpo" className="panel-cuerpo" hidden={oculto}>
+        <SeccionCampo estado={estado} campo={campo} />
+        <EjemplosMemo activo={estado.base} modificado={estado.modificado} alElegir={a.alElegirCampo} />
+        <Ecuaciones
+          campo={estado.campo}
+          parametros={nombres}
+          alAplicar={a.alAplicarEcuaciones}
+          alAnadirParametro={a.alAnadirParametroDesdeEcuacion}
+          edicionInvalida={edicionInvalida}
+        />
+        <Parametros
+          parametros={estado.parametros}
+          usados={usados}
+          alCambiar={a.alCambiarParametro}
+          alRango={a.alRangoParametro}
+          alRestablecer={a.alRestablecerParametro}
+          alEliminar={a.alEliminarParametro}
+          alAnadir={a.alAnadirParametro}
+        />
+        <Visualizacion capas={estado.capas} alCapa={a.alCapa} alGlifos={a.alGlifos} />
+        <Lineas lineas={estado.lineas} dominio={estado.dominio} hayPunto={estado.punto !== null} detalles={detallesLineas} alLineas={a.alLineas} />
+        <Corte corte={estado.corte} dominio={estado.dominio} alCorte={a.alCorte} />
+        <Derivadas campo={campo} glifos={estado.capas.glifos} alVerEnCorte={verEnCorte} alGlifos={a.alGlifos} />
+        <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} />
+        <Avanzado
+          flechas={estado.flechas}
+          particulas={estado.particulas}
+          cifras={estado.cifras}
+          tauActual={escalaActual ? escalaActual.delta / escalaActual.fRef : null}
+          fRefActual={escalaActual?.fRef ?? null}
+          deltaActual={escalaActual?.delta ?? null}
+          alFlechas={a.alFlechas}
+          alParticulas={a.alParticulas}
+          alCifras={a.alCifras}
+          atajos={atajos}
+          alAtajos={alAtajos}
+        />
+      </div>
     </aside>
   );
 }
+
+/** El panel solo se vuelve a pintar si cambian sus datos (no en cada pintado de App). */
+export const Panel = memo(PanelBase);
 
 function SeccionCampo({ estado, campo }: { estado: EstadoExperimento; campo: CampoCompilado | null }) {
   const ficha = estado.base ? campoPorId(estado.base) : null;

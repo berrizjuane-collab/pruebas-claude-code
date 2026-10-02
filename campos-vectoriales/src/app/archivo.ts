@@ -10,7 +10,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { descargar, nombreArchivo } from '../export/json';
-import type { ControladorEscena, EstadoCamara } from '../render/ControladorEscena';
+import type { ControladorEscena, EstadoCamara, Proyeccion } from '../render/ControladorEscena';
 import { autoguardar, borrarAutoguardado, importarConfiguracion, serializar, TAMANO_MAX, type ErrorImportacion } from '../state/persist';
 import { EXPERIMENTO_INICIAL, type EstadoExperimento } from '../state/schema';
 import type { Almacen } from '../state/store';
@@ -31,7 +31,7 @@ interface Opciones {
   notificador: Notificador;
   ofrecerDeshacer: (texto: string, restaurar: () => void) => void;
   /** Aplica una cámara al controlador sin que el reencuadre por cambio de dominio la pise. */
-  aplicarCamara: (c: EstadoCamara) => void;
+  aplicarCamara: (c: EstadoCamara & { tipo?: Proyeccion }) => void;
   autoguardado: boolean;
   /** El estado inicial salió del autoguardado: se avisa con «Empezar de cero». */
   recuperado: boolean;
@@ -45,7 +45,7 @@ export function useArchivo({ almacen, controlador, notificador, ofrecerDeshacer,
   /** Estado con la cámara actual (la cámara vive en el controlador). */
   const conCamara = useCallback((): EstadoExperimento => {
     const s = almacen.obtener();
-    return controlador ? { ...s, camara: { tipo: 'perspectiva', ...controlador.obtenerCamara() } } : s;
+    return controlador ? { ...s, camara: { tipo: controlador.proyeccion, ...controlador.obtenerCamara() } } : s;
   }, [almacen, controlador]);
 
   const exportarJson = useCallback(() => {
@@ -65,7 +65,7 @@ export function useArchivo({ almacen, controlador, notificador, ofrecerDeshacer,
         return;
       }
       const previo = almacen.obtener();
-      const camaraPrevia = controlador?.obtenerCamara() ?? null;
+      const camaraPrevia = controlador ? { ...controlador.obtenerCamara(), tipo: controlador.proyeccion } : null;
       almacen.fijar(r.estado);
       if (r.estado.camara) aplicarCamara(r.estado.camara);
       ofrecerDeshacer(T.archivo.abierta(archivo.name), () => {
@@ -163,6 +163,7 @@ export function useArchivo({ almacen, controlador, notificador, ofrecerDeshacer,
         alElegir: () => {
           borrarAutoguardado();
           almacen.fijar(EXPERIMENTO_INICIAL);
+          controlador?.fijarProyeccion('perspectiva');
           controlador?.encuadrar(false);
         },
       },

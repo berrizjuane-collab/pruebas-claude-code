@@ -517,6 +517,23 @@ export function borrarAutoguardado(almacen: Pick<Storage, 'removeItem'> | null =
   }
 }
 
+/** Preferencias de la interfaz (no forman parte del experimento); tolerantes a fallos. */
+export function leerPreferencia(clave: string): string | null {
+  try {
+    return almacenLocal()?.getItem(clave) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function guardarPreferencia(clave: string, valor: string): void {
+  try {
+    almacenLocal()?.setItem(clave, valor);
+  } catch {
+    // Almacenamiento bloqueado o lleno: la preferencia dura lo que dure la página.
+  }
+}
+
 /** `localStorage`, o null si el navegador lo bloquea (el mero acceso puede lanzar). */
 function almacenLocal(): Storage | null {
   try {

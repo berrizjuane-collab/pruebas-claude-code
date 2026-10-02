@@ -17,6 +17,8 @@ export interface Esferica {
 const grados = (g: number) => (g * Math.PI) / 180;
 /** Ángulo polar mínimo (OrbitControls evita el polo exacto). */
 export const POLAR_MIN = 1e-4;
+/** Límite simétrico junto al polo sur (órbita con el teclado). */
+export const POLAR_MAX = Math.PI - POLAR_MIN;
 
 /**
  * Vistas predefinidas. Para que en pantalla queden «x a la derecha, y arriba» (XY), «x a la

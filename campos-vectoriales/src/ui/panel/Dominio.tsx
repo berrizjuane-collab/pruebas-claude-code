@@ -36,7 +36,7 @@ function DominioBase({ dominio, muestreo, alDominio, alMuestreo }: Props) {
   const filas = enlazado ? [{ etiqueta: T.dominio.cubo3, ejes: [0, 1, 2] }] : EJES.map((e, k) => ({ etiqueta: e, ejes: [k] }));
   const n = muestreo.n[0];
   return (
-    <Seccion titulo={T.dominio.titulo} datosPrueba="seccion-dominio">
+    <Seccion titulo={T.dominio.titulo} ayuda="supuestos-muestreo" datosPrueba="seccion-dominio">
       <Interruptor etiqueta={T.dominio.enlazar} activado={enlazado} alCambiar={setEnlazado} />
       <div className="limites" role="group" aria-label={T.dominio.limites}>
         <span className="limites-cabecera" aria-hidden="true" />

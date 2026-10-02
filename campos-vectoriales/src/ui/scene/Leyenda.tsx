@@ -202,10 +202,12 @@ interface Props {
   controlador: ControladorEscena | null;
   alFijarEscala: (fija: boolean) => void;
   alFijarVRef: (fija: boolean) => void;
+  /** Plegada al empezar (por debajo de 1024 px, DESIGN §5.4). */
+  plegadaInicial?: boolean;
 }
 
-function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef }: Props) {
-  const [plegada, setPlegada] = useState(false);
+function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef, plegadaInicial = false }: Props) {
+  const [plegada, setPlegada] = useState(plegadaInicial);
   const idCuerpo = useId();
   const ref = formatearCorto(datos.escala.ref);
   const hayFlechas = datos.nFlechas > 0;

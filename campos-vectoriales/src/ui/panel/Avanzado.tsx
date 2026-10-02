@@ -1,12 +1,14 @@
 /**
  * Avanzado (DESIGN §5.3, sección 10). Flechas: longitud proporcional o normalizada, escala
  * automática (P95) o fija, luminancia lineal o logarítmica (REN-04, DESIGN §9.3 y §9.10).
- * Partículas: número, escala temporal τ y semilla (REN-08). Cifras significativas.
+ * Partículas: número, escala temporal τ y semilla (REN-08). Cifras significativas. Teclado:
+ * desactivar los atajos de una sola tecla (WCAG 2.1.4).
  */
 import { memo } from 'react';
 import { LIMITES, type EstadoExperimento } from '../../state/schema';
 import { T } from '../../i18n/es';
 import { CampoNumerico } from '../controls/CampoNumerico';
+import { Interruptor } from '../controls/Interruptor';
 import { Seccion } from '../controls/Seccion';
 import { Segmentado } from '../controls/Segmentado';
 
@@ -25,12 +27,15 @@ interface Props {
   fRefActual: number | null;
   deltaActual: number | null;
   alFlechas: (cambios: Partial<Flechas>) => void;
+  /** Atajos de una tecla activos (WCAG 2.1.4: se pueden desactivar). */
+  atajos: boolean;
+  alAtajos: (activos: boolean) => void;
 }
 
-function AvanzadoBase({ flechas, particulas, cifras, tauActual, fRefActual, deltaActual, alFlechas, alParticulas, alCifras }: Props) {
+function AvanzadoBase({ flechas, particulas, cifras, tauActual, fRefActual, deltaActual, alFlechas, alParticulas, alCifras, atajos, alAtajos }: Props) {
   const fija = flechas.escala.tipo === 'fija';
   return (
-    <Seccion titulo={T.avanzado.titulo} datosPrueba="seccion-avanzado">
+    <Seccion titulo={T.avanzado.titulo} ayuda="supuestos-derivadas" datosPrueba="seccion-avanzado">
       <p className="subtitulo">{T.avanzado.flechas}</p>
       <div className="fila-control">
         <span className="fila-etiqueta">{T.avanzado.longitud}</span>
@@ -143,6 +148,8 @@ function AvanzadoBase({ flechas, particulas, cifras, tauActual, fRefActual, delt
           datosPrueba="cifras"
         />
       </div>
+      <p className="subtitulo">{T.avanzado.teclado}</p>
+      <Interruptor etiqueta={T.avanzado.atajosLetra} activado={atajos} alCambiar={alAtajos} />
     </Seccion>
   );
 }

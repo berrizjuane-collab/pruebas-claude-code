@@ -16,6 +16,7 @@ import type { Almacen } from '../../state/store';
 import { T } from '../../i18n/es';
 import { Boton } from '../controls/Boton';
 import { CampoExpresion, type EstadoExpresion } from '../controls/CampoExpresion';
+import { BotonAyuda } from '../help/Ayuda';
 
 type Ecuacion = Record<Componente, string>;
 
@@ -101,9 +102,12 @@ function EcuacionesBase({ campo, parametros, alAplicar, alAnadirParametro, edici
 
   return (
     <section className="seccion" aria-labelledby="titulo-ecuaciones" data-prueba="ecuaciones">
-      <h2 className="seccion-titulo" id="titulo-ecuaciones">
-        {T.editor.titulo}
-      </h2>
+      <div className="seccion-cabecera-simple">
+        <h2 className="seccion-titulo" id="titulo-ecuaciones">
+          {T.editor.titulo}
+        </h2>
+        <BotonAyuda apartado="sintaxis-expresiones" />
+      </div>
       <div className="ecuaciones">
         {COMPONENTES.map((c) => {
           const e = estados[c];

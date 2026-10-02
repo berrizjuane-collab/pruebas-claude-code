@@ -110,6 +110,30 @@ const PREPARAR = {
     await page.locator('[data-prueba="expr-P"]').press('Tab');
     await page.locator('[data-prueba="estado-vacio"]').waitFor();
   },
+  // Cajón de ayuda abierto en «Divergencia» desde su «?» (UI-06).
+  C6: async (page) => {
+    await esperarCalculo(page);
+    const boton = page.locator('[data-ayuda="divergencia"]');
+    await boton.scrollIntoViewIfNeeded();
+    await boton.click();
+    await page.locator('[data-apartado="divergencia"]').waitFor();
+    await page.mouse.move(1, 1);
+  },
+  // Diálogo de exportación PNG con su vista previa (EXP-03).
+  C9: async (page) => {
+    await esperarCalculo(page);
+    await page.getByRole('button', { name: 'Exportar', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Imagen PNG…' }).click();
+    await page.locator('[data-prueba="vista-previa-png"]').waitFor();
+    await page.mouse.move(1, 1);
+  },
+  // Movimiento reducido (el contexto ya lo emula) y foco visible en la escena (anillo interior).
+  C12: async (page) => {
+    await esperarCalculo(page);
+    await page.locator('[data-prueba="lienzo"]').focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowLeft');
+  },
 };
 async function escribirCampo(page, campo) {
   for (const [c, v] of Object.entries(campo)) {

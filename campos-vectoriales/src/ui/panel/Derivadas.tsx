@@ -32,7 +32,7 @@ function DerivadasBase({ campo, glifos, alVerEnCorte, alGlifos }: Props) {
     return { div: tex(div), rot: rot.map(tex), solenoidal: cero(div), irrotacional: rot.every(cero) };
   }, [campo]);
   return (
-    <Seccion titulo={T.derivadas.titulo} datosPrueba="seccion-derivadas">
+    <Seccion titulo={T.derivadas.titulo} ayuda="divergencia" datosPrueba="seccion-derivadas">
       {!campo ? (
         <p className="nota-seccion">{T.derivadas.sinCampo}</p>
       ) : !simbolicas ? (

@@ -11,8 +11,9 @@
 ## 1. Principios
 
 1. **El campo es el protagonista.** La escena ocupa al menos el 73 % del área a 1440×900 y
-   el 79 % a 1920×1080 (con el panel de 320 px y la barra de 48 px no puede ser más; la cifra
-   inicial del 75 % era incoherente y la detectó la prueba de VIS-03). La interfaz se retira: superficies oscuras, pocos elementos visibles, controles avanzados
+   el 78 % a 1920×1080 (con el panel de 320 px —336 px a partir de 1600, §5.4— y la barra de
+   48 px no puede ser más: 78.8 %; la cifra inicial del 75 % era incoherente y la detectó la
+   prueba de VIS-03, y la de 79 % se corrigió al ensanchar el panel en VIS-06, D-54). La interfaz se retira: superficies oscuras, pocos elementos visibles, controles avanzados
    plegados.
 2. **Monocromo estricto.** Solo negros, blancos y grises neutros (R = G = B), en la
    interfaz, la escena y las exportaciones. Ningún color del navegador se cuela (§2.4).

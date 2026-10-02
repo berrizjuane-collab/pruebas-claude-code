@@ -20,7 +20,7 @@ export interface PropsDisparador {
   onPointerLeave: () => void;
   onFocus: (e: { currentTarget: Element }) => void;
   onBlur: () => void;
-  onKeyDown: (e: { key: string }) => void;
+  onKeyDown: (e: { key: string; preventDefault: () => void; stopPropagation: () => void }) => void;
 }
 
 interface Opciones {
@@ -70,7 +70,12 @@ export function useDescripcion({ texto, atajo, lado = 'arriba', abierta = false 
     },
     onBlur: () => ocultar(),
     onKeyDown: (e) => {
-      if (e.key === 'Escape') ocultar();
+      // Esc oculta la descripción visible y no hace nada más (WCAG 1.4.13: se descarta sin mover el foco).
+      if (e.key === 'Escape' && visible) {
+        e.preventDefault();
+        e.stopPropagation();
+        ocultar();
+      }
     },
   };
 

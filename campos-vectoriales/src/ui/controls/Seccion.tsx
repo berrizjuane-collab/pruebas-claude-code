@@ -5,6 +5,7 @@
  */
 import { useId, useState, type ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
+import { BotonAyuda } from '../help/Ayuda';
 import type { Forzado } from './Boton';
 
 interface Props {
@@ -13,11 +14,13 @@ interface Props {
   abiertaInicial?: boolean;
   /** Control a la derecha de la cabecera (fuera del botón, para no anidar controles). */
   control?: ReactNode;
+  /** Apartado de la ayuda para el «?» contextual de la cabecera (UI-06). */
+  ayuda?: string;
   forzar?: Forzado;
   datosPrueba?: string;
 }
 
-export function Seccion({ titulo, children, abiertaInicial = false, control, forzar, datosPrueba }: Props) {
+export function Seccion({ titulo, children, abiertaInicial = false, control, ayuda, forzar, datosPrueba }: Props) {
   const [abierta, setAbierta] = useState(abiertaInicial);
   const id = useId();
   return (
@@ -37,7 +40,12 @@ export function Seccion({ titulo, children, abiertaInicial = false, control, for
             {titulo}
           </button>
         </h2>
-        {control ? <div className="seccion-control">{control}</div> : null}
+        {control || ayuda ? (
+          <div className="seccion-control">
+            {ayuda ? <BotonAyuda apartado={ayuda} /> : null}
+            {control}
+          </div>
+        ) : null}
       </div>
       <div id={`${id}-cuerpo`} className="seccion-cuerpo" hidden={!abierta}>
         {children}

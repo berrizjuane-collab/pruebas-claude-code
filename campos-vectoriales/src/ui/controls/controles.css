@@ -253,6 +253,12 @@
   background: var(--fondo-3);
 }
 
+/* Deshabilitada (fondo oscuro): el anillo de foco vuelve a ser claro para mantener ≥ 3:1 (V-A11Y-03). */
+.segmentado-opcion[aria-disabled='true']:focus-visible,
+.segmentado-opcion[aria-disabled='true'][data-forzar~='foco'] {
+  outline-color: var(--texto-1);
+}
+
 /* ---------- Deslizador ---------- */
 
 .deslizador {
@@ -726,4 +732,32 @@
   display: flex;
   flex-direction: column;
   gap: var(--e-3);
+}
+
+/* Cabecera de sección no plegable con «?» contextual (UI-06). */
+.seccion-cabecera-simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-2);
+}
+
+.seccion-control {
+  display: flex;
+  align-items: center;
+  gap: var(--e-1);
+}
+
+/* «?» contextual: 24 × 24 (V-A11Y-06), discreto hasta el puntero o el foco. */
+.boton-ayuda.boton-icono {
+  width: 24px;
+  height: 24px;
+  color: var(--texto-3);
+  background: transparent;
+  border-color: transparent;
+}
+
+.boton-ayuda.boton-icono:hover,
+.boton-ayuda.boton-icono:focus-visible {
+  color: var(--texto-1);
 }

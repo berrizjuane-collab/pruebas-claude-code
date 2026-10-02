@@ -54,7 +54,7 @@ function LineasBase({ lineas, dominio, hayPunto, detalles, alLineas }: Props) {
     else conSemillas({ tipo: 'punto' });
   };
   return (
-    <Seccion titulo={T.lineas.titulo} datosPrueba="seccion-lineas">
+    <Seccion titulo={T.lineas.titulo} ayuda="lineas" datosPrueba="seccion-lineas">
       <div className="fila-control">
         <span className="fila-etiqueta">{T.lineas.estrategia}</span>
         <Segmentado

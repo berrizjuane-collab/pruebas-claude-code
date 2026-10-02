@@ -24,10 +24,12 @@ function usaEspacio(objetivo: EventTarget | null): boolean {
  * (F, L, P, G…). No se activan dentro de campos de texto ni con modificadores, ni cuando la
  * tecla llega a un botón o a un control que ya la usa (Espacio en un interruptor).
  */
-export function useAtajos(encuadrar: () => void, vista: (v: Vista) => void, letras: Record<string, () => void> = {}): void {
+export function useAtajos(encuadrar: () => void, vista: (v: Vista) => void, letras: Record<string, () => void> = {}, unaTecla = true): void {
   useEffect(() => {
     const alPulsar = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || enCampoDeTexto(e.target)) return;
+      // WCAG 2.1.4: los atajos de una sola tecla imprimible (letras, números, ?, Espacio) se pueden desactivar.
+      if (!unaTecla && e.key.length === 1) return;
       if (e.key === ' ' && usaEspacio(e.target)) return;
       const vistas: Record<string, Vista> = { '1': 'XY', '2': 'XZ', '3': 'YZ', '4': 'iso' };
       const letra = e.key.length === 1 ? e.key.toLowerCase() : e.key;
@@ -44,5 +46,5 @@ export function useAtajos(encuadrar: () => void, vista: (v: Vista) => void, letr
     };
     window.addEventListener('keydown', alPulsar);
     return () => window.removeEventListener('keydown', alPulsar);
-  }, [encuadrar, vista, letras]);
+  }, [encuadrar, vista, letras, unaTecla]);
 }

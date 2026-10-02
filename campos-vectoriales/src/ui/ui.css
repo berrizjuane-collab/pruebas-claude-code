@@ -170,10 +170,18 @@
   border-right: 1px solid var(--borde);
   overflow-y: auto;
   padding: var(--e-4) var(--e-4) var(--e-6);
+  min-height: 0;
+}
+
+.panel-cuerpo {
   display: flex;
   flex-direction: column;
   gap: var(--e-5);
-  min-height: 0;
+}
+
+.panel[hidden],
+.panel-cuerpo[hidden] {
+  display: none;
 }
 
 .seccion {
@@ -1260,4 +1268,314 @@
   margin: var(--e-2) 0 0;
   font-size: var(--t-pie);
   color: var(--texto-2);
+}
+
+/* ---------- Cajón de ayuda (UI-06, DESIGN §5.2) ---------- */
+
+.ayuda {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: min(var(--m-ayuda), 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--fondo-2);
+  border-left: 1px solid var(--borde);
+  box-shadow: var(--sombra-n2);
+  color: var(--texto-1);
+  animation: ayuda-entrar var(--mov-cajon) var(--curva);
+}
+
+@keyframes ayuda-entrar {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ayuda {
+    animation: none;
+  }
+}
+
+.ayuda-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--e-2) var(--e-2) var(--e-2) var(--e-4);
+}
+
+.ayuda-titulo {
+  margin: 0;
+  font-size: var(--t-titulo);
+  line-height: var(--l-titulo);
+  font-weight: 600;
+}
+
+.ayuda-pestanas {
+  display: flex;
+  gap: var(--e-1);
+  padding: 0 var(--e-4);
+  border-bottom: 1px solid var(--borde);
+}
+
+/* Pestaña elegida: texto claro, peso 600 y raya inferior de 2 px (forma, no solo tono). */
+.ayuda-pestana {
+  height: var(--m-control);
+  padding: 0 var(--e-2);
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--texto-2);
+  font: inherit;
+  font-size: var(--t-control);
+  cursor: pointer;
+}
+
+.ayuda-pestana:hover {
+  color: var(--texto-1);
+}
+
+.ayuda-pestana[aria-selected='true'] {
+  color: var(--texto-1);
+  font-weight: 600;
+  border-bottom-color: var(--texto-1);
+}
+
+.ayuda-cuerpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--e-4);
+  font-size: var(--t-cuerpo);
+  line-height: var(--l-cuerpo);
+  color: var(--texto-2);
+}
+
+.ayuda-apartado + .ayuda-apartado {
+  margin-top: var(--e-5);
+}
+
+.ayuda-apartado-titulo {
+  margin: 0 0 var(--e-2);
+  font-size: var(--t-titulo);
+  line-height: var(--l-titulo);
+  font-weight: 600;
+  color: var(--texto-1);
+  scroll-margin-top: var(--e-4);
+}
+
+.ayuda-apartado p {
+  margin: 0 0 var(--e-2);
+}
+
+.ayuda-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+}
+
+.ayuda-tabla th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--texto-1);
+}
+
+.ayuda-tabla th,
+.ayuda-tabla td {
+  padding: var(--e-1) var(--e-2) var(--e-1) 0;
+  border-bottom: 1px solid var(--borde);
+  vertical-align: top;
+}
+
+.ayuda-tabla td.num {
+  font-family: var(--familia-mono);
+  color: var(--texto-1);
+  white-space: nowrap;
+}
+
+/* Con el cajón abierto, lo que flota a la derecha de la escena se aparta a su izquierda: nada
+   enfocable queda tapado (V-A11Y-03) y la escena no cambia de tamaño. */
+.con-ayuda .esquina-inferior-derecha,
+.con-ayuda .inspector {
+  right: calc(min(var(--m-ayuda), 100%) + var(--e-4));
+}
+
+/* ---------- Adaptación a pantallas (VIS-06, DESIGN §5.4, SPEC §9) ---------- */
+
+.app {
+  position: relative;
+}
+
+/* ≥ 1600: panel de 336 px. */
+.app[data-nivel='amplio'] {
+  --m-panel: 336px;
+}
+
+/* 1024–1279 y 768–1023: el panel es un cajón superpuesto (abierto por defecto, botón «Panel»). */
+.app[data-nivel='cajon'],
+.app[data-nivel='compacto'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'barra'
+    'escena';
+}
+
+.panel-cajon {
+  position: absolute;
+  top: var(--m-barra);
+  left: 0;
+  bottom: 0;
+  width: var(--m-panel);
+  z-index: 40;
+  box-shadow: var(--sombra-n2);
+}
+
+/* Con el cajón abierto, lo que flota en la escena se reparte en el área libre, a su derecha
+   (D-55): leyenda arriba a la izquierda, inspector arriba a la derecha, barra de vistas abajo a
+   la derecha y notificaciones abajo a la izquierda, sin alcanzar la barra (320 px). */
+.app[data-panel='abierto'][data-nivel='cajon'] .leyenda,
+.app[data-panel='abierto'][data-nivel='compacto'] .leyenda {
+  left: calc(var(--m-panel) + var(--e-4));
+  top: var(--e-4);
+  bottom: auto;
+  max-height: calc(100% - 2 * var(--e-4) - 42px - var(--e-3));
+  overflow-y: auto;
+}
+
+.app[data-panel='abierto'][data-nivel='cajon'] .notificaciones,
+.app[data-panel='abierto'][data-nivel='compacto'] .notificaciones {
+  left: calc(var(--m-panel) + var(--e-4));
+  transform: none;
+  align-items: flex-start;
+  max-width: calc(100% - var(--m-panel) - 3 * var(--e-4) - 320px);
+}
+
+.app[data-panel='abierto'][data-nivel='cajon'] .aviso-escena,
+.app[data-panel='abierto'][data-nivel='compacto'] .aviso-escena {
+  left: calc(var(--m-panel) + (100% - var(--m-panel)) / 2);
+  top: auto;
+  bottom: calc(var(--e-4) + 42px + var(--e-3));
+  max-width: calc(100% - var(--m-panel) - 2 * var(--e-4));
+}
+
+/* 768–1023: inspector compacto. */
+.app[data-nivel='compacto'] {
+  --m-inspector: 256px;
+}
+
+/* < 768 · modo consulta: escena a todo lo ancho y panel en hoja inferior. */
+.app[data-nivel='consulta'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--m-barra) minmax(0, 1fr) auto;
+  grid-template-areas:
+    'barra'
+    'escena'
+    'panel';
+}
+
+.app[data-nivel='consulta'] .barra-separador {
+  display: none;
+}
+
+.panel-hoja {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border-right: 0;
+  border-top: 1px solid var(--borde);
+  overflow: hidden;
+}
+
+.panel-hoja[data-abierto='true'] {
+  height: 60vh;
+}
+
+.hoja-cabecera {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  height: 64px;
+  padding: 0 var(--e-4);
+}
+
+.hoja-asa {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  height: var(--m-control);
+  padding: 0 var(--e-3);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-2);
+  background: var(--fondo-2);
+  color: var(--texto-1);
+  font: inherit;
+  font-size: var(--t-control);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.hoja-asa[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+.hoja-formula {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--texto-1);
+}
+
+.panel-hoja .panel-cuerpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--e-2) var(--e-4) var(--e-6);
+}
+
+/* En la escena: barra de vistas arriba a la derecha, leyenda (plegada) debajo a la izquierda e
+   inspector como hoja en la parte de abajo. El triedro se omite: los ejes llevan su letra. */
+.app[data-nivel='consulta'] .esquina-inferior-derecha {
+  top: var(--e-2);
+  right: var(--e-2);
+  bottom: auto;
+}
+
+.app[data-nivel='consulta'] .triedro {
+  display: none;
+}
+
+.app[data-nivel='consulta'] .leyenda {
+  top: calc(var(--e-2) + 40px + var(--e-2));
+  bottom: auto;
+  left: var(--e-2);
+  width: min(var(--m-leyenda), calc(100% - 2 * var(--e-2)));
+  max-height: calc(100% - 56px - var(--e-2));
+  overflow-y: auto;
+}
+
+.app[data-nivel='consulta'] .inspector {
+  top: auto;
+  bottom: var(--e-2);
+  left: var(--e-2);
+  right: var(--e-2);
+  width: auto;
+  max-height: 50%;
+}
+
+.app[data-nivel='consulta'] .aviso-escena {
+  top: calc(var(--e-2) + 40px + var(--e-2));
+}
+
+/* Con la ayuda a todo lo ancho, lo que flota en la escena no debe quedar enfocable debajo. */
+.app[data-nivel='consulta'].con-ayuda .esquina-inferior-derecha,
+.app[data-nivel='consulta'].con-ayuda .leyenda,
+.app[data-nivel='consulta'].con-ayuda .inspector {
+  visibility: hidden;
 }

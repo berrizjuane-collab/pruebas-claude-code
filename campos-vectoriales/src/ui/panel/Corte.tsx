@@ -34,6 +34,7 @@ function CorteBase({ corte, dominio, alCorte }: Props) {
   return (
     <Seccion
       titulo={T.corte.titulo}
+      ayuda="cortes"
       datosPrueba="seccion-corte"
       control={<Interruptor etiqueta={T.corte.activar} sinTexto atajo="C" activado={corte.activo} alCambiar={(activo) => alCorte({ activo })} />}
     >

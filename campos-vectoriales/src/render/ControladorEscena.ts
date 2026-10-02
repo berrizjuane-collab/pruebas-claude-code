@@ -18,6 +18,8 @@ import {
   suavizado,
   type Esferica,
   type Vista,
+  POLAR_MAX,
+  POLAR_MIN,
 } from './camara';
 import type { InstanciasFlechas } from '../geometria/flechas';
 import type { GeometriaLineas } from '../geometria/lineas';
@@ -35,6 +37,8 @@ export interface OpcionesControlador {
   movimientoReducido: boolean;
   fuentes?: Promise<void>;
 }
+
+export type Proyeccion = 'perspectiva' | 'ortografica';
 
 export interface EstadoCamara {
   posicion: Vec3;
@@ -56,6 +60,8 @@ export class ControladorEscena {
   readonly renderer: THREE.WebGLRenderer;
   readonly escena = new THREE.Scene();
   readonly camara: THREE.PerspectiveCamera;
+  private readonly orto = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
+  private proyeccionActual: Proyeccion = 'perspectiva';
   readonly controles: OrbitControls;
   readonly flechas = new CapaFlechas();
   readonly lineas = new CapaLineas();
@@ -97,6 +103,7 @@ export class ControladorEscena {
     this.renderer.setClearColor(new THREE.Color().setStyle(colores.fondo, THREE.SRGBColorSpace), 1);
     this.camara = new THREE.PerspectiveCamera(FOV, 1, 0.01, 1000);
     this.camara.up.set(0, 0, 1);
+    this.orto.up.set(0, 0, 1);
     this.controles = new OrbitControls(this.camara, lienzo);
     this.controles.enableDamping = !this.movimientoReducido;
     this.controles.dampingFactor = 0.14;
@@ -214,6 +221,45 @@ export class ControladorEscena {
     this.transicionA({ radio, polar: actual.polar, azimut: actual.azimut }, centroDominio(this.dominio), animar);
   }
 
+  /**
+   * Teclado con la escena enfocada (PLAN §3.1, A11Y-01): orbitar `dAzimut`/`dPolar` grados,
+   * sin transición (cada pulsación es un paso). El ángulo polar se mantiene lejos de los polos.
+   */
+  orbitar(dAzimut: number, dPolar: number): void {
+    const t = this.controles.target;
+    const objetivo: Vec3 = [t.x, t.y, t.z];
+    const e = esfericaDesdePosicion(objetivo, [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
+    const g = Math.PI / 180;
+    this.transicion = null;
+    this.anularInercia();
+    this.aplicarCamara({ radio: e.radio, polar: Math.min(POLAR_MAX, Math.max(POLAR_MIN, e.polar + dPolar * g)), azimut: e.azimut + dAzimut * g }, objetivo);
+  }
+
+  /** Desplaza objetivo y cámara una fracción de la altura visible, en los ejes de la pantalla. */
+  desplazar(fx: number, fy: number): void {
+    this.camara.updateMatrixWorld();
+    const d = this.camara.position.distanceTo(this.controles.target);
+    const alto = 2 * d * Math.tan(((FOV / 2) * Math.PI) / 180);
+    const derecha = new THREE.Vector3().setFromMatrixColumn(this.camara.matrixWorld, 0).multiplyScalar(fx * alto);
+    const arriba = new THREE.Vector3().setFromMatrixColumn(this.camara.matrixWorld, 1).multiplyScalar(fy * alto);
+    const t = this.controles.target.clone().add(derecha).add(arriba);
+    const e = esfericaDesdePosicion([this.controles.target.x, this.controles.target.y, this.controles.target.z], [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
+    this.transicion = null;
+    this.anularInercia();
+    this.aplicarCamara(e, [t.x, t.y, t.z]);
+  }
+
+  /** Acerca (factor < 1) o aleja (factor > 1) la cámara del objetivo, dentro de los límites de la órbita. */
+  acercar(factor: number): void {
+    const t = this.controles.target;
+    const objetivo: Vec3 = [t.x, t.y, t.z];
+    const e = esfericaDesdePosicion(objetivo, [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
+    const radio = Math.min(this.controles.maxDistance, Math.max(this.controles.minDistance, e.radio * factor));
+    this.transicion = null;
+    this.anularInercia();
+    this.aplicarCamara({ ...e, radio }, objetivo);
+  }
+
   /** Encuadra el dominio en la vista isométrica (tecla R). */
   encuadrar(animar = true): void {
     this.irAVista('iso', animar);
@@ -251,6 +297,43 @@ export class ControladorEscena {
     this.controles.update();
     this.pedirFotograma();
     this.notificarCamara();
+  }
+
+  /** Proyección con la que se dibuja (RF-13, tecla 5). La navegación es siempre la de la cámara en perspectiva. */
+  get proyeccion(): Proyeccion {
+    return this.proyeccionActual;
+  }
+
+  fijarProyeccion(p: Proyeccion): void {
+    if (p === this.proyeccionActual) return;
+    this.proyeccionActual = p;
+    this.pedirFotograma();
+    this.notificarCamara();
+  }
+
+  /**
+   * Cámara con la que se dibuja y se proyecta. En ortográfica es una cámara «emparejada» con
+   * la de navegación: misma posición y orientación, y semialto d·tan(FOV/2), con d la
+   * distancia al objetivo. Así el objetivo se ve del mismo tamaño en las dos proyecciones
+   * (mismos píxeles por unidad) y la órbita y el zoom de OrbitControls no cambian.
+   */
+  private get camaraVista(): THREE.Camera {
+    this.camara.updateMatrixWorld();
+    if (this.proyeccionActual === 'perspectiva') return this.camara;
+    const o = this.orto;
+    o.position.copy(this.camara.position);
+    o.quaternion.copy(this.camara.quaternion);
+    const h = this.camara.position.distanceTo(this.controles.target) * Math.tan(((FOV / 2) * Math.PI) / 180);
+    const a = this.camara.aspect || 1;
+    o.left = -h * a;
+    o.right = h * a;
+    o.top = h;
+    o.bottom = -h;
+    o.near = this.camara.near;
+    o.far = this.camara.far;
+    o.updateProjectionMatrix();
+    o.updateMatrixWorld();
+    return o;
   }
 
   obtenerCamara(): EstadoCamara {
@@ -306,7 +389,7 @@ export class ControladorEscena {
   conosProyectados(): { largo: number; distancia: number; escorzo: number; fraccion: number }[] {
     const inst = this.flechas.instancias;
     if (!inst || !this.flechas.grupo.visible) return [];
-    this.camara.updateMatrixWorld();
+    const vista = this.camaraVista;
     const res: { largo: number; distancia: number; escorzo: number; fraccion: number }[] = [];
     // ℓ de la flecha más larga: con escala proporcional, ℓ/ℓmax = min(‖F‖/F_ref, 1).
     let lMax = 0;
@@ -326,8 +409,8 @@ export class ControladorEscena {
       rayo.subVectors(a, this.camara.position).normalize();
       const cos = Math.abs(rayo.x * (inst.dir[3 * i] as number) + rayo.y * (inst.dir[3 * i + 1] as number) + rayo.z * (inst.dir[3 * i + 2] as number));
       const escorzo = (Math.acos(Math.min(1, cos)) * 180) / Math.PI;
-      a.project(this.camara);
-      b.project(this.camara);
+      a.project(vista);
+      b.project(vista);
       const dx = ((b.x - a.x) / 2) * this.anchoCss;
       const dy = ((b.y - a.y) / 2) * this.altoCss;
       res.push({ largo: Math.hypot(dx, dy), distancia, escorzo, fraccion: lMax > 0 ? l / lMax : 0 });
@@ -343,7 +426,7 @@ export class ControladorEscena {
   /** Posición en pantalla (px CSS relativos al lienzo) de un punto del dominio. */
   proyectar(p: Vec3): [number, number] {
     this.camara.updateMatrixWorld();
-    const v = new THREE.Vector3(p[0], p[1], p[2]).project(this.camara);
+    const v = new THREE.Vector3(p[0], p[1], p[2]).project(this.camaraVista);
     return [((v.x + 1) / 2) * this.anchoCss, ((1 - v.y) / 2) * this.altoCss];
   }
 
@@ -375,7 +458,7 @@ export class ControladorEscena {
     const ndc = new THREE.Vector2((xCss / this.anchoCss) * 2 - 1, -(yCss / this.altoCss) * 2 + 1);
     const rayo = new THREE.Raycaster();
     this.camara.updateMatrixWorld();
-    rayo.setFromCamera(ndc, this.camara);
+    rayo.setFromCamera(ndc, this.camaraVista);
     let mejor: { distancia: number; sel: Seleccion } | null = null;
     const proponer = (distancia: number, sel: Seleccion) => {
       if (!mejor || distancia < mejor.distancia) mejor = { distancia, sel };
@@ -470,14 +553,15 @@ export class ControladorEscena {
 
   /** Dibuja la escena inmediatamente. */
   dibujar(): void {
-    const k = factorEscalaSprites(this.camara, this.altoCss);
-    this.ejes.ajustar(k, this.anchoCss, this.altoCss, this.camara);
+    const vista = this.camaraVista;
+    const k = factorEscalaSprites(vista, this.altoCss);
+    this.ejes.ajustar(k, this.anchoCss, this.altoCss, vista);
     this.flechas.orientarAnillos(this.camara.position);
-    this.corte.ajustar(this.camara, k, this.pixelesPorUnidad(), this.anchoCss, this.altoCss);
-    this.rueda.ajustar(this.camara, k, this.pixelesPorUnidad());
+    this.corte.ajustar(vista, k, this.pixelesPorUnidad(), this.anchoCss, this.altoCss);
+    this.rueda.ajustar(vista, k, this.pixelesPorUnidad());
     this.seleccion.ajustar(k, this.pixelesPorUnidad(), this.anchoCss, this.altoCss);
     this.seleccion.flecha.orientarAnillos(this.camara.position);
-    this.renderer.render(this.escena, this.camara);
+    this.renderer.render(this.escena, vista);
     this.fotogramasDibujados++;
   }
 
@@ -548,6 +632,7 @@ export class ControladorEscena {
       seleccion: this.seleccion.estadisticas,
       tamano: [this.anchoCss, this.altoCss, this.pixelRatio],
       camara: this.obtenerCamara(),
+      proyeccion: this.proyeccionActual,
     };
   }
 

@@ -81,10 +81,11 @@ test.describe('REN-02 · flechas', () => {
 });
 
 test.describe('VIS-03 · composición', () => {
-  // Fracción mínima de la escena: 73 % a 1440×900 y 79 % a 1920×1080 (DESIGN §1, corregido).
-  for (const [ancho, alto, fraccion] of [
-    [1440, 900, 0.73],
-    [1920, 1080, 0.79],
+  // Fracción mínima de la escena: 73 % a 1440×900 y 78 % a 1920×1080 (DESIGN §1, corregido en D-54).
+  // Panel de 320 px; a partir de 1600 px, 336 px (DESIGN §5.4, VIS-06).
+  for (const [ancho, alto, fraccion, anchoPanel] of [
+    [1440, 900, 0.73, 320],
+    [1920, 1080, 0.78, 336],
   ] as const) {
     test(`medidas y regiones a ${ancho}×${alto}`, async ({ page }) => {
       await page.setViewportSize({ width: ancho, height: alto });
@@ -94,7 +95,7 @@ test.describe('VIS-03 · composición', () => {
       const panel = await caja('[data-region="panel"]');
       const escena = await caja('[data-region="escena"]');
       expect(Math.abs(barra.height - 48)).toBeLessThanOrEqual(1);
-      expect(Math.abs(panel.width - 320)).toBeLessThanOrEqual(1);
+      expect(Math.abs(panel.width - anchoPanel)).toBeLessThanOrEqual(1);
       expect((escena.width * escena.height) / (ancho * alto)).toBeGreaterThanOrEqual(fraccion);
       const auditoria = await page.evaluate(auditarMaquetacion);
       expect(auditoria.incidencias).toEqual([]);
