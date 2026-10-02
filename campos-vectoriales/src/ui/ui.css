@@ -1200,3 +1200,64 @@
   line-height: var(--l-vacio);
   font-weight: 500;
 }
+
+.dialogo-campos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  margin-bottom: var(--e-4);
+}
+
+.dialogo-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.dialogo-etiqueta {
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  font-weight: 500;
+  color: var(--texto-2);
+}
+
+.dialogo-vista-previa {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.dialogo-vista-previa img,
+.dialogo-vista-previa > span {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: var(--fondo-0);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-2);
+}
+
+.dialogo-vista-previa > span {
+  display: grid;
+  place-items: center;
+  color: var(--texto-3);
+  font-size: var(--t-pie);
+}
+
+.dialogo-vista-previa figcaption {
+  font-size: var(--t-micro);
+  line-height: var(--l-micro);
+  color: var(--texto-3);
+}
+
+.dialogo-progreso {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  min-height: var(--l-pie);
+  margin: var(--e-2) 0 0;
+  font-size: var(--t-pie);
+  color: var(--texto-2);
+}

@@ -773,6 +773,9 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
 }
 ```
 
+- Claves opcionales además del ejemplo: `campo.modificado` (si falta, se deduce comparando las
+  ecuaciones con las del ejemplo base) y `cifras` (2–8, por defecto 4). Si falta otra clave que
+  no sea `formato`, `version` o `campo`, se toma la del ejemplo base y se avisa (D-49).
 - **Validación estricta al importar**: tipos, rangos y longitudes; los errores se listan por
   campo («dominio.min[2] debe ser menor que dominio.max[2]»). El estado actual no cambia
   si la importación falla.

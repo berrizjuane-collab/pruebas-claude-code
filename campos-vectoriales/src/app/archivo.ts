@@ -52,7 +52,7 @@ export function useArchivo({ almacen, controlador, notificador, ofrecerDeshacer,
     const s = conCamara();
     const nombre = nombreArchivo(s.nombre, new Date(), 'json');
     descargar(nombre, new Blob([serializar(s)], { type: 'application/json' }));
-    notificador.notificar({ tipo: 'exito', texto: T.archivo.exportada(nombre) });
+    notificador.notificar({ tipo: 'exito', texto: T.archivo.exportada(nombre), clave: 'exportada' });
   }, [conCamara, notificador]);
 
   const abrirArchivo = useCallback(

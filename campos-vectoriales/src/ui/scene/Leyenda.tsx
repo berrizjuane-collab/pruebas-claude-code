@@ -1,5 +1,7 @@
 import { memo, useEffect, useId, useState, type ReactNode } from 'react';
+// La leyenda exportada (EXP-03) sigue las mismas reglas: `bloquesLeyenda`, más abajo.
 import { ChevronDown, Lock, LockOpen } from 'lucide-react';
+import type { BloqueLeyenda } from '../../export/png';
 import type { ControladorEscena } from '../../render/ControladorEscena';
 import { BotonIcono } from '../controls/Boton';
 import { grisDeLstar, hexGris } from '../../design/color';
@@ -461,3 +463,92 @@ function BloqueCorte({
 }
 
 export const Leyenda = memo(LeyendaBase);
+
+/**
+ * La misma leyenda como datos planos para la imagen exportada (EXP-03): mismas entradas, en el
+ * mismo orden y con los mismos textos que la de pantalla (sin los controles). `largoRef` es la
+ * flecha de referencia en px CSS a la escala de la imagen.
+ */
+export function bloquesLeyenda(datos: DatosLeyenda, largoRef: number): BloqueLeyenda[] {
+  const bloques: BloqueLeyenda[] = [];
+  const ref = formatearCorto(datos.escala.ref);
+  const hayFlechas = datos.nFlechas > 0;
+  const rot = datos.glifos === 'rotacional';
+  const tx = rot ? T.leyenda.rot : T.leyenda;
+  const sentido = rot ? T.leyenda.rot.eje : T.leyenda.sentido;
+  const fija = datos.escala.origen === 'fija';
+  const paradasMagnitud = Array.from({ length: 11 }, (_, i) => hexGris(grisRampaMagnitud(i / 10) * 255));
+  if (datos.flechas) {
+    const b: BloqueLeyenda = { filas: [], pie: [] };
+    if (hayFlechas) {
+      b.rampa = {
+        titulo: datos.luminancia === 'log' ? tx.magnitudLog : tx.magnitud,
+        paradas: paradasMagnitud,
+        marcas: ['0', formatearCorto(Number((datos.escala.ref * FRACCION_CENTRO[datos.luminancia]).toPrecision(3))), `≥ ${ref}`],
+      };
+      b.filas.push({ glifo: 'flecha', texto: sentido });
+      if (rot) b.filas.push({ glifo: 'anillo', texto: T.leyenda.rot.giro });
+    }
+    if (datos.saturadas > 0 && datos.modo === 'proporcional') b.filas.push({ glifo: 'doble', texto: tx.saturada(ref) });
+    if (datos.ceros > 0) b.filas.push({ glifo: 'rombo', texto: tx.cero });
+    if (datos.indefinidos > 0) b.filas.push({ glifo: 'aspa', texto: T.leyenda.indefinido });
+    if (hayFlechas) {
+      b.filas.push({ glifo: { referencia: largoRef }, texto: datos.modo === 'normalizado' ? T.leyenda.normalizada : tx.referencia(ref) });
+      b.pie.push(tx.escala(ref, fija ? T.leyenda.escalaFija : T.leyenda.escalaAuto), T.leyenda.longitudMax(formatearCorto(Number(datos.lMax.toPrecision(3)))));
+      if (fija && datos.deltaFija !== null && Math.abs(datos.deltaFija - datos.deltaRef) > 1e-9 * datos.deltaRef) b.pie.push(T.leyenda.deltaDistinto);
+    }
+    bloques.push(b);
+  }
+  if (datos.lineas) {
+    const b: BloqueLeyenda = {
+      filas: [
+        { glifo: 'linea', texto: T.leyenda.linea },
+        { glifo: 'cheuron', texto: T.leyenda.lineaSentido },
+        { glifo: 'semilla', texto: T.leyenda.semilla },
+      ],
+      pie: datos.lineas.actualizando ? [T.leyenda.actualizando] : [],
+    };
+    if (datos.lineas.finalesCero > 0 && !(datos.flechas && datos.ceros > 0)) b.filas.push({ glifo: 'rombo', texto: T.leyenda.cero });
+    if (datos.lineas.finalesIndefinidos > 0 && !(datos.flechas && datos.indefinidos > 0)) b.filas.push({ glifo: 'aspa', texto: T.leyenda.indefinido });
+    bloques.push(b);
+  }
+  if (datos.particulas) {
+    bloques.push({
+      filas: [
+        { glifo: 'particula', texto: T.leyenda.particula },
+        { glifo: 'estela', texto: T.leyenda.estela },
+      ],
+      pie: [T.leyenda.tau(formatearCorto(Number(datos.particulas.tau.toPrecision(3)))), ...(datos.particulas.enPausa ? [T.leyenda.enPausa] : [])],
+    });
+  }
+  const c = datos.corte;
+  if (c) {
+    const nombre = T.leyenda.escalarCorte[c.tipo];
+    const conSigno = c.tipo !== 'magnitud';
+    if (c.nulo) {
+      bloques.push({ rampa: undefined, filas: [], pie: [T.leyenda.tituloCorte(nombre, false, c.rotulo), T.leyenda.corteNulo(nombre)] });
+    } else {
+      const v = formatearCorto(c.vRef);
+      const { lMin, lMax } = rampa.escalar;
+      const b: BloqueLeyenda = {
+        rampa: {
+          titulo: T.leyenda.tituloCorte(nombre, conSigno, c.rotulo),
+          paradas: Array.from({ length: 11 }, (_, i) => grisL(lMin + ((lMax - lMin) * i) / 10)),
+          marcas: ['0', formatearCorto(Number((c.vRef / 2).toPrecision(3))), `≥ ${v}`],
+        },
+        filas: [],
+        pie: [T.leyenda.vRef(v, c.fija ? T.leyenda.escalaFija : T.leyenda.escalaAuto), ...(conSigno ? [T.leyenda.casiCero(nombre)] : [])],
+      };
+      if (c.tipo !== 'magnitud') {
+        const muestra = (signo: 1 | -1) => ({ signo, tipo: c.tipo as Exclude<TipoEscalar, 'magnitud'>, base: grisL(22), patron: grisL(22 + rampa.patronDeltaL) });
+        if (c.signos.positivo) b.filas.push({ glifo: muestra(1), texto: T.leyenda.signoPositivo[c.tipo](c.eje) });
+        if (c.signos.negativo) b.filas.push({ glifo: muestra(-1), texto: T.leyenda.signoNegativo[c.tipo](c.eje) });
+        if (c.signos.cero) b.filas.push({ glifo: 'nivelCero', texto: T.leyenda.nivelCero(nombre) });
+      }
+      const indefinidoListado = (datos.flechas && datos.indefinidos > 0) || (datos.lineas?.finalesIndefinidos ?? 0) > 0;
+      if (c.sinValor && !indefinidoListado) b.filas.push({ glifo: 'aspa', texto: T.leyenda.indefinido });
+      bloques.push(b);
+    }
+  }
+  return bloques;
+}

@@ -88,6 +88,8 @@ test.describe('EXP-01 · configuración JSON v1', () => {
     // Abrir el archivo exportado.
     await page.locator('[data-prueba="entrada-archivo"]').setInputFiles({ name: nombre, mimeType: 'application/json', buffer: readFileSync(ruta) });
     await expect(notificacion(page).first()).toContainText(`Configuración abierta: ${nombre}`);
+    // Con el foco dentro, la notificación (y su «Deshacer») no caduca mientras se comprueba la escena.
+    await notificacion(page).getByRole('button', { name: 'Deshacer' }).focus();
     const estadoImportado = await estado(page);
     expect(estadoImportado).toEqual({ ...estadoA, camara: { tipo: 'perspectiva', ...camaraA } });
     expect(difCamara(await camara(page), camaraA)).toBeLessThan(1e-9);
@@ -245,6 +247,113 @@ test.describe('EXP-02 · autoguardado y recuperación', () => {
     await estable(page);
     expect((await estado(page)).nombre).toBe('Helicoidal');
     await expect(notificacion(page)).toHaveCount(0);
+    sinErrores(reg);
+  });
+});
+
+// ---------------------------------------------------------------- EXP-03 (V-FUN-12)
+
+test.describe('EXP-03 · exportación PNG compuesta', () => {
+  /** Textos de la leyenda de pantalla (sin la cabecera ni los botones). */
+  const textosLeyendaDom = (page: Page) =>
+    page.evaluate(() => {
+      const r: string[] = [];
+      for (const el of document.querySelectorAll<HTMLElement>('.leyenda-rampa-titulo, .leyenda-marcas span, .leyenda-lista li > span, .leyenda-referencia span, .leyenda-pie')) {
+        for (const l of el.innerText.split('\n')) if (l.trim()) r.push(l.trim());
+      }
+      return r;
+    });
+
+  test('V-FUN-12: 3 tamaños × 3 contenidos — dimensiones exactas, monocroma, no vacía, leyenda y ecuaciones cuando se piden, nombre según SPEC §7.1', async ({ page }) => {
+    test.setTimeout(240_000);
+    const reg = registrar(page);
+    await abrir(page);
+    await page.locator('[data-campo="rotacional"]').click();
+    await fijar(page, `{ ...s, corte: { ...s.corte, activo: true, plano: 'XY', c: -1, escalar: 'magnitud' }, punto: [1, 0, 0] }`);
+    await estable(page);
+    const tamanoAntes = (await gancho(page, '(c) => c.escena()')).tamano;
+    const leyendaDom = (await textosLeyendaDom(page)).sort();
+    const pantalla = { ancho: Math.round(tamanoAntes[0] * tamanoAntes[2]), alto: Math.round(tamanoAntes[1] * tamanoAntes[2]) };
+    const resultados: unknown[] = [];
+    for (const [tamano, boton, ancho, alto] of [
+      ['pantalla', 'Pantalla', pantalla.ancho, pantalla.alto],
+      ['fhd', '1920 × 1080', 1920, 1080],
+      ['uhd', '3840 × 2160', 3840, 2160],
+    ] as const) {
+      for (const [contenido, botonContenido] of [
+        ['escena', 'Escena'],
+        ['leyenda', 'Escena + leyenda'],
+        ['ecuaciones', 'Escena + leyenda + ecuaciones'],
+      ] as const) {
+        await page.getByRole('button', { name: 'Exportar', exact: true }).first().click();
+        await page.getByRole('menuitem', { name: 'Imagen PNG…' }).click();
+        const dialogo = page.getByRole('dialog', { name: 'Exportar imagen PNG' });
+        await dialogo.getByRole('group', { name: 'Contenido' }).getByRole('button', { name: botonContenido, exact: true }).click();
+        await dialogo.getByRole('group', { name: 'Tamaño' }).getByRole('button', { name: boton === 'Pantalla' ? /^Como en pantalla/ : boton, exact: boton !== 'Pantalla' }).click();
+        await expect(dialogo.locator('[data-prueba="vista-previa-png"]')).toBeVisible();
+        await expect(dialogo).toContainText(`${ancho} × ${alto} px`);
+        const descarga = page.waitForEvent('download');
+        const t0 = Date.now();
+        await dialogo.getByRole('button', { name: 'Exportar', exact: true }).click();
+        const d = await descarga;
+        const ms = Date.now() - t0;
+        const nombre = d.suggestedFilename();
+        expect(nombre).toMatch(/^campo-rotacional-\d{8}-\d{4}\.png$/);
+        mkdirSync('test-results/exp03', { recursive: true });
+        await d.saveAs(`test-results/exp03/${tamano}-${contenido}.png`);
+        await expect(dialogo).toHaveCount(0);
+        await expect(notificacion(page).filter({ hasText: `Imagen exportada: ${nombre}` })).toBeVisible();
+        const png = PNG.sync.read(readFileSync(await d.path()));
+        // Dimensiones exactas.
+        expect([png.width, png.height]).toEqual([ancho, alto]);
+        // Monocroma (tolerancia de VV-01) y no vacía (desviación típica de la luminancia > 0).
+        let fuera = 0;
+        let suma = 0;
+        let suma2 = 0;
+        for (let i = 0; i < png.data.length; i += 4) {
+          const [r, g, b] = [png.data[i]!, png.data[i + 1]!, png.data[i + 2]!];
+          if (Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b)) > 3) fuera++;
+          const y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+          suma += y;
+          suma2 += y * y;
+        }
+        const n = png.width * png.height;
+        const desviacion = Math.sqrt(Math.max(0, suma2 / n - (suma / n) ** 2));
+        expect(fuera).toBe(0);
+        expect(desviacion).toBeGreaterThan(5);
+        // Leyenda y ecuaciones cuando se piden: tarjeta dentro de la imagen, con el fondo de nivel 1.
+        const u = await gancho(page, '(c) => c.ultimaExportacionPng()');
+        const fondoTarjeta = (rect: { x: number; y: number; ancho: number; alto: number }) => {
+          const cuenta = new Map<number, number>();
+          for (let y = Math.ceil(rect.y + 4); y < rect.y + rect.alto - 4; y += 2)
+            for (let x = Math.ceil(rect.x + 4); x < rect.x + rect.ancho - 4; x += 2) {
+              const v = png.data[4 * (y * png.width + x)]!;
+              cuenta.set(v, (cuenta.get(v) ?? 0) + 1);
+            }
+          return [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0]![0];
+        };
+        if (contenido === 'escena') expect(u.leyenda).toBeNull();
+        else {
+          expect(u.leyenda.x + u.leyenda.ancho).toBeLessThanOrEqual(ancho);
+          expect(u.leyenda.y + u.leyenda.alto).toBeLessThanOrEqual(alto);
+          expect(fondoTarjeta(u.leyenda)).toBe(0x18);
+          expect([...u.textosLeyenda].sort()).toEqual(leyendaDom);
+        }
+        if (contenido === 'ecuaciones') {
+          expect(fondoTarjeta(u.ecuaciones)).toBe(0x18);
+          expect(u.lineasEcuaciones).toEqual(['Rotacional', 'P = −ω·y', 'Q = ω·x', 'R = 0', 'ω = 1', 'Ω = [−2, 2] × [−2, 2] × [−2, 2]']);
+        } else expect(u.ecuaciones).toBeNull();
+        // El lienzo de pantalla vuelve a su tamaño.
+        expect((await gancho(page, '(c) => c.escena()')).tamano).toEqual(tamanoAntes);
+        // 3840 × 2160 es 1920 × 1080 con el doble de detalle: las tarjetas miden exactamente el doble.
+        if (tamano === 'uhd' && contenido !== 'escena') {
+          const fhd = resultados.find((x: any) => x.tamano === 'fhd' && x.contenido === contenido) as any;
+          for (const k of ['leyenda', 'ecuaciones'] as const) if (fhd[k]) expect(u[k]).toEqual({ x: 2 * fhd[k].x, y: 2 * fhd[k].y, ancho: 2 * fhd[k].ancho, alto: 2 * fhd[k].alto });
+        }
+        resultados.push({ tamano, contenido, nombre, ms, ancho: png.width, alto: png.height, fuera, desviacion: Number(desviacion.toFixed(1)), leyenda: u.leyenda, ecuaciones: u.ecuaciones });
+      }
+    }
+    informe['EXP-03 V-FUN-12'] = resultados;
     sinErrores(reg);
   });
 });

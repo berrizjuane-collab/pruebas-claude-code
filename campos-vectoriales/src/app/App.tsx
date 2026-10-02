@@ -26,6 +26,7 @@ import { BarraSuperior, type EstadoCalculoBarra } from '../ui/topbar/BarraSuperi
 import { Boton } from '../ui/controls/Boton';
 import { crearNotificador, Notificaciones } from '../ui/controls/Notificaciones';
 import { DialogoErrores } from '../ui/topbar/DialogoErrores';
+import { DialogoPng } from '../ui/topbar/DialogoPng';
 import { AvisoEscena, Carga, EstadoVacio } from '../ui/scene/Mensajes';
 import { BarraEscena } from '../ui/scene/BarraEscena';
 import { Inspector } from '../ui/scene/Inspector';
@@ -37,6 +38,7 @@ import { modoCaptura, modoPrueba, parametrosUrl, publicarGancho } from './prueba
 import { Animacion, datosRueda } from './animacion';
 import { useAtajos } from './atajos';
 import { useArchivo } from './archivo';
+import { useExportarPng } from './imagen';
 import { useEdicion } from './edicion';
 
 /**
@@ -345,7 +347,6 @@ export function App({ fuentes }: Props) {
     autoguardado: !modoCaptura(),
     recuperado: inicio.recuperado,
   });
-  const opcionesExportar = useMemo(() => [{ id: 'json', texto: T.archivo.configuracion, alElegir: exportarJson }], [exportarJson]);
   const vista = useCallback((v: Vista) => controlador?.irAVista(v), [controlador]);
   const cancelarLineas = useCallback(() => orquestador?.cancelarLineas(), [orquestador]);
   const atajosLetras = useMemo(
@@ -611,6 +612,19 @@ export function App({ fuentes }: Props) {
   }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas, soloCorte, datosEscalar, corte.escala, capaParticulas, opcionesParticulas, animando]);
 
 
+  const png = useExportarPng({ controlador, estado, campo, datosLeyenda, notificador });
+  const { abrir: abrirPng, ultima: ultimaPng } = png;
+  const opcionesExportar = useMemo(
+    () => [
+      { id: 'png', texto: T.archivo.imagen, alElegir: abrirPng },
+      { id: 'json', texto: T.archivo.configuracion, alElegir: exportarJson },
+    ],
+    [abrirPng, exportarJson],
+  );
+  useEffect(() => {
+    if (modoPrueba()) publicarGancho({ ultimaExportacionPng: () => ultimaPng.current });
+  }, [ultimaPng]);
+
   const estadoBarra: EstadoCalculoBarra = useMemo(() => {
     if (calculo.error) return { tipo: 'error', texto: calculo.error };
     if (calculo.progresoLineas !== null) {
@@ -647,6 +661,18 @@ export function App({ fuentes }: Props) {
             cerrarErrores();
             elegirArchivo();
           }}
+        />
+      ) : null}
+      {png.abierto ? (
+        <DialogoPng
+          opciones={png.opciones}
+          pantalla={png.pantalla}
+          vistaPrevia={png.vistaPrevia}
+          progreso={png.progreso}
+          exportando={png.exportando}
+          alCambiar={png.setOpciones}
+          alExportar={png.exportar}
+          alCerrar={png.cerrar}
         />
       ) : null}
       {arrastrando ? (

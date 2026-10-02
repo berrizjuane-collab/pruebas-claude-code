@@ -483,22 +483,55 @@ export class ControladorEscena {
 
   private redimensionar(): void {
     const padre = this.lienzo.parentElement ?? this.lienzo;
-    const w = Math.max(1, padre.clientWidth);
-    const h = Math.max(1, padre.clientHeight);
+    this.aplicarTamano(Math.max(1, padre.clientWidth), Math.max(1, padre.clientHeight), Math.min(2, window.devicePixelRatio || 1));
+    this.pedirFotograma();
+  }
+
+  /** Tamaño del dibujo en px CSS y px reales por px CSS: renderer, cámara y todo lo que depende de la resolución. */
+  private aplicarTamano(w: number, h: number, pixelRatio: number): void {
     this.anchoCss = w;
     this.altoCss = h;
-    this.pixelRatio = Math.min(2, window.devicePixelRatio || 1);
-    this.renderer.setPixelRatio(this.pixelRatio);
+    this.pixelRatio = pixelRatio;
+    this.renderer.setPixelRatio(pixelRatio);
     this.renderer.setSize(w, h, false);
     this.camara.aspect = w / h;
     this.camara.updateProjectionMatrix();
-    this.flechas.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
-    this.lineas.setResolucion(w, h, this.pixelRatio);
-    this.corte.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
-    this.particulas.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
-    this.rueda.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
-    this.seleccion.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
-    this.pedirFotograma();
+    this.flechas.setResolucion(w * pixelRatio, h * pixelRatio, pixelRatio);
+    this.lineas.setResolucion(w, h, pixelRatio);
+    this.corte.setResolucion(w * pixelRatio, h * pixelRatio, pixelRatio);
+    this.particulas.setResolucion(w * pixelRatio, h * pixelRatio, pixelRatio);
+    this.rueda.setResolucion(w * pixelRatio, h * pixelRatio, pixelRatio);
+    this.seleccion.setResolucion(w * pixelRatio, h * pixelRatio, pixelRatio);
+  }
+
+  /** Tamaño del lienzo en pantalla: px CSS y px reales por px CSS («como en pantalla», EXP-03). */
+  get tamanoPantalla(): { ancho: number; alto: number; pixelRatio: number } {
+    return { ancho: this.anchoCss, alto: this.altoCss, pixelRatio: this.pixelRatio };
+  }
+
+  /**
+   * Imagen de la escena a `ancho` × `alto` px reales con `escala` px por px CSS (EXP-03): se
+   * vuelve a dibujar a ese tamaño (glifos, líneas y rótulos con su tamaño en px CSS por
+   * `escala`), se copia en la misma tarea (sin `preserveDrawingBuffer`) y se restaura el
+   * tamaño de pantalla. La cámara es la misma; solo cambia el encuadre horizontal si cambia
+   * la proporción.
+   */
+  capturar(ancho: number, alto: number, escala: number): HTMLCanvasElement {
+    const previo = [this.anchoCss, this.altoCss, this.pixelRatio] as const;
+    const copia = document.createElement('canvas');
+    copia.width = ancho;
+    copia.height = alto;
+    try {
+      this.aplicarTamano(ancho / escala, alto / escala, escala);
+      this.dibujar();
+      const ctx = copia.getContext('2d');
+      if (!ctx) throw new Error('Sin contexto 2D para copiar la escena');
+      ctx.drawImage(this.renderer.domElement, 0, 0, ancho, alto);
+    } finally {
+      this.aplicarTamano(...previo);
+      this.dibujar();
+    }
+    return copia;
   }
 
   estadisticas() {
