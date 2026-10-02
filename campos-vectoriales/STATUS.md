@@ -9,17 +9,17 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 Fundaciones |
+| **Fase** | Implementación — H0 completado; H1 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H0 (FND-01, FND-02, VIS-01) y H1, la primera entrega (§7) |
+| **Siguiente paso** | H1, la primera entrega (§7) |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
 
 | Hito | Tareas | Completadas y verificadas | Nota |
 | --- | --- | --- | --- |
-| Planificación | PLN-01 | 0/1 | En curso: falta aprobación |
-| H0 Fundaciones | 3 | 0/3 | — |
+| Planificación | 1 | 1/1 | Aprobada por el usuario |
+| H0 Fundaciones | 3 | 3/3 | — |
 | H1 Primera entrega | 8 | 0/8 | — |
 | H2 Lenguaje | 4 | 0/4 | Puede ir en paralelo a H1 |
 | H3 Numérico y cómputo | 7 | 0/7 | — |
@@ -32,7 +32,10 @@
 
 ### 1.2 Tareas completadas y verificadas
 
-*(Ninguna todavía.)* Formato: `ID · fecha · commit · enlace a evidencia/ID/`.
+- PLN-01 · 2026-10-02 · `12c0d52` · [evidencia/PLN-01/](evidencia/PLN-01/)
+- FND-01 · 2026-10-02 · `c7d0f1c` · [evidencia/FND-01/](evidencia/FND-01/)
+- FND-02 · 2026-10-02 · `c7d0f1c` · [evidencia/FND-02/](evidencia/FND-02/)
+- VIS-01 · 2026-10-02 · `c7d0f1c` · [evidencia/VIS-01/](evidencia/VIS-01/)
 
 ---
 

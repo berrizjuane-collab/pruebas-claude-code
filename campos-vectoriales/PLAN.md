@@ -349,10 +349,10 @@ aceptación con la evidencia indicada.
 
 | ID | Tarea | Hito | Depende de | Estado |
 | --- | --- | --- | --- | --- |
-| PLN-01 | Especificación y plan | — | — | Pendiente · *En curso: entregado, falta aprobación* |
-| FND-01 | Andamiaje del subproyecto | H0 | PLN-01 | Pendiente |
-| FND-02 | Arnés de pruebas, capturas y auditorías | H0 | FND-01 | Pendiente |
-| VIS-01 | Sistema visual: tokens y estilos base | H0 | FND-01 | Pendiente |
+| PLN-01 | Especificación y plan | — | — | Completada y verificada |
+| FND-01 | Andamiaje del subproyecto | H0 | PLN-01 | Completada y verificada |
+| FND-02 | Arnés de pruebas, capturas y auditorías | H0 | FND-01 | Completada y verificada |
+| VIS-01 | Sistema visual: tokens y estilos base | H0 | FND-01 | Completada y verificada |
 | MAT-01 | Vec3 y catálogo nativo (oráculos) | H1 | FND-01 | Pendiente |
 | NUM-01 | Malla de muestreo y escala de referencia | H1 | MAT-01 | Pendiente |
 | REN-01 | Escena base | H1 | VIS-01 | Pendiente |
@@ -410,8 +410,8 @@ aceptación con la evidencia indicada.
 Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento** ·
 **Aceptación** (observable) · **Verificación** · **Evidencia** (en `evidencia/<ID>/`).
 
-#### PLN-01 · Especificación y plan — Pendiente
-- *Nota (2026-10-02)*: En curso. Documentos entregados; falta la aprobación del usuario.
+#### PLN-01 · Especificación y plan — Completada y verificada
+- *Nota (2026-10-02)*: aprobado por el usuario («Con esto definido, comienza a trabajar en el proyecto»).
 - **Objetivo**: SPEC, DESIGN, PLAN, VALIDATION y STATUS coherentes entre sí.
 - **Dependencias**: —
 - **Componentes**: `*.md`, `evidencia/PLN-01/`.
@@ -421,7 +421,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: respuesta del usuario.
 - **Evidencia**: `contraste.py`, `calibrar.py` y sus salidas; referencia del commit.
 
-#### FND-01 · Andamiaje del subproyecto — Pendiente
+#### FND-01 · Andamiaje del subproyecto — Completada y verificada
 - **Objetivo**: proyecto Vite + React + TS en `campos-vectoriales/`, aislado del resto.
 - **Dependencias**: PLN-01.
 - **Componentes**: `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html` (CSP),
@@ -434,7 +434,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: ejecutar los comandos; prueba negativa con un archivo temporal.
 - **Evidencia**: `registro.txt` con las salidas; resultado de la prueba negativa.
 
-#### FND-02 · Arnés de pruebas, capturas y auditorías — Pendiente
+#### FND-02 · Arnés de pruebas, capturas y auditorías — Completada y verificada
 - **Objetivo**: poder demostrar los criterios funcionales y visuales desde el primer hito.
 - **Dependencias**: FND-01.
 - **Componentes**: `playwright.config.ts`, `scripts/capturas.ts`,
@@ -450,7 +450,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: ejecución y pruebas negativas.
 - **Evidencia**: PNG, informes JSON de auditoría y salidas de las pruebas negativas.
 
-#### VIS-01 · Sistema visual: tokens y estilos base — Pendiente
+#### VIS-01 · Sistema visual: tokens y estilos base — Completada y verificada
 - **Objetivo**: una única fuente de tokens (color, tipografía, espacio, radios, sombras,
   movimiento) para el CSS y la escena.
 - **Dependencias**: FND-01.
