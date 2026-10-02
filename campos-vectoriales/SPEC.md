@@ -767,7 +767,7 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
   "flechas": { "modo": "proporcional", "escala": { "tipo": "auto" }, "luminancia": "lineal" },
   "lineas": { "semillas": { "tipo": "rejilla", "plano": "XZ", "c": 0, "u": [0.5, 2], "v": [0, 0], "nu": 4, "nv": 1 }, "paso": 0.0625, "longitudMax": 27.7 },
   "particulas": { "n": 400, "tau": null, "semilla": 1 },
-  "corte": { "activo": false, "plano": "XY", "c": 0, "flechas": "todas", "vector": "completo", "escalar": "ninguno" },
+  "corte": { "activo": false, "plano": "XY", "c": 0, "flechas": "todas", "vector": "completo", "escalar": "ninguno", "escala": { "tipo": "auto" } },
   "camara": { "tipo": "perspectiva", "posicion": [5.2, -6.8, 4.1], "objetivo": [0, 0, 0] },
   "punto": null
 }

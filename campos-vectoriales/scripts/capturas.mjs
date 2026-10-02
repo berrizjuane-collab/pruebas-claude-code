@@ -23,12 +23,51 @@ const PREPARAR = {
     await page.locator('[data-prueba="error-Q"]').waitFor();
     await page.locator('[data-prueba="aviso-escena"]').waitFor();
   },
+  C3: async (page) => {
+    await escribirCampo(page, { P: 'x^2', Q: 'y', R: '0' });
+    await activarCorte(page, 'XY', null);
+    await page.getByRole('combobox', { name: 'Escalar sobre el corte' }).click();
+    await page.getByRole('option', { name: 'div F' }).click();
+    await esperarCalculo(page);
+  },
+  // Los tres planos del corte (evidencia de REN-05), con «Flechas: solo corte».
+  'CORTE-XY': (page) => cortePlano(page, 'XY', '0.5'),
+  'CORTE-XZ': (page) => cortePlano(page, 'XZ', '-1'),
+  'CORTE-YZ': (page) => cortePlano(page, 'YZ', '-0.5'),
   C10: async (page) => {
     await page.locator('[data-prueba="expr-P"]').fill('sqrt(-1-x^2)');
     await page.locator('[data-prueba="expr-P"]').press('Tab');
     await page.locator('[data-prueba="estado-vacio"]').waitFor();
   },
 };
+async function escribirCampo(page, campo) {
+  for (const [c, v] of Object.entries(campo)) {
+    await page.locator(`[data-prueba="expr-${c}"]`).fill(v);
+    await page.locator(`[data-prueba="expr-${c}"]`).press('Tab');
+  }
+}
+async function activarCorte(page, plano, c) {
+  await page.getByRole('button', { name: 'Corte', exact: true }).click();
+  await page.getByRole('switch', { name: 'Mostrar el plano de corte' }).click();
+  await page.getByRole('group', { name: 'Plano del corte' }).getByRole('button', { name: `Plano ${plano}` }).click();
+  if (c !== null) {
+    await page.locator('[data-prueba="corte-c"]').fill(c);
+    await page.locator('[data-prueba="corte-c"]').press('Enter');
+  }
+}
+async function esperarCalculo(page) {
+  await page.waitForFunction(() => {
+    const c = window.__campos;
+    const p = c.pendiente();
+    return c.resultados().malla && !p.malla && !p.lineas && !p.corte;
+  });
+}
+async function cortePlano(page, plano, c) {
+  await activarCorte(page, plano, c);
+  await page.getByRole('group', { name: 'Flechas del corte' }).getByRole('button', { name: 'Solo corte' }).click();
+  await esperarCalculo(page);
+}
+
 /** Capturas de otras páginas: la galería ocupa toda su altura (se amplía la ventana). */
 const PAGINA = { C8: 'muestras' };
 

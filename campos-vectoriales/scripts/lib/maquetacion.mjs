@@ -112,7 +112,8 @@ export function auditarAlineacion() {
   let anclajes = 0;
   for (const sel of selectores) {
     for (const el of panel.querySelectorAll(sel)) {
-      if (!visible(el)) continue;
+      // Los controles de cabecera (p. ej. el interruptor del corte) van a la derecha por diseño (DESIGN §6.1).
+      if (!visible(el) || el.closest('.seccion-control')) continue;
       anclajes++;
       const dx = el.getBoundingClientRect().left - p.left;
       if (Math.abs(dx - 16) > 0.5) incidencias.push({ tipo: 'alineacion', detalle: `${sel}: ${dx.toFixed(1)} px` });

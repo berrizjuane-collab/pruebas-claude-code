@@ -18,6 +18,8 @@ export class CapaEjes {
   readonly grupo = new THREE.Group();
   private readonly materialesLinea: LineMaterial[] = [];
   private etiquetas: Etiqueta[] = [];
+  /** Letra y marcas de cada eje: se ocultan cuando el eje apunta a la cámara. */
+  private porEje: Etiqueta[][] = [[], [], []];
   private objetos: THREE.Object3D[] = [];
 
   fijarDominio(d: Dominio): void {
@@ -85,6 +87,7 @@ export class CapaEjes {
       pl[k] = b[k]! + largoPunta + 0.03 * L;
       letra.sprite.position.set(pl[0]!, pl[1]!, pl[2]!);
       this.etiquetas.push(letra);
+      this.porEje[k]!.push(letra);
       this.agregar(letra.sprite);
 
       // Marcas numéricas (sin el 0, que se rotula una sola vez en el origen).
@@ -95,6 +98,7 @@ export class CapaEjes {
         pm[k] = v;
         e.sprite.position.set(pm[0]!, pm[1]!, pm[2]!);
         this.etiquetas.push(e);
+        this.porEje[k]!.push(e);
         this.agregar(e.sprite);
       }
     }
@@ -105,10 +109,26 @@ export class CapaEjes {
     }
   }
 
-  /** Reescala los sprites y las líneas para el tamaño de pantalla actual. */
-  ajustar(factorSprites: number, anchoPx: number, altoPx: number): void {
+  /**
+   * Reescala los sprites y las líneas para el tamaño de pantalla actual. Un eje que apunta a
+   * la cámara (a menos de 12°, p. ej. z en la vista XY) proyecta todas sus marcas sobre el
+   * origen: su letra y sus números se ocultan para no amontonarse («0−2»); el triedro sigue
+   * indicando su sentido.
+   */
+  ajustar(factorSprites: number, anchoPx: number, altoPx: number, camara?: THREE.Camera): void {
     for (const e of this.etiquetas) e.escalar(factorSprites);
     for (const m of this.materialesLinea) m.resolution.set(anchoPx, altoPx);
+    if (!camara) return;
+    const vista = camara.getWorldDirection(new THREE.Vector3());
+    this.porEje.forEach((etiquetas, k) => {
+      const visible = Math.abs(vista.getComponent(k)) < Math.cos((12 * Math.PI) / 180);
+      for (const e of etiquetas) e.sprite.visible = visible;
+    });
+  }
+
+  /** Ejes cuyos rótulos se ven (para las pruebas). */
+  get rotulosVisibles(): boolean[] {
+    return this.porEje.map((l) => l.every((e) => e.sprite.visible));
   }
 
   /** Re-rasteriza las etiquetas (p. ej. cuando terminan de cargar las fuentes). */
@@ -133,6 +153,7 @@ export class CapaEjes {
     for (const e of this.etiquetas) e.dispose();
     this.objetos = [];
     this.etiquetas = [];
+    this.porEje = [[], [], []];
     this.materialesLinea.length = 0;
   }
 

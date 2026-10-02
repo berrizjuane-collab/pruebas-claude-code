@@ -27,6 +27,15 @@ export interface PeticionMalla {
   posicion: 'nodos' | 'centros';
   escala: { tipo: 'auto' } | { tipo: 'fija'; valor: number; /** Δ de la malla al fijarla (DESIGN §9.10). */ delta?: number };
   flechas: { modo: ModoLongitud; luminancia: ModoLuminancia };
+  /** Flechas «solo en el corte» (DESIGN §9.5): rejilla N×N del plano con la F_ref del volumen. */
+  corte: { plano: Plano; c: number; vector: 'completo' | 'tangencial' } | null;
+}
+
+export interface FlechasCorte {
+  instancias: InstanciasFlechas;
+  lMax: number;
+  deltaRef: number;
+  total: number;
 }
 
 export interface PeticionLineas {
@@ -75,6 +84,7 @@ export interface ResultadoMalla {
   escala: Escala;
   lMax: number;
   instancias: InstanciasFlechas;
+  corte: FlechasCorte | null;
   ms: number;
 }
 
@@ -99,11 +109,14 @@ export interface ResultadoLineas {
   ms: number;
 }
 
+/** Muestra del corte con la curva de nivel cero de su escalar (REN-06), si tiene signo. */
+export type ResultadoCorte = MuestraCorte & { contorno: Float32Array | null; dominio: Dominio };
+
 export type Respuesta =
   | { tipo: 'pong'; id: number }
   | { tipo: 'malla'; id: number; resultado: ResultadoMalla }
   | { tipo: 'lineas'; id: number; resultado: ResultadoLineas }
-  | { tipo: 'corte'; id: number; resultado: MuestraCorte }
+  | { tipo: 'corte'; id: number; resultado: ResultadoCorte }
   | { tipo: 'progreso'; id: number; fraccion: number }
   | { tipo: 'cancelado'; id: number }
   | { tipo: 'error'; id: number; mensaje: string };
@@ -116,15 +129,17 @@ export function transferibles(r: Respuesta): Transferable[] {
   };
   if (r.tipo === 'malla') {
     const m = r.resultado;
-    const i = m.instancias;
-    add(m.pos, m.F, m.mag, m.clase, i.cola, i.dir, i.largo, i.cono, i.radioCono, i.radio, i.gris, i.saturada, i.nodo, i.ceros, i.indefinidos);
+    for (const i of [m.instancias, m.corte?.instancias]) {
+      if (i) add(i.cola, i.dir, i.largo, i.cono, i.radioCono, i.radio, i.gris, i.saturada, i.nodo, i.ceros, i.indefinidos);
+    }
+    add(m.pos, m.F, m.mag, m.clase);
   } else if (r.tipo === 'lineas') {
     const l = r.resultado;
     const g = l.geometria;
     add(l.posiciones, l.inicio, l.semilla, l.motivos, l.longitudes, g.segmentos, g.cheurones, g.tangentes, g.semillas, g.finales, g.formasFinales);
   } else if (r.tipo === 'corte') {
     const c = r.resultado;
-    add(c.pos, c.F, c.Fpar, c.Fn, c.mag, c.clase, c.escalar?.valores, c.escalar?.estado);
+    add(c.pos, c.F, c.Fpar, c.Fn, c.mag, c.clase, c.escalar?.valores, c.escalar?.estado, c.contorno ?? undefined);
   }
   return t;
 }

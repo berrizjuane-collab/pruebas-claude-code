@@ -27,6 +27,8 @@ export interface EscalarCorte {
   /** 0 definido, 1 no definido, 2 no diferenciable. */
   estado: Uint8Array;
   vRef: number;
+  /** P95 de |escalar| ≈ 0: el escalar es nulo en todo el corte (V_ref = 1 solo por convención). */
+  nulo: boolean;
 }
 
 export interface MuestraCorte {
@@ -118,7 +120,7 @@ export function muestrearCorte(campo: CampoDerivable, p: Float64Array, esp: Espe
     const absolutos: number[] = [];
     for (const val of valores) if (Number.isFinite(val)) absolutos.push(Math.abs(val));
     const p95 = absolutos.length ? percentil(absolutos, 0.95) : 0;
-    escalar = { tipo: esp.escalar, lado, valores, estado, vRef: p95 > 1e-12 ? redondeoLegible(p95) : 1 };
+    escalar = { tipo: esp.escalar, lado, valores, estado, vRef: p95 > 1e-12 ? redondeoLegible(p95) : 1, nulo: !(p95 > 1e-12) };
   }
   return { plano: esp.plano, c, M, pos, F, Fpar, Fn, mag, clase, total, escalar };
 }

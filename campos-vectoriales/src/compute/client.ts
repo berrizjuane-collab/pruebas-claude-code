@@ -7,8 +7,7 @@
  * petición nueva cancela la anterior del mismo tipo, cuya promesa se resuelve con null.
  */
 import TrabajadorCalculo from './worker.ts?worker&inline';
-import type { MuestraCorte } from '../numerics/slice';
-import type { Peticion, PeticionCorte, PeticionLineas, PeticionMalla, Respuesta, ResultadoLineas, ResultadoMalla } from './protocol';
+import type { Peticion, PeticionCorte, PeticionLineas, PeticionMalla, Respuesta, ResultadoCorte, ResultadoLineas, ResultadoMalla } from './protocol';
 import { crearCeder, trabajoCorte, trabajoLineas, trabajoMalla } from './trabajos';
 
 export type ModoCalculo = 'worker' | 'hilo-principal';
@@ -90,8 +89,8 @@ export class ClienteCalculo {
     return this.enviar(p, progreso) as Promise<ResultadoLineas | null>;
   }
 
-  corte(p: SinId<PeticionCorte>): Promise<MuestraCorte | null> {
-    return this.enviar(p) as Promise<MuestraCorte | null>;
+  corte(p: SinId<PeticionCorte>): Promise<ResultadoCorte | null> {
+    return this.enviar(p) as Promise<ResultadoCorte | null>;
   }
 
   /** Cancela el trabajo vigente de un tipo (su promesa se resuelve con null). */

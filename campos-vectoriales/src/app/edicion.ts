@@ -12,6 +12,7 @@ import {
   aplicarEcuaciones,
   eliminarParametro,
   fijarCapa,
+  fijarCorte,
   fijarDominio,
   fijarGlifos,
   fijarMuestreo,
@@ -116,6 +117,7 @@ export function useEdicion(almacen: Almacen<EstadoExperimento>, controlador: Con
       alCapa: (capa, activa) => almacen.fijar((s) => fijarCapa(s, capa, activa)),
       alGlifos: (g) => almacen.fijar((s) => fijarGlifos(s, g)),
       alFlechas: (cambios) => almacen.fijar((s) => fijarOpcionesFlechas(s, cambios)),
+      alCorte: (cambios) => almacen.fijar((s) => fijarCorte(s, cambios)),
     }),
     [almacen, conDeshacer],
   );

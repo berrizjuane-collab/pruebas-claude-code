@@ -109,14 +109,21 @@ export function motivoIntervalo(min: number, max: number): string | null {
 
 const EJE_NORMAL = { XY: 2, XZ: 1, YZ: 0 } as const;
 
+type Corte = EstadoExperimento['corte'];
+
+/** Coordenada del corte dentro de Ω (eje normal al plano); fuera, a 0 si está dentro y si no al centro (F6.1). */
+function cDentro(d: Dominio, plano: Corte['plano'], c: number): number {
+  const k = EJE_NORMAL[plano];
+  const lo = d.min[k] as number;
+  const hi = d.max[k] as number;
+  return c >= lo && c <= hi ? c : lo <= 0 && 0 <= hi ? 0 : (lo + hi) / 2;
+}
+
 /** Cambia el dominio (ya validado); el corte se recoloca dentro y el punto se descarta si queda fuera. */
 export function fijarDominio(s: EstadoExperimento, d: Dominio): EstadoExperimento {
   if ([0, 1, 2].some((k) => motivoIntervalo(d.min[k] as number, d.max[k] as number))) return s;
   if ([0, 1, 2].every((k) => d.min[k] === s.dominio.min[k] && d.max[k] === s.dominio.max[k])) return s;
-  const k = EJE_NORMAL[s.corte.plano];
-  const lo = d.min[k] as number;
-  const hi = d.max[k] as number;
-  const c = s.corte.c < lo || s.corte.c > hi ? (lo + hi) / 2 : s.corte.c;
+  const c = cDentro(d, s.corte.plano, s.corte.c);
   const dentro = (p: Vec3) => [0, 1, 2].every((i) => p[i] >= (d.min[i] as number) && p[i] <= (d.max[i] as number));
   return {
     ...s,
@@ -157,4 +164,15 @@ export function fijarOpcionesFlechas(s: EstadoExperimento, cambios: Partial<Opci
   if (f.escala.tipo === 'fija' && !(f.escala.valor > 0 && Number.isFinite(f.escala.valor))) return s;
   if (JSON.stringify(f) === JSON.stringify(s.flechas)) return s;
   return { ...s, flechas: f };
+}
+
+/** Cambia el corte (F6): al activarlo o cambiar de plano, la posición queda dentro de Ω. */
+export function fijarCorte(s: EstadoExperimento, cambios: Partial<Corte>): EstadoExperimento {
+  const nuevo = { ...s.corte, ...cambios };
+  nuevo.c = cDentro(s.dominio, nuevo.plano, nuevo.c);
+  if (nuevo.escala.tipo === 'fija' && !(nuevo.escala.valor > 0 && Number.isFinite(nuevo.escala.valor))) return s;
+  // Otro escalar, otras unidades: una V_ref fijada deja de tener sentido.
+  if (cambios.escalar !== undefined && cambios.escalar !== s.corte.escalar && !cambios.escala) nuevo.escala = { tipo: 'auto' };
+  if (JSON.stringify(nuevo) === JSON.stringify(s.corte)) return s;
+  return { ...s, corte: nuevo };
 }

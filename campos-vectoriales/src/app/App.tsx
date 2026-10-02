@@ -8,8 +8,11 @@ import { CATALOGO, type IdCampo } from '../math/catalog';
 import { compilarCampo } from '../math/field';
 import type { ControladorEscena } from '../render/ControladorEscena';
 import type { Vista } from '../render/camara';
-import type { Dominio } from '../math/tipos';
-import { fijarCapa, fijarGlifos, seleccionarCampo } from '../state/actions';
+import { EJES_PLANO, NOMBRE_EJE, type Dominio } from '../math/tipos';
+import { rotuloCorte } from '../render/layers/corte';
+import type { DatosEscalar } from '../render/layers/escalar';
+import { UMBRAL_CERO } from '../geometria/escalar';
+import { fijarCapa, fijarCorte, fijarGlifos, seleccionarCampo } from '../state/actions';
 import { EXPERIMENTO_INICIAL, experimentoDesdeCatalogo, type EstadoExperimento } from '../state/schema';
 import { crearAlmacen } from '../state/store';
 import { T } from '../i18n/es';
@@ -37,6 +40,20 @@ function estadoInicial(): EstadoExperimento {
 
 interface Props {
   fuentes: Promise<void>;
+}
+
+/** Signos del escalar que se ven en el mapa (|s| ≥ 2 % V_ref) y si hay curva de nivel cero. */
+function signosPresentes(d: DatosEscalar): { positivo: boolean; negativo: boolean; cero: boolean } {
+  let positivo = false;
+  let negativo = false;
+  const umbral = UMBRAL_CERO * d.vRef;
+  for (let k = 0; k < d.rejilla.valores.length; k++) {
+    if (d.rejilla.estado[k] !== 0) continue;
+    const v = d.rejilla.valores[k] as number;
+    if (v >= umbral) positivo = true;
+    else if (v <= -umbral) negativo = true;
+  }
+  return { positivo, negativo, cero: !!d.contorno && d.contorno.length > 0 };
 }
 
 export function App({ fuentes }: Props) {
@@ -108,9 +125,19 @@ export function App({ fuentes }: Props) {
     controlador?.fijarMovimientoReducido(movimientoReducido);
   }, [controlador, movimientoReducido]);
 
+  // «Flechas: solo corte» sustituye las flechas del volumen por las del plano (DESIGN §9.5).
+  const soloCorte = estado.corte.activo && estado.corte.flechas === 'corte';
   useEffect(() => {
-    controlador?.fijarFlechas(estado.capas.flechas && malla ? malla.instancias : null);
-  }, [controlador, malla, estado.capas.flechas]);
+    controlador?.fijarFlechas(estado.capas.flechas && malla && !soloCorte ? malla.instancias : null);
+  }, [controlador, malla, estado.capas.flechas, soloCorte]);
+
+  const corte = estado.corte;
+  const dominio = estado.dominio;
+  useEffect(() => {
+    if (!controlador) return;
+    const d = corte.activo ? { plano: corte.plano, c: corte.c, dominio } : null;
+    controlador.fijarCorte(d, d && soloCorte && estado.capas.flechas ? (malla?.corte?.instancias ?? null) : null);
+  }, [controlador, corte, dominio, soloCorte, malla, estado.capas.flechas]);
 
   const lineas = calculo.lineas;
   useEffect(() => {
@@ -126,6 +153,7 @@ export function App({ fuentes }: Props) {
       l: () => almacen.fijar((s) => fijarCapa(s, 'lineas', !s.capas.lineas)),
       p: () => almacen.fijar((s) => fijarCapa(s, 'particulas', !s.capas.particulas)),
       g: () => almacen.fijar((s) => fijarGlifos(s, s.capas.glifos === 'campo' ? 'rotacional' : 'campo')),
+      c: () => almacen.fijar((s) => fijarCorte(s, { activo: !s.corte.activo })),
     }),
     [almacen],
   );
@@ -164,6 +192,8 @@ export function App({ fuentes }: Props) {
       suscribirCalculo: (escucha: (s: EstadoCalculo) => void) => almacenCalculo.suscribir(() => escucha(almacenCalculo.obtener())),
       cancelarLineas: () => orquestador.cancelarLineas(),
       camara: () => controlador.obtenerCamara(),
+      proyectar: (x: number, y: number, z: number) => controlador.proyectar([x, y, z]),
+      dibujar: () => controlador.dibujar(),
       notificaciones: () => notificador.almacen.obtener().map((n) => ({ tipo: n.tipo, texto: n.texto, accion: n.accion?.texto ?? null })),
       medidasCancelacion: () => [...cliente.medidasCancelacion],
       pendiente: () => orquestador.pendiente,
@@ -222,6 +252,16 @@ export function App({ fuentes }: Props) {
         }
         return null;
       },
+      /** Flechas «solo corte»: centro (nodo del plano) y dirección de cada una. */
+      flechasCorte: () => {
+        const inst = mallaActual()?.corte?.instancias;
+        if (!inst) return null;
+        const centros: number[] = [];
+        for (let k = 0; k < inst.n; k++) {
+          for (let j = 0; j < 3; j++) centros.push((inst.cola[3 * k + j] as number) + ((inst.dir[3 * k + j] as number) * (inst.largo[k] as number)) / 2);
+        }
+        return { n: inst.n, centros, dir: Array.from(inst.dir.subarray(0, 3 * inst.n)) };
+      },
       flecha: (k: number) => {
         const r = mallaActual();
         if (!r || k >= r.instancias.n) return null;
@@ -256,28 +296,73 @@ export function App({ fuentes }: Props) {
   );
   const capaLineas = estado.capas.lineas;
   const actualizandoLineas = calculo.progresoLineas !== null;
+
+  // Mapa escalar del corte (REN-06): V_ref automática (P95 del corte) o fijada en la leyenda.
+  const resultadoCorte = calculo.corte;
+  const nodosMalla = estado.muestreo.n;
+  const datosEscalar = useMemo<DatosEscalar | null>(() => {
+    const e = resultadoCorte?.escalar;
+    if (!corte.activo || corte.escalar === 'ninguno' || !resultadoCorte || !e) return null;
+    const { u, v } = EJES_PLANO[resultadoCorte.plano];
+    const N = Math.max(nodosMalla[u], nodosMalla[v]);
+    return {
+      tipo: e.tipo,
+      nulo: e.nulo && corte.escala.tipo === 'auto',
+      rejilla: { plano: resultadoCorte.plano, c: resultadoCorte.c, dominio: resultadoCorte.dominio, lado: e.lado, valores: e.valores, estado: e.estado },
+      vRef: corte.escala.tipo === 'fija' ? corte.escala.valor : e.vRef,
+      contorno: resultadoCorte.contorno,
+      // Los glifos se apartan de los nodos de las flechas que se ven (las del plano o las del volumen).
+      nodos: corte.flechas === 'corte' ? [N, N] : [nodosMalla[u], nodosMalla[v]],
+    };
+  }, [resultadoCorte, corte.activo, corte.escalar, corte.escala, corte.flechas, nodosMalla]);
+  useEffect(() => {
+    controlador?.fijarEscalarCorte(datosEscalar);
+  }, [controlador, datosEscalar]);
+  const fijarVRef = useCallback(
+    (fija: boolean) => {
+      acciones.alCorte({ escala: fija && datosEscalar ? { tipo: 'fija', valor: datosEscalar.vRef } : { tipo: 'auto' } });
+    },
+    [acciones, datosEscalar],
+  );
+
   const datosLeyenda = useMemo(() => {
     if (!malla) return null;
     const finales = lineas?.geometria.formasFinales;
     const contar = (f: number) => (finales ? finales.reduce((n, x) => n + (x === f ? 1 : 0), 0) : 0);
+    // Con «solo corte» se ven las flechas del plano: sus marcas, su recuento y su ℓmax.
+    const conCorte = soloCorte && malla.corte;
+    const inst = conCorte ? malla.corte!.instancias : malla.instancias;
+    const d = datosEscalar;
     return {
       escala: malla.escala,
-      lMax: malla.lMax,
+      lMax: conCorte ? malla.corte!.lMax : malla.lMax,
       modo: modoFlechas,
       luminancia,
       deltaRef: malla.deltaRef,
       deltaFija,
-      ceros: malla.instancias.ceros.length / 3,
-      indefinidos: malla.instancias.indefinidos.length / 3,
-      saturadas: malla.instancias.nSaturadas,
+      ceros: inst.ceros.length / 3,
+      indefinidos: inst.indefinidos.length / 3,
+      saturadas: inst.nSaturadas,
       flechas: capaFlechas,
-      nFlechas: malla.instancias.n,
+      nFlechas: inst.n,
       lineas:
         capaLineas && lineas && lineas.nLineas > 0
           ? { finalesCero: contar(FINAL.ROMBO), finalesIndefinidos: contar(FINAL.ASPA), actualizando: actualizandoLineas }
           : null,
+      corte: d
+        ? {
+            tipo: d.tipo,
+            rotulo: rotuloCorte(d.rejilla.plano, d.rejilla.c),
+            eje: NOMBRE_EJE[EJES_PLANO[d.rejilla.plano].n],
+            vRef: d.vRef,
+            fija: corte.escala.tipo === 'fija',
+            sinValor: Array.prototype.some.call(d.rejilla.estado, (x: number) => x !== 0),
+            signos: signosPresentes(d),
+            nulo: d.nulo,
+          }
+        : null,
     };
-  }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas]);
+  }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas, soloCorte, datosEscalar, corte.escala]);
 
   const estadoBarra: EstadoCalculoBarra = useMemo(() => {
     if (calculo.error) return { tipo: 'error', texto: calculo.error };
@@ -333,7 +418,7 @@ export function App({ fuentes }: Props) {
           />
         ) : null}
         <Notificaciones notificador={notificador} />
-        {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} /> : null}
+        {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} alFijarVRef={fijarVRef} /> : null}
         <div className="esquina-inferior-derecha">
           <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} />
           <Triedro controlador={controlador} />

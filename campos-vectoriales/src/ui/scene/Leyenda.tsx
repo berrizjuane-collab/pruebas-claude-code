@@ -1,12 +1,13 @@
-import { memo, useEffect, useId, useState } from 'react';
+import { memo, useEffect, useId, useState, type ReactNode } from 'react';
 import { ChevronDown, Lock, LockOpen } from 'lucide-react';
 import type { ControladorEscena } from '../../render/ControladorEscena';
 import { BotonIcono } from '../controls/Boton';
-import { hexGris } from '../../design/color';
-import { escena } from '../../design/tokens';
+import { grisDeLstar, hexGris } from '../../design/color';
+import { escena, rampa } from '../../design/tokens';
 import { grisRampaMagnitud } from '../../geometria/flechas';
 import { formatearCorto } from '../../numerics/format';
 import type { Escala } from '../../numerics/grid';
+import type { TipoEscalar } from '../../numerics/slice';
 import { T } from '../../i18n/es';
 
 export interface DatosLeyenda {
@@ -25,6 +26,19 @@ export interface DatosLeyenda {
   nFlechas: number;
   /** Líneas de corriente visibles (null si la capa está apagada o no hay líneas). */
   lineas: { finalesCero: number; finalesIndefinidos: number; actualizando: boolean } | null;
+  /** Mapa escalar del corte (null si no hay): rótulo del plano, eje normal y V_ref. */
+  corte: {
+    tipo: TipoEscalar;
+    rotulo: string;
+    eje: string;
+    vRef: number;
+    fija: boolean;
+    sinValor: boolean;
+    /** Lo que de verdad aparece en el mapa: solo eso entra en la leyenda (DESIGN §9.12). */
+    signos: { positivo: boolean; negativo: boolean; cero: boolean };
+    /** El escalar es nulo en todo el corte (con V_ref automática): no hay escala que mostrar. */
+    nulo: boolean;
+  } | null;
 }
 
 /** Degradado de la rampa de magnitud con paradas en L* uniforme (11 paradas: el 50 % es exacto). */
@@ -75,6 +89,70 @@ const GLIFO = {
   ),
 };
 
+/** Gris sRGB de una luminancia L*. */
+const grisL = (l: number) => hexGris(grisDeLstar(l));
+
+/** Banda oscura del mapa escalar (L* 6 → 32, DESIGN §2.2). */
+function degradadoEscalar(): string {
+  const { lMin, lMax } = rampa.escalar;
+  const paradas = Array.from({ length: 11 }, (_, i) => `${grisL(lMin + ((lMax - lMin) * i) / 10)} ${i * 10}%`);
+  return `linear-gradient(to right, ${paradas.join(', ')})`;
+}
+
+/** Trazo del glifo de signo centrado en (11, 6), como en la escena (gris `escena.cero` sobre halo). */
+const TRAZO_SIGNO: Record<Exclude<TipoEscalar, 'magnitud'>, { pos: ReactNode; neg: ReactNode }> = {
+  divergencia: { pos: <path d="M7.5 6h7M11 2.5v7" />, neg: <path d="M7.5 6h7" /> },
+  normal: {
+    pos: (
+      <>
+        <circle cx="11" cy="6" r="4.25" />
+        <circle cx="11" cy="6" r="1.4" fill="currentColor" />
+      </>
+    ),
+    neg: (
+      <>
+        <circle cx="11" cy="6" r="4.25" />
+        <path d="M8.6 3.6l4.8 4.8M13.4 3.6l-4.8 4.8" />
+      </>
+    ),
+  },
+  // Arco de 300° con punta arriba: hacia la izquierda = antihorario; hacia la derecha = horario.
+  rotacional: {
+    pos: <path d="M7.88 4.2A3.6 3.6 0 1 0 11 2.4M12.9 0.9 11 2.4l1.9 1.6" />,
+    neg: <path d="M14.12 4.2A3.6 3.6 0 1 1 11 2.4M9.1 0.9 11 2.4l-1.9 1.6" />,
+  },
+};
+
+/** Muestra del mapa: base de la banda oscura con puntos (+) o rayado (−) y el glifo encima. */
+function MuestraSigno({ signo, trazo }: { signo: 1 | -1; trazo: ReactNode }) {
+  const base = grisL(22);
+  const patron = grisL(22 + rampa.patronDeltaL);
+  return (
+    <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true">
+      <rect width="22" height="12" rx="2" fill={base} />
+      {signo > 0 ? (
+        <g fill={patron}>
+          {[2, 6, 10, 14, 18].flatMap((x) => [2, 6, 10].map((y) => <circle key={`${x}-${y}`} cx={x + (y === 6 ? 2 : 0)} cy={y} r="0.9" />))}
+        </g>
+      ) : (
+        <path d="M-12 12 0 0M-6 12 6 0M0 12 12 0M6 12 18 0M12 12 24 0M18 12 30 0" stroke={patron} strokeWidth="0.8" />
+      )}
+      <g fill="none" strokeLinecap="round" stroke={escena.halo} strokeWidth="3.5" style={{ color: escena.halo }}>
+        {trazo}
+      </g>
+      <g fill="none" strokeLinecap="round" stroke={escena.cero} strokeWidth="1.3" style={{ color: escena.cero }}>
+        {trazo}
+      </g>
+    </svg>
+  );
+}
+
+const NIVEL_CERO = (
+  <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true">
+    <path d="M1 6h20" stroke={escena.cero} strokeWidth="1.5" strokeDasharray="4.5 3" />
+  </svg>
+);
+
 /** ‖F‖/F_ref en el centro de la barra: 1/2 (lineal) o (10^½ − 1)/9 ≈ 0.24 (logarítmica). */
 export const FRACCION_CENTRO = { lineal: 0.5, log: (Math.sqrt(10) - 1) / 9 } as const;
 
@@ -94,9 +172,10 @@ interface Props {
   datos: DatosLeyenda;
   controlador: ControladorEscena | null;
   alFijarEscala: (fija: boolean) => void;
+  alFijarVRef: (fija: boolean) => void;
 }
 
-function LeyendaBase({ datos, controlador, alFijarEscala }: Props) {
+function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef }: Props) {
   const [plegada, setPlegada] = useState(false);
   const idCuerpo = useId();
   const ref = formatearCorto(datos.escala.ref);
@@ -107,6 +186,8 @@ function LeyendaBase({ datos, controlador, alFijarEscala }: Props) {
   const largoRef = Math.round(Math.min(184, Math.max(16, (normalizada ? 0.75 : 1) * datos.lMax * px)));
   const fija = datos.escala.origen === 'fija';
   const deltaDistinto = fija && datos.deltaFija !== null && Math.abs(datos.deltaFija - datos.deltaRef) > 1e-9 * datos.deltaRef;
+  // «× no definido» aparece una sola vez en toda la leyenda.
+  const indefinidoListado = (datos.flechas && datos.indefinidos > 0) || (datos.lineas?.finalesIndefinidos ?? 0) > 0;
   return (
     <section className="leyenda flotante" data-flotante="leyenda" aria-labelledby="titulo-leyenda">
       <button
@@ -226,8 +307,95 @@ function LeyendaBase({ datos, controlador, alFijarEscala }: Props) {
             ) : null}
           </div>
         ) : null}
+        {datos.corte ? <BloqueCorte corte={datos.corte} indefinidoYaListado={indefinidoListado} alFijarVRef={alFijarVRef} /> : null}
       </div>
     </section>
+  );
+}
+
+/** Bloque del mapa escalar del corte (DESIGN §9.6–9.8 y §9.12: va el último). */
+function BloqueCorte({
+  corte,
+  indefinidoYaListado,
+  alFijarVRef,
+}: {
+  corte: NonNullable<DatosLeyenda['corte']>;
+  indefinidoYaListado: boolean;
+  alFijarVRef: (fija: boolean) => void;
+}) {
+  const nombre = T.leyenda.escalarCorte[corte.tipo];
+  const v = formatearCorto(corte.vRef);
+  const conSigno = corte.tipo !== 'magnitud';
+  if (corte.nulo) {
+    return (
+      <div className="leyenda-bloque" data-prueba="leyenda-corte">
+        <span className="leyenda-rampa-titulo">{T.leyenda.tituloCorte(nombre, false, corte.rotulo)}</span>
+        <p className="leyenda-pie num" data-prueba="leyenda-vref">
+          {T.leyenda.corteNulo(nombre)}
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="leyenda-bloque" data-prueba="leyenda-corte">
+      <div className="leyenda-rampa">
+        <span className="leyenda-rampa-titulo">{T.leyenda.tituloCorte(nombre, conSigno, corte.rotulo)}</span>
+        <div className="leyenda-barra" style={{ backgroundImage: degradadoEscalar() }} data-prueba="barra-escalar" />
+        <div className="leyenda-marcas num" aria-hidden="true">
+          <span>0</span>
+          <span>{formatearCorto(Number((corte.vRef / 2).toPrecision(3)))}</span>
+          <span>≥ {v}</span>
+        </div>
+      </div>
+      <ul className="leyenda-lista" data-prueba="leyenda-signos">
+        {corte.tipo !== 'magnitud' ? (
+          <>
+            {corte.signos.positivo ? (
+              <li>
+                <MuestraSigno signo={1} trazo={TRAZO_SIGNO[corte.tipo].pos} />
+                <span>{T.leyenda.signoPositivo[corte.tipo](corte.eje)}</span>
+              </li>
+            ) : null}
+            {corte.signos.negativo ? (
+              <li>
+                <MuestraSigno signo={-1} trazo={TRAZO_SIGNO[corte.tipo].neg} />
+                <span>{T.leyenda.signoNegativo[corte.tipo](corte.eje)}</span>
+              </li>
+            ) : null}
+            {corte.signos.cero ? (
+              <li>
+                {NIVEL_CERO}
+                <span>{T.leyenda.nivelCero(nombre)}</span>
+              </li>
+            ) : null}
+          </>
+        ) : null}
+        {corte.sinValor && !indefinidoYaListado ? (
+          <li>
+            {GLIFO.aspa}
+            <span>{T.leyenda.indefinido}</span>
+          </li>
+        ) : null}
+      </ul>
+      <div className="leyenda-pie-fila">
+        <p className="leyenda-pie num" data-prueba="leyenda-vref">
+          {T.leyenda.vRef(v, corte.fija ? T.leyenda.escalaFija : T.leyenda.escalaAuto)}
+          {conSigno ? (
+            <>
+              <br />
+              {T.leyenda.casiCero(nombre)}
+            </>
+          ) : null}
+        </p>
+        <BotonIcono
+          etiqueta={corte.fija ? T.leyenda.liberarVRef : T.leyenda.fijarVRef}
+          icono={corte.fija ? Lock : LockOpen}
+          presionado={corte.fija}
+          className="boton-candado"
+          onClick={() => alFijarVRef(!corte.fija)}
+        />
+      </div>
+    </div>
   );
 }
 

@@ -107,7 +107,9 @@ describe('acciones de edición (UI-02 … UI-05)', () => {
     const s = { ...hel, corte: { ...hel.corte, c: 1.5 }, punto: [1.8, 0, 0] as const };
     const d = fijarDominio(s, { min: [-1, -1, 0], max: [1, 1, 1] });
     expect(d.dominio).toEqual({ min: [-1, -1, 0], max: [1, 1, 1] });
-    expect(d.corte.c).toBe(0.5);
+    // F6.1: como al activarlo, z = 0 si queda dentro de Ω y, si no, el centro.
+    expect(d.corte.c).toBe(0);
+    expect(fijarDominio(s, { min: [-1, -1, 0.2], max: [1, 1, 1] }).corte.c).toBe(0.6);
     expect(d.punto).toBeNull();
     expect(fijarDominio(s, { min: [-1, -1, 1], max: [1, 1, 1] })).toBe(s);
   });

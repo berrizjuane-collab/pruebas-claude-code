@@ -12,16 +12,15 @@
  * cambia, por ejemplo al alternar la luminancia de las flechas.
  */
 import type { ClienteCalculo } from '../compute/client';
-import { definicionCampo, peticionCorte, peticionLineas, peticionMalla, valores } from '../compute/peticiones';
-import type { ResultadoLineas, ResultadoMalla } from '../compute/protocol';
-import type { MuestraCorte } from '../numerics/slice';
+import { corteDeFlechas, definicionCampo, peticionCorte, peticionLineas, peticionMalla, valores } from '../compute/peticiones';
+import type { ResultadoCorte, ResultadoLineas, ResultadoMalla } from '../compute/protocol';
 import type { EstadoExperimento } from '../state/schema';
 import { crearAlmacen, type Almacen } from '../state/store';
 
 export interface EstadoCalculo {
   malla: ResultadoMalla | null;
   lineas: ResultadoLineas | null;
-  corte: MuestraCorte | null;
+  corte: ResultadoCorte | null;
   /** Progreso de las líneas (0–1) mientras se calculan, si tardan más de 300 ms. */
   progresoLineas: number | null;
   calculandoMalla: boolean;
@@ -47,9 +46,10 @@ const RETRASO_LINEAS = 120;
 const UMBRAL_PROGRESO = 300;
 
 const claveMalla = (e: EstadoExperimento) =>
-  JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.muestreo.n, e.muestreo.posicion, e.flechas]);
+  JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.muestreo.n, e.muestreo.posicion, e.flechas, corteDeFlechas(e)]);
+// «Flechas» y «Vector» del corte no cambian su muestreo (las flechas del plano van con la malla).
 const claveCorte = (e: EstadoExperimento) =>
-  JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.corte, e.muestreo.corteResolucion]);
+  JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.corte.activo, e.corte.plano, e.corte.c, e.corte.escalar, e.muestreo.corteResolucion]);
 const claveLineas = (e: EstadoExperimento) =>
   JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.capas.lineas, e.lineas, e.lineas.semillas.tipo === 'punto' ? e.punto : null]);
 
@@ -62,6 +62,8 @@ export class Orquestador {
   private mallaPendiente = false;
   private rafMalla = 0;
   private rafCorte = 0;
+  private cortePedido = 0;
+  private cortePendiente = false;
   private temporizadorLineas: ReturnType<typeof setTimeout> | null = null;
   private bajas: (() => void)[] = [];
   private activo = true;
@@ -88,8 +90,8 @@ export class Orquestador {
   }
 
   /** Trabajos pedidos cuyo resultado aún no se ha aplicado (pruebas y estados de espera). */
-  get pendiente(): { malla: boolean; lineas: boolean } {
-    return { malla: this.mallaPendiente, lineas: this.temporizadorLineas !== null || this.clavesLineas.enCurso !== '' };
+  get pendiente(): { malla: boolean; lineas: boolean; corte: boolean } {
+    return { malla: this.mallaPendiente, lineas: this.temporizadorLineas !== null || this.clavesLineas.enCurso !== '', corte: this.cortePendiente };
   }
 
   /** Cancela las líneas en curso (botón «Cancelar»). */
@@ -117,6 +119,7 @@ export class Orquestador {
     const kc = claveCorte(e);
     if (kc !== this.claves.corte) {
       this.claves.corte = kc;
+      this.cortePendiente = true;
       cancelAnimationFrame(this.rafCorte);
       this.rafCorte = requestAnimationFrame(() => void this.lanzarCorte());
     }
@@ -145,15 +148,20 @@ export class Orquestador {
 
   private async lanzarCorte(): Promise<void> {
     const e = this.experimento.obtener();
+    const n = ++this.cortePedido;
     if (!e.corte.activo) {
       this.cliente.cancelar('corte');
+      this.cortePendiente = false;
       this.fijar({ corte: null });
       return;
     }
     try {
       const r = await this.cliente.corte(peticionCorte(e));
+      // Una respuesta nula de una petición sustituida no cierra la espera: llegará la nueva.
+      if (n === this.cortePedido) this.cortePendiente = false;
       if (r) this.fijar({ corte: r });
     } catch (error) {
+      if (n === this.cortePedido) this.cortePendiente = false;
       this.fijar({ error: mensajeDe(error) });
     }
   }

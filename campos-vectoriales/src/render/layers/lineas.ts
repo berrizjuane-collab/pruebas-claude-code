@@ -25,8 +25,9 @@ export class CapaLineas {
   private readonly matLinea: LineMaterial;
   private readonly halo: LineSegments2;
   private readonly linea: LineSegments2;
-  // Cheurones, semillas y finales están sobre su propia línea: sesgo de profundidad pequeño.
-  private readonly glifos = new CapaGlifos({ orden: 3, sesgo: 0.002 });
+  // Cheurones, semillas y finales están sobre su propia línea: se adelantan un 2 % de la
+  // distancia para no quedar cortados por ella (las semillas se leían como «C»).
+  private readonly glifos = new CapaGlifos({ orden: 3, sesgo: 0.02 });
   private cuentas = { segmentos: 0, cheurones: 0, semillas: 0, finales: 0 };
 
   constructor() {

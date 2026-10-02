@@ -435,8 +435,8 @@ test.describe('UI-04 · dominio y muestreo (V-FUN-14)', () => {
     await max.fill('3');
     await max.press('Enter');
     await expect.poll(async () => (await estado(page)).dominio).toEqual({ min: [-1, -1, -1], max: [3, 3, 3] });
-    // El corte (z = −1.9) quedó fuera al pasar a [−1, 2] y se recolocó en el centro, 0.5.
-    expect((await estado(page)).corte.c).toBe(0.5);
+    // El corte (z = −1.9) quedó fuera al pasar a [−1, 2]: vuelve a z = 0, que sigue dentro (F6.1).
+    expect((await estado(page)).corte.c).toBe(0);
     await expect.poll(async () => (await gancho(page, '(c) => c.camara()')).objetivo.map((v: number) => Math.round(v * 1e6) / 1e6), { timeout: 3000 }).toEqual([1, 1, 1]);
     await estable(page);
     const esc = await gancho(page, '(c) => c.escena()');

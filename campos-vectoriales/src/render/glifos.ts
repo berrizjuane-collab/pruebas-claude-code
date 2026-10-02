@@ -55,9 +55,13 @@ varying float vTam;
 void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   vec4 c0 = projectionMatrix * mv;
-  gl_Position = c0;
-  // Sesgo de profundidad hacia la cámara (en NDC): el glifo gana a la línea sobre la que está.
-  gl_Position.z -= uSesgo * gl_Position.w;
+  // Sesgo de profundidad: el glifo se acerca a la cámara una fracción uSesgo de su distancia,
+  // a lo largo del rayo de vista (misma posición en pantalla), para ganar a la línea o al plano
+  // sobre el que está sin pasar por delante de lo que de verdad está más cerca.
+  vec4 mvS = mv;
+  if (projectionMatrix[3][3] == 0.0) mvS.xyz *= 1.0 - uSesgo;
+  else mvS.z += uSesgo * abs(mv.z);
+  gl_Position = projectionMatrix * mvS;
   vTam = (aTam + 2.0 * ${MARGEN_HALO_CSS.toFixed(1)}) * uPixelRatio;
   vRadio = 0.5 * aTam * uPixelRatio;
   gl_PointSize = vTam;
@@ -125,11 +129,18 @@ void main() {
     float a = R * 0.48;
     d = min(abs(length(q) - (R - w)) - w, min(segmento(q, vec2(-a), vec2(a)), segmento(q, vec2(-a, a), vec2(a, -a))) - w);
   } else {
-    float r0 = R * 0.7;
+    // ↺ / ↻: arco de 300° que acaba arriba en una punta de flecha; el hueco de 60° queda justo
+    // por delante de la punta (como en el signo tipográfico), no un aro completo.
+    float r0 = R * 0.68;
+    float sentido = forma == 10 ? -1.0 : 1.0; // −1: la punta mira a −x (antihorario)
+    float ang = atan(q.y, q.x);
+    float a0 = 1.5707963;
+    float a1 = a0 - sentido * 1.0471976;
+    bool enHueco = sentido < 0.0 ? (ang > a0 && ang < a1) : (ang < a0 && ang > a1);
     float arco = abs(length(q) - r0) - w;
-    float sentido = forma == 10 ? -1.0 : 1.0;
+    if (enHueco) arco = min(length(q - r0 * vec2(cos(a0), sin(a0))), length(q - r0 * vec2(cos(a1), sin(a1)))) - w;
     vec2 t = vec2(0.0, r0);
-    float ch = min(segmento(q, t + vec2(-sentido * R * 0.38, R * 0.32), t), segmento(q, t + vec2(-sentido * R * 0.38, -R * 0.32), t)) - w;
+    float ch = min(segmento(q, t + vec2(-sentido * R * 0.45, R * 0.38), t), segmento(q, t + vec2(-sentido * R * 0.45, -R * 0.38), t)) - w;
     d = min(arco, ch);
   }
   float halo = 1.5 * uPixelRatio;
@@ -148,6 +159,7 @@ export class CapaGlifos {
   private readonly geometria = new THREE.BufferGeometry();
   private readonly material: THREE.ShaderMaterial;
 
+  /** `sesgo`: fracción de la distancia a la cámara que se adelanta el glifo (0 = ninguna). */
   constructor(opciones: { siempreVisible?: boolean; orden?: number; sesgo?: number } = {}) {
     const [r, g, b] = hexARgb(escena.halo);
     this.material = new THREE.ShaderMaterial({

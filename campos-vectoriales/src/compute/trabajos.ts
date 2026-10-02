@@ -4,12 +4,14 @@
  */
 import { compilarCampo, type CampoCompilado } from '../math/field';
 import { calcularFlechas } from '../geometria/flechas';
+import { contornoCero } from '../geometria/escalar';
 import { geometriaLineas } from '../geometria/lineas';
 import { clasificarCeros, crearMalla, escalaAutomatica, muestrearMalla, type Escala } from '../numerics/grid';
 import { generarSemillas } from '../numerics/seeds';
-import { muestrearCorte, type MuestraCorte } from '../numerics/slice';
+import { muestrearCorte } from '../numerics/slice';
 import { lineaTroceada, MOTIVOS, opcionesPorDefecto, type MotivoParada } from '../numerics/streamlines';
-import type { DefinicionCampo, PeticionCorte, PeticionLineas, PeticionMalla, ResultadoLineas, ResultadoMalla } from './protocol';
+import { EJES_PLANO } from '../math/tipos';
+import type { DefinicionCampo, FlechasCorte, PeticionCorte, PeticionLineas, PeticionMalla, ResultadoCorte, ResultadoLineas, ResultadoMalla } from './protocol';
 
 /** Límite de vértices totales de las líneas (SPEC §5.9). */
 export const VERTICES_MAX = 1_000_000;
@@ -38,7 +40,9 @@ export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
   const escala: Escala = pet.escala.tipo === 'fija' ? { ref: pet.escala.valor, origen: 'fija', nulo: false } : escalaAutomatica(muestra.mag, muestra.clase);
   clasificarCeros(muestra, escala.ref);
   const lMax = 0.9 * malla.deltaRef;
-  const instancias = calcularFlechas(muestra, { fRef: escala.ref, lMax, modo: pet.flechas.modo, luminancia: pet.flechas.luminancia });
+  const opciones = { fRef: escala.ref, modo: pet.flechas.modo, luminancia: pet.flechas.luminancia };
+  const instancias = calcularFlechas(muestra, { ...opciones, lMax });
+  const corte = pet.corte ? flechasCorte(campo, p, pet, opciones) : null;
   return {
     total: muestra.total,
     n: pet.n,
@@ -51,13 +55,43 @@ export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
     escala,
     lMax,
     instancias,
+    corte,
     ms: performance.now() - t0,
   };
 }
 
-export function trabajoCorte(pet: PeticionCorte): MuestraCorte {
+/** Flechas del corte en una rejilla N×N del plano, comparables con las del volumen (misma F_ref). */
+function flechasCorte(
+  campo: CampoCompilado,
+  p: Float64Array,
+  pet: PeticionMalla,
+  opciones: { fRef: number; modo: PeticionMalla['flechas']['modo']; luminancia: PeticionMalla['flechas']['luminancia'] },
+): FlechasCorte {
+  const esp = pet.corte!;
+  const { u, v } = EJES_PLANO[esp.plano];
+  const N = Math.max(pet.n[u], pet.n[v]);
+  const d = pet.dominio;
+  const lado = (k: number) => (d.max[k] as number) - (d.min[k] as number);
+  const L = Math.min(lado(0), lado(1), lado(2)) / 2;
+  const m = muestrearCorte(campo, p, { plano: esp.plano, c: esp.c, M: N, dominio: d, escalar: null }, L);
+  const tangencial = esp.vector === 'tangencial';
+  const mag = tangencial ? Float64Array.from({ length: m.total }, (_, i) => Math.hypot(m.Fpar[3 * i] as number, m.Fpar[3 * i + 1] as number, m.Fpar[3 * i + 2] as number)) : m.mag;
+  const deltaRef = Math.min(lado(u), lado(v)) / (N - 1);
+  const lMax = 0.9 * deltaRef;
+  const instancias = calcularFlechas({ total: m.total, pos: m.pos, F: tangencial ? m.Fpar : m.F, mag, clase: m.clase }, { ...opciones, lMax });
+  return { instancias, lMax, deltaRef, total: m.total };
+}
+
+export function trabajoCorte(pet: PeticionCorte): ResultadoCorte {
   const campo = obtenerCampo(pet.campo);
-  return muestrearCorte(campo, Float64Array.from(pet.p), { plano: pet.plano, c: pet.c, M: pet.M, dominio: pet.dominio, escalar: pet.escalar }, pet.L);
+  const m = muestrearCorte(campo, Float64Array.from(pet.p), { plano: pet.plano, c: pet.c, M: pet.M, dominio: pet.dominio, escalar: pet.escalar }, pet.L);
+  // |F| no tiene signo: sin curva de nivel cero (DESIGN §9.6).
+  const e = m.escalar;
+  const contorno =
+    e && e.tipo !== 'magnitud'
+      ? contornoCero({ plano: m.plano, c: m.c, dominio: pet.dominio, lado: e.lado, valores: e.valores, estado: e.estado }).segmentos
+      : null;
+  return { ...m, contorno, dominio: pet.dominio };
 }
 
 /** Lote de trabajo entre cesiones del turno (PLAN §1.6). */

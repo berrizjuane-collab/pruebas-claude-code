@@ -24,6 +24,8 @@ import type { GeometriaLineas } from '../geometria/lineas';
 import { CapaEjes } from './layers/ejes';
 import { CapaFlechas } from './layers/flechas3d';
 import { CapaLineas } from './layers/lineas';
+import { CapaCorte, type DatosCorte } from './layers/corte';
+import type { DatosEscalar } from './layers/escalar';
 import { factorEscalaSprites } from './text/etiquetas';
 
 export interface OpcionesControlador {
@@ -52,6 +54,7 @@ export class ControladorEscena {
   readonly controles: OrbitControls;
   readonly flechas = new CapaFlechas();
   readonly lineas = new CapaLineas();
+  readonly corte = new CapaCorte();
   private readonly ejes = new CapaEjes();
   private dominio: Dominio = { min: [-2, -2, -2], max: [2, 2, 2] };
   private raf = 0;
@@ -98,7 +101,7 @@ export class ControladorEscena {
       this.transicion = null;
     });
     // Las líneas, antes que las flechas: con ambas capas, las flechas quedan encima (DESIGN §9.4).
-    this.escena.add(this.ejes.grupo, this.lineas.grupo, this.flechas.grupo);
+    this.escena.add(this.ejes.grupo, this.lineas.grupo, this.flechas.grupo, this.corte.grupo);
     this.observador = new ResizeObserver(() => this.redimensionar());
     this.observador.observe(lienzo.parentElement ?? lienzo);
     this.redimensionar();
@@ -106,6 +109,7 @@ export class ControladorEscena {
     opciones.fuentes?.then(() => {
       if (this.destruido) return;
       this.ejes.rasterizarDeNuevo();
+      this.corte.rerasterizar();
       this.pedirFotograma();
     });
   }
@@ -133,6 +137,18 @@ export class ControladorEscena {
   fijarFlechas(inst: InstanciasFlechas | null): void {
     if (inst) this.flechas.actualizar(inst);
     this.flechas.setVisible(!!inst);
+    this.pedirFotograma();
+  }
+
+  /** Plano de corte (o null) y sus flechas «solo corte» (o null para no dibujarlas). */
+  fijarCorte(d: DatosCorte | null, flechas: InstanciasFlechas | null): void {
+    this.corte.fijar(d, flechas);
+    this.pedirFotograma();
+  }
+
+  /** Mapa escalar sobre el corte (REN-06) o null. */
+  fijarEscalarCorte(d: DatosEscalar | null): void {
+    this.corte.fijarEscalar(d);
     this.pedirFotograma();
   }
 
@@ -222,6 +238,13 @@ export class ControladorEscena {
     return d > 0 ? focal / d : 0;
   }
 
+  /** Posición en pantalla (px CSS relativos al lienzo) de un punto del dominio. */
+  proyectar(p: Vec3): [number, number] {
+    this.camara.updateMatrixWorld();
+    const v = new THREE.Vector3(p[0], p[1], p[2]).project(this.camara);
+    return [((v.x + 1) / 2) * this.anchoCss, ((1 - v.y) / 2) * this.altoCss];
+  }
+
   /** Direcciones en pantalla (x a la derecha, y arriba) de los ejes x, y, z, para el triedro. */
   direccionesEjes(): [number, number, number][] {
     const inv = new THREE.Matrix4().copy(this.camara.matrixWorld).invert();
@@ -283,7 +306,8 @@ export class ControladorEscena {
   /** Dibuja la escena inmediatamente. */
   dibujar(): void {
     const k = factorEscalaSprites(this.camara, this.altoCss);
-    this.ejes.ajustar(k, this.anchoCss, this.altoCss);
+    this.ejes.ajustar(k, this.anchoCss, this.altoCss, this.camara);
+    this.corte.ajustar(this.camara, k, this.pixelesPorUnidad(), this.anchoCss, this.altoCss);
     this.renderer.render(this.escena, this.camara);
     this.fotogramasDibujados++;
   }
@@ -301,6 +325,7 @@ export class ControladorEscena {
     this.camara.updateProjectionMatrix();
     this.flechas.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
     this.lineas.setResolucion(w, h, this.pixelRatio);
+    this.corte.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
     this.pedirFotograma();
   }
 
@@ -308,8 +333,11 @@ export class ControladorEscena {
     return {
       fotogramas: this.fotogramasDibujados,
       flechas: this.flechas.cilindros.count,
+      flechasVisibles: this.flechas.grupo.visible,
+      rotulosEjes: this.ejes.rotulosVisibles,
       conos: this.flechas.conos.count,
       lineas: this.lineas.estadisticas,
+      corte: this.corte.estadisticas,
       tamano: [this.anchoCss, this.altoCss, this.pixelRatio],
       camara: this.obtenerCamara(),
     };
@@ -322,6 +350,7 @@ export class ControladorEscena {
     this.controles.dispose();
     this.flechas.dispose();
     this.lineas.dispose();
+    this.corte.dispose();
     this.ejes.dispose();
     this.renderer.dispose();
   }

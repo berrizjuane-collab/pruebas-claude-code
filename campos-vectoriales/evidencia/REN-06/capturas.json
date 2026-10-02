@@ -1,0 +1,157 @@
+{
+  "tarea": "REN-06",
+  "objetivo": "dev",
+  "fecha": "2026-10-02T08:04:55.928Z",
+  "resultados": [
+    {
+      "captura": "C3",
+      "tamano": "V1",
+      "archivo": "capturas/C3-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 25
+      },
+      "densidad": {
+        "scrollHeight": 1284,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Ecuaciones",
+          "Parámetros",
+          "Visualización",
+          "Corte",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 42
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C3",
+      "tamano": "V2",
+      "archivo": "capturas/C3-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 25
+      },
+      "densidad": {
+        "scrollHeight": 1284,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Parámetros",
+          "Visualización",
+          "Corte",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 36
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C3",
+      "tamano": "V3",
+      "archivo": "capturas/C3-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 25
+      },
+      "densidad": {
+        "scrollHeight": 1284,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Visualización",
+          "Corte",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 33
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    }
+  ]
+}

@@ -42,6 +42,8 @@ export interface EstadoExperimento {
     flechas: 'todas' | 'corte';
     vector: 'completo' | 'tangencial';
     escalar: EscalarCorte;
+    /** V_ref del mapa escalar: P95 del corte o fijada desde la leyenda (DESIGN §9.6). */
+    escala: { tipo: 'auto' } | { tipo: 'fija'; valor: number };
   };
   camara: { tipo: 'perspectiva' | 'ortografica'; posicion: Vec3; objetivo: Vec3 } | null;
   punto: Vec3 | null;
@@ -78,7 +80,7 @@ export function experimentoDesdeCatalogo(id: IdCampo, previo?: EstadoExperimento
     flechas: { modo: 'proporcional', escala: { tipo: 'auto' }, luminancia: 'lineal' },
     lineas: { semillas: c.semillas, paso: null, longitudMax: null },
     particulas: { n: 400, tau: null, semilla: 1 },
-    corte: { activo: false, plano: 'XY', c: 0, flechas: 'todas', vector: 'completo', escalar: 'ninguno' },
+    corte: { activo: false, plano: 'XY', c: 0, flechas: 'todas', vector: 'completo', escalar: 'ninguno', escala: { tipo: 'auto' } },
     camara: null,
     punto: null,
     cifras: 4,

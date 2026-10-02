@@ -35,7 +35,12 @@ export const peticionMalla = (e: EstadoExperimento): SinId<PeticionMalla> => ({
   posicion: e.muestreo.posicion,
   escala: e.flechas.escala,
   flechas: { modo: e.flechas.modo, luminancia: e.flechas.luminancia },
+  corte: corteDeFlechas(e),
 });
+
+/** El corte solo entra en la malla cuando sus flechas sustituyen a las del volumen («solo corte»). */
+export const corteDeFlechas = (e: EstadoExperimento): PeticionMalla['corte'] =>
+  e.corte.activo && e.corte.flechas === 'corte' ? { plano: e.corte.plano, c: e.corte.c, vector: e.corte.vector } : null;
 
 export const peticionCorte = (e: EstadoExperimento): SinId<PeticionCorte> => {
   const lado = Math.min(...[0, 1, 2].map((k) => (e.dominio.max[k] as number) - (e.dominio.min[k] as number)));

@@ -16,6 +16,7 @@ import { Miniatura } from './Miniatura';
 import { Parametros } from './Parametros';
 import { Visualizacion } from './Visualizacion';
 import { Avanzado } from './Avanzado';
+import { Corte } from './Corte';
 
 /** Acciones del panel (las ejecuta App sobre el almacén). */
 export interface AccionesPanel {
@@ -32,6 +33,7 @@ export interface AccionesPanel {
   alCapa: (capa: Capa, activa: boolean) => void;
   alGlifos: (g: EstadoExperimento['capas']['glifos']) => void;
   alFlechas: (cambios: Partial<EstadoExperimento['flechas']>) => void;
+  alCorte: (cambios: Partial<EstadoExperimento['corte']>) => void;
 }
 
 interface Props {
@@ -70,6 +72,7 @@ export function Panel({ estado, campo, acciones: a, edicionInvalida, escalaActua
         alAnadir={a.alAnadirParametro}
       />
       <Visualizacion capas={estado.capas} alCapa={a.alCapa} alGlifos={a.alGlifos} />
+      <Corte corte={estado.corte} dominio={estado.dominio} alCorte={a.alCorte} />
       <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} />
       <Avanzado flechas={estado.flechas} fRefActual={escalaActual?.fRef ?? null} deltaActual={escalaActual?.delta ?? null} alFlechas={a.alFlechas} />
     </aside>
