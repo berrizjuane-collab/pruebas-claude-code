@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 a H4 completados; H5 en curso |
+| **Fase** | Implementación — H0 a H5 completados; H6 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H5: líneas de corriente, magnitud y escala, cortes, mapa escalar, rotacional, partículas y leyenda completa |
+| **Siguiente paso** | H6: selección de puntos (clic en flecha o en el corte, tecla I), tarjeta del inspector con F, J, div, rot y lecturas, y coherencia ecuaciones–geometría–leyenda–inspector |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
@@ -24,7 +24,7 @@
 | H2 Lenguaje | 4 | 4/4 | Puede ir en paralelo a H1 |
 | H3 Numérico y cómputo | 7 | 7/7 | — |
 | H4 Edición y controles | 7 | 7/7 | — |
-| H5 Capas científicas | 9 | 0/9 | — |
+| H5 Capas científicas | 9 | 9/9 | — |
 | H6 Inspección | 3 | 0/3 | — |
 | H7 Exportación | 3 | 0/3 | — |
 | H8 Transversal | 4 | 0/4 | — |
@@ -62,6 +62,15 @@
 - UI-04 · 2026-10-02 · `b40d607` · [evidencia/UI-04/](evidencia/UI-04/)
 - UI-05 · 2026-10-02 · `b40d607` · [evidencia/UI-05/](evidencia/UI-05/)
 - REV-02 · 2026-10-02 · `b40d607` · [evidencia/REV-02/](evidencia/REV-02/)
+- REN-03 · 2026-10-02 · `615f6d6` · [evidencia/REN-03/](evidencia/REN-03/)
+- REN-04 · 2026-10-02 · `615f6d6` · [evidencia/REN-04/](evidencia/REN-04/)
+- REN-05 · 2026-10-02 · `615f6d6` · [evidencia/REN-05/](evidencia/REN-05/)
+- REN-06 · 2026-10-02 · `615f6d6` · [evidencia/REN-06/](evidencia/REN-06/)
+- REN-07 · 2026-10-02 · `615f6d6` · [evidencia/REN-07/](evidencia/REN-07/)
+- REN-08 · 2026-10-02 · `615f6d6` · [evidencia/REN-08/](evidencia/REN-08/)
+- UI-08 · 2026-10-02 · `615f6d6` · [evidencia/UI-08/](evidencia/UI-08/)
+- VIS-05 · 2026-10-02 · `615f6d6` · [evidencia/VIS-05/](evidencia/VIS-05/)
+- REV-03 · 2026-10-02 · `615f6d6` · [evidencia/REV-03/](evidencia/REV-03/)
 
 ---
 

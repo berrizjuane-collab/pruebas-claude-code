@@ -381,15 +381,15 @@ aceptación con la evidencia indicada.
 | UI-04 | Dominio y muestreo | H4 | VIS-02, CMP-02 | Completada y verificada |
 | UI-05 | Restablecer y deshacer | H4 | UI-03, UI-04 | Completada y verificada |
 | REV-02 | Revisión de capturas de controles y estados | H4 | UI-02 … UI-05 | Completada y verificada |
-| REN-03 | Capa de líneas de corriente | H5 | NUM-04, CMP-02, REN-01 | Pendiente |
-| REN-04 | Modos de magnitud y escala | H5 | REN-02 | Pendiente |
-| REN-05 | Cortes | H5 | REN-02, NUM-06 | Pendiente |
-| REN-06 | Mapa escalar del corte | H5 | REN-05 | Pendiente |
-| REN-07 | Glifos de rotacional y rueda de paletas | H5 | REN-02, NUM-02 | Pendiente |
-| REN-08 | Partículas y control de animación | H5 | NUM-05, REN-01 | Pendiente |
-| UI-08 | Secciones de líneas, corte y derivadas | H5 | REN-03, REN-05, REN-06, MAT-04 | Pendiente |
-| VIS-05 | Legibilidad científica: leyenda completa y auditoría de codificación | H5 | REN-03 … REN-08, VIS-04 | Pendiente |
-| REV-03 | Revisión de capturas de la escena | H5 | VIS-05 | Pendiente |
+| REN-03 | Capa de líneas de corriente | H5 | NUM-04, CMP-02, REN-01 | Completada y verificada |
+| REN-04 | Modos de magnitud y escala | H5 | REN-02 | Completada y verificada |
+| REN-05 | Cortes | H5 | REN-02, NUM-06 | Completada y verificada |
+| REN-06 | Mapa escalar del corte | H5 | REN-05 | Completada y verificada |
+| REN-07 | Glifos de rotacional y rueda de paletas | H5 | REN-02, NUM-02 | Completada y verificada |
+| REN-08 | Partículas y control de animación | H5 | NUM-05, REN-01 | Completada y verificada |
+| UI-08 | Secciones de líneas, corte y derivadas | H5 | REN-03, REN-05, REN-06, MAT-04 | Completada y verificada |
+| VIS-05 | Legibilidad científica: leyenda completa y auditoría de codificación | H5 | REN-03 … REN-08, VIS-04 | Completada y verificada |
+| REV-03 | Revisión de capturas de la escena | H5 | VIS-05 | Completada y verificada |
 | INS-01 | Selección de puntos | H6 | REN-02, REN-05 | Pendiente |
 | INS-02 | Tarjeta del inspector | H6 | INS-01, NUM-02, MAT-04 | Pendiente |
 | INS-03 | Coherencia entre ecuaciones, geometría, leyenda e inspector | H6 | INS-02, VIS-05 | Pendiente |
@@ -758,7 +758,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: automática + manual.
 - **Evidencia**: PNG + `informe.md`.
 
-#### REN-03 · Capa de líneas de corriente — Pendiente
+#### REN-03 · Capa de líneas de corriente — Completada y verificada
 - **Objetivo**: líneas con `Line2` (1.5 px + halo), cheurones de sentido, semillas y marcas
   finales.
 - **Dependencias**: NUM-04, CMP-02, REN-01.
@@ -771,7 +771,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e + captura C2.
 - **Evidencia**: captura y recuento de motivos.
 
-#### REN-04 · Modos de magnitud y escala — Pendiente
+#### REN-04 · Modos de magnitud y escala — Completada y verificada
 - **Objetivo**: proporcional/normalizada, auto/fija, lineal/logarítmica.
 - **Dependencias**: REN-02.
 - **Componentes**: `render/layers/arrows.ts`, sección Avanzado, leyenda.
@@ -782,7 +782,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: Vitest sobre la función pura + e2e.
 - **Evidencia**: salida y capturas comparativas.
 
-#### REN-05 · Cortes — Pendiente
+#### REN-05 · Cortes — Completada y verificada
 - **Objetivo**: plano XY/XZ/YZ con contorno, velo y etiqueta; flechas del corte (completas
   o tangenciales); «solo en el corte».
 - **Dependencias**: REN-02, NUM-06.
@@ -792,7 +792,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: capturas de los tres planos.
 
-#### REN-06 · Mapa escalar del corte — Pendiente
+#### REN-06 · Mapa escalar del corte — Completada y verificada
 - **Objetivo**: *shader* con banda oscura, puntos y rayado por signo, nivel cero discontinuo
   y glifos dispersos (+/−, ⊙/⊗, ↺/↻).
 - **Dependencias**: REN-05.
@@ -803,7 +803,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e con muestreo de píxeles (frecuencia del patrón a cada lado).
 - **Evidencia**: captura C3 y análisis de píxeles.
 
-#### REN-07 · Glifos de rotacional y rueda de paletas — Pendiente
+#### REN-07 · Glifos de rotacional y rueda de paletas — Completada y verificada
 - **Objetivo**: glifo con anillo orientado por la regla de la mano derecha; rueda en P.
 - **Dependencias**: REN-02, NUM-02.
 - **Componentes**: `render/layers/curlGlyphs.ts`, `selection.ts`.
@@ -813,7 +813,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: Vitest sobre la orientación + e2e.
 - **Evidencia**: capturas con ω = ±1.
 
-#### REN-08 · Partículas y control de animación — Pendiente
+#### REN-08 · Partículas y control de animación — Completada y verificada
 - **Objetivo**: partículas con estela que se estrecha, pausa/reanudar, escala τ y
   movimiento reducido.
 - **Dependencias**: NUM-05, REN-01.
@@ -824,7 +824,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e con emulación de movimiento reducido.
 - **Evidencia**: salida y capturas.
 
-#### UI-08 · Secciones de líneas, corte y derivadas — Pendiente
+#### UI-08 · Secciones de líneas, corte y derivadas — Completada y verificada
 - **Objetivo**: controles del panel para semillas y opciones de integración, para el corte y
   para las expresiones de div F y rot F con sus accesos directos.
 - **Dependencias**: REN-03, REN-05, REN-06, MAT-04.
@@ -836,7 +836,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: salida y capturas.
 
-#### VIS-05 · Legibilidad científica: leyenda completa y auditoría de codificación — Pendiente
+#### VIS-05 · Legibilidad científica: leyenda completa y auditoría de codificación — Completada y verificada
 - **Objetivo**: leyenda con todas las entradas (DESIGN §9.12) y comprobación de que la escena
   respeta la tabla de codificación.
 - **Dependencias**: REN-03 … REN-08, VIS-04.
@@ -849,7 +849,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: matriz rellenada + capturas + revisión manual.
 - **Evidencia**: `matriz.md` y capturas.
 
-#### REV-03 · Revisión de capturas de la escena — Pendiente
+#### REV-03 · Revisión de capturas de la escena — Completada y verificada
 - **Objetivo**: revisar la claridad de la escena y la paleta con todas las capas.
 - **Dependencias**: VIS-05.
 - **Componentes**: `evidencia/REV-03/`.
