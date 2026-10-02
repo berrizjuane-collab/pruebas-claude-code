@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 a H6 completados; H7 en curso |
+| **Fase** | Implementación — H0 a H7 completados; H8 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H7: configuración JSON v1 (exportar, importar, validar y migrar), autoguardado con recuperación y exportación PNG compuesta |
+| **Siguiente paso** | H8: teclado, foco y atajos completos (A11Y-01), lector de pantalla y contraste (A11Y-02), pantallas pequeñas (UI-06) y revisión visual transversal (VIS-06) |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
@@ -26,7 +26,7 @@
 | H4 Edición y controles | 7 | 7/7 | — |
 | H5 Capas científicas | 9 | 9/9 | — |
 | H6 Inspección | 3 | 3/3 | — |
-| H7 Exportación | 3 | 0/3 | — |
+| H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 0/4 | — |
 | H9 Validación | 6 | 0/6 | Incluye ENT-01 (HTML autocontenido) |
 
@@ -74,6 +74,9 @@
 - INS-01 · 2026-10-02 · `4ae876b` · [evidencia/INS-01/](evidencia/INS-01/)
 - INS-02 · 2026-10-02 · `4ae876b` · [evidencia/INS-02/](evidencia/INS-02/)
 - INS-03 · 2026-10-02 · `4ae876b` · [evidencia/INS-03/](evidencia/INS-03/)
+- EXP-01 · 2026-10-02 · `1a6c6a5` · [evidencia/EXP-01/](evidencia/EXP-01/)
+- EXP-02 · 2026-10-02 · `1a6c6a5` · [evidencia/EXP-02/](evidencia/EXP-02/)
+- EXP-03 · 2026-10-02 · `1a6c6a5` · [evidencia/EXP-03/](evidencia/EXP-03/)
 
 ---
 
@@ -284,6 +287,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-02 | H2, H3 y H4 completados y verificados (§1.2); decisiones D-29 … D-36 |
 | 2026-10-02 | H5 completado y verificado: líneas de corriente, magnitud y escala, cortes, mapa escalar, rot F, rueda de paletas, partículas y leyenda completa; decisiones D-37 … D-45 |
 | 2026-10-02 | H6 completado y verificado: selección de puntos, tarjeta del inspector y coherencia ecuaciones–geometría–leyenda–inspector en los 6 campos y T6; decisiones D-46 … D-48 |
+| 2026-10-02 | H7 completado y verificado: configuración JSON v1 con validación estricta, autoguardado con recuperación y exportación PNG compuesta en tres tamaños; decisiones D-49 … D-52 |
 
 ---
 

@@ -393,9 +393,9 @@ aceptación con la evidencia indicada.
 | INS-01 | Selección de puntos | H6 | REN-02, REN-05 | Completada y verificada |
 | INS-02 | Tarjeta del inspector | H6 | INS-01, NUM-02, MAT-04 | Completada y verificada |
 | INS-03 | Coherencia entre ecuaciones, geometría, leyenda e inspector | H6 | INS-02, VIS-05 | Completada y verificada |
-| EXP-01 | Configuración JSON v1 | H7 | UI-05 | Pendiente |
-| EXP-02 | Autoguardado y recuperación | H7 | EXP-01 | Pendiente |
-| EXP-03 | Exportación PNG compuesta | H7 | VIS-05 | Pendiente |
+| EXP-01 | Configuración JSON v1 | H7 | UI-05 | Completada y verificada |
+| EXP-02 | Autoguardado y recuperación | H7 | EXP-01 | Completada y verificada |
+| EXP-03 | Exportación PNG compuesta | H7 | VIS-05 | Completada y verificada |
 | A11Y-01 | Teclado, foco y atajos | H8 | INS-01, UI-08 | Pendiente |
 | A11Y-02 | ARIA, lector de pantalla y movimiento reducido | H8 | REN-08, A11Y-01 | Pendiente |
 | UI-06 | Cajón de ayuda y ayuda contextual | H8 | VIS-02, MAT-04 | Pendiente |
@@ -886,7 +886,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: salida.
 
-#### EXP-01 · Configuración JSON v1 — Pendiente
+#### EXP-01 · Configuración JSON v1 — Completada y verificada
 - **Objetivo**: exportar, importar, validar y migrar la configuración.
 - **Dependencias**: UI-05.
 - **Componentes**: `state/persist.ts`, `export/json.ts`, `tests/fixtures/`.
@@ -895,7 +895,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: Vitest (validador) + e2e (ida y vuelta).
 - **Evidencia**: salida.
 
-#### EXP-02 · Autoguardado y recuperación — Pendiente
+#### EXP-02 · Autoguardado y recuperación — Completada y verificada
 - **Objetivo**: guardar en `localStorage` y recuperar al arrancar, tolerando fallos.
 - **Dependencias**: EXP-01.
 - **Componentes**: `state/persist.ts`.
@@ -904,7 +904,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e con almacenamiento bloqueado.
 - **Evidencia**: salida.
 
-#### EXP-03 · Exportación PNG compuesta — Pendiente
+#### EXP-03 · Exportación PNG compuesta — Completada y verificada
 - **Objetivo**: imagen de la escena ± leyenda ± ecuaciones en tres tamaños.
 - **Dependencias**: VIS-05.
 - **Componentes**: `export/png.ts`.
