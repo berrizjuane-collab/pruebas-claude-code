@@ -1,0 +1,158 @@
+{
+  "tarea": "REN-04",
+  "objetivo": "dev",
+  "fecha": "2026-10-02T08:59:33.623Z",
+  "resultados": [
+    {
+      "captura": "MAG-PROP",
+      "tamano": "V2",
+      "archivo": "capturas/MAG-PROP-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 22
+      },
+      "densidad": {
+        "scrollHeight": 1176,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros"
+        ],
+        "interactivos": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "MAG-NORM",
+      "tamano": "V2",
+      "archivo": "capturas/MAG-NORM-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 29
+      },
+      "densidad": {
+        "scrollHeight": 1540,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 33
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "MAG-LOG",
+      "tamano": "V2",
+      "archivo": "capturas/MAG-LOG-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 29
+      },
+      "densidad": {
+        "scrollHeight": 1540,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 33
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    }
+  ]
+}

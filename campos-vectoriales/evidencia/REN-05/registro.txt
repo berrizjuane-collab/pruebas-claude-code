@@ -1,0 +1,105 @@
+# REN-05 · Cortes (V-FUN-07, parte geométrica) · 2026-10-02T09:01:37Z
+✓  26 [chromium] › tests/e2e/h5.spec.ts:194:3 › REN-05 · cortes › XY, XZ e YZ: el plano está en la posición indicada y con su rótulo; C lo activa y lo desactiva (4.4s)
+✓  28 [chromium] › tests/e2e/h5.spec.ts:244:3 › REN-05 · cortes › «solo corte»: se ocultan las flechas del volumen y las del plano quedan sobre él; tangencial: F·n = 0 y nota fija (6.8s)
+✓  30 [chromium] › tests/e2e/h5.spec.ts:278:3 › REN-05 · cortes › la posición se mantiene dentro de Ω: valores fuera de rango se rechazan y el corte se recoloca al cambiar el dominio (5.8s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "REN-05 planos": {
+    "YZ": {
+      "rotulo": "x = −0.50",
+      "esquinas": [
+        [
+          -0.5,
+          -2,
+          -2
+        ],
+        [
+          -0.5,
+          2,
+          -2
+        ],
+        [
+          -0.5,
+          2,
+          2
+        ],
+        [
+          -0.5,
+          -2,
+          2
+        ]
+      ],
+      "esquinaRotulo": [
+        -0.5,
+        2,
+        2
+      ]
+    },
+    "XZ": {
+      "rotulo": "y = 1.25",
+      "esquinas": [
+        [
+          -2,
+          1.25,
+          -2
+        ],
+        [
+          2,
+          1.25,
+          -2
+        ],
+        [
+          2,
+          1.25,
+          2
+        ],
+        [
+          -2,
+          1.25,
+          2
+        ]
+      ],
+      "esquinaRotulo": [
+        2,
+        1.25,
+        2
+      ]
+    },
+    "XY": {
+      "rotulo": "z = −2.00",
+      "esquinas": [
+        [
+          -2,
+          -2,
+          -2
+        ],
+        [
+          2,
+          -2,
+          -2
+        ],
+        [
+          2,
+          2,
+          -2
+        ],
+        [
+          -2,
+          2,
+          -2
+        ]
+      ],
+      "esquinaRotulo": [
+        2,
+        2,
+        -2
+      ]
+    }
+  },
+  "REN-05 solo corte": {
+    "flechas": 81,
+    "componenteNormalMaxCompleto": 0.9630868434906006
+  }
+}

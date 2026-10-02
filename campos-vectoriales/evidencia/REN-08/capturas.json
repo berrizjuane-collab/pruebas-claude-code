@@ -1,0 +1,105 @@
+{
+  "tarea": "REN-08",
+  "objetivo": "dev",
+  "fecha": "2026-10-02T08:59:56.242Z",
+  "resultados": [
+    {
+      "captura": "PARTICULAS",
+      "tamano": "V2",
+      "archivo": "capturas/PARTICULAS-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 22
+      },
+      "densidad": {
+        "scrollHeight": 1176,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros"
+        ],
+        "interactivos": 28
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C2",
+      "tamano": "V2",
+      "archivo": "capturas/C2-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 22
+      },
+      "densidad": {
+        "scrollHeight": 1176,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros"
+        ],
+        "interactivos": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    }
+  ]
+}

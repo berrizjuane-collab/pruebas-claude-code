@@ -518,7 +518,8 @@ Sobre el corte, con «Escalar: div F»:
 ### 9.7 Rotacional
 
 1. **Glifos de rot F** («Glifos: rot F»): cilindro + cono, más un **anillo** alrededor del
-   eje con una punta de flecha que marca el sentido de giro por la regla de la mano derecha.
+   eje con dos puntas de flecha opuestas, orientadas hacia la cámara, que marcan el sentido de
+   giro por la regla de la mano derecha (D-40).
    La banda clara pasa a significar $\lVert\nabla\times\mathbf F\rVert$, con su propia
    $C_{\text{ref}}$ en la leyenda.
 2. **Sobre el corte** («Escalar: rot F · n»): misma codificación que la divergencia, con

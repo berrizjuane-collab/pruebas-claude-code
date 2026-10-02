@@ -1,9 +1,12 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { PNG } from 'pngjs';
 import { abrir, registrar, sinErrores } from '../util/app';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+type PaginaAxe = ConstructorParameters<typeof AxeBuilder>[0]['page'];
+const axe = (page: Page) => new AxeBuilder({ page: page as unknown as PaginaAxe });
 const gancho = (page: Page, expr: string, arg?: unknown) =>
   page.evaluate(`(${expr})(window.__campos, ${JSON.stringify(arg ?? null)})`) as Promise<any>;
 const estado = (page: Page) => gancho(page, '(c) => c.estado()');
@@ -17,9 +20,13 @@ const estable = (page: Page) =>
 const fijar = (page: Page, cuerpo: string) => gancho(page, `(c) => c.fijarEstado((s) => (${cuerpo}))`);
 
 const informe: Record<string, unknown> = {};
+// Se combina con lo que ya hayan escrito otros procesos de la misma ejecución (el proyecto de
+// rendimiento ejecuta este archivo aparte); Playwright vacía `test-results` al empezar.
 test.afterAll(() => {
   mkdirSync('test-results', { recursive: true });
-  writeFileSync('test-results/h5-informe.json', JSON.stringify(informe, null, 2));
+  const ruta = 'test-results/h5-informe.json';
+  const previo = existsSync(ruta) ? (JSON.parse(readFileSync(ruta, 'utf8')) as Record<string, unknown>) : {};
+  writeFileSync(ruta, JSON.stringify({ ...previo, ...informe }, null, 2));
 });
 
 // ---------------------------------------------------------------- REN-03
@@ -802,5 +809,116 @@ test.describe('UI-08 · secciones de líneas, corte y derivadas', () => {
     await page.locator('[data-prueba="cifras"]').press('Enter');
     expect((await estado(page)).cifras).toBe(6);
     expect((await estado(page)).particulas).toEqual({ n: 100, tau: 0.5, semilla: 9 });
+  });
+});
+
+// ---------------------------------------------------------------- VIS-05 (leyenda completa y codificación)
+
+test.describe('VIS-05 · leyenda completa y auditoría de la codificación', () => {
+  test('VV-09: las entradas de la leyenda son exactamente las capas visibles, en el orden de DESIGN §9.12', async ({ page }) => {
+    test.setTimeout(120_000);
+    await abrir(page);
+    await estable(page);
+    const BLOQUES = ['leyenda-flechas', 'leyenda-lineas', 'leyenda-particulas', 'leyenda-corte'];
+    const combinaciones: Record<string, boolean>[] = [];
+    for (let m = 0; m < 16; m++) combinaciones.push({ flechas: !!(m & 1), lineas: !!(m & 2), particulas: !!(m & 4), corte: !!(m & 8) });
+    const fallos: string[] = [];
+    for (const c of combinaciones) {
+      await fijar(
+        page,
+        `{ ...s, capas: { ...s.capas, flechas: ${c.flechas}, lineas: ${c.lineas}, particulas: ${c.particulas} }, corte: { ...s.corte, activo: ${c.corte}, escalar: '${c.corte ? 'divergencia' : 'ninguno'}' } }`,
+      );
+      await page.waitForFunction(() => {
+        const k = (window as any).__campos;
+        const p = k.pendiente();
+        return !p.malla && !p.lineas && !p.corte;
+      });
+      const esperado = [c.flechas, c.lineas, c.particulas, c.corte];
+      // Los bloques presentes, en el orden del documento.
+      const presentes = await page.evaluate((ids) => {
+        const nodos = [...document.querySelectorAll('.leyenda [data-prueba]')].map((e) => e.getAttribute('data-prueba'));
+        return nodos.filter((n): n is string => !!n && ids.includes(n));
+      }, BLOQUES);
+      const debidos = BLOQUES.filter((_, i) => esperado[i]);
+      // El helicoidal tiene div F = 0: el bloque del corte dice «= 0 en todo el corte».
+      if (JSON.stringify(presentes) !== JSON.stringify(debidos)) fallos.push(`${JSON.stringify(c)} → ${presentes.join(', ')}`);
+    }
+    informe['VV-09 leyenda'] = { combinaciones: combinaciones.length, fallos };
+    expect(fallos).toEqual([]);
+  });
+
+  test('«prohibido en la escena»: sin luces ni niebla, materiales sin iluminación y flechas opacas', async ({ page }) => {
+    await abrir(page);
+    await fijar(page, `{ ...s, punto: [1, 0, 0], capas: { ...s.capas, particulas: true }, corte: { ...s.corte, activo: true, escalar: 'magnitud' } }`);
+    await page.waitForFunction(() => (window as any).__campos.escena().rueda?.visible === true);
+    await estable(page);
+    const a = await gancho(page, '(c) => c.auditarEscena()');
+    informe['VIS-05 materiales'] = a;
+    expect(a.luces).toBe(0);
+    expect(a.niebla).toBe(false);
+    expect(a.conLuz).toEqual([]);
+    // Solo son transparentes los glifos en pantalla (puntos con borde suavizado) y las etiquetas.
+    for (const nombre of a.transparentes) expect(['ShaderMaterial', 'SpriteMaterial', 'corte-velo']).toContain(nombre);
+  });
+
+  test('VV-05: conos de la mitad delantera de C1 (1440×900): ≥ 6 px en el 95 % de las flechas legibles por su geometría', async ({ page }) => {
+    await abrir(page);
+    await estable(page);
+    const conos = (await gancho(page, '(c) => c.conosProyectados()')) as { largo: number; distancia: number; escorzo: number; fraccion: number }[];
+    const delante = [...conos].sort((p, q) => p.distancia - q.distancia).slice(0, Math.floor(conos.length / 2));
+    // Legibles por su geometría: ‖F‖ ≥ 20 % de F_ref y a más de 30° del rayo de vista. Las que
+    // apuntan casi hacia la cámara se leen por la base oscura y el degradado del cono (REV-01);
+    // las débiles se escalan enteras por diseño (DESIGN §9.2) y su magnitud está en la luminancia.
+    const legibles = delante.filter((c) => c.fraccion >= 0.2 && c.escorzo >= 30);
+    const bien = legibles.filter((c) => c.largo >= 6).length;
+    const cortos = delante.filter((c) => c.largo < 6);
+    informe['VV-05 C1'] = {
+      mitadDelantera: delante.length,
+      legibles: legibles.length,
+      conoAlMenos6px: bien,
+      fraccion: bien / legibles.length,
+      conoMenor6px: { total: cortos.length, debiles: cortos.filter((c) => c.fraccion < 0.2).length, haciaLaCamara: cortos.filter((c) => c.fraccion >= 0.2 && c.escorzo < 30).length },
+    };
+    expect(legibles.length).toBeGreaterThan(200);
+    expect(bien / legibles.length).toBeGreaterThanOrEqual(0.95);
+  });
+
+  test('VV-03: axe sin infracciones con las secciones nuevas abiertas y la leyenda completa', async ({ page }) => {
+    await abrir(page);
+    await fijar(page, `{ ...s, capas: { ...s.capas, particulas: true }, corte: { ...s.corte, activo: true, escalar: 'divergencia' }, campo: { P: 'x^2', Q: 'y', R: '0' }, parametros: [], base: null }`);
+    await estable(page);
+    for (const s of ['Líneas de corriente', 'Corte', 'Divergencia y rotacional', 'Avanzado']) await page.getByRole('button', { name: s, exact: true }).click();
+    await page.getByRole('button', { name: 'Detalles del cálculo' }).click();
+    const r = await axe(page).analyze();
+    informe['VV-03 axe H5'] = { infracciones: r.violations.map((v) => v.id), reglasSuperadas: r.passes.length };
+    expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------- REV-03 · VV-10 (movimiento reducido)
+
+test.describe('REV-03 · movimiento reducido (VV-10)', () => {
+  test('sin animaciones CSS tras interactuar, partículas en pausa al inicio y la cámara salta', async ({ browser }) => {
+    const contexto = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await contexto.newPage();
+    await abrir(page, 'prueba=1');
+    await estable(page);
+    await page.locator('body').press('p');
+    expect((await gancho(page, '(c) => c.animacion()')).enMarcha).toBe(false);
+    // Interacciones con transiciones: secciones, leyenda, menú y botones.
+    await page.getByRole('button', { name: 'Avanzado' }).click();
+    await page.getByRole('button', { name: 'Leyenda' }).click();
+    await page.getByRole('button', { name: 'Restablecer', exact: true }).click();
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Vista isométrica' }).hover();
+    const animaciones = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running').length);
+    expect(animaciones).toBe(0);
+    // La cámara salta a la vista pedida (sin transición).
+    await page.locator('body').press('1');
+    const cam = await gancho(page, '(c) => c.camara()');
+    await page.waitForTimeout(150);
+    expect(await gancho(page, '(c) => c.camara()')).toEqual(cam);
+    informe['VV-10'] = { animacionesEnCurso: animaciones, particulasEnPausa: true, camara: 'salta' };
+    await contexto.close();
   });
 });

@@ -120,6 +120,15 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-34 | Controles deshabilitados con `aria-disabled` (enfocables) y motivo en la descripción emergente | Atributo `disabled` nativo | Un control `disabled` no recibe el foco: el motivo (DESIGN §7) no llegaría al teclado ni al lector de pantalla | Sí |
 | D-35 | Las pruebas de rendimiento (`@rendimiento`) se ejecutan al final, en un proyecto propio de Playwright | Junto al resto, en paralelo | Con dos navegadores con WebGL por software compitiendo por la CPU, una tarea de 52 ms en modo desarrollo medía la carga, no la aplicación; en producción, la ráfaga deja el hilo principal inactivo el 89 % del tiempo | Sí |
 | D-36 | Nombres cortos en las tarjetas de ejemplo («Radial +», «Radial −») y nombre completo en el nombre accesible | Nombres completos en dos líneas (72 px) | Altura de 56 px de DESIGN §6.1 y densidad (D-33); el nombre accesible contiene el visible (WCAG 2.5.3) | Sí |
+| D-37 | VV-05 revisado: cono proyectado ≥ 6 px en ≥ 95 % de las flechas de la mitad delantera legibles por su geometría (‖F‖ ≥ 20 % F_ref y a más de 30° del rayo de vista) + muestra manual de 20 | Todas las flechas de la mitad delantera | Las flechas débiles se escalan enteras por diseño (DESIGN §9.2) y las que apuntan a la cámara se leen por la base oscura y el degradado (REV-01). Medido en C1 a 1440×900: 97.9 % (229/234); muestra manual 20/20 | Sí |
+| D-38 | Sesgo de profundidad de los glifos como fracción (2 %) de su distancia, a lo largo del rayo de vista | Desplazamiento constante en NDC | 0.002 en NDC equivalía a ≈ 10 unidades a la distancia de encuadre: los cheurones pasaban por delante de flechas más cercanas. Con el rayo de vista la posición en pantalla no cambia | Sí |
+| D-39 | La estela de las partículas guarda una posición cada 3 fotogramas (12 posiciones ≈ 0.6 s) | Una por fotograma | Con una por fotograma la estela medía 0.2 s (≈ 10 px) y la tapaba el propio punto. SPEC §5.8 («últimas 12 posiciones») se mantiene | Sí |
+| D-40 | Anillo de rot F con dos puntas opuestas, orientadas hacia la cámara | Una punta fija (DESIGN §9.7) | Con la vista inicial la punta fija quedaba detrás del eje. La delantera se ve siempre de perfil; las dos respetan la regla de la mano derecha (Vitest y e2e) | Sí |
+| D-41 | C_ref y V_ref con estado propio (`flechas.escalaRot`, `corte.escala`), fijables desde la leyenda; SPEC §7.2 actualizado | Compartir F_ref | Unidades distintas (F, ∇×F, escalar del corte); cambiar de escalar libera V_ref | Sí |
+| D-42 | Una sola regla para recolocar el corte: z = 0 si está dentro de Ω y, si no, el centro (al activarlo, al cambiar de plano y al cambiar el dominio) | Centro de Ω al cambiar el dominio | F6.1 y F4.3 coherentes; se actualizó la prueba de H4 que esperaba el centro | Sí |
+| D-43 | Mapa escalar del corte opaco; lo apoyado en el plano (flechas, curva de nivel, contorno) se dibuja encima | Mapa semitransparente | La banda oscura y los patrones se leen sin interferencias de lo que hay detrás; DESIGN §9.2 ya prevé halos frente al mapa | Sí |
+| D-44 | Glifos ↺/↻ y ⊙/⊗ fijos según el signo respecto a +n (no según el lado desde el que se mira) | Invertirlos al mirar desde −n | Coinciden siempre con el patrón (puntos/rayado) y con la leyenda, que nombra la referencia («visto desde +z», «hacia +y») | Sí |
+| D-45 | div F y rot F se muestran con los términos semejantes agrupados (2ω, 2x, 0), en un paso aparte de la derivación | Simplificar en la derivación | Los árboles que se evalúan no cambian (MAT-04 intacta); solo cambia lo que se lee | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
@@ -253,6 +262,8 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-02 | Planificación inicial: SPEC, DESIGN, PLAN, VALIDATION y STATUS; evidencia de calibración y de entorno en `evidencia/PLN-01/` |
 | 2026-10-02 | Plan aprobado. Incorporadas las respuestas: R1 = i9 + RTX 4060 + 144 Hz; público experto; entrega como HTML autocontenido (RNF-14, D-15, D-20 … D-22, ENT-01) |
 | 2026-10-02 | H0 y H1 completados y verificados; HTML provisional en `entrega/`; decisiones D-23 … D-28 |
+| 2026-10-02 | H2, H3 y H4 completados y verificados (§1.2); decisiones D-29 … D-36 |
+| 2026-10-02 | H5 completado y verificado: líneas de corriente, magnitud y escala, cortes, mapa escalar, rot F, rueda de paletas, partículas y leyenda completa; decisiones D-37 … D-45 |
 
 ---
 

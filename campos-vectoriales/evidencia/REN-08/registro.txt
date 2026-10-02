@@ -1,0 +1,14 @@
+# REN-08 · Partículas y control de animación · 2026-10-02T09:01:37Z
+✓  40 [chromium] › tests/e2e/h5.spec.ts:610:3 › REN-08 · partículas y control de animación › Espacio y el botón de la barra pausan y reanudan; la leyenda muestra τ y el estado se anuncia (11.6s)
+✓  42 [chromium] › tests/e2e/h5.spec.ts:652:3 › REN-08 · partículas y control de animación › con movimiento reducido arranca en pausa y la estela ya muestra el sentido (6.9s)
+✓  43 [chromium] › tests/e2e/h5.spec.ts:668:3 › REN-08 · partículas y control de animación › V-FUN-08 · rueda frente a partículas: rotacional ω = 1, reloj determinista, 2 s → mismo ángulo (T-18) y «ω = 1.000 rad/t» (4.1s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "REN-08 pausa": {
+    "tau": 0.16666666666666666,
+    "particulas": 400,
+    "tramosEstela": 4132
+  }
+}

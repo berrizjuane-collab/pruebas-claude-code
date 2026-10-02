@@ -1,0 +1,26 @@
+# REN-07 · Glifos de rotacional y rueda de paletas (V-FUN-08) · 2026-10-02T09:01:37Z
+✓  39 [chromium] › tests/e2e/h5.spec.ts:544:3 › REN-07 · glifos de rotacional › rotacional con ω = ±1: glifos hacia ±z, anillo antihorario (ω = 1) u horario (ω = −1) visto desde arriba; puntas del lado de la cámara (7.0s)
+✓  43 [chromium] › tests/e2e/h5.spec.ts:668:3 › REN-08 · partículas y control de animación › V-FUN-08 · rueda frente a partículas: rotacional ω = 1, reloj determinista, 2 s → mismo ángulo (T-18) y «ω = 1.000 rad/t» (4.1s)
+HTML autocontenido (file://, CSP estricta): 2 de 2 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "REN-07 orientación": {
+    "omega=1": {
+      "glifos": 729,
+      "ejeZ": 1,
+      "puntasDelante": 729
+    },
+    "omega=-1": {
+      "glifos": 729,
+      "ejeZ": -1,
+      "puntasDelante": 729
+    }
+  },
+  "V-FUN-08": {
+    "anguloRueda": 0.40000000000000063,
+    "tau": 0.2,
+    "particulasComparadas": 264,
+    "maxDiferencia": 4.123923424970144e-13
+  }
+}

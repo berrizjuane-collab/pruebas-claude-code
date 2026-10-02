@@ -1,0 +1,205 @@
+{
+  "tarea": "UI-08",
+  "objetivo": "dev",
+  "fecha": "2026-10-02T09:00:05.003Z",
+  "resultados": [
+    {
+      "captura": "PANEL-LINEAS",
+      "tamano": "V2",
+      "archivo": "capturas/PANEL-LINEAS-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 28
+      },
+      "densidad": {
+        "scrollHeight": 1710,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 33
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "PANEL-DERIVADAS",
+      "tamano": "V2",
+      "archivo": "capturas/PANEL-DERIVADAS-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 22
+      },
+      "densidad": {
+        "scrollHeight": 1417,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 28
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "PANEL-LINEAS",
+      "tamano": "V3",
+      "archivo": "capturas/PANEL-LINEAS-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 28
+      },
+      "densidad": {
+        "scrollHeight": 1710,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Líneas de corriente",
+          "Corte"
+        ],
+        "interactivos": 30
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "PANEL-DERIVADAS",
+      "tamano": "V3",
+      "archivo": "capturas/PANEL-DERIVADAS-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 22
+      },
+      "densidad": {
+        "scrollHeight": 1417,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Avanzado"
+        ],
+        "interactivos": 24
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    }
+  ]
+}

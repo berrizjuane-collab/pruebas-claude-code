@@ -251,6 +251,8 @@ export function App({ fuentes }: Props) {
       cancelarLineas: () => orquestador.cancelarLineas(),
       camara: () => controlador.obtenerCamara(),
       proyectar: (x: number, y: number, z: number) => controlador.proyectar([x, y, z]),
+      auditarEscena: () => controlador.auditarEscena(),
+      conosProyectados: () => controlador.conosProyectados(),
       /** Reloj determinista de la animación: avanza `segundos` en pasos de 1/60 s. */
       avanzarAnimacion: (segundos: number) => animacion.avanzarFijo(segundos),
       animacion: () => ({ enMarcha: animacion.enMarcha, tau: animacion.tau, tiempo: animacion.tiempo, anguloRueda: animacion.anguloRueda }),

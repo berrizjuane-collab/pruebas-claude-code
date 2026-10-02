@@ -1,0 +1,5 @@
+# REN-04 · Modos de magnitud y escala · 2026-10-02T09:01:37Z
+✓  22 [chromium] › tests/e2e/h5.spec.ts:140:3 › REN-04 · modos de magnitud y escala › escala fija: al cambiar de campo, la misma ‖F‖ da la misma longitud y el mismo gris; aviso si cambia Δ (4.4s)
+✓  23 [chromium] › tests/e2e/h5.spec.ts:169:3 › REN-04 · modos de magnitud y escala › normalizada: todas las longitudes iguales (0.75 ℓmax) y la leyenda lo dice; logarítmica: marcas recalculadas (4.7s)
+HTML autocontenido (file://, CSP estricta): 2 de 2 pruebas superadas con OBJETIVO=archivo.
+

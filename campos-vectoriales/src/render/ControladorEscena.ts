@@ -265,6 +265,65 @@ export class ControladorEscena {
     return d > 0 ? focal / d : 0;
   }
 
+  /**
+   * Auditoría de la escena (VIS-05, DESIGN §9.1 «Prohibido en la escena»): luces, niebla,
+   * tipos de material y materiales transparentes de los objetos visibles.
+   */
+  auditarEscena(): { luces: number; niebla: boolean; materiales: Record<string, number>; transparentes: string[]; conLuz: string[] } {
+    let luces = 0;
+    const materiales: Record<string, number> = {};
+    const transparentes = new Set<string>();
+    const conLuz = new Set<string>();
+    this.escena.traverseVisible((o) => {
+      if ((o as THREE.Light).isLight) luces++;
+      const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+      if (!m) return;
+      for (const mat of Array.isArray(m) ? m : [m]) {
+        materiales[mat.type] = (materiales[mat.type] ?? 0) + 1;
+        if (mat.transparent) transparentes.add(o.name || mat.type);
+        // Materiales que se iluminan: prohibidos (la luminancia ya codifica la magnitud).
+        if (/Lambert|Phong|Standard|Physical|Toon/.test(mat.type)) conLuz.add(o.name || mat.type);
+      }
+    });
+    return { luces, niebla: this.escena.fog !== null, materiales, transparentes: [...transparentes].sort(), conLuz: [...conLuz] };
+  }
+
+  /**
+   * Longitud proyectada en pantalla (px CSS) del cono de cada flecha y su distancia a la cámara
+   * (VV-05): base y vértice del cono proyectados.
+   */
+  conosProyectados(): { largo: number; distancia: number; escorzo: number; fraccion: number }[] {
+    const inst = this.flechas.instancias;
+    if (!inst || !this.flechas.grupo.visible) return [];
+    this.camara.updateMatrixWorld();
+    const res: { largo: number; distancia: number; escorzo: number; fraccion: number }[] = [];
+    // ℓ de la flecha más larga: con escala proporcional, ℓ/ℓmax = min(‖F‖/F_ref, 1).
+    let lMax = 0;
+    for (let i = 0; i < inst.n; i++) lMax = Math.max(lMax, inst.largo[i] as number);
+    const rayo = new THREE.Vector3();
+    const a = new THREE.Vector3();
+    const b = new THREE.Vector3();
+    for (let i = 0; i < inst.n; i++) {
+      const l = inst.largo[i] as number;
+      const c = inst.cono[i] as number;
+      for (let k = 0; k < 3; k++) {
+        a.setComponent(k, (inst.cola[3 * i + k] as number) + (inst.dir[3 * i + k] as number) * (l - c));
+        b.setComponent(k, (inst.cola[3 * i + k] as number) + (inst.dir[3 * i + k] as number) * l);
+      }
+      const distancia = a.distanceTo(this.camara.position);
+      // Escorzo: ángulo (0–90°) entre la flecha y el rayo de vista; 90° = paralela a la pantalla.
+      rayo.subVectors(a, this.camara.position).normalize();
+      const cos = Math.abs(rayo.x * (inst.dir[3 * i] as number) + rayo.y * (inst.dir[3 * i + 1] as number) + rayo.z * (inst.dir[3 * i + 2] as number));
+      const escorzo = (Math.acos(Math.min(1, cos)) * 180) / Math.PI;
+      a.project(this.camara);
+      b.project(this.camara);
+      const dx = ((b.x - a.x) / 2) * this.anchoCss;
+      const dy = ((b.y - a.y) / 2) * this.altoCss;
+      res.push({ largo: Math.hypot(dx, dy), distancia, escorzo, fraccion: lMax > 0 ? l / lMax : 0 });
+    }
+    return res;
+  }
+
   /** Posición en pantalla (px CSS relativos al lienzo) de un punto del dominio. */
   proyectar(p: Vec3): [number, number] {
     this.camara.updateMatrixWorld();

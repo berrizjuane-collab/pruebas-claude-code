@@ -1,0 +1,12 @@
+# REV-03 · Revisión de capturas de la escena (VV-10) · 2026-10-02T09:01:37Z
+✓  55 [chromium] › tests/e2e/h5.spec.ts:901:3 › REV-03 · movimiento reducido (VV-10) › sin animaciones CSS tras interactuar, partículas en pausa al inicio y la cámara salta (2.0s)
+HTML autocontenido (file://, CSP estricta): 1 de 1 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "VV-10": {
+    "animacionesEnCurso": 0,
+    "particulasEnPausa": true,
+    "camara": "salta"
+  }
+}

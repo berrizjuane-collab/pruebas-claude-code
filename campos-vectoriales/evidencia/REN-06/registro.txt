@@ -1,0 +1,40 @@
+# REN-06 · Mapa escalar del corte (V-FUN-07, signos) · 2026-10-02T09:01:37Z
+✓  33 [chromium] › tests/e2e/h5.spec.ts:324:3 › REN-06 · mapa escalar del corte › V-FUN-07 · T6 con «Escalar: div F»: rayado y «−» a la izquierda de x = −0.5, puntos y «+» a la derecha, curva discontinua en x = −0.5 (7.8s)
+✓  35 [chromium] › tests/e2e/h5.spec.ts:474:3 › REN-06 · mapa escalar del corte › F·n con ⊙/⊗, (rot F)·n con ↺/↻ según ω, ‖F‖ sin signo, × donde no hay valor (3.5s)
+✓  37 [chromium] › tests/e2e/h5.spec.ts:516:3 › REN-06 · mapa escalar del corte › V_ref se fija desde la leyenda y se conserva al cambiar de campo; cambiar de escalar la libera (4.0s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "V-FUN-07 píxeles": {
+    "periodoPx": 18.795500204953704,
+    "izquierda": {
+      "filasCon": 1,
+      "barra": 0.981502561183836,
+      "contra": 0.5399829254410927,
+      "periodo": 27,
+      "cobertura": 0.1676846726474518,
+      "maximo": 70,
+      "base": [
+        25,
+        48
+      ]
+    },
+    "derecha": {
+      "filasCon": 0.4342857142857143,
+      "barra": 0.789210233592881,
+      "contra": 0.789321468298109,
+      "periodo": 19,
+      "cobertura": 0.1515304746494067,
+      "maximo": 93,
+      "base": [
+        36,
+        72
+      ]
+    }
+  },
+  "V-FUN-07 curva cero": {
+    "xPantalla": 503.6172645410528,
+    "fraccionConTrazo": 0.6
+  }
+}

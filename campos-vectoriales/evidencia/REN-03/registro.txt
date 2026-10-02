@@ -1,0 +1,38 @@
+# REN-03 · Capa de líneas de corriente · 2026-10-02T09:01:37Z
+✓  19 [chromium] › tests/e2e/h5.spec.ts:35:3 › REN-03 · capa de líneas de corriente › helicoidal (a = 0.25): 4 hélices con cheurones en el sentido de +F (2.2s)
+✓  20 [chromium] › tests/e2e/h5.spec.ts:58:3 › REN-03 · capa de líneas de corriente › las marcas finales coinciden con los motivos de parada (◇ = CERO, × = NO_DEFINIDO) (2.5s)
+✓  57 [rendimiento] › tests/e2e/h5.spec.ts:80:3 › REN-03 · capa de líneas de corriente › 1 000 000 de vértices: se respeta el límite y se dibujan sin errores @rendimiento (3.2s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "REN-03 hélices": {
+    "lineas": 4,
+    "cheurones": 109,
+    "cosenoMinimo": 0.9996672957872818,
+    "motivos": {
+      "SALE_DOMINIO": 8
+    }
+  },
+  "REN-03 finales": {
+    "radialEntrante": {
+      "rombos": 32,
+      "motivos": {
+        "SALE_DOMINIO": 32,
+        "CERO": 32
+      }
+    },
+    "raizDeX": {
+      "aspas": 9,
+      "motivos": {
+        "NO_DEFINIDO": 9,
+        "SALE_DOMINIO": 9
+      }
+    }
+  },
+  "REN-03 límite": {
+    "lineas": 171,
+    "vertices": 999798,
+    "segmentos": 999627
+  }
+}

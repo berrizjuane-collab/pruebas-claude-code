@@ -1,0 +1,27 @@
+# UI-08 · Secciones de líneas, corte y derivadas · 2026-10-02T09:01:37Z
+✓  21 [chromium] › tests/e2e/h5.spec.ts:103:3 › V-FUN-13 · capas, leyenda y atajos › cada capa visible tiene su entrada en la leyenda; F y L con el teclado, inactivos en campos de texto (4.1s)
+✓  44 [chromium] › tests/e2e/h5.spec.ts:711:3 › UI-08 · secciones de líneas, corte y derivadas › líneas: semillas en rejilla o aleatorias, validación de 256, paso fijo y «Detalles del cálculo» con el recuento por motivo (6.4s)
+✓  45 [chromium] › tests/e2e/h5.spec.ts:766:3 › UI-08 · secciones de líneas, corte y derivadas › derivadas: div F de T6 se muestra como 2x + 1; los accesos directos llevan al corte y a «Glifos: rot F» (7.0s)
+✓  46 [chromium] › tests/e2e/h5.spec.ts:791:3 › UI-08 · secciones de líneas, corte y derivadas › avanzado: número de partículas, τ fija (la leyenda la muestra), semilla y cifras significativas (5.1s)
+HTML autocontenido (file://, CSP estricta): 4 de 4 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "UI-08 líneas": {
+    "lineas": 20,
+    "semillas": {
+      "n": 20,
+      "descartadas": {
+        "fuera": 0,
+        "cero": 0,
+        "noDefinido": 0
+      },
+      "recortadas": 0
+    },
+    "motivos": {
+      "SALE_DOMINIO": 38,
+      "LONGITUD_MAX": 2
+    },
+    "paso": 0.02
+  }
+}

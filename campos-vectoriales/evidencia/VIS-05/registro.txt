@@ -1,0 +1,45 @@
+# VIS-05 · Leyenda completa y auditoría de codificación (VV-09) · 2026-10-02T09:01:37Z
+✓  47 [chromium] › tests/e2e/h5.spec.ts:818:3 › VIS-05 · leyenda completa y auditoría de la codificación › VV-09: las entradas de la leyenda son exactamente las capas visibles, en el orden de DESIGN §9.12 (8.6s)
+✓  49 [chromium] › tests/e2e/h5.spec.ts:850:3 › VIS-05 · leyenda completa y auditoría de la codificación › «prohibido en la escena»: sin luces ni niebla, materiales sin iluminación y flechas opacas (2.7s)
+✓  51 [chromium] › tests/e2e/h5.spec.ts:864:3 › VIS-05 · leyenda completa y auditoría de la codificación › VV-05: conos de la mitad delantera de C1 (1440×900): ≥ 6 px en el 95 % de las flechas legibles por su geometría (4.0s)
+✓  53 [chromium] › tests/e2e/h5.spec.ts:886:3 › VIS-05 · leyenda completa y auditoría de la codificación › VV-03: axe sin infracciones con las secciones nuevas abiertas y la leyenda completa (7.5s)
+HTML autocontenido (file://, CSP estricta): 4 de 4 pruebas superadas con OBJETIVO=archivo.
+
+Medidas (test-results/h5-informe.json):
+{
+  "VV-09 leyenda": {
+    "combinaciones": 16,
+    "fallos": []
+  },
+  "VIS-05 materiales": {
+    "luces": 0,
+    "niebla": false,
+    "materiales": {
+      "LineBasicMaterial": 1,
+      "LineMaterial": 6,
+      "MeshBasicMaterial": 17,
+      "SpriteMaterial": 18,
+      "ShaderMaterial": 14
+    },
+    "transparentes": [
+      "ShaderMaterial",
+      "SpriteMaterial"
+    ],
+    "conLuz": []
+  },
+  "VV-05 C1": {
+    "mitadDelantera": 364,
+    "legibles": 234,
+    "conoAlMenos6px": 229,
+    "fraccion": 0.9786324786324786,
+    "conoMenor6px": {
+      "total": 93,
+      "debiles": 26,
+      "haciaLaCamara": 62
+    }
+  },
+  "VV-03 axe H5": {
+    "infracciones": [],
+    "reglasSuperadas": 45
+  }
+}

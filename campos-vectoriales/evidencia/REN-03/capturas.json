@@ -1,0 +1,105 @@
+{
+  "tarea": "REN-03",
+  "objetivo": "dev",
+  "fecha": "2026-10-02T09:00:21.295Z",
+  "resultados": [
+    {
+      "captura": "C1",
+      "tamano": "V2",
+      "archivo": "capturas/C1-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 22
+      },
+      "densidad": {
+        "scrollHeight": 1176,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros"
+        ],
+        "interactivos": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C2",
+      "tamano": "V2",
+      "archivo": "capturas/C2-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 22
+      },
+      "densidad": {
+        "scrollHeight": 1176,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros"
+        ],
+        "interactivos": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    }
+  ]
+}
