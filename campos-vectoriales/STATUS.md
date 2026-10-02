@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0, H1 y H2 completados; H3 en curso |
+| **Fase** | Implementación — H0, H1, H2 y H3 completados; H4 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H3: diferencias finitas, RK4, semillas, partículas, corte y worker |
+| **Siguiente paso** | H4: galería de controles, mensajes, editor de ecuaciones, parámetros, dominio y restablecer |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
@@ -22,7 +22,7 @@
 | H0 Fundaciones | 3 | 3/3 | — |
 | H1 Primera entrega | 8 | 8/8 | — |
 | H2 Lenguaje | 4 | 4/4 | Puede ir en paralelo a H1 |
-| H3 Numérico y cómputo | 7 | 0/7 | — |
+| H3 Numérico y cómputo | 7 | 7/7 | — |
 | H4 Edición y controles | 7 | 0/7 | — |
 | H5 Capas científicas | 9 | 0/9 | — |
 | H6 Inspección | 3 | 0/3 | — |
@@ -48,6 +48,13 @@
 - MAT-03 · 2026-10-02 · `53772df` · [evidencia/MAT-03/](evidencia/MAT-03/)
 - MAT-04 · 2026-10-02 · `53772df` · [evidencia/MAT-04/](evidencia/MAT-04/)
 - MAT-05 · 2026-10-02 · `53772df` · [evidencia/MAT-05/](evidencia/MAT-05/)
+- NUM-02 · 2026-10-02 · `e9bffe4` · [evidencia/NUM-02/](evidencia/NUM-02/)
+- NUM-03 · 2026-10-02 · `e9bffe4` · [evidencia/NUM-03/](evidencia/NUM-03/)
+- NUM-04 · 2026-10-02 · `e9bffe4` · [evidencia/NUM-04/](evidencia/NUM-04/)
+- NUM-05 · 2026-10-02 · `e9bffe4` · [evidencia/NUM-05/](evidencia/NUM-05/)
+- NUM-06 · 2026-10-02 · `e9bffe4` · [evidencia/NUM-06/](evidencia/NUM-06/)
+- CMP-01 · 2026-10-02 · `e9bffe4` · [evidencia/CMP-01/](evidencia/CMP-01/)
+- CMP-02 · 2026-10-02 · `e9bffe4` · [evidencia/CMP-02/](evidencia/CMP-02/)
 
 ---
 

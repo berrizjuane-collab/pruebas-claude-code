@@ -367,13 +367,13 @@ aceptación con la evidencia indicada.
 | MAT-03 | Compilador y evaluación | H2 | MAT-02 | Completada y verificada |
 | MAT-04 | Derivación simbólica, TeX y Unicode | H2 | MAT-03 | Completada y verificada |
 | MAT-05 | Catálogo como expresiones + contraste con oráculos | H2 | MAT-01, MAT-04 | Completada y verificada |
-| NUM-02 | Diferencias finitas | H3 | MAT-03 | Pendiente |
-| NUM-03 | Líneas de corriente: RK4 en σ y parada | H3 | NUM-01, MAT-03 | Pendiente |
-| NUM-04 | Semillas | H3 | NUM-03 | Pendiente |
-| NUM-05 | Integrador de partículas | H3 | MAT-03 | Pendiente |
-| NUM-06 | Muestreo en el corte | H3 | NUM-01, NUM-02 | Pendiente |
-| CMP-01 | *Worker* y protocolo | H3 | MAT-05, NUM-01 | Pendiente |
-| CMP-02 | Orquestación, cancelación y presupuestos | H3 | CMP-01, NUM-03, NUM-06 | Pendiente |
+| NUM-02 | Diferencias finitas | H3 | MAT-03 | Completada y verificada |
+| NUM-03 | Líneas de corriente: RK4 en σ y parada | H3 | NUM-01, MAT-03 | Completada y verificada |
+| NUM-04 | Semillas | H3 | NUM-03 | Completada y verificada |
+| NUM-05 | Integrador de partículas | H3 | MAT-03 | Completada y verificada |
+| NUM-06 | Muestreo en el corte | H3 | NUM-01, NUM-02 | Completada y verificada |
+| CMP-01 | *Worker* y protocolo | H3 | MAT-05, NUM-01 | Completada y verificada |
+| CMP-02 | Orquestación, cancelación y presupuestos | H3 | CMP-01, NUM-03, NUM-06 | Completada y verificada |
 | VIS-02 | Biblioteca de controles y galería de estados | H4 | VIS-01 | Pendiente |
 | UI-07 | Sistema de mensajes y estados de pantalla | H4 | VIS-02 | Pendiente |
 | UI-02 | Editor de ecuaciones | H4 | MAT-04, VIS-02, UI-07, CMP-02 | Pendiente |
@@ -600,7 +600,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`; e2e de UI-01 sin cambios visibles.
 - **Evidencia**: salidas.
 
-#### NUM-02 · Diferencias finitas — Pendiente
+#### NUM-02 · Diferencias finitas — Completada y verificada
 - **Objetivo**: J por diferencias centradas con paso de SPEC §5.4 y respaldo unilateral.
 - **Dependencias**: MAT-03.
 - **Componentes**: `numerics/finiteDiff.ts`.
@@ -609,7 +609,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida con errores máximos medidos.
 
-#### NUM-03 · Líneas de corriente: RK4 en σ y parada — Pendiente
+#### NUM-03 · Líneas de corriente: RK4 en σ y parada — Completada y verificada
 - **Objetivo**: integración normalizada en ambos sentidos con todos los motivos de parada.
 - **Dependencias**: NUM-01, MAT-03.
 - **Componentes**: `numerics/streamlines.ts` (el paso RK4 en σ es la clase `PasoRK4`; las
@@ -620,7 +620,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida con errores medidos frente a la calibración (VALIDATION §2).
 
-#### NUM-04 · Semillas — Pendiente
+#### NUM-04 · Semillas — Completada y verificada
 - **Objetivo**: tres estrategias reproducibles con descarte y límites.
 - **Dependencias**: NUM-03.
 - **Componentes**: `numerics/seeds.ts`.
@@ -629,7 +629,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida.
 
-#### NUM-05 · Integrador de partículas — Pendiente
+#### NUM-05 · Integrador de partículas — Completada y verificada
 - **Objetivo**: RK4 en $t$ con subpasos, ciclo de vida y estela.
 - **Dependencias**: MAT-03.
 - **Componentes**: `numerics/particles.ts`.
@@ -638,7 +638,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida.
 
-#### NUM-06 · Muestreo en el corte — Pendiente
+#### NUM-06 · Muestreo en el corte — Completada y verificada
 - **Objetivo**: malla del plano, proyección tangencial, $F_n$, div, rot·n y |F|, y $V_{\text{ref}}$.
 - **Dependencias**: NUM-01, NUM-02.
 - **Componentes**: `numerics/slice.ts`.
@@ -647,7 +647,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida.
 
-#### CMP-01 · *Worker* y protocolo — Pendiente
+#### CMP-01 · *Worker* y protocolo — Completada y verificada
 - **Objetivo**: cálculo pesado fuera del hilo principal con mensajes tipados.
 - **Dependencias**: MAT-05, NUM-01.
 - **Componentes**: `compute/protocol.ts`, `client.ts`, `worker.ts`, `trabajos.ts` (mismo código
@@ -659,7 +659,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e que compara sumas de control; inyección de fallo.
 - **Evidencia**: registro de la prueba.
 
-#### CMP-02 · Orquestación, cancelación y presupuestos — Pendiente
+#### CMP-02 · Orquestación, cancelación y presupuestos — Completada y verificada
 - **Objetivo**: decidir qué recalcular, coalescer, cancelar trabajos obsoletos e informar
   del progreso.
 - **Dependencias**: CMP-01, NUM-03, NUM-06.
