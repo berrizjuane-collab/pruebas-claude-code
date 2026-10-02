@@ -1,0 +1,9 @@
+# UI-01 · Selección de campo · 2026-10-02T04:53:19Z
+ ✓ src/state/state.test.ts > estado del experimento > el experimento inicial es el helicoidal con a = 0.25 (D-14) 3ms
+ ✓ src/state/state.test.ts > estado del experimento > elegir un campo conserva dominio, capas y cámara, y no comparte parámetros con el catálogo 1ms
+ ✓ src/state/state.test.ts > estado del experimento > el almacén notifica solo cambios reales 1ms
+      Tests  3 passed (3)
+  ✓  1 [chromium] › tests/e2e/h1.spec.ts:99:3 › UI-01 · selección de campo › cada tarjeta cambia fórmula, flechas y leyenda; la activa queda marcada (1.9s)
+  ✓  2 [chromium] › tests/e2e/h1.spec.ts:117:3 › UI-01 · selección de campo › teclado: flechas del teclado recorren la rejilla y seleccionan (5.2s)
+  2 passed (10.7s)
+Capturas de los 6 campos: evidencia/REV-01/capturas

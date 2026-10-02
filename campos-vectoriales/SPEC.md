@@ -515,7 +515,8 @@ las pruebas (§4.8). Los parámetros tienen espacio de nombres propio en cada ca
   escalar usa una textura de $(4M)\times(4M)$ con interpolación bilineal entre muestras
   evaluadas en una malla de $2M\times 2M$.
 - **Escala de magnitud automática**: $F_{\text{ref}}$ = percentil 95 de $\lVert\mathbf F\rVert$
-  en los nodos definidos, redondeado hacia arriba a $\{1,2,2.5,5\}\times10^k$. Si todos son
+  en los nodos definidos, redondeado hacia arriba a $\{1,1.5,2,2.5,3,4,5,6,8\}\times10^k$
+  (D-26). Si todos son
   ≈ 0, $F_{\text{ref}}=1$ y se muestra «campo nulo». El P95 resiste los picos de las
   singularidades; el redondeo produce marcas de leyenda legibles. La escala puede **fijarse**
   para comparar experimentos (DESIGN.md §9.10).

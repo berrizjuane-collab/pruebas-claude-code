@@ -1,0 +1,541 @@
+/*
+ * Interfaz (DESIGN.md §4–7). Medidas en múltiplos de 4 px; colores solo desde los tokens.
+ */
+
+/* ---------- Composición (DESIGN §5) ---------- */
+
+.app {
+  display: grid;
+  grid-template-columns: var(--m-panel) minmax(0, 1fr);
+  grid-template-rows: var(--m-barra) minmax(0, 1fr);
+  grid-template-areas:
+    'barra barra'
+    'panel escena';
+  height: 100%;
+  width: 100%;
+}
+
+.saltar {
+  position: absolute;
+  left: var(--e-2);
+  top: -64px;
+  z-index: 100;
+  padding: var(--e-2) var(--e-3);
+  background: var(--texto-1);
+  color: var(--fondo-0);
+  border-radius: var(--r-2);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.saltar:focus-visible {
+  top: var(--e-2);
+}
+
+/* ---------- Barra superior ---------- */
+
+.barra {
+  grid-area: barra;
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: 0 var(--e-4);
+  background: var(--fondo-1);
+  border-bottom: 1px solid var(--borde);
+  min-width: 0;
+}
+
+.barra-marca {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  font-size: var(--t-titulo);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.barra-separador {
+  width: 1px;
+  height: 20px;
+  background: var(--borde);
+}
+
+.barra-nombre {
+  margin: 0;
+  font-size: var(--t-titulo);
+  line-height: var(--l-titulo);
+  font-weight: 400;
+  color: var(--texto-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.barra-estado {
+  display: flex;
+  align-items: center;
+  gap: var(--e-1);
+  margin: 0;
+  color: var(--texto-2);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.barra-acciones {
+  margin-left: auto;
+  display: flex;
+  gap: var(--e-2);
+}
+
+/* ---------- Botones ---------- */
+
+.boton,
+.boton-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  height: var(--m-control);
+  border-radius: var(--r-2);
+  border: 1px solid var(--borde);
+  background: var(--fondo-2);
+  color: var(--texto-1);
+  font-size: var(--t-control);
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    background-color var(--mov-rapido) var(--curva),
+    border-color var(--mov-rapido) var(--curva);
+  position: relative;
+}
+
+.boton {
+  padding: 0 var(--e-3);
+}
+
+.boton-icono {
+  width: var(--m-control);
+  padding: 0;
+}
+
+.boton-texto-corto {
+  font-size: var(--t-pie);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.boton:hover,
+.boton-icono:hover {
+  background: var(--fondo-3);
+}
+
+.boton:active,
+.boton-icono:active {
+  background: var(--pulsado);
+}
+
+/* Descripción emergente propia (sin `title` nativo, DESIGN §2.4): aparece con hover y con foco. */
+[data-ayuda]::after {
+  content: attr(data-ayuda);
+  position: absolute;
+  z-index: 50;
+  bottom: calc(100% + var(--e-2));
+  right: 0;
+  padding: var(--e-1) var(--e-2);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-1);
+  box-shadow: var(--sombra-n2);
+  color: var(--texto-1);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--mov-medio) var(--curva-salida);
+}
+
+.barra [data-ayuda]::after {
+  bottom: auto;
+  top: calc(100% + var(--e-2));
+}
+
+[data-ayuda]:hover::after,
+[data-ayuda]:focus-visible::after {
+  opacity: 1;
+  transition: opacity var(--mov-medio) var(--curva) 400ms;
+}
+
+/* ---------- Panel lateral ---------- */
+
+.panel {
+  grid-area: panel;
+  background: var(--fondo-1);
+  border-right: 1px solid var(--borde);
+  overflow-y: auto;
+  padding: var(--e-4) var(--e-4) var(--e-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-5);
+  min-height: 0;
+}
+
+.seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+
+.seccion-titulo {
+  margin: 0;
+  font-size: var(--t-control);
+  line-height: var(--l-control);
+  font-weight: 600;
+  color: var(--texto-1);
+}
+
+.formula-campo {
+  font-size: 17px;
+  min-height: 32px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.formula-campo .katex-display {
+  margin: 0;
+  text-align: left;
+}
+
+.formula-campo .katex-display > .katex {
+  text-align: left;
+}
+
+.valores-parametros {
+  margin: 0;
+  color: var(--texto-2);
+  font-size: var(--t-control);
+}
+
+/* Desplegables (DESIGN §6) */
+
+.desplegable-cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  width: 100%;
+  height: var(--m-control);
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--r-1);
+  color: var(--texto-2);
+  font-size: var(--t-control);
+  font-weight: 500;
+  text-align: left;
+}
+
+.desplegable-cabecera:hover {
+  color: var(--texto-1);
+}
+
+.desplegable-cabecera .chevron {
+  transition: transform var(--mov-medio) var(--curva);
+}
+
+.desplegable-cabecera[aria-expanded='true'] .chevron {
+  transform: rotate(90deg);
+}
+
+.ficha {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  padding: var(--e-1) 0 var(--e-2) var(--e-5);
+  color: var(--texto-2);
+  font-size: var(--t-pie);
+  line-height: 18px;
+}
+
+.ficha-resumen {
+  margin: 0;
+  color: var(--texto-1);
+}
+
+.ficha dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+
+.ficha dt {
+  color: var(--texto-3);
+  font-weight: 500;
+}
+
+.ficha dd {
+  margin: 0;
+}
+
+/* Ejemplos */
+
+.ejemplos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e-2);
+}
+
+.tarjeta-ejemplo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-1);
+  height: 72px;
+  padding: var(--e-2) var(--e-1);
+  border-radius: var(--r-3);
+  border: 1px solid var(--borde);
+  background: var(--fondo-0);
+  color: var(--texto-2);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  transition:
+    background-color var(--mov-rapido) var(--curva),
+    color var(--mov-rapido) var(--curva);
+}
+
+.tarjeta-ejemplo:hover {
+  background: var(--fondo-3);
+  color: var(--texto-1);
+}
+
+.tarjeta-ejemplo[aria-checked='true'] {
+  border: 2px solid var(--texto-1);
+  color: var(--texto-1);
+  padding: calc(var(--e-2) - 1px) calc(var(--e-1) - 1px);
+}
+
+.tarjeta-nombre {
+  text-align: center;
+  line-height: 14px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.tarjeta-marca {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  font-size: var(--t-micro);
+  line-height: var(--l-micro);
+  font-weight: 600;
+}
+
+/* ---------- Escena ---------- */
+
+.escena {
+  grid-area: escena;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--fondo-0);
+}
+
+.escena-lienzo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+
+.escena-lienzo:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--texto-1);
+}
+
+.flotante {
+  position: absolute;
+  z-index: 5;
+}
+
+.esquina-inferior-derecha {
+  position: absolute;
+  right: var(--e-4);
+  bottom: var(--e-4);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--e-3);
+  z-index: 5;
+}
+
+.esquina-inferior-derecha .flotante {
+  position: static;
+}
+
+.barra-escena {
+  display: flex;
+  align-items: center;
+  gap: var(--e-1);
+  padding: var(--e-1);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-3);
+  box-shadow: var(--sombra-n1);
+}
+
+.barra-escena .boton-icono {
+  border-color: transparent;
+  background: transparent;
+}
+
+.barra-escena .boton-icono:hover {
+  background: var(--fondo-3);
+}
+
+.barra-escena-separador {
+  width: 1px;
+  height: 20px;
+  margin: 0 var(--e-1);
+  background: var(--borde);
+}
+
+.triedro {
+  display: block;
+}
+
+/* ---------- Leyenda ---------- */
+
+.leyenda {
+  left: var(--e-4);
+  bottom: var(--e-4);
+  width: var(--m-leyenda);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-3);
+  box-shadow: var(--sombra-n1);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+}
+
+.leyenda-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: var(--m-control);
+  padding: 0 var(--e-3);
+  background: none;
+  border: none;
+  border-radius: var(--r-3);
+  color: var(--texto-1);
+  font-size: var(--t-control);
+  font-weight: 600;
+}
+
+.leyenda-cabecera .chevron {
+  color: var(--texto-2);
+  transition: transform var(--mov-medio) var(--curva);
+}
+
+.leyenda-cabecera[aria-expanded='false'] .chevron {
+  transform: rotate(180deg);
+}
+
+.leyenda-cuerpo {
+  padding: 0 var(--e-3) var(--e-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+
+.leyenda-rampa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.leyenda-rampa-titulo {
+  color: var(--texto-2);
+  font-weight: 500;
+}
+
+.leyenda-barra {
+  height: 8px;
+  border-radius: 2px;
+  outline: 1px solid var(--borde);
+}
+
+.leyenda-marcas {
+  display: flex;
+  justify-content: space-between;
+  color: var(--texto-2);
+  font-size: var(--t-micro);
+  line-height: var(--l-micro);
+}
+
+.leyenda-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+  color: var(--texto-2);
+}
+
+.leyenda-lista li {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.leyenda-lista svg {
+  flex: none;
+  color: var(--texto-1);
+}
+
+.leyenda-pie {
+  margin: 0;
+  color: var(--texto-3);
+  font-size: var(--t-micro);
+  line-height: var(--l-micro);
+}
+
+/* ---------- Estado vacío ---------- */
+
+.estado-vacio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  padding: var(--e-6);
+  text-align: center;
+  color: var(--texto-2);
+}
+
+.estado-vacio-titulo {
+  margin: 0;
+  color: var(--texto-1);
+  font-size: var(--t-vacio);
+  line-height: var(--l-vacio);
+  font-weight: 500;
+  max-width: 480px;
+}
+
+.estado-vacio-texto {
+  margin: 0;
+  max-width: 480px;
+}

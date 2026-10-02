@@ -520,8 +520,8 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Dependencias**: VIS-01.
 - **Componentes**: `app/App.tsx`, `ui/topbar/`, `ui/panel/` (estructura), `ui/scene/` (marco).
 - **Procedimiento**: CSS Grid; regiones flotantes posicionadas dentro de la escena.
-- **Aceptación**: a 1440×900 y 1920×1080: barra de 48 px, panel de 320 px (±1); escena ≥ 75 %
-  del área; sin desplazamiento horizontal; regiones sin solapamiento.
+- **Aceptación**: a 1440×900 y 1920×1080: barra de 48 px, panel de 320 px (±1); escena ≥ 73 %
+  y ≥ 79 % del área respectivamente; sin desplazamiento horizontal; regiones sin solapamiento.
 - **Verificación**: e2e de geometría DOM.
 - **Evidencia**: capturas y JSON de medidas.
 

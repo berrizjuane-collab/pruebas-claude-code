@@ -1,0 +1,13 @@
+# REN-02 · Flechas · 2026-10-02T04:52:58Z
+ ✓ src/render/flechas.test.ts > geometría de flechas > helicoidal: dirección, longitud y gris coinciden con F en todos los nodos 46ms
+ ✓ src/render/flechas.test.ts > geometría de flechas > radial saliente: el origen es una marca ≈ 0 y no una flecha 2ms
+ ✓ src/render/flechas.test.ts > geometría de flechas > rotacional: 9 marcas ≈ 0 sobre el eje z 2ms
+ ✓ src/render/flechas.test.ts > geometría de flechas > modo normalizado: todas las longitudes iguales; sin saturación 10ms
+ ✓ src/render/flechas.test.ts > geometría de flechas > flechas cortas conservan la forma (el cono escala con la flecha) 0ms
+ ✓ src/render/flechas.test.ts > geometría de flechas > nodos no definidos → aspa 0ms
+ ✓ src/render/flechas.test.ts > rampa de magnitud > extremos #6B6B6B y #F5F5F5; punto medio L* 70.85 0ms
+ ✓ src/render/flechas.test.ts > rampa de magnitud > luminancia logarítmica: u = log10(1 + 9 r), saturada en 1 0ms
+      Tests  8 passed (8)
+  ✓  1 [chromium] › tests/e2e/h1.spec.ts:47:3 › REN-02 · flechas › dirección, longitud y gris de 5 flechas coinciden con F y la leyenda (T-17) (1.5s)
+  ✓  2 [chromium] › tests/e2e/h1.spec.ts:61:3 › REN-02 · flechas › radial saliente: el origen es una marca ≈ 0; 21³ no produce errores (2.4s)
+  2 passed (9.7s)

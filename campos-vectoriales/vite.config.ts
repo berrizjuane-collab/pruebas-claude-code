@@ -32,6 +32,8 @@ export default defineConfig({
   },
   worker: { format: 'iife' },
   server: { port: 5173, strictPort: true },
+  // Preoptimizadas al arrancar: evita recargas por «Outdated Optimize Dep» en la primera visita.
+  optimizeDeps: { include: ['react', 'react-dom/client', 'three', 'katex', 'lucide-react'] },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],

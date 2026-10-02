@@ -10,8 +10,9 @@
 
 ## 1. Principios
 
-1. **El campo es el protagonista.** La escena ocupa más del 75 % del área a 1440×900. La
-   interfaz se retira: superficies oscuras, pocos elementos visibles, controles avanzados
+1. **El campo es el protagonista.** La escena ocupa al menos el 73 % del área a 1440×900 y
+   el 79 % a 1920×1080 (con el panel de 320 px y la barra de 48 px no puede ser más; la cifra
+   inicial del 75 % era incoherente y la detectó la prueba de VIS-03). La interfaz se retira: superficies oscuras, pocos elementos visibles, controles avanzados
    plegados.
 2. **Monocromo estricto.** Solo negros, blancos y grises neutros (R = G = B), en la
    interfaz, la escena y las exportaciones. Ningún color del navegador se cuela (§2.4).
@@ -444,9 +445,15 @@ oclusión, halo y paralaje al orbitar.
 
 ### 9.2 Sentido de cada vector
 
-- Flecha = cilindro + **cono** en el extremo de llegada. El cono mide el 30 % de
-  $\ell_{\max}$ y su radio, el 9 %. Si la flecha es más corta que 1.5 conos, se escala entera
-  para conservar la forma de flecha.
+- Flecha = cilindro + **cono** en el extremo de llegada, **centrada en su nodo**. El cono mide
+  el 30 % de $\ell_{\max}$ y su radio, el 9 %. Si la flecha es más corta que 1.5 conos, se
+  escala entera para conservar la forma de flecha.
+- **Pistas de forma sin iluminación** (añadidas en REV-01): (1) la **base del cono**, que solo
+  se ve cuando la flecha se aleja de la cámara, se dibuja más oscura (≈ 55 %); (2) el cono
+  lleva un **degradado fijo** del vértice (gris exacto de la rampa) al borde de la base (80 %).
+  No dependen de la luz ni de la vista, así que el gris del cilindro y del vértice sigue siendo
+  exactamente el de la magnitud. Sin ellas, «hacia mí» y «lejos de mí» se veían como el mismo
+  disco plano.
 - **Halo**: cada flecha se dibuja con un contorno oscuro de ≈ 1.5 px (casco invertido en
   `#101010`). Separa las flechas que se cruzan en escenas densas y garantiza 3.57:1 frente a
   cualquier fondo, incluido el mapa del corte.

@@ -57,6 +57,11 @@ button {
   cursor: pointer;
 }
 
+/* El atributo hidden siempre gana a los display de los componentes. */
+[hidden] {
+  display: none !important;
+}
+
 :focus {
   outline: none;
 }

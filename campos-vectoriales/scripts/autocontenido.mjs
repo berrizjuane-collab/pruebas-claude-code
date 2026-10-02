@@ -63,13 +63,17 @@ const csp = [
 ].join('; ');
 html = html.replace('<meta charset="UTF-8" />', () => `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${csp}" />`);
 
-// Ninguna referencia a archivos: solo se admiten data:, blob: y anclas.
-const externas = [...html.matchAll(/\s(?:src|href)="(?!data:|blob:|#)([^"]+)"/g)].map((m) => m[1]);
+// Ninguna referencia a archivos en el marcado: solo se admiten data:, blob: y anclas. Se
+// analiza el HTML sin el contenido de <script> y <style> incrustados (el código puede
+// contener plantillas como `<img src="…">` que no son referencias del documento).
+const marcado = html.replace(/<script type="module">[\s\S]*?<\/script>/g, '').replace(/<style>[\s\S]*?<\/style>/g, '');
+const externas = [...marcado.matchAll(/\s(?:src|href)="(?!data:|blob:|#)([^"]+)"/g)].map((m) => m[1]);
 if (externas.length) {
   console.error('Quedan referencias externas:', externas);
   process.exit(1);
 }
-if (/url\((?!["']?data:)[^)]*\)/.test(html.replace(/<script type="module">[\s\S]*<\/script>/, ''))) {
+const estilosIncrustados = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join('\n');
+if (/url\((?!["']?data:)[^)]*\)/.test(estilosIncrustados)) {
   console.error('Quedan url() externas en los estilos.');
   process.exit(1);
 }

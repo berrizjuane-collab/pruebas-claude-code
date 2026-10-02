@@ -1,0 +1,5 @@
+# VIS-03 · Composición · 2026-10-02T04:53:11Z
+  ✓  1 [chromium] › tests/e2e/h1.spec.ts:82:5 › VIS-03 · composición › medidas y regiones a 1440×900 (1.5s)
+  ✓  2 [chromium] › tests/e2e/h1.spec.ts:82:5 › VIS-03 · composición › medidas y regiones a 1920×1080 (2.4s)
+  2 passed (6.6s)
+Medidas: barra 48 px, panel 320 px, escena ≥ 73 % (1440×900) y ≥ 79 % (1920×1080) — D-28

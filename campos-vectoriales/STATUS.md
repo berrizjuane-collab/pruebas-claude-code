@@ -83,6 +83,9 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-22 | El *worker* se incrusta como `Blob`; si el navegador no permite crearlo desde `file://`, el cálculo pasa al hilo principal con el mismo código (degradación controlada y anunciada) | Exigir servidor | RNF-14 sin perder robustez | Sí |
 | D-23 | Auditorías visuales con suavizado de texto en escala de grises | Tolerar franjas de color | El suavizado subpíxel es del sistema, no del diseño (DESIGN §2.4); hallazgo de FND-02 | Sí |
 | D-24 | Sin `noUncheckedIndexedAccess` en TypeScript (desviación de FND-01) | Activarlo | En núcleos numéricos con `Float64Array` obliga a aserciones `!` en cada acceso y reduce la legibilidad; el resto de opciones estrictas sí están activas | Sí |
+| D-26 | Escala legible de $F_{\text{ref}}$ y $V_{\text{ref}}$ con pasos {1, 1.5, 2, 2.5, 3, 4, 5, 6, 8}·10ᵏ | {1, 2, 2.5, 5}·10ᵏ (SPEC §5.1 original) | Con la escala original el helicoidal (P95 ≈ 2.6) saltaba a 5 y todas las flechas se encogían a la mitad; la nueva limita la pérdida a ×1.33 | Sí |
+| D-27 | Pistas de forma en el cono: base más oscura y degradado fijo vértice → base (80 %) | Conos planos (D-08 estricto) | Revisión de capturas de H1: sin ellas, flechas hacia la cámara y en sentido contrario eran indistinguibles; el gris de cilindro y vértice sigue siendo exacto (DESIGN §9.2) | Sí |
+| D-28 | Fracción mínima de escena: 73 % a 1440×900 y 79 % a 1920×1080 | 75 % | La cifra original era geométricamente imposible con panel de 320 px y barra de 48 px; lo detectó la prueba de VIS-03 | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---

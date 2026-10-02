@@ -7,7 +7,7 @@ import { auditarMaquetacion } from '../../scripts/lib/maquetacion.mjs';
 test('la aplicación arranca sin errores, con worker y sin peticiones externas', async ({ page }) => {
   const reg = registrar(page);
   await abrir(page);
-  await expect(page.locator('[data-prueba="modo-calculo"]')).toContainText('worker');
+  expect(await page.evaluate(() => window.__campos?.modoCalculo)).toBe('worker');
   sinErrores(reg);
 });
 

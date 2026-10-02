@@ -1,0 +1,19 @@
+# MAT-01 · Catálogo nativo · 2026-10-02T04:52:44Z
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Uniforme: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 49ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Uniforme: la jacobiana nativa coincide con diferencias centradas de F 13ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial saliente: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 24ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial saliente: la jacobiana nativa coincide con diferencias centradas de F 10ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial entrante: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 25ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial entrante: la jacobiana nativa coincide con diferencias centradas de F 10ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Rotacional: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 26ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Rotacional: la jacobiana nativa coincide con diferencias centradas de F 10ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Helicoidal: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 24ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Helicoidal: la jacobiana nativa coincide con diferencias centradas de F 15ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Silla: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 28ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Silla: la jacobiana nativa coincide con diferencias centradas de F 11ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > los equilibrios analíticos anulan el campo 1ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > helicoidal sin equilibrios con a ≠ 0 y con el eje z si a = 0 1ms
+ ✓ src/math/catalog/catalogo.test.ts > campos auxiliares T1–T6 > la jacobiana analítica coincide con diferencias centradas (lejos de singularidades) 74ms
+ ✓ src/math/catalog/catalogo.test.ts > campos auxiliares T1–T6 > T2 y T4 no están definidos en sus singularidades 0ms
+ ✓ src/math/catalog/catalogo.test.ts > autovalores de J > silla: k, −k, 0; rotacional: ±iω y 0; radial: k triple 1ms
+      Tests  17 passed (17)

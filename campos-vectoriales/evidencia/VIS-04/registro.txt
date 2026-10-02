@@ -1,0 +1,4 @@
+# VIS-04 · Leyenda · 2026-10-02T04:53:32Z
+  ✓  1 [chromium] › tests/e2e/h1.spec.ts:129:3 › VIS-04 · leyenda › las marcas coinciden con F_ref y el centro de la barra tiene L* = 70.85 ± 1 (2.8s)
+  ✓  2 [chromium] › tests/e2e/h1.spec.ts:141:3 › VIS-04 · leyenda › solo aparecen entradas de lo que está en la escena (3.8s)
+  2 passed (9.5s)

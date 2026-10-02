@@ -1,0 +1,34 @@
+# NUM-01 · Malla, escala y formato · 2026-10-02T04:52:46Z
+ ✓ src/numerics/grid.test.ts > malla (V-NUM-10) > coordenadas exactas de los nodos; el origen es nodo con N impar y Ω simétrico 3ms
+ ✓ src/numerics/grid.test.ts > malla (V-NUM-10) > centros de celda 0ms
+ ✓ src/numerics/grid.test.ts > malla (V-NUM-10) > N distinto por eje y Δ = mínimo 0ms
+ ✓ src/numerics/grid.test.ts > muestreo y clasificación (V-NUM-15) > T2 con un nodo en el origen: no definido y excluido de F_ref 1ms
+ ✓ src/numerics/grid.test.ts > muestreo y clasificación (V-NUM-15) > T3 (√x): nodos con x < 0 no definidos 1ms
+ ✓ src/numerics/grid.test.ts > muestreo y clasificación (V-NUM-15) > magnitud excesiva → singular 0ms
+ ✓ src/numerics/grid.test.ts > muestreo y clasificación (V-NUM-15) > rotacional: los ceros caen exactamente en los nodos del eje z 1ms
+ ✓ src/numerics/grid.test.ts > muestreo y clasificación (V-NUM-15) > helicoidal con a = 0.25: ningún cero 1ms
+ ✓ src/numerics/grid.test.ts > escala de referencia (V-NUM-11) > percentil por rango más cercano 1ms
+ ✓ src/numerics/grid.test.ts > escala de referencia (V-NUM-11) > redondeo legible hacia arriba 1ms
+ ✓ src/numerics/grid.test.ts > escala de referencia (V-NUM-11) > radial saliente k = 1 en [−2,2]³ con N = 9: P95 de ‖r‖ redondeado 1ms
+ ✓ src/numerics/grid.test.ts > escala de referencia (V-NUM-11) > campo nulo → F_ref = 1 y aviso 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 1 → 1.000 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 0.25 → 0.2500 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 1.0307764 → 1.031 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > -2.5 → −2.500 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 12345 → 12345 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 123456 → 1.235 × 10⁵ 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 0.000123456 → 1.235 × 10⁻⁴ 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 0 → 0 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 1e-13 → 0 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > -1e-13 → 0 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > NaN → no definido 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > Infinity → ∞ 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > -Infinity → −∞ 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 2 → 2.0 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 3.14159265 → 3.141593 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > 1e-10 → 1.000 × 10⁻¹⁰ 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > vectores 0ms
+ ✓ src/numerics/grid.test.ts > formato numérico (V-MAT-10) > formato corto para marcas 1ms
+      Tests  30 passed (30)
+
+Comprobación independiente del P95 (Python): 3.0

@@ -1,0 +1,13 @@
+# REN-01 · Escena base · 2026-10-02T04:52:47Z
+ ✓ src/render/camara.test.ts > cámara (z hacia arriba) > ida y vuelta esférica ↔ cartesiana 2ms
+ ✓ src/render/camara.test.ts > cámara (z hacia arriba) > vistas: XZ mira desde −y, YZ desde +x, XY desde +z 1ms
+ ✓ src/render/camara.test.ts > cámara (z hacia arriba) > interpola el azimut por el camino más corto 0ms
+ ✓ src/render/camara.test.ts > cámara (z hacia arriba) > encuadre: la esfera de Ω cabe en el campo de visión 0ms
+ ✓ src/render/camara.test.ts > marcas de los ejes > [−2, 2] → −2 … 2 1ms
+ ✓ src/render/camara.test.ts > marcas de los ejes > [0, 10] → pasos de 2.5 0ms
+ ✓ src/render/camara.test.ts > marcas de los ejes > [−0.3, 0.7] → pasos de 0.25 0ms
+      Tests  7 passed (7)
+  ✓  1 [chromium] › tests/e2e/h1.spec.ts:11:3 › REN-01 · escena base › dibujo bajo demanda: 0 fotogramas en 2 s de reposo; la órbita con el ratón dibuja y mueve la cámara (4.6s)
+  ✓  2 [chromium] › tests/e2e/h1.spec.ts:33:3 › REN-01 · escena base › sin WebGL2 se muestra un estado vacío explicativo (2.4s)
+  2 passed (9.1s)
+Capturas: evidencia/REV-01/capturas (ejes, caja, órbita)

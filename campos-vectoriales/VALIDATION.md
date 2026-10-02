@@ -94,7 +94,7 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 | V-NUM-08 | **Convergencia RK4**: orden observado en σ (circunferencia, arco 1.5) y en $t$ (silla) | T-12, T-13 |
 | V-NUM-09 | **Criterios de parada**: un caso diseñado por motivo: `SALE_DOMINIO` (uniforme), `CERO` (radial entrante), `NO_DEFINIDO` (T3 integrando hacia $x<0$), `ORBITA_CERRADA` (rotacional), `LONGITUD_MAX` (helicoidal con dominio alto en $z$), `PASOS_MAX` ($L_{\max}$ enorme), `ESTANCADA` ($(-\tanh(1000x),\,10^{-3},\,0)$, zigzag sobre $x=0$) | Motivo esperado en el 100 % de los casos; ninguna línea atraviesa un nodo no definido |
 | V-NUM-10 | Malla: coordenadas exactas de los nodos; el origen es nodo con N impar y Ω simétrico; centros de celda correctos; N por eje | Igualdad exacta |
-| V-NUM-11 | $F_{\text{ref}}$: P95 y redondeo a {1, 2, 2.5, 5} × 10ᵏ en 10 casos calculados a mano; exclusión de no definidos; campo nulo → 1 con aviso | Igualdad exacta |
+| V-NUM-11 | $F_{\text{ref}}$: P95 y redondeo a {1, 1.5, 2, 2.5, 3, 4, 5, 6, 8} × 10ᵏ en 10 casos calculados a mano; exclusión de no definidos; campo nulo → 1 con aviso | Igualdad exacta |
 | V-NUM-12 | Semillas: misma semilla → mismos puntos (bit a bit); descarte y recuento en nodos ≈ 0 o no definidos; límite de 256 | Igualdad exacta y recuentos |
 | V-NUM-13 | Partículas: frente a la solución exacta en la silla; rapidez $=\lVert\mathbf F\rVert$ (relativo $\le10^{-12}$ en la primera etapa); renacen al salir, al llegar a ≈ 0 o a un punto no definido | T-13, T-14 |
 | V-NUM-14 | Corte: $\mathbf F_\parallel\cdot\mathbf n=0$; $F_n$, div, rot·n y \|F\| en el plano iguales a la evaluación directa; $V_{\text{ref}}$ simétrico | T-19, T-01 |

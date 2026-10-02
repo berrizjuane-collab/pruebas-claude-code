@@ -50,6 +50,7 @@ export function auditarMaquetacion() {
 
   for (const el of document.querySelectorAll('body *')) {
     if (!visibles(el)) continue;
+    if (el.closest('.solo-lector')) continue; // oculto a propósito para lectores de pantalla
     const textoPropio = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 0);
     if (!textoPropio) continue;
     const cs = getComputedStyle(el);

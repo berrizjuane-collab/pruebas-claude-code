@@ -20,7 +20,7 @@ export const TAMANOS = {
   V5: { width: 390, height: 844, deviceScaleFactor: 3 },
 };
 
-const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, '').split('=')));
+const args = Object.fromEntries(process.argv.slice(2).map((a) => { const s = a.replace(/^--/, ''); const i = s.indexOf('='); return i < 0 ? [s, ''] : [s.slice(0, i), s.slice(i + 1)]; }));
 const tarea = args.tarea ?? 'capturas';
 const capturas = (args.capturas ?? 'C1').split(',');
 const tamanos = (args.tamanos ?? 'V1,V2,V3').split(',');
@@ -49,12 +49,14 @@ const informe = { tarea, objetivo, fecha: new Date().toISOString(), resultados: 
 try {
   for (const tam of tamanos) {
     const contexto = await navegador.newContext({ viewport: { width: TAMANOS[tam].width, height: TAMANOS[tam].height }, deviceScaleFactor: TAMANOS[tam].deviceScaleFactor, reducedMotion: 'reduce' });
-    for (const cap of capturas) {
+    for (const especificacion of capturas) {
+      // «ID» o «ID@consulta» (p. ej. ROT@campo=rotacional)
+      const [cap, consultaCaptura] = especificacion.split('@');
       const page = await contexto.newPage();
       const errores = [];
       page.on('pageerror', (e) => errores.push(e.message));
       page.on('console', (m) => m.type() === 'error' && errores.push(m.text()));
-      await page.goto(`${base}?captura=1&escena=${cap}${extra}`);
+      await page.goto(`${base}?captura=1&escena=${cap}${consultaCaptura ? `&${consultaCaptura}` : ''}${extra}`);
       await page.waitForFunction(() => window.__campos?.listo === true && (window.__campos?.escenaLista ?? true) === true, null, { timeout: 60000 });
       await page.waitForTimeout(400);
       const archivo = join(carpeta, `${cap}-${tam}.png`);
