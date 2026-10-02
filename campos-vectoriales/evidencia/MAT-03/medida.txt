@@ -1,0 +1,7 @@
+helicoidal: nativo 2.1 ns/eval · compilado 17.1 ns/eval · proporción 7.96×
+ ✓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > helicoidal 126ms
+T1 sin/exp/cos: nativo 53.1 ns/eval · compilado 178.7 ns/eval · proporción 3.37×
+ ✓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > T1 sin/exp/cos 878ms
+T2 x/r^3: nativo 56.0 ns/eval · compilado 229.5 ns/eval · proporción 4.10×
+ ✓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > T2 x/r^3 1188ms
+      Tests  3 passed (3)

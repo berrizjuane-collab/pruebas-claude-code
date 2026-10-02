@@ -1,0 +1,7 @@
+# MAT-02 · Analizador · 2026-10-02T05:05:15Z
+ Test Files  1 passed (1)
+      Tests  125 passed | 77 skipped (202)
+casos válidos superados: 70
+casos inválidos superados: 53
+ ✓ src/math/expr/expr.test.ts > V-MAT-04 · seguridad y límites > 10 000 entradas aleatorias: nunca una excepción no controlada y < 5 ms cada una 224ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-04 · seguridad y límites > ningún identificador alcanza propiedades de objetos JS 0ms

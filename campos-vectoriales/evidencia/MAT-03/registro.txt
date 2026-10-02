@@ -1,0 +1,24 @@
+# MAT-03 · Compilador y evaluación · 2026-10-02T05:05:22Z
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > uniforme: 1000 puntos (y parámetros aleatorios en su rango) 57ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > radial-saliente: 1000 puntos (y parámetros aleatorios en su rango) 38ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > radial-entrante: 1000 puntos (y parámetros aleatorios en su rango) 30ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > rotacional: 1000 puntos (y parámetros aleatorios en su rango) 20ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > helicoidal: 1000 puntos (y parámetros aleatorios en su rango) 18ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > silla: 1000 puntos (y parámetros aleatorios en su rango) 18ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T1: 1000 puntos (y parámetros aleatorios en su rango) 20ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T2: 1000 puntos (y parámetros aleatorios en su rango) 20ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T3: 1000 puntos (y parámetros aleatorios en su rango) 19ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T4: 1000 puntos (y parámetros aleatorios en su rango) 23ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T5: 1000 puntos (y parámetros aleatorios en su rango) 18ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T6: 1000 puntos (y parámetros aleatorios en su rango) 17ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > mismo patrón de no finitos en las singularidades (T2 en el origen, T3 con x < 0, T4 sobre el eje) 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-05 (parcial) · evaluación > precedencia y valores numéricos 1ms
+
+## V-PERF-05 (informativo; objetivo orientativo ≤ 3×)
+helicoidal: nativo 2.1 ns/eval · compilado 17.1 ns/eval · proporción 7.96×
+ ✓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > helicoidal 126ms
+T1 sin/exp/cos: nativo 53.1 ns/eval · compilado 178.7 ns/eval · proporción 3.37×
+ ✓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > T1 sin/exp/cos 878ms
+T2 x/r^3: nativo 56.0 ns/eval · compilado 229.5 ns/eval · proporción 4.10×
+ ✓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > T2 x/r^3 1188ms
+      Tests  3 passed (3)

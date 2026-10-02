@@ -130,6 +130,7 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | R-11 | Ecosistema y TypeScript 7 | Baja | Bajo | TypeScript 6 (D-05) |
 | R-12 | Criterios WCAG y documentación de MDN citados sin acceso a w3.org ni a MDN (bloqueados por la red) | Media | Bajo | Contrastarlos con las fuentes oficiales al implementar VIS-01 y A11Y-01 |
 | R-13 | Muestreo insuficiente engañoso (*aliasing*) en campos oscilantes | Media | Medio | Ejemplo en la ayuda (SPEC §5.10); aviso automático como AMP-11 |
+| R-14 | Evaluación compilada entre 3.4× y 8× más lenta que la nativa (V-PERF-05, medido en MAT-03; objetivo orientativo ≤ 3×). Peor caso estimado de PERF-B ≈ 1.6 s si todas las líneas agotan sus pasos | Media | Medio | Cálculo en el worker, troceado y cancelable con progreso (CMP-02); medir en R1 (VAL-03). Si no basta: evaluación vectorizada por lotes o reducir semillas por defecto |
 
 ---
 

@@ -1,8 +1,9 @@
 /**
- * Orquestación del cálculo (PLAN §1.6). En H1 el campo procede del oráculo nativo del
- * catálogo y la malla se calcula en el hilo principal; en H3 pasa al worker.
+ * Orquestación del cálculo (PLAN §1.6). Desde MAT-05 el campo se evalúa con las
+ * expresiones compiladas (los oráculos nativos quedan para las pruebas); la malla se
+ * calcula en el hilo principal hasta CMP-01.
  */
-import { campoPorId } from '../math/catalog';
+import type { CampoCompilado } from '../math/field';
 import { calcularFlechas, type InstanciasFlechas } from '../render/flechas';
 import { clasificarCeros, crearMalla, escalaAutomatica, muestrearMalla, type Escala, type MuestraMalla } from '../numerics/grid';
 import type { EstadoExperimento } from '../state/schema';
@@ -15,10 +16,9 @@ export interface ResultadoMalla {
   ms: number;
 }
 
-export function calcularMalla(estado: EstadoExperimento): ResultadoMalla | null {
-  if (!estado.base) return null;
+export function calcularMalla(estado: EstadoExperimento, campo: CampoCompilado | null): ResultadoMalla | null {
+  if (!campo) return null;
   const t0 = performance.now();
-  const campo = campoPorId(estado.base);
   const p = Float64Array.from(estado.parametros.map((d) => d.valor));
   const malla = crearMalla(estado.dominio, estado.muestreo.n, estado.muestreo.posicion);
   const muestra = muestrearMalla(campo.F, p, malla);

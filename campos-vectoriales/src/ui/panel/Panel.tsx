@@ -1,33 +1,30 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { CATALOGO, campoPorId, type IdCampo } from '../../math/catalog';
+import { texCampo, type CampoCompilado } from '../../math/field';
+import { texNombreParametro } from '../../math/expr/tex';
 import { formatearCorto } from '../../numerics/format';
 import type { EstadoExperimento } from '../../state/schema';
 import { T } from '../../i18n/es';
 import { TeX, TextoMat } from '../TeX';
 import { Miniatura } from './Miniatura';
 
-/** Nombre TeX de un parámetro (los griegos escritos en ASCII se muestran con su letra). */
-export function texParametro(nombre: string): string {
-  const griegas = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'];
-  return griegas.includes(nombre) ? `\\${nombre}` : nombre;
-}
-
 interface Props {
   estado: EstadoExperimento;
+  campo: CampoCompilado | null;
   alElegirCampo: (id: IdCampo) => void;
 }
 
-export function Panel({ estado, alElegirCampo }: Props) {
+export function Panel({ estado, campo, alElegirCampo }: Props) {
   return (
     <aside className="panel" data-region="panel" aria-label={T.panel.etiqueta}>
-      <SeccionCampo estado={estado} />
+      <SeccionCampo estado={estado} campo={campo} />
       <Ejemplos activo={estado.base} modificado={estado.modificado} alElegir={alElegirCampo} />
     </aside>
   );
 }
 
-function SeccionCampo({ estado }: { estado: EstadoExperimento }) {
+function SeccionCampo({ estado, campo }: { estado: EstadoExperimento; campo: CampoCompilado | null }) {
   const ficha = estado.base ? campoPorId(estado.base) : null;
   return (
     <section className="seccion" aria-labelledby="titulo-campo">
@@ -35,14 +32,14 @@ function SeccionCampo({ estado }: { estado: EstadoExperimento }) {
         {T.panel.campo}
       </h2>
       <div className="formula-campo" data-prueba="formula-campo">
-        {ficha ? <TeX tex={ficha.tex} bloque /> : null}
+        {campo ? <TeX tex={texCampo(campo)} bloque /> : null}
       </div>
       {estado.parametros.length ? (
         <p className="valores-parametros num">
           {estado.parametros.map((p, i) => (
             <span key={p.nombre}>
               {i > 0 ? ' · ' : ''}
-              <TeX tex={`${texParametro(p.nombre)} = ${formatearCorto(p.valor).replace('−', '-')}`} />
+              <TeX tex={`${texNombreParametro(p.nombre)} = ${formatearCorto(p.valor).replace('−', '-')}`} />
             </span>
           ))}
         </p>

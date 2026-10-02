@@ -39,6 +39,11 @@ export default defineConfig([
     },
   },
   {
+    // Las pruebas de math/ pueden usar KaTeX para comprobar que el TeX generado se renderiza (V-MAT-06).
+    files: ['src/math/**/*.test.ts'],
+    rules: prohibir(['three', 'three/*', 'react', 'react-dom', 'react/*', ...capasDeArriba], 'math/ es puro: solo puede importar math/.'),
+  },
+  {
     files: ['src/numerics/**/*.ts'],
     rules: {
       ...prohibir(['three', 'three/*', 'react', 'react-dom', 'react/*', 'katex', ...capasDeArriba.filter((c) => c !== '**/numerics/**')], 'numerics/ es puro: solo math/ y numerics/.'),

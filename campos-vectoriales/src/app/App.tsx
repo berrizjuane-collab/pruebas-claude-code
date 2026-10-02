@@ -16,6 +16,7 @@ import { Triedro } from '../ui/scene/Triedro';
 import { VistaEscena } from '../ui/scene/VistaEscena';
 import '../ui/ui.css';
 import { calcularMalla } from './orquestador';
+import { compilarCampo } from '../math/field';
 import { modoPrueba, parametrosUrl, publicarGancho } from './pruebas';
 import { useAtajos } from './atajos';
 
@@ -50,11 +51,19 @@ export function App({ fuentes }: Props) {
     return () => trabajador?.terminate();
   }, [fuentes]);
 
-  // Cálculo de la malla de flechas (H1: hilo principal, con el oráculo nativo).
+  // Campo compilado desde las expresiones (MAT-05); solo cambia si cambian el texto o los nombres.
+  const nombresParametros = estado.parametros.map((p) => p.nombre).join('\u0000');
+  const compilado = useMemo(
+    () => compilarCampo(estado.campo, nombresParametros ? nombresParametros.split('\u0000') : []),
+    [estado.campo, nombresParametros],
+  );
+  const campo = compilado.ok ? compilado.campo : null;
+
+  // Cálculo de la malla de flechas (hilo principal hasta CMP-01).
   const resultado = useMemo(
-    () => calcularMalla(estado),
+    () => calcularMalla(estado, campo),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [estado.base, estado.parametros, estado.dominio, estado.muestreo, estado.flechas],
+    [campo, estado.parametros, estado.dominio, estado.muestreo, estado.flechas],
   );
 
   useEffect(() => {
@@ -128,7 +137,7 @@ export function App({ fuentes }: Props) {
         {T.saltarEscena}
       </a>
       <BarraSuperior nombre={estado.nombre} estadoCalculo={estadoCalculo} alRestablecerCamara={encuadrar} />
-      <Panel estado={estado} alElegirCampo={elegirCampo} />
+      <Panel estado={estado} campo={campo} alElegirCampo={elegirCampo} />
       <VistaEscena
         fuentes={fuentes}
         movimientoReducido={movimientoReducido}
