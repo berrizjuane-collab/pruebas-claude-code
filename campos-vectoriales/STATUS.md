@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 a H5 completados; H6 en curso |
+| **Fase** | Implementación — H0 a H6 completados; H7 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H6: selección de puntos (clic en flecha o en el corte, tecla I), tarjeta del inspector con F, J, div, rot y lecturas, y coherencia ecuaciones–geometría–leyenda–inspector |
+| **Siguiente paso** | H7: configuración JSON v1 (exportar, importar, validar y migrar), autoguardado con recuperación y exportación PNG compuesta |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
@@ -25,7 +25,7 @@
 | H3 Numérico y cómputo | 7 | 7/7 | — |
 | H4 Edición y controles | 7 | 7/7 | — |
 | H5 Capas científicas | 9 | 9/9 | — |
-| H6 Inspección | 3 | 0/3 | — |
+| H6 Inspección | 3 | 3/3 | — |
 | H7 Exportación | 3 | 0/3 | — |
 | H8 Transversal | 4 | 0/4 | — |
 | H9 Validación | 6 | 0/6 | Incluye ENT-01 (HTML autocontenido) |
@@ -71,6 +71,9 @@
 - UI-08 · 2026-10-02 · `615f6d6` · [evidencia/UI-08/](evidencia/UI-08/)
 - VIS-05 · 2026-10-02 · `615f6d6` · [evidencia/VIS-05/](evidencia/VIS-05/)
 - REV-03 · 2026-10-02 · `615f6d6` · [evidencia/REV-03/](evidencia/REV-03/)
+- INS-01 · 2026-10-02 · `4ae876b` · [evidencia/INS-01/](evidencia/INS-01/)
+- INS-02 · 2026-10-02 · `4ae876b` · [evidencia/INS-02/](evidencia/INS-02/)
+- INS-03 · 2026-10-02 · `4ae876b` · [evidencia/INS-03/](evidencia/INS-03/)
 
 ---
 
@@ -276,6 +279,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-02 | H0 y H1 completados y verificados; HTML provisional en `entrega/`; decisiones D-23 … D-28 |
 | 2026-10-02 | H2, H3 y H4 completados y verificados (§1.2); decisiones D-29 … D-36 |
 | 2026-10-02 | H5 completado y verificado: líneas de corriente, magnitud y escala, cortes, mapa escalar, rot F, rueda de paletas, partículas y leyenda completa; decisiones D-37 … D-45 |
+| 2026-10-02 | H6 completado y verificado: selección de puntos, tarjeta del inspector y coherencia ecuaciones–geometría–leyenda–inspector en los 6 campos y T6; decisiones D-46 … D-48 |
 
 ---
 

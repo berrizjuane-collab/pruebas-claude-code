@@ -390,9 +390,9 @@ aceptación con la evidencia indicada.
 | UI-08 | Secciones de líneas, corte y derivadas | H5 | REN-03, REN-05, REN-06, MAT-04 | Completada y verificada |
 | VIS-05 | Legibilidad científica: leyenda completa y auditoría de codificación | H5 | REN-03 … REN-08, VIS-04 | Completada y verificada |
 | REV-03 | Revisión de capturas de la escena | H5 | VIS-05 | Completada y verificada |
-| INS-01 | Selección de puntos | H6 | REN-02, REN-05 | Pendiente |
-| INS-02 | Tarjeta del inspector | H6 | INS-01, NUM-02, MAT-04 | Pendiente |
-| INS-03 | Coherencia entre ecuaciones, geometría, leyenda e inspector | H6 | INS-02, VIS-05 | Pendiente |
+| INS-01 | Selección de puntos | H6 | REN-02, REN-05 | Completada y verificada |
+| INS-02 | Tarjeta del inspector | H6 | INS-01, NUM-02, MAT-04 | Completada y verificada |
+| INS-03 | Coherencia entre ecuaciones, geometría, leyenda e inspector | H6 | INS-02, VIS-05 | Completada y verificada |
 | EXP-01 | Configuración JSON v1 | H7 | UI-05 | Pendiente |
 | EXP-02 | Autoguardado y recuperación | H7 | EXP-01 | Pendiente |
 | EXP-03 | Exportación PNG compuesta | H7 | VIS-05 | Pendiente |
@@ -858,7 +858,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: automática + manual.
 - **Evidencia**: PNG + `informe.md`.
 
-#### INS-01 · Selección de puntos — Pendiente
+#### INS-01 · Selección de puntos — Completada y verificada
 - **Objetivo**: seleccionar P con clic (flecha o corte), coordenadas o teclado.
 - **Dependencias**: REN-02, REN-05.
 - **Componentes**: `render/picking.ts`, `ui/scene/Inspector.tsx` (coordenadas).
@@ -868,7 +868,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e con clics en coordenadas de pantalla calculadas.
 - **Evidencia**: salida.
 
-#### INS-02 · Tarjeta del inspector — Pendiente
+#### INS-02 · Tarjeta del inspector — Completada y verificada
 - **Objetivo**: F, |F|, F̂, div, rot, J, método e interpretación, con «Copiar valores».
 - **Dependencias**: INS-01, NUM-02, MAT-04.
 - **Componentes**: `ui/scene/Inspector.tsx`.
@@ -877,7 +877,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: captura C4.
 
-#### INS-03 · Coherencia entre ecuaciones, geometría, leyenda e inspector — Pendiente
+#### INS-03 · Coherencia entre ecuaciones, geometría, leyenda e inspector — Completada y verificada
 - **Objetivo**: demostrar que las cuatro vistas del mismo dato coinciden.
 - **Dependencias**: INS-02, VIS-05.
 - **Componentes**: `tests/e2e/coherencia.spec.ts`.
