@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0, H1, H2 y H3 completados; H4 en curso |
+| **Fase** | Implementación — H0 a H4 completados; H5 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H4: galería de controles, mensajes, editor de ecuaciones, parámetros, dominio y restablecer |
+| **Siguiente paso** | H5: líneas de corriente, magnitud y escala, cortes, mapa escalar, rotacional, partículas y leyenda completa |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
@@ -23,7 +23,7 @@
 | H1 Primera entrega | 8 | 8/8 | — |
 | H2 Lenguaje | 4 | 4/4 | Puede ir en paralelo a H1 |
 | H3 Numérico y cómputo | 7 | 7/7 | — |
-| H4 Edición y controles | 7 | 0/7 | — |
+| H4 Edición y controles | 7 | 7/7 | — |
 | H5 Capas científicas | 9 | 0/9 | — |
 | H6 Inspección | 3 | 0/3 | — |
 | H7 Exportación | 3 | 0/3 | — |
@@ -55,6 +55,13 @@
 - NUM-06 · 2026-10-02 · `e9bffe4` · [evidencia/NUM-06/](evidencia/NUM-06/)
 - CMP-01 · 2026-10-02 · `e9bffe4` · [evidencia/CMP-01/](evidencia/CMP-01/)
 - CMP-02 · 2026-10-02 · `e9bffe4` · [evidencia/CMP-02/](evidencia/CMP-02/)
+- VIS-02 · 2026-10-02 · `b40d607` · [evidencia/VIS-02/](evidencia/VIS-02/)
+- UI-07 · 2026-10-02 · `b40d607` · [evidencia/UI-07/](evidencia/UI-07/)
+- UI-02 · 2026-10-02 · `b40d607` · [evidencia/UI-02/](evidencia/UI-02/)
+- UI-03 · 2026-10-02 · `b40d607` · [evidencia/UI-03/](evidencia/UI-03/)
+- UI-04 · 2026-10-02 · `b40d607` · [evidencia/UI-04/](evidencia/UI-04/)
+- UI-05 · 2026-10-02 · `b40d607` · [evidencia/UI-05/](evidencia/UI-05/)
+- REV-02 · 2026-10-02 · `b40d607` · [evidencia/REV-02/](evidencia/REV-02/)
 
 ---
 

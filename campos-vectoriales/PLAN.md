@@ -374,13 +374,13 @@ aceptación con la evidencia indicada.
 | NUM-06 | Muestreo en el corte | H3 | NUM-01, NUM-02 | Completada y verificada |
 | CMP-01 | *Worker* y protocolo | H3 | MAT-05, NUM-01 | Completada y verificada |
 | CMP-02 | Orquestación, cancelación y presupuestos | H3 | CMP-01, NUM-03, NUM-06 | Completada y verificada |
-| VIS-02 | Biblioteca de controles y galería de estados | H4 | VIS-01 | Pendiente |
-| UI-07 | Sistema de mensajes y estados de pantalla | H4 | VIS-02 | Pendiente |
-| UI-02 | Editor de ecuaciones | H4 | MAT-04, VIS-02, UI-07, CMP-02 | Pendiente |
-| UI-03 | Parámetros | H4 | UI-02 | Pendiente |
-| UI-04 | Dominio y muestreo | H4 | VIS-02, CMP-02 | Pendiente |
-| UI-05 | Restablecer y deshacer | H4 | UI-03, UI-04 | Pendiente |
-| REV-02 | Revisión de capturas de controles y estados | H4 | UI-02 … UI-05 | Pendiente |
+| VIS-02 | Biblioteca de controles y galería de estados | H4 | VIS-01 | Completada y verificada |
+| UI-07 | Sistema de mensajes y estados de pantalla | H4 | VIS-02 | Completada y verificada |
+| UI-02 | Editor de ecuaciones | H4 | MAT-04, VIS-02, UI-07, CMP-02 | Completada y verificada |
+| UI-03 | Parámetros | H4 | UI-02 | Completada y verificada |
+| UI-04 | Dominio y muestreo | H4 | VIS-02, CMP-02 | Completada y verificada |
+| UI-05 | Restablecer y deshacer | H4 | UI-03, UI-04 | Completada y verificada |
+| REV-02 | Revisión de capturas de controles y estados | H4 | UI-02 … UI-05 | Completada y verificada |
 | REN-03 | Capa de líneas de corriente | H5 | NUM-04, CMP-02, REN-01 | Pendiente |
 | REN-04 | Modos de magnitud y escala | H5 | REN-02 | Pendiente |
 | REN-05 | Cortes | H5 | REN-02, NUM-06 | Pendiente |
@@ -672,7 +672,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e con `PerformanceObserver('longtask')`.
 - **Evidencia**: informe de tareas largas y de tiempos.
 
-#### VIS-02 · Biblioteca de controles y galería de estados — Pendiente
+#### VIS-02 · Biblioteca de controles y galería de estados — Completada y verificada
 - *Nota (H4)*: componentes en `ui/controls/` con nombres en español (`Boton`, `Descripcion`,
   `Interruptor`, `Segmentado`, `Deslizador`, `CampoNumerico`, `CampoExpresion`,
   `ListaDesplegable`, `Menu`, `Seccion`, `Aviso`, `Notificaciones`) y `controles.css`; galería en
@@ -689,7 +689,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e + revisión manual de C8.
 - **Evidencia**: captura C8 y salida de axe.
 
-#### UI-07 · Sistema de mensajes y estados de pantalla — Pendiente
+#### UI-07 · Sistema de mensajes y estados de pantalla — Completada y verificada
 - *Nota (H4)*: `Alert` → `ui/controls/Aviso.tsx`; `Toast` → `ui/controls/Notificaciones.tsx`;
   `SceneBanner` y `EmptyState` → `ui/scene/Mensajes.tsx` (`AvisoEscena`, `EstadoVacio`, `Carga`).
 - **Objetivo**: avisos en línea, avisos de escena, notificaciones, estados vacíos, carga y
@@ -704,7 +704,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e de cada estado; captura C5 y C10.
 - **Evidencia**: capturas y salida.
 
-#### UI-02 · Editor de ecuaciones — Pendiente
+#### UI-02 · Editor de ecuaciones — Completada y verificada
 - *Nota (H4)*: `ExpressionField` → `ui/controls/CampoExpresion.tsx`; `Equations` →
   `ui/panel/Ecuaciones.tsx`.
 - **Objetivo**: P, Q, R con vista previa, validación en vivo, estado «incompleta» y
@@ -716,7 +716,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: salida y captura C5.
 
-#### UI-03 · Parámetros — Pendiente
+#### UI-03 · Parámetros — Completada y verificada
 - *Nota (H4)*: `ui/panel/Parametros.tsx`; valores de un parámetro nuevo en D-32.
 - **Objetivo**: añadir, editar, restablecer y eliminar parámetros; deslizador y número
   sincronizados.
@@ -727,7 +727,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: salida.
 
-#### UI-04 · Dominio y muestreo — Pendiente
+#### UI-04 · Dominio y muestreo — Completada y verificada
 - *Nota (H4)*: `ui/panel/Dominio.tsx`; reencuadre con `ControladorEscena.reencuadrar` (conserva la
   orientación).
 - **Objetivo**: límites de Ω, N, nodos/centros y resolución del corte, con validación.
@@ -738,7 +738,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: salida.
 
-#### UI-05 · Restablecer y deshacer — Pendiente
+#### UI-05 · Restablecer y deshacer — Completada y verificada
 - *Nota (H4)*: acciones en `state/actions.ts`; menú y «Deshacer» en `app/edicion.ts`.
 - **Objetivo**: restablecer cámara, parámetros y experimento, con «Deshacer» temporal.
 - **Dependencias**: UI-03, UI-04.
@@ -748,7 +748,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e.
 - **Evidencia**: salida.
 
-#### REV-02 · Revisión de capturas de controles y estados — Pendiente
+#### REV-02 · Revisión de capturas de controles y estados — Completada y verificada
 - *Nota (H4)*: VV-06 revisado tras medirlo (D-33).
 - **Objetivo**: revisar los estados de interacción, la densidad del panel y los mensajes.
 - **Dependencias**: UI-02 … UI-05.
