@@ -162,39 +162,6 @@
   background: var(--pulsado);
 }
 
-/* Descripción emergente propia (sin `title` nativo, DESIGN §2.4): aparece con hover y con foco. */
-[data-ayuda]::after {
-  content: attr(data-ayuda);
-  position: absolute;
-  z-index: 50;
-  bottom: calc(100% + var(--e-2));
-  right: 0;
-  padding: var(--e-1) var(--e-2);
-  background: var(--fondo-2);
-  border: 1px solid var(--borde);
-  border-radius: var(--r-1);
-  box-shadow: var(--sombra-n2);
-  color: var(--texto-1);
-  font-size: var(--t-pie);
-  line-height: var(--l-pie);
-  font-weight: 400;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--mov-medio) var(--curva-salida);
-}
-
-.barra [data-ayuda]::after {
-  bottom: auto;
-  top: calc(100% + var(--e-2));
-}
-
-[data-ayuda]:hover::after,
-[data-ayuda]:focus-visible::after {
-  opacity: 1;
-  transition: opacity var(--mov-medio) var(--curva) 400ms;
-}
-
 /* ---------- Panel lateral ---------- */
 
 .panel {
@@ -243,6 +210,160 @@
   margin: 0;
   color: var(--texto-2);
   font-size: var(--t-control);
+}
+
+/* Ecuaciones */
+
+.ecuaciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+
+/* Parámetros */
+
+.parametros {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.parametro {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 64px 32px;
+  align-items: center;
+  column-gap: var(--e-2);
+  row-gap: var(--e-1);
+}
+
+.parametro-nombre {
+  font-size: 11px;
+  color: var(--texto-1);
+  overflow: hidden;
+}
+
+.rango {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--e-2);
+  padding: var(--e-2) 0 var(--e-2) 40px;
+}
+
+.rango-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  color: var(--texto-2);
+}
+
+.rango .mensaje-campo {
+  flex-basis: 100%;
+}
+
+.nuevo-parametro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.nuevo-parametro-etiqueta {
+  color: var(--texto-2);
+}
+
+.campo-texto {
+  min-width: 0;
+  height: var(--m-control);
+  padding: 0 var(--e-2);
+  background: var(--fondo-0);
+  border: 1px solid var(--control);
+  border-radius: var(--r-2);
+  color: var(--texto-1);
+  font-family: var(--familia-mono);
+  font-size: var(--t-control);
+}
+
+.campo-texto:hover {
+  border-color: var(--texto-2);
+}
+
+.campo-texto[aria-invalid='true'] {
+  border: 2px solid var(--texto-1);
+  padding: 0 calc(var(--e-2) - 1px);
+}
+
+.boton-anadir {
+  align-self: flex-start;
+  margin-left: calc(-1 * var(--e-3));
+}
+
+.boton-compacto {
+  height: 24px;
+  padding: 0 var(--e-2);
+  color: var(--texto-1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pista {
+  margin: 0;
+  color: var(--texto-3);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+}
+
+/* Dominio y muestreo */
+
+.limites {
+  display: grid;
+  grid-template-columns: 48px 88px 88px;
+  align-items: center;
+  column-gap: var(--e-2);
+  row-gap: var(--e-2);
+}
+
+.limites-fila {
+  display: contents;
+}
+
+.limites-cabecera {
+  color: var(--texto-2);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  text-align: right;
+}
+
+.limites-eje {
+  color: var(--texto-2);
+  font-family: var(--familia-mono);
+}
+
+.fila-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+}
+
+.fila-etiqueta {
+  width: 72px;
+  color: var(--texto-2);
+}
+
+.fila-pista {
+  color: var(--texto-3);
+  font-size: var(--t-pie);
+}
+
+.fila-control .mensaje-campo {
+  flex-basis: 100%;
 }
 
 /* Desplegables (DESIGN §6) */
@@ -392,20 +513,109 @@
   z-index: 5;
 }
 
-/* Aviso en la escena (DESIGN §6.2, «Expresión con error»): centrado arriba, sin ocultar datos. */
+/* Aviso en la escena (DESIGN §6.2): arriba al centro, uno a la vez, sin ocultar datos. */
 .aviso-escena {
   top: var(--e-4);
   left: 50%;
   transform: translateX(-50%);
-  margin: 0;
-  padding: var(--e-1) var(--e-3);
+  max-width: calc(100% - 2 * var(--e-4));
+}
+
+.aviso-escena .aviso-bloque {
+  background: var(--fondo-2);
+  box-shadow: var(--sombra-n1);
+  white-space: nowrap;
+}
+
+/* Notificaciones (DESIGN §5.2): abajo al centro, entre la leyenda y la barra de la escena. */
+.notificaciones {
+  position: absolute;
+  left: 50%;
+  bottom: var(--e-4);
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e-2);
+  width: max-content;
+  max-width: min(416px, calc(100% - 576px));
+}
+
+.notificacion {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  max-width: 100%;
+  padding: var(--e-1) var(--e-1) var(--e-1) var(--e-3);
   background: var(--fondo-2);
   border: 1px solid var(--borde);
-  border-radius: var(--r-2);
+  border-radius: var(--r-3);
+  box-shadow: var(--sombra-n2);
   color: var(--texto-1);
+  font-size: var(--t-control);
+  line-height: var(--l-control);
+}
+
+.notificacion-texto {
+  margin: 0;
+  min-width: 0;
+}
+
+.notificacion-accion {
+  height: 24px;
+  padding: 0 var(--e-2);
+  color: var(--texto-1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Carga inicial: barra indeterminada de 2 px (estática con movimiento reducido). */
+.carga {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e-2);
+  color: var(--texto-2);
   font-size: var(--t-pie);
   line-height: var(--l-pie);
-  white-space: nowrap;
+}
+
+.carga-barra {
+  position: relative;
+  width: 160px;
+  height: 2px;
+  background: var(--borde);
+  overflow: hidden;
+}
+
+.carga-progreso {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: var(--texto-2);
+  animation: progreso-indeterminado 1.2s var(--curva) infinite;
+}
+
+@keyframes progreso-indeterminado {
+  from {
+    left: -40%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carga-progreso {
+    animation: none !important;
+    left: 30%;
+  }
 }
 
 .esquina-inferior-derecha {
@@ -579,4 +789,15 @@
 .estado-vacio-texto {
   margin: 0;
   max-width: 480px;
+}
+
+.estado-vacio {
+  pointer-events: none;
+}
+
+.estado-vacio-acciones {
+  pointer-events: auto;
+  display: flex;
+  gap: var(--e-2);
+  margin-top: var(--e-2);
 }

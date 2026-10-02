@@ -1,6 +1,8 @@
+import { memo } from 'react';
 import { Box, Scan } from 'lucide-react';
 import type { Vista } from '../../render/camara';
 import { T } from '../../i18n/es';
+import { BotonIcono } from '../controls/Boton';
 
 interface Props {
   alEncuadrar: () => void;
@@ -8,21 +10,17 @@ interface Props {
 }
 
 /** Barra de la escena (DESIGN §5.2): encuadre y vistas predefinidas, con atajos. */
-export function BarraEscena({ alEncuadrar, alVista }: Props) {
+function BarraEscenaBase({ alEncuadrar, alVista }: Props) {
   return (
     <div className="barra-escena flotante" data-flotante="barra-escena" role="toolbar" aria-label="Vistas de la cámara">
-      <button type="button" className="boton-icono" onClick={alEncuadrar} aria-label={T.vistas.encuadrar} data-ayuda={T.vistas.encuadrar}>
-        <Scan size={18} strokeWidth={1.5} aria-hidden="true" />
-      </button>
+      <BotonIcono etiqueta={T.vistas.encuadrar} icono={Scan} tamanoIcono={18} atajo="R" onClick={alEncuadrar} />
       <span className="barra-escena-separador" aria-hidden="true" />
-      {(['XY', 'XZ', 'YZ'] as const).map((v) => (
-        <button key={v} type="button" className="boton-icono boton-texto-corto" onClick={() => alVista(v)} aria-label={T.vistas[v]} data-ayuda={T.vistas[v]}>
-          {v}
-        </button>
+      {(['XY', 'XZ', 'YZ'] as const).map((v, i) => (
+        <BotonIcono key={v} etiqueta={T.vistas[v]} texto={v} atajo={String(i + 1)} onClick={() => alVista(v)} />
       ))}
-      <button type="button" className="boton-icono" onClick={() => alVista('iso')} aria-label={T.vistas.iso} data-ayuda={T.vistas.iso}>
-        <Box size={18} strokeWidth={1.5} aria-hidden="true" />
-      </button>
+      <BotonIcono etiqueta={T.vistas.iso} icono={Box} tamanoIcono={18} atajo="4" onClick={() => alVista('iso')} />
     </div>
   );
 }
+
+export const BarraEscena = memo(BarraEscenaBase);

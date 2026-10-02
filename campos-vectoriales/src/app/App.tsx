@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CircleOff, FileQuestion } from 'lucide-react';
 import { ClienteCalculo } from '../compute/client';
 import { huellaMalla } from '../compute/huella';
 import { peticionMalla } from '../compute/peticiones';
@@ -6,6 +7,7 @@ import { CATALOGO, type IdCampo } from '../math/catalog';
 import { compilarCampo } from '../math/field';
 import type { ControladorEscena } from '../render/ControladorEscena';
 import type { Vista } from '../render/camara';
+import type { Dominio } from '../math/tipos';
 import { seleccionarCampo } from '../state/actions';
 import { EXPERIMENTO_INICIAL, experimentoDesdeCatalogo, type EstadoExperimento } from '../state/schema';
 import { crearAlmacen } from '../state/store';
@@ -13,14 +15,17 @@ import { T } from '../i18n/es';
 import { useAlmacen, usePrefiereMovimientoReducido } from '../ui/hooks';
 import { Panel } from '../ui/panel/Panel';
 import { BarraSuperior, type EstadoCalculoBarra } from '../ui/topbar/BarraSuperior';
+import { Boton } from '../ui/controls/Boton';
+import { crearNotificador, Notificaciones } from '../ui/controls/Notificaciones';
+import { AvisoEscena, Carga, EstadoVacio } from '../ui/scene/Mensajes';
 import { BarraEscena } from '../ui/scene/BarraEscena';
 import { Leyenda } from '../ui/scene/Leyenda';
 import { Triedro } from '../ui/scene/Triedro';
 import { VistaEscena } from '../ui/scene/VistaEscena';
-import '../ui/ui.css';
 import { ESTADO_CALCULO_INICIAL, Orquestador, type EstadoCalculo } from './orquestador';
 import { modoPrueba, parametrosUrl, publicarGancho } from './pruebas';
 import { useAtajos } from './atajos';
+import { useEdicion } from './edicion';
 
 /** Estado inicial: el helicoidal, o el campo pedido en la URL (`?campo=rotacional`). */
 function estadoInicial(): EstadoExperimento {
@@ -36,8 +41,11 @@ interface Props {
 export function App({ fuentes }: Props) {
   const almacen = useMemo(() => crearAlmacen(estadoInicial()), []);
   const almacenCalculo = useMemo(() => crearAlmacen<EstadoCalculo>(ESTADO_CALCULO_INICIAL), []);
+  const edicionInvalida = useMemo(() => crearAlmacen(false), []);
+  const notificador = useMemo(() => crearNotificador(), []);
   const estado = useAlmacen(almacen, (s) => s);
   const calculo = useAlmacen(almacenCalculo, (s) => s);
+  const hayEdicionInvalida = useAlmacen(edicionInvalida, (s) => s);
   const [controlador, setControlador] = useState<ControladorEscena | null>(null);
   const [errorEscena, setErrorEscena] = useState<string | null>(null);
   const alControlador = useCallback((c: ControladorEscena | null, error?: string) => {
@@ -85,8 +93,14 @@ export function App({ fuentes }: Props) {
   const campo = compilado.ok ? compilado.campo : null;
   const malla = calculo.malla;
 
+  // Al cambiar el dominio, la cámara se reencuadra con transición (salvo movimiento reducido) (F4.3).
+  const dominioPrevio = useRef<Dominio | null>(null);
   useEffect(() => {
-    controlador?.fijarDominio(estado.dominio, false);
+    if (!controlador) return;
+    const previo = dominioPrevio.current;
+    controlador.fijarDominio(estado.dominio, false);
+    if (previo && previo !== estado.dominio) controlador.reencuadrar(true);
+    dominioPrevio.current = estado.dominio;
   }, [controlador, estado.dominio]);
 
   useEffect(() => {
@@ -97,11 +111,25 @@ export function App({ fuentes }: Props) {
     controlador?.fijarFlechas(estado.capas.flechas && malla ? malla.instancias : null);
   }, [controlador, malla, estado.capas.flechas]);
 
-  const elegirCampo = useCallback((id: IdCampo) => almacen.fijar((s) => seleccionarCampo(s, id)), [almacen]);
-  const encuadrar = useCallback(() => controlador?.encuadrar(), [controlador]);
+  const { acciones, restablecer } = useEdicion(almacen, controlador, notificador);
   const vista = useCallback((v: Vista) => controlador?.irAVista(v), [controlador]);
   const cancelarLineas = useCallback(() => orquestador?.cancelarLineas(), [orquestador]);
-  useAtajos(encuadrar, vista);
+  useAtajos(restablecer.camara, vista);
+  const parametrosPorDefecto = estado.parametros.every((p) => p.valor === p.porDefecto);
+  const opcionesRestablecer = useMemo(
+    () => [
+      { id: 'camara', texto: T.restablecer.camara, atajo: 'R', alElegir: restablecer.camara },
+      {
+        id: 'parametros',
+        texto: T.restablecer.parametros,
+        deshabilitado: parametrosPorDefecto,
+        motivo: T.restablecer.parametrosPorDefecto,
+        alElegir: restablecer.parametros,
+      },
+      { id: 'experimento', texto: T.restablecer.experimento, alElegir: restablecer.experimento },
+    ],
+    [restablecer, parametrosPorDefecto],
+  );
 
   // Gancho de pruebas: listo cuando hay escena, fuentes, cliente de cálculo y una malla dibujada.
   const hayMalla = malla !== null;
@@ -120,6 +148,8 @@ export function App({ fuentes }: Props) {
       resultados: () => almacenCalculo.obtener(),
       suscribirCalculo: (escucha: (s: EstadoCalculo) => void) => almacenCalculo.suscribir(() => escucha(almacenCalculo.obtener())),
       cancelarLineas: () => orquestador.cancelarLineas(),
+      camara: () => controlador.obtenerCamara(),
+      notificaciones: () => notificador.almacen.obtener().map((n) => ({ tipo: n.tipo, texto: n.texto, accion: n.accion?.texto ?? null })),
       medidasCancelacion: () => [...cliente.medidasCancelacion],
       pendiente: () => orquestador.pendiente,
       calculo: () => {
@@ -142,6 +172,17 @@ export function App({ fuentes }: Props) {
           cli.terminar();
         }
       },
+      /** F y ‖F‖ en el nodo de coordenadas exactas (x, y, z), o null si no es un nodo. */
+      campoEnNodo: (x: number, y: number, z: number) => {
+        const r = mallaActual();
+        if (!r) return null;
+        for (let i = 0; i < r.total; i++) {
+          if (r.pos[3 * i] === x && r.pos[3 * i + 1] === y && r.pos[3 * i + 2] === z) {
+            return { F: [r.F[3 * i], r.F[3 * i + 1], r.F[3 * i + 2]], mag: r.mag[i] };
+          }
+        }
+        return null;
+      },
       flecha: (k: number) => {
         const r = mallaActual();
         if (!r || k >= r.instancias.n) return null;
@@ -158,7 +199,23 @@ export function App({ fuentes }: Props) {
         };
       },
     });
-  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo]);
+  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador]);
+
+  const modoFlechas = estado.flechas.modo;
+  const capaFlechas = estado.capas.flechas;
+  const datosLeyenda = useMemo(
+    () =>
+      malla && {
+        escala: malla.escala,
+        lMax: malla.lMax,
+        modo: modoFlechas,
+        ceros: malla.instancias.ceros.length / 3,
+        indefinidos: malla.instancias.indefinidos.length / 3,
+        saturadas: malla.instancias.nSaturadas,
+        flechas: capaFlechas,
+      },
+    [malla, modoFlechas, capaFlechas],
+  );
 
   const estadoBarra: EstadoCalculoBarra = useMemo(() => {
     if (calculo.error) return { tipo: 'error', texto: calculo.error };
@@ -179,8 +236,8 @@ export function App({ fuentes }: Props) {
       <a className="saltar" href="#escena">
         {T.saltarEscena}
       </a>
-      <BarraSuperior nombre={estado.nombre} estadoCalculo={estadoBarra} alRestablecerCamara={encuadrar} alCancelar={cancelarLineas} />
-      <Panel estado={estado} campo={campo} alElegirCampo={elegirCampo} />
+      <BarraSuperior nombre={estado.nombre} estadoCalculo={estadoBarra} restablecer={opcionesRestablecer} alCancelar={cancelarLineas} />
+      <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} />
       <VistaEscena
         fuentes={fuentes}
         movimientoReducido={movimientoReducido}
@@ -188,26 +245,35 @@ export function App({ fuentes }: Props) {
         error={errorEscena}
         alControlador={alControlador}
       >
-        {calculo.error && malla ? (
-          <p className="aviso-escena flotante" role="note" data-prueba="aviso-escena">
-            {T.escena.ultimoValido}
-          </p>
-        ) : null}
-        {malla ? (
-          <Leyenda
-            datos={{
-              escala: malla.escala,
-              lMax: malla.lMax,
-              modo: estado.flechas.modo,
-              ceros: malla.instancias.ceros.length / 3,
-              indefinidos: malla.instancias.indefinidos.length / 3,
-              saturadas: malla.instancias.nSaturadas,
-              flechas: estado.capas.flechas,
-            }}
+        {(hayEdicionInvalida || calculo.error) && malla ? <AvisoEscena>{T.escena.ultimoValido}</AvisoEscena> : null}
+        {!malla && !calculo.error ? <Carga /> : null}
+        {malla && malla.recuento.validos + malla.recuento.ceros === 0 ? (
+          <EstadoVacio
+            icono={FileQuestion}
+            titulo={T.escena.sinDatosTitulo}
+            texto={T.escena.sinDatosTexto}
+            acciones={
+              <Boton variante="secundario" onClick={restablecer.experimento}>
+                {T.escena.restablecerEjemplo}
+              </Boton>
+            }
+          />
+        ) : malla?.escala.nulo ? (
+          <EstadoVacio
+            icono={CircleOff}
+            titulo={T.escena.nuloTitulo}
+            texto={T.escena.nuloTexto}
+            acciones={
+              <Boton variante="secundario" onClick={restablecer.experimento}>
+                {T.escena.restablecerEjemplo}
+              </Boton>
+            }
           />
         ) : null}
+        <Notificaciones notificador={notificador} />
+        {datosLeyenda ? <Leyenda datos={datosLeyenda} /> : null}
         <div className="esquina-inferior-derecha">
-          <BarraEscena alEncuadrar={encuadrar} alVista={vista} />
+          <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} />
           <Triedro controlador={controlador} />
         </div>
       </VistaEscena>

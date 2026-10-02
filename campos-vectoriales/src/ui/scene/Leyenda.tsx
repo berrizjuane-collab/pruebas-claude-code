@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { memo, useId, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { hexGris } from '../../design/color';
 import { grisRampaMagnitud } from '../../geometria/flechas';
@@ -47,7 +47,7 @@ const GLIFO = {
   ),
 };
 
-export function Leyenda({ datos }: { datos: DatosLeyenda }) {
+function LeyendaBase({ datos }: { datos: DatosLeyenda }) {
   const [plegada, setPlegada] = useState(false);
   const idCuerpo = useId();
   const ref = formatearCorto(datos.escala.ref);
@@ -110,3 +110,5 @@ export function Leyenda({ datos }: { datos: DatosLeyenda }) {
     </section>
   );
 }
+
+export const Leyenda = memo(LeyendaBase);

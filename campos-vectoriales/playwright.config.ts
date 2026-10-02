@@ -28,5 +28,10 @@ export default defineConfig({
         reuseExistingServer: true,
         timeout: 60_000,
       },
-  projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
+  // Las medidas de rendimiento (@rendimiento) se ejecutan al final, en serie y sin otras
+  // pruebas en paralelo: con la CPU saturada por otros navegadores no miden la aplicación.
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' }, grepInvert: /@rendimiento/ },
+    { name: 'rendimiento', use: { browserName: 'chromium' }, grep: /@rendimiento/, dependencies: ['chromium'] },
+  ],
 });

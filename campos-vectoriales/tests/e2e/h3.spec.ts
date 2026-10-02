@@ -77,10 +77,12 @@ test.describe('CMP-01 · worker y protocolo', () => {
     await gancho(page, '(c) => c.fijarEstado((s) => ({ ...s, campo: { ...s.campo, P: "x+" } }))');
     await expect(estado).toContainText('Error: La componente P no es válida');
     await expect(estado).toHaveAttribute('role', 'alert');
-    await expect(page.locator('[data-prueba="aviso-escena"]')).toHaveText('Mostrando el último campo válido');
+    await expect(page.locator('[data-prueba="aviso-escena"]')).toHaveText('Aviso: Mostrando el último campo válido');
     // La escena conserva el último campo válido y sigue respondiendo.
     expect((await gancho(page, '(c) => c.escena()')).flechas).toBe(antes);
-    await page.getByRole('button', { name: /Restablecer/ }).click();
+    await page.getByRole('button', { name: 'Restablecer', exact: true }).click();
+    await page.getByRole('menuitem', { name: /Cámara/ }).click();
+    await expect(page.getByRole('menu')).toBeHidden();
     // Elegir otro campo recupera el estado normal.
     await gancho(page, '(c) => c.seleccionarCampo("radial-saliente")');
     await expect(estado).toContainText('Listo');
@@ -91,7 +93,8 @@ test.describe('CMP-01 · worker y protocolo', () => {
 });
 
 test.describe('CMP-02 · orquestación, cancelación y presupuestos', () => {
-  test('60 cambios de parámetro en 3 s: solo se aplica el último resultado de líneas y no hay tareas largas', async ({ page }) => {
+  test.describe.configure({ mode: 'serial' });
+  test('60 cambios de parámetro en 3 s: solo se aplica el último resultado de líneas y no hay tareas largas', { tag: '@rendimiento' }, async ({ page }) => {
     const reg = registrar(page);
     await abrir(page);
     await page.waitForFunction(() => (window as any).__campos.resultados().lineas !== null);
@@ -153,7 +156,7 @@ test.describe('CMP-02 · orquestación, cancelación y presupuestos', () => {
     sinErrores(reg);
   });
 
-  test('«Cancelar» detiene el cálculo de líneas en menos de 100 ms', async ({ page }) => {
+  test('«Cancelar» detiene el cálculo de líneas en menos de 100 ms', { tag: '@rendimiento' }, async ({ page }) => {
     const reg = registrar(page);
     await abrir(page);
     // Cálculo largo: 256 semillas, hélice que no sale de Ω ni se cierra, paso pequeño y una expresión cara.

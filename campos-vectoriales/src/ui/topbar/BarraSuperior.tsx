@@ -1,5 +1,7 @@
+import { memo } from 'react';
 import { CircleCheck, LoaderCircle, OctagonAlert, RotateCcw, TriangleAlert } from 'lucide-react';
 import { T } from '../../i18n/es';
+import { Menu, type OpcionMenu } from '../controls/Menu';
 
 export interface EstadoCalculoBarra {
   tipo: 'listo' | 'calculando' | 'aviso' | 'error';
@@ -10,14 +12,15 @@ export interface EstadoCalculoBarra {
 interface Props {
   nombre: string;
   estadoCalculo: EstadoCalculoBarra;
-  alRestablecerCamara: () => void;
+  /** Opciones del menú «Restablecer» (F8). */
+  restablecer: readonly OpcionMenu[];
   alCancelar: () => void;
 }
 
 const ICONO = { listo: CircleCheck, calculando: LoaderCircle, aviso: TriangleAlert, error: OctagonAlert };
 const PREFIJO = { listo: '', calculando: '', aviso: 'Aviso: ', error: 'Error: ' };
 
-export function BarraSuperior({ nombre, estadoCalculo, alRestablecerCamara, alCancelar }: Props) {
+function BarraSuperiorBase({ nombre, estadoCalculo, restablecer, alCancelar }: Props) {
   const Icono = ICONO[estadoCalculo.tipo];
   return (
     <header className="barra" data-region="barra">
@@ -45,11 +48,10 @@ export function BarraSuperior({ nombre, estadoCalculo, alRestablecerCamara, alCa
         ) : null}
       </p>
       <div className="barra-acciones">
-        <button type="button" className="boton" onClick={alRestablecerCamara} data-ayuda={`${T.acciones.restablecerCamara} (R)`}>
-          <RotateCcw size={16} strokeWidth={1.5} aria-hidden="true" />
-          <span className="boton-texto">{T.acciones.restablecer}</span>
-        </button>
+        <Menu etiqueta={T.restablecer.menu} icono={RotateCcw} opciones={restablecer} alineacion="derecha" datosPrueba="menu-restablecer" />
       </div>
     </header>
   );
 }
+
+export const BarraSuperior = memo(BarraSuperiorBase);

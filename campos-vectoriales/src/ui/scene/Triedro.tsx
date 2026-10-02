@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import type { ControladorEscena } from '../../render/ControladorEscena';
 
 const ESTILO = ['', '4 3', '1.2 2.4'];
 const LETRA = ['x', 'y', 'z'];
 
 /** Triedro de orientación: gira con la cámara; mismo estilo de línea que los ejes. */
-export function Triedro({ controlador }: { controlador: ControladorEscena | null }) {
+function TriedroBase({ controlador }: { controlador: ControladorEscena | null }) {
   const [dirs, setDirs] = useState<[number, number, number][]>([
     [1, 0, 0],
     [0, 1, 0],
@@ -41,3 +41,5 @@ export function Triedro({ controlador }: { controlador: ControladorEscena | null
     </svg>
   );
 }
+
+export const Triedro = memo(TriedroBase);

@@ -1,0 +1,730 @@
+/*
+ * Biblioteca de controles (VIS-02, DESIGN §6–7). Cada estado tiene una señal no tonal:
+ *   hover        fondo un paso más claro + cursor de mano (+ descripción emergente)
+ *   foco         contorno de 2 px --texto-1 separado 2 px (forma nueva)
+ *   pulsado      fondo #333333 (y aria-pressed cuando corresponde)
+ *   seleccionado inversión o borde de 2 px + ✓ / mando desplazado
+ *   deshabilitado texto #6B6B6B, borde --fondo-3, cursor not-allowed + motivo
+ *   error        borde de 2 px + icono + «Error:» + aria-invalid
+ * `data-forzar` reproduce hover, foco y pulsado en la galería (?muestras).
+ */
+
+/* ---------- Foco forzado (galería) ---------- */
+
+[data-forzar~='foco'] {
+  outline: 2px solid var(--texto-1);
+  outline-offset: 2px;
+}
+
+/* ---------- Botones ---------- */
+
+.boton-secundario {
+  background: var(--fondo-2);
+  border-color: var(--borde);
+}
+
+.boton-primario {
+  background: var(--texto-1);
+  border-color: var(--texto-1);
+  color: var(--fondo-0);
+}
+
+.boton-fantasma {
+  background: transparent;
+  border-color: transparent;
+  color: var(--texto-2);
+}
+
+.boton:hover,
+.boton[data-forzar~='hover'],
+.boton-icono:hover,
+.boton-icono[data-forzar~='hover'] {
+  background: var(--fondo-3);
+  color: var(--texto-1);
+}
+
+.boton-primario:hover,
+.boton-primario[data-forzar~='hover'] {
+  background: var(--texto-2);
+  border-color: var(--texto-2);
+  color: var(--fondo-0);
+}
+
+.boton:active,
+.boton[data-forzar~='pulsado'],
+.boton-icono:active,
+.boton-icono[data-forzar~='pulsado'] {
+  background: var(--pulsado);
+}
+
+.boton-primario:active,
+.boton-primario[data-forzar~='pulsado'] {
+  background: var(--texto-3);
+  border-color: var(--texto-3);
+}
+
+.boton-icono[aria-pressed='true'] {
+  background: var(--texto-1);
+  border-color: var(--texto-1);
+  color: var(--fondo-0);
+}
+
+.boton[aria-disabled='true'],
+.boton-icono[aria-disabled='true'],
+.boton[aria-disabled='true']:hover,
+.boton-icono[aria-disabled='true']:hover,
+.boton[aria-disabled='true']:active,
+.boton-icono[aria-disabled='true']:active {
+  background: transparent;
+  border-color: var(--fondo-3);
+  color: var(--deshabilitado);
+  cursor: not-allowed;
+}
+
+.boton-cerrar {
+  border-color: transparent;
+  background: transparent;
+  width: 24px;
+  height: 24px;
+}
+
+/* ---------- Descripción emergente ---------- */
+
+.descripcion {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  max-width: 280px;
+  padding: var(--e-1) var(--e-2);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-1);
+  box-shadow: var(--sombra-n2);
+  color: var(--texto-1);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  font-weight: 400;
+}
+
+.descripcion:not([data-visible='true']) {
+  display: none;
+}
+
+/* ---------- Interruptor ---------- */
+
+.interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  height: var(--m-control);
+  margin: 0 calc(-1 * var(--e-2));
+  padding: 0 var(--e-2);
+  background: none;
+  border: none;
+  border-radius: var(--r-2);
+  color: var(--texto-1);
+  font-size: var(--t-control);
+  text-align: left;
+}
+
+.interruptor:hover,
+.interruptor[data-forzar~='hover'] {
+  background: var(--fondo-3);
+}
+
+.interruptor:active,
+.interruptor[data-forzar~='pulsado'] {
+  background: var(--pulsado);
+}
+
+.interruptor-pista {
+  position: relative;
+  flex: none;
+  width: 28px;
+  height: 16px;
+  border: 1px solid var(--control);
+  border-radius: 8px;
+  transition: background-color var(--mov-rapido) var(--curva);
+}
+
+.interruptor-mando {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--control);
+  border-radius: 50%;
+  transition: transform var(--mov-medio) var(--curva);
+}
+
+.interruptor[aria-checked='true'] .interruptor-pista {
+  background: var(--texto-1);
+  border-color: var(--texto-1);
+}
+
+.interruptor[aria-checked='true'] .interruptor-mando {
+  transform: translateX(12px);
+  background: var(--fondo-0);
+  border-color: var(--fondo-0);
+}
+
+.interruptor[aria-disabled='true'] {
+  color: var(--deshabilitado);
+  cursor: not-allowed;
+  background: none;
+}
+
+.interruptor[aria-disabled='true'] .interruptor-pista,
+.interruptor[aria-disabled='true'] .interruptor-mando {
+  border-color: var(--fondo-3);
+}
+
+.interruptor[aria-disabled='true'][aria-checked='true'] .interruptor-pista {
+  background: var(--deshabilitado);
+  border-color: var(--deshabilitado);
+}
+
+/* ---------- Control segmentado ---------- */
+
+.segmentado {
+  display: inline-flex;
+  height: var(--m-control);
+  border: 1px solid var(--control);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+
+.segmentado-opcion {
+  min-width: 40px;
+  padding: 0 var(--e-3);
+  background: transparent;
+  border: none;
+  color: var(--texto-2);
+  font-size: var(--t-control);
+  font-weight: 500;
+}
+
+.segmentado-opcion + .segmentado-opcion {
+  border-left: 1px solid var(--borde);
+}
+
+.segmentado-opcion:hover,
+.segmentado-opcion[data-forzar~='hover'] {
+  background: var(--fondo-3);
+  color: var(--texto-1);
+}
+
+.segmentado-opcion:active,
+.segmentado-opcion[data-forzar~='pulsado'] {
+  background: var(--pulsado);
+}
+
+.segmentado-opcion[aria-pressed='true'] {
+  background: var(--texto-1);
+  color: var(--fondo-0);
+}
+
+.segmentado-opcion:focus-visible,
+.segmentado-opcion[data-forzar~='foco'] {
+  outline-offset: -4px;
+  outline-color: var(--fondo-0);
+}
+
+.segmentado-opcion[aria-pressed='false']:focus-visible,
+.segmentado-opcion[aria-pressed='false'][data-forzar~='foco'] {
+  outline-color: var(--texto-1);
+}
+
+.segmentado[aria-disabled='true'] {
+  border-color: var(--fondo-3);
+}
+
+.segmentado-opcion[aria-disabled='true'],
+.segmentado-opcion[aria-disabled='true']:hover {
+  background: transparent;
+  color: var(--deshabilitado);
+  cursor: not-allowed;
+}
+
+.segmentado-opcion[aria-disabled='true'][aria-pressed='true'] {
+  background: var(--fondo-3);
+}
+
+/* ---------- Deslizador ---------- */
+
+.deslizador {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--m-control);
+  padding: 0 7px;
+  cursor: pointer;
+  touch-action: none;
+  min-width: 0;
+}
+
+.deslizador-pista {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: var(--control);
+}
+
+.deslizador-recorrido {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  background: var(--texto-2);
+}
+
+.deslizador-mando {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--texto-1);
+  box-shadow: 0 0 0 2px var(--fondo-0);
+  transition: transform var(--mov-rapido) var(--curva);
+}
+
+.deslizador:hover .deslizador-mando,
+.deslizador-mando[data-forzar~='hover'] {
+  transform: scale(1.15);
+}
+
+.deslizador:active .deslizador-mando,
+.deslizador-mando[data-forzar~='pulsado'] {
+  transform: scale(1.3);
+}
+
+.deslizador-mando:focus-visible,
+.deslizador-mando[data-forzar~='foco'] {
+  outline: 2px solid var(--texto-1);
+  outline-offset: 3px;
+}
+
+.deslizador[data-deshabilitado] {
+  cursor: not-allowed;
+}
+
+.deslizador[data-deshabilitado] .deslizador-recorrido,
+.deslizador[data-deshabilitado] .deslizador-mando {
+  background: var(--deshabilitado);
+  transform: none;
+}
+
+.deslizador[data-deshabilitado] .deslizador-pista {
+  background: var(--fondo-3);
+}
+
+/* ---------- Entrada numérica ---------- */
+
+.campo-numerico {
+  width: 64px;
+  height: var(--m-control);
+  padding: 0 var(--e-2);
+  background: var(--fondo-0);
+  border: 1px solid var(--control);
+  border-radius: var(--r-2);
+  color: var(--texto-1);
+  font-size: var(--t-control);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.campo-numerico-ancho {
+  width: 88px;
+}
+
+.campo-numerico:hover,
+.campo-numerico[data-forzar~='hover'] {
+  border-color: var(--texto-2);
+}
+
+.campo-numerico[aria-invalid='true'] {
+  border: 2px solid var(--texto-1);
+  padding: 0 calc(var(--e-2) - 1px);
+}
+
+.campo-numerico[aria-disabled='true'] {
+  border-color: var(--fondo-3);
+  color: var(--deshabilitado);
+  cursor: not-allowed;
+}
+
+.mensaje-campo {
+  grid-column: 1 / -1;
+}
+
+/* ---------- Entrada de expresión ---------- */
+
+.expresion {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 0;
+  row-gap: var(--e-1);
+  align-items: center;
+}
+
+.expresion-etiqueta {
+  font-family: var(--familia-mono);
+  font-size: var(--t-control);
+  color: var(--texto-2);
+}
+
+.expresion-pozo {
+  position: relative;
+  height: var(--m-control);
+  overflow: hidden;
+  background: var(--fondo-0);
+  border: 1px solid var(--control);
+  border-radius: var(--r-2);
+}
+
+.expresion-pozo:hover,
+.expresion-pozo[data-forzar~='hover'] {
+  border-color: var(--texto-2);
+}
+
+.expresion-pozo:focus-within,
+.expresion-pozo[data-forzar~='foco'] {
+  outline: 2px solid var(--texto-1);
+  outline-offset: 2px;
+}
+
+.expresion-entrada {
+  width: 100%;
+  height: 100%;
+  padding: 0 var(--e-2);
+  background: transparent;
+  border: none;
+  color: var(--texto-1);
+  font-family: var(--familia-mono);
+  font-size: var(--t-control);
+}
+
+.expresion-entrada:focus-visible {
+  outline: none;
+}
+
+.expresion[data-estado='error'] .expresion-pozo {
+  border: 2px solid var(--texto-1);
+}
+
+.expresion[data-estado='error'] .expresion-entrada,
+.expresion[data-estado='error'] .expresion-subrayado {
+  padding: 0 calc(var(--e-2) - 1px);
+}
+
+.expresion-subrayado {
+  position: absolute;
+  inset: 0;
+  padding: 0 var(--e-2);
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  font-family: var(--familia-mono);
+  font-size: var(--t-control);
+  white-space: pre;
+}
+
+.expresion-subrayado-capa {
+  white-space: pre;
+}
+
+.transparente {
+  color: transparent;
+}
+
+.ondulado {
+  color: transparent;
+  text-decoration: underline wavy var(--texto-1);
+  text-decoration-thickness: 1.5px;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 4px;
+}
+
+.expresion-mensaje {
+  grid-column: 2;
+  min-height: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  color: var(--texto-2);
+  min-width: 0;
+}
+
+.expresion-previa {
+  font-size: 11px;
+  color: var(--texto-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+/* ---------- Avisos (DESIGN §2.3) ---------- */
+
+.aviso {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--e-2);
+  row-gap: var(--e-1);
+  color: var(--texto-2);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  min-width: 0;
+}
+
+.aviso-icono {
+  flex: none;
+}
+
+.aviso-texto {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.aviso-palabra {
+  font-weight: 600;
+}
+
+.aviso-error,
+.aviso-aviso {
+  color: var(--texto-1);
+}
+
+.aviso-bloque {
+  padding: var(--e-2) var(--e-3);
+  border-radius: var(--r-2);
+}
+
+.aviso-bloque.aviso-error {
+  border: 2px solid var(--texto-1);
+}
+
+.aviso-bloque.aviso-aviso {
+  border: 1px dashed var(--texto-2);
+}
+
+.aviso-exito .aviso-icono circle {
+  fill: currentColor;
+}
+
+.aviso-exito .aviso-icono path {
+  stroke: var(--fondo-0);
+}
+
+/* La acción va debajo del texto, alineada con él: el mensaje conserva todo el ancho. */
+.aviso-accion {
+  grid-column: 2;
+  margin-left: calc(-1 * var(--e-2));
+}
+
+/* ---------- Menú ---------- */
+
+.menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.menu-flecha {
+  color: var(--texto-2);
+}
+
+.menu-lista {
+  position: absolute;
+  top: calc(100% + var(--e-1));
+  left: 0;
+  z-index: 60;
+  min-width: 224px;
+  padding: var(--e-1);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-3);
+  box-shadow: var(--sombra-n2);
+}
+
+.menu-derecha .menu-lista {
+  left: auto;
+  right: 0;
+}
+
+.menu-opcion {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--e-2);
+  width: 100%;
+  height: var(--m-control);
+  padding: 0 var(--e-2);
+  background: none;
+  border: none;
+  border-radius: var(--r-2);
+  color: var(--texto-1);
+  font-size: var(--t-control);
+  text-align: left;
+}
+
+.menu-opcion:hover,
+.menu-opcion:focus-visible {
+  background: var(--fondo-3);
+}
+
+.menu-opcion:focus-visible {
+  outline-offset: -2px;
+}
+
+.menu-opcion:active {
+  background: var(--pulsado);
+}
+
+.menu-opcion[aria-disabled='true'] {
+  color: var(--deshabilitado);
+  cursor: not-allowed;
+}
+
+.menu-opcion[aria-disabled='true']:hover {
+  background: none;
+}
+
+/* ---------- Lista desplegable ---------- */
+
+.lista {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.lista-boton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-2);
+  min-width: 160px;
+  width: 100%;
+  height: var(--m-control);
+  padding: 0 var(--e-2) 0 var(--e-3);
+  background: var(--fondo-2);
+  border: 1px solid var(--control);
+  border-radius: var(--r-2);
+  color: var(--texto-1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.lista-boton:hover,
+.lista-boton[data-forzar~='hover'] {
+  background: var(--fondo-3);
+}
+
+.lista-boton:active,
+.lista-boton[data-forzar~='pulsado'] {
+  background: var(--pulsado);
+}
+
+.lista-boton[aria-disabled='true'] {
+  background: transparent;
+  border-color: var(--fondo-3);
+  color: var(--deshabilitado);
+  cursor: not-allowed;
+}
+
+.lista-valor {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lista-opciones {
+  position: absolute;
+  top: calc(100% + var(--e-1));
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: var(--e-1);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-3);
+  box-shadow: var(--sombra-n2);
+}
+
+.lista-opcion {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--e-2);
+  height: var(--m-control);
+  padding: 0 var(--e-2);
+  border-radius: var(--r-2);
+  cursor: pointer;
+}
+
+.lista-opcion:hover {
+  background: var(--fondo-3);
+}
+
+.lista-opcion[data-activa] {
+  background: var(--fondo-3);
+  outline: 2px solid var(--texto-1);
+  outline-offset: -2px;
+}
+
+.lista-opcion[aria-selected='true'] {
+  font-weight: 500;
+}
+
+/* ---------- Secciones desplegables ---------- */
+
+.seccion-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-2);
+  min-height: var(--m-control);
+}
+
+.seccion-boton {
+  display: flex;
+  align-items: center;
+  gap: var(--e-1);
+  height: var(--m-control);
+  margin-left: calc(-1 * var(--e-1));
+  padding: 0 var(--e-2) 0 0;
+  background: none;
+  border: none;
+  border-radius: var(--r-2);
+  color: var(--texto-1);
+  font: inherit;
+  font-weight: 600;
+}
+
+.seccion-boton:hover,
+.seccion-boton[data-forzar~='hover'] {
+  background: var(--fondo-3);
+}
+
+.seccion-boton .chevron {
+  color: var(--texto-2);
+  transition: transform var(--mov-medio) var(--curva);
+}
+
+.seccion-boton[aria-expanded='true'] .chevron {
+  transform: rotate(90deg);
+}
+
+.seccion-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}

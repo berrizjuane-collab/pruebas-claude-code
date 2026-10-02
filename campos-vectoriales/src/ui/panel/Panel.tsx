@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { memo, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { CATALOGO, campoPorId, type IdCampo } from '../../math/catalog';
 import { texCampo, type CampoCompilado } from '../../math/field';
@@ -6,20 +6,62 @@ import { texNombreParametro } from '../../math/expr/tex';
 import { formatearCorto } from '../../numerics/format';
 import type { EstadoExperimento } from '../../state/schema';
 import { T } from '../../i18n/es';
+import type { Dominio as TipoDominio } from '../../math/tipos';
+import type { Almacen } from '../../state/store';
 import { TeX, TextoMat } from '../TeX';
+import { Dominio } from './Dominio';
+import { Ecuaciones } from './Ecuaciones';
 import { Miniatura } from './Miniatura';
+import { Parametros } from './Parametros';
+
+/** Acciones del panel (las ejecuta App sobre el almacén). */
+export interface AccionesPanel {
+  alElegirCampo: (id: IdCampo) => void;
+  alAplicarEcuaciones: (c: { P: string; Q: string; R: string }) => void;
+  alAnadirParametroDesdeEcuacion: (nombre: string, borrador: { P: string; Q: string; R: string }) => void;
+  alCambiarParametro: (nombre: string, valor: number) => void;
+  alRangoParametro: (nombre: string, r: { min: number; max: number; paso: number }) => void;
+  alRestablecerParametro: (nombre: string) => void;
+  alEliminarParametro: (nombre: string) => void;
+  alAnadirParametro: (nombre: string) => void;
+  alDominio: (d: TipoDominio) => void;
+  alMuestreo: (m: Partial<EstadoExperimento['muestreo']>) => void;
+}
 
 interface Props {
   estado: EstadoExperimento;
   campo: CampoCompilado | null;
-  alElegirCampo: (id: IdCampo) => void;
+  acciones: AccionesPanel;
+  edicionInvalida: Almacen<boolean>;
 }
 
-export function Panel({ estado, campo, alElegirCampo }: Props) {
+export function Panel({ estado, campo, acciones: a, edicionInvalida }: Props) {
+  // Los nombres solo cambian al añadir o quitar parámetros (no con sus valores).
+  const claveNombres = estado.parametros.map((p) => p.nombre).join('\u0000');
+  const nombres = useMemo(() => (claveNombres ? claveNombres.split('\u0000') : []), [claveNombres]);
+  // Con ecuaciones inválidas no se sabe qué parámetros se usan: se consideran todos en uso.
+  const usados = useMemo(() => campo?.usados ?? new Set(nombres), [campo, nombres]);
   return (
     <aside className="panel" data-region="panel" aria-label={T.panel.etiqueta}>
       <SeccionCampo estado={estado} campo={campo} />
-      <Ejemplos activo={estado.base} modificado={estado.modificado} alElegir={alElegirCampo} />
+      <EjemplosMemo activo={estado.base} modificado={estado.modificado} alElegir={a.alElegirCampo} />
+      <Ecuaciones
+        campo={estado.campo}
+        parametros={nombres}
+        alAplicar={a.alAplicarEcuaciones}
+        alAnadirParametro={a.alAnadirParametroDesdeEcuacion}
+        edicionInvalida={edicionInvalida}
+      />
+      <Parametros
+        parametros={estado.parametros}
+        usados={usados}
+        alCambiar={a.alCambiarParametro}
+        alRango={a.alRangoParametro}
+        alRestablecer={a.alRestablecerParametro}
+        alEliminar={a.alEliminarParametro}
+        alAnadir={a.alAnadirParametro}
+      />
+      <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} />
     </aside>
   );
 }
@@ -145,3 +187,5 @@ function Ejemplos({ activo, modificado, alElegir }: { activo: IdCampo | null; mo
     </section>
   );
 }
+
+const EjemplosMemo = memo(Ejemplos);

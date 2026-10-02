@@ -139,12 +139,35 @@ export class ControladorEscena {
     this.transicionA({ radio, ...VISTAS[vista] }, objetivo, animar);
   }
 
+  /**
+   * Reencuadra el dominio actual conservando la orientación de la cámara (F4.3): mismo
+   * ángulo de vista, objetivo en el centro de Ω y distancia de encuadre.
+   */
+  reencuadrar(animar = true): void {
+    const t = this.controles.target;
+    const actual = esfericaDesdePosicion([t.x, t.y, t.z], [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
+    const radio = distanciaEncuadre(this.dominio, FOV, this.camara.aspect || 1);
+    this.transicionA({ radio, polar: actual.polar, azimut: actual.azimut }, centroDominio(this.dominio), animar);
+  }
+
   /** Encuadra el dominio en la vista isométrica (tecla R). */
   encuadrar(animar = true): void {
     this.irAVista('iso', animar);
   }
 
+  /**
+   * Anula la inercia de la órbita sin aplicarla. OrbitControls conserva el giro pendiente de
+   * la amortiguación y lo seguiría aplicando sobre una pose fijada por programa (deshacer,
+   * encuadrar), que entonces no quedaría exacta (hallazgo de UI-05).
+   */
+  private anularInercia(): void {
+    const c = this.controles as unknown as { _sphericalDelta?: { set(r: number, phi: number, theta: number): void }; _panOffset?: { set(x: number, y: number, z: number): void } };
+    c._sphericalDelta?.set(0, 0, 0);
+    c._panOffset?.set(0, 0, 0);
+  }
+
   private transicionA(hasta: Esferica, objetivo: Vec3, animar: boolean): void {
+    this.anularInercia();
     const objActual: Vec3 = [this.controles.target.x, this.controles.target.y, this.controles.target.z];
     const desde = esfericaDesdePosicion(objActual, [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
     if (!animar || this.movimientoReducido) {
@@ -174,6 +197,7 @@ export class ControladorEscena {
 
   fijarCamara(c: EstadoCamara): void {
     this.transicion = null;
+    this.anularInercia();
     this.controles.target.set(...c.objetivo);
     this.camara.position.set(...c.posicion);
     this.controles.update();
