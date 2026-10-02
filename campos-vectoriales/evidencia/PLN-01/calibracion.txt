@@ -1,0 +1,44 @@
+== Circunferencia (rotacional), rho0=1, sigma=2*pi*rho0
+h=0.3927 err_pos=3.813e-04 max|rho-1|=2.490e-04
+h=0.2027 err_pos=1.031e-05 max|rho-1|=9.271e-06
+h=0.0997 err_pos=1.138e-06 max|rho-1|=2.687e-07
+h=0.0622 err_pos=2.162e-07 max|rho-1|=2.539e-08
+h=0.0100 err_pos=1.882e-10 max|rho-1|=2.734e-12
+  orden observado 0.393->0.203: p=5.459
+  orden observado 0.203->0.100: p=3.108
+  orden observado 0.100->0.062: p=3.518
+== Helice a=0.25, rho0=1: una vuelta (sigma=2*pi*sqrt(1+a^2))
+a=+0.25 h=0.0623 dz=1.570796452432 (exacto 1.570796326795) rel=8.00e-08 |dxy|=1.96e-07 max|rho-1|=2.34e-08
+a=+0.25 h=0.0100 dz=1.570796326869 (exacto 1.570796326795) rel=4.70e-11 |dxy|=1.67e-10 max|rho-1|=2.50e-12
+a=-0.25 h=0.0623 dz=-1.570796452432 (exacto -1.570796326795) rel=8.00e-08 |dxy|=1.96e-07 max|rho-1|=2.34e-08
+a=-0.25 h=0.0100 dz=-1.570796326869 (exacto -1.570796326795) rel=4.70e-11 |dxy|=1.67e-10 max|rho-1|=2.50e-12
+== Silla: invariante xy desde (0.2,1.5,0) hasta salir de [-2,2]
+h=0.0625 max|xy-c0|/|c0|=2.16e-07
+h=0.01 max|xy-c0|/|c0|=1.44e-10
+== Uniforme: rectitud
+desviacion max=0.00e+00
+== Particulas (silla, t): x=x0 e^t, y=y0 e^-t, t=1
+dt=0.1 err_rel=8.00e-07
+dt=0.05 err_rel=5.10e-08
+dt=0.025 err_rel=3.22e-09
+dt=0.01 err_rel=8.30e-11
+  orden p=3.973
+  orden p=3.985
+== Diferencias finitas centradas sobre T1 = (sin(yz), x^2 e^z, y^3 cos x)
+h_j=eps^(1/3)*max(|x|,L=2), pasos efectivos  max|err|=7.44e-10  max err/(1+|v|)=1.46e-10
+  h=0.1000 err=9.650e-05
+  h=0.0500 err=2.413e-05 p=2.000
+  h=0.0250 err=6.032e-06 p=2.000
+  h=0.0125 err=1.508e-06 p=2.000
+--- arco parcial y autoconvergencia ---
+== Circunferencia, arco parcial sigma=1.5, error frente a exacta
+h=0.30000 err=3.163e-05
+h=0.15000 err=2.082e-06  p=3.925
+h=0.07500 err=1.379e-07  p=3.916
+h=0.03750 err=8.926e-09  p=3.950
+h=0.01875 err=5.683e-10  p=3.973
+== Silla normalizada: autoconvergencia |r_h - r_{h/2}|, sigma=2 desde (0.2,1.5,0)
+h=0.2 |r_h-r_h/2|=1.043e-05
+h=0.1 |r_h-r_h/2|=6.742e-07 p=3.951
+h=0.05 |r_h-r_h/2|=4.273e-08 p=3.980
+h=0.025 |r_h-r_h/2|=2.687e-09 p=3.991
