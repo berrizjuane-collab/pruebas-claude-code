@@ -1,6 +1,7 @@
 import { memo } from 'react';
-import { CircleCheck, LoaderCircle, OctagonAlert, RotateCcw, TriangleAlert } from 'lucide-react';
+import { CircleCheck, Download, FolderOpen, LoaderCircle, OctagonAlert, RotateCcw, TriangleAlert } from 'lucide-react';
 import { T } from '../../i18n/es';
+import { Boton } from '../controls/Boton';
 import { Menu, type OpcionMenu } from '../controls/Menu';
 
 export interface EstadoCalculoBarra {
@@ -14,13 +15,16 @@ interface Props {
   estadoCalculo: EstadoCalculoBarra;
   /** Opciones del menú «Restablecer» (F8). */
   restablecer: readonly OpcionMenu[];
+  /** Opciones del menú «Exportar» (F9). */
+  exportar: readonly OpcionMenu[];
+  alAbrir: () => void;
   alCancelar: () => void;
 }
 
 const ICONO = { listo: CircleCheck, calculando: LoaderCircle, aviso: TriangleAlert, error: OctagonAlert };
 const PREFIJO = { listo: '', calculando: '', aviso: 'Aviso: ', error: 'Error: ' };
 
-function BarraSuperiorBase({ nombre, estadoCalculo, restablecer, alCancelar }: Props) {
+function BarraSuperiorBase({ nombre, estadoCalculo, restablecer, exportar, alAbrir, alCancelar }: Props) {
   const Icono = ICONO[estadoCalculo.tipo];
   return (
     <header className="barra" data-region="barra">
@@ -49,6 +53,10 @@ function BarraSuperiorBase({ nombre, estadoCalculo, restablecer, alCancelar }: P
       </p>
       <div className="barra-acciones">
         <Menu etiqueta={T.restablecer.menu} icono={RotateCcw} opciones={restablecer} alineacion="derecha" datosPrueba="menu-restablecer" />
+        <Menu etiqueta={T.archivo.exportar} icono={Download} opciones={exportar} alineacion="derecha" datosPrueba="menu-exportar" />
+        <Boton icono={FolderOpen} descripcion={T.archivo.abrirDescripcion} ladoDescripcion="abajo" onClick={alAbrir} data-prueba="abrir">
+          {T.archivo.abrir}
+        </Boton>
       </div>
     </header>
   );

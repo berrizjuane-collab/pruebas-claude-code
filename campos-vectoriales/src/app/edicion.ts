@@ -137,5 +137,5 @@ export function useEdicion(almacen: Almacen<EstadoExperimento>, controlador: Con
     [restablecerCamara, conDeshacer],
   );
 
-  return { acciones, restablecer, ejecutarDeshacer };
+  return { acciones, restablecer, ejecutarDeshacer, ofrecerDeshacer };
 }

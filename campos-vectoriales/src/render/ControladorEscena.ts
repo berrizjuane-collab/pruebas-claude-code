@@ -349,6 +349,8 @@ export class ControladorEscena {
 
   /** Direcciones en pantalla (x a la derecha, y arriba) de los ejes x, y, z, para el triedro. */
   direccionesEjes(): [number, number, number][] {
+    // La matriz del mundo solo se actualiza al dibujar: tras fijar la cámara de golpe, estaría atrasada.
+    this.camara.updateMatrixWorld();
     const inv = new THREE.Matrix4().copy(this.camara.matrixWorld).invert();
     return [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)].map((e) => {
       const v = e.transformDirection(inv);

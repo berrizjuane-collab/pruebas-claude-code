@@ -1,0 +1,109 @@
+{
+  "formato": "campos-vectoriales",
+  "version": 1,
+  "nombre": "Helicoidal",
+  "campo": {
+    "P": "-y",
+    "Q": "x",
+    "R": "a",
+    "base": "helicoidal"
+  },
+  "parametros": [
+    {
+      "nombre": "a",
+      "valor": 0.25,
+      "min": -1,
+      "max": 1,
+      "paso": 0.05,
+      "porDefecto": 0.25
+    }
+  ],
+  "dominio": {
+    "min": [
+      -2,
+      -2,
+      -2
+    ],
+    "max": [
+      2,
+      2,
+      2
+    ]
+  },
+  "muestreo": {
+    "n": [
+      9,
+      9,
+      9
+    ],
+    "posicion": "nodos",
+    "corteResolucion": 21
+  },
+  "capas": {
+    "flechas": true,
+    "lineas": true,
+    "particulas": false,
+    "glifos": "campo",
+    "mapa": true
+  },
+  "flechas": {
+    "modo": "proporcional",
+    "escala": {
+      "tipo": "auto"
+    },
+    "escalaRot": {
+      "tipo": "auto"
+    },
+    "luminancia": "lineal"
+  },
+  "lineas": {
+    "semillas": {
+      "tipo": "rejilla",
+      "plano": "XZ",
+      "c": 0,
+      "u": [
+        0.5,
+        2
+      ],
+      "v": [
+        0,
+        0
+      ],
+      "nu": 4,
+      "nv": 1
+    },
+    "paso": 0.0625,
+    "longitudMax": 27.7
+  },
+  "particulas": {
+    "n": 400,
+    "tau": null,
+    "semilla": 1
+  },
+  "corte": {
+    "activo": false,
+    "plano": "XY",
+    "c": 0,
+    "flechas": "todas",
+    "vector": "completo",
+    "escalar": "ninguno",
+    "escala": {
+      "tipo": "auto"
+    }
+  },
+  "camara": {
+    "tipo": "perspectiva",
+    "posicion": [
+      5.2,
+      -6.8,
+      4.1
+    ],
+    "objetivo": [
+      0,
+      0,
+      0
+    ]
+  },
+  "punto": null,
+  "comentario": "probado a mano"
+}

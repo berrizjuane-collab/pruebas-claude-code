@@ -35,6 +35,8 @@ interface Opciones {
 export function useDescripcion({ texto, atajo, lado = 'arriba', abierta = false }: Opciones) {
   const id = useId();
   const [visible, setVisible] = useState(false);
+  // Dentro de un diálogo modal, la burbuja va en el diálogo (capa superior); si no, en <body>.
+  const [contenedor, setContenedor] = useState<Element | null>(null);
   const ancla = useRef<Element | null>(null);
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
   const limpiar = () => {
@@ -42,7 +44,10 @@ export function useDescripcion({ texto, atajo, lado = 'arriba', abierta = false 
     temporizador.current = null;
   };
   const mostrar = useCallback((el?: Element | null) => {
-    if (el) ancla.current = el;
+    if (el) {
+      ancla.current = el;
+      setContenedor(el.closest('dialog'));
+    }
     limpiar();
     temporizador.current = setTimeout(() => setVisible(true), RETARDO);
   }, []);
@@ -59,6 +64,7 @@ export function useDescripcion({ texto, atajo, lado = 'arriba', abierta = false 
     onPointerLeave: () => ocultar(true),
     onFocus: (e) => {
       ancla.current = e.currentTarget;
+      setContenedor(e.currentTarget.closest('dialog'));
       // Solo con el teclado: un clic no debe abrir la descripción.
       if (e.currentTarget.matches(':focus-visible')) mostrar();
     },
@@ -77,6 +83,7 @@ export function useDescripcion({ texto, atajo, lado = 'arriba', abierta = false 
       forzada={abierta}
       visible={visible || abierta}
       ancla={ancla}
+      contenedor={contenedor}
       alEntrar={limpiar}
       alSalir={() => ocultar(true)}
     />
@@ -92,6 +99,7 @@ function Burbuja({
   forzada,
   visible,
   ancla,
+  contenedor,
   alEntrar,
   alSalir,
 }: {
@@ -102,6 +110,7 @@ function Burbuja({
   forzada: boolean;
   visible: boolean;
   ancla: React.RefObject<Element | null>;
+  contenedor: Element | null;
   alEntrar: () => void;
   alSalir: () => void;
 }) {
@@ -149,5 +158,5 @@ function Burbuja({
     </div>
   );
   // Forzada (galería): en línea, dentro de su región. Si no, en un portal sobre todo lo demás.
-  return forzada || typeof document === 'undefined' ? contenido : createPortal(contenido, document.body);
+  return forzada || typeof document === 'undefined' ? contenido : createPortal(contenido, contenedor ?? document.body);
 }

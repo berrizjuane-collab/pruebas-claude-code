@@ -9,13 +9,14 @@ import { compilarCampo } from '../math/field';
 import { conDerivadas, inspeccionar } from '../numerics/inspeccion';
 import { CLASE } from '../numerics/grid';
 import { anillosRotacional, calcularFlechas } from '../geometria/flechas';
-import type { ControladorEscena } from '../render/ControladorEscena';
+import type { ControladorEscena, EstadoCamara } from '../render/ControladorEscena';
 import type { Vista } from '../render/camara';
 import { EJES_PLANO, NOMBRE_EJE, type Dominio, type Vec3 } from '../math/tipos';
 import { rotuloCorte } from '../render/layers/corte';
 import type { DatosEscalar } from '../render/layers/escalar';
 import { UMBRAL_CERO } from '../geometria/escalar';
 import { centroDominio, fijarCapa, fijarCorte, fijarGlifos, fijarPunto, moverPunto, seleccionarCampo } from '../state/actions';
+import { recuperarAutoguardado } from '../state/persist';
 import { EXPERIMENTO_INICIAL, experimentoDesdeCatalogo, type EstadoExperimento } from '../state/schema';
 import { crearAlmacen } from '../state/store';
 import { T } from '../i18n/es';
@@ -24,6 +25,7 @@ import { Panel } from '../ui/panel/Panel';
 import { BarraSuperior, type EstadoCalculoBarra } from '../ui/topbar/BarraSuperior';
 import { Boton } from '../ui/controls/Boton';
 import { crearNotificador, Notificaciones } from '../ui/controls/Notificaciones';
+import { DialogoErrores } from '../ui/topbar/DialogoErrores';
 import { AvisoEscena, Carga, EstadoVacio } from '../ui/scene/Mensajes';
 import { BarraEscena } from '../ui/scene/BarraEscena';
 import { Inspector } from '../ui/scene/Inspector';
@@ -34,13 +36,19 @@ import { ESTADO_CALCULO_INICIAL, Orquestador, type EstadoCalculo } from './orque
 import { modoCaptura, modoPrueba, parametrosUrl, publicarGancho } from './pruebas';
 import { Animacion, datosRueda } from './animacion';
 import { useAtajos } from './atajos';
+import { useArchivo } from './archivo';
 import { useEdicion } from './edicion';
 
-/** Estado inicial: el helicoidal, o el campo pedido en la URL (`?campo=rotacional`). */
-function estadoInicial(): EstadoExperimento {
+/**
+ * Estado inicial: el campo pedido en la URL (`?campo=rotacional`); si no, el último
+ * experimento autoguardado (salvo en el modo de captura, D-50); si no, el helicoidal.
+ */
+function estadoInicial(): { estado: EstadoExperimento; recuperado: boolean } {
   const pedido = parametrosUrl().get('campo');
   const id = CATALOGO.find((c) => c.id === pedido)?.id;
-  return id ? experimentoDesdeCatalogo(id) : EXPERIMENTO_INICIAL;
+  if (id) return { estado: experimentoDesdeCatalogo(id), recuperado: false };
+  const guardado = modoCaptura() ? null : recuperarAutoguardado();
+  return guardado ? { estado: guardado, recuperado: true } : { estado: EXPERIMENTO_INICIAL, recuperado: false };
 }
 
 interface Props {
@@ -75,7 +83,8 @@ function puntoDeRejillaCorte(e: EstadoExperimento, total: number, nodo: number):
 }
 
 export function App({ fuentes }: Props) {
-  const almacen = useMemo(() => crearAlmacen(estadoInicial()), []);
+  const inicio = useMemo(() => estadoInicial(), []);
+  const almacen = useMemo(() => crearAlmacen(inicio.estado), [inicio]);
   const almacenCalculo = useMemo(() => crearAlmacen<EstadoCalculo>(ESTADO_CALCULO_INICIAL), []);
   const edicionInvalida = useMemo(() => crearAlmacen(false), []);
   const notificador = useMemo(() => crearNotificador(), []);
@@ -129,15 +138,30 @@ export function App({ fuentes }: Props) {
   const campo = compilado.ok ? compilado.campo : null;
   const malla = calculo.malla;
 
-  // Al cambiar el dominio, la cámara se reencuadra con transición (salvo movimiento reducido) (F4.3).
+  // Al cambiar el dominio, la cámara se reencuadra con transición (salvo movimiento reducido) (F4.3),
+  // salvo que se acabe de aplicar una cámara (configuración abierta, autoguardado o «Deshacer»).
   const dominioPrevio = useRef<Dominio | null>(null);
+  const camaraPendiente = useRef<EstadoCamara | null>(inicio.estado.camara);
+  const aplicarCamara = useCallback(
+    (c: EstadoCamara) => {
+      camaraPendiente.current = c;
+      controlador?.fijarCamara(c);
+    },
+    [controlador],
+  );
   useEffect(() => {
     if (!controlador) return;
     const previo = dominioPrevio.current;
     controlador.fijarDominio(estado.dominio, false);
-    if (previo && previo !== estado.dominio) controlador.reencuadrar(true);
+    const pendiente = camaraPendiente.current;
+    if (pendiente) controlador.fijarCamara(pendiente);
+    else if (previo && previo !== estado.dominio) controlador.reencuadrar(true);
     dominioPrevio.current = estado.dominio;
   }, [controlador, estado.dominio]);
+  // La cámara pendiente solo vale para la confirmación en curso.
+  useEffect(() => {
+    if (controlador) camaraPendiente.current = null;
+  });
 
   useEffect(() => {
     controlador?.fijarMovimientoReducido(movimientoReducido);
@@ -311,7 +335,17 @@ export function App({ fuentes }: Props) {
   }, [animacion, animando, controlador]);
   const conmutarAnimacion = useCallback(() => setAnimando((a) => !a), []);
 
-  const { acciones, restablecer } = useEdicion(almacen, controlador, notificador);
+  const { acciones, restablecer, ofrecerDeshacer } = useEdicion(almacen, controlador, notificador);
+  const { exportarJson, elegirArchivo, entrada, alElegir, errores: erroresApertura, cerrarErrores, arrastrando } = useArchivo({
+    almacen,
+    controlador,
+    notificador,
+    ofrecerDeshacer,
+    aplicarCamara,
+    autoguardado: !modoCaptura(),
+    recuperado: inicio.recuperado,
+  });
+  const opcionesExportar = useMemo(() => [{ id: 'json', texto: T.archivo.configuracion, alElegir: exportarJson }], [exportarJson]);
   const vista = useCallback((v: Vista) => controlador?.irAVista(v), [controlador]);
   const cancelarLineas = useCallback(() => orquestador?.cancelarLineas(), [orquestador]);
   const atajosLetras = useMemo(
@@ -361,6 +395,7 @@ export function App({ fuentes }: Props) {
       suscribirCalculo: (escucha: (s: EstadoCalculo) => void) => almacenCalculo.suscribir(() => escucha(almacenCalculo.obtener())),
       cancelarLineas: () => orquestador.cancelarLineas(),
       camara: () => controlador.obtenerCamara(),
+      fijarCamara: (c: EstadoCamara) => controlador.fijarCamara(c),
       proyectar: (x: number, y: number, z: number) => controlador.proyectar([x, y, z]),
       auditarEscena: () => controlador.auditarEscena(),
       elegir: (x: number, y: number) => controlador.elegir(x, y),
@@ -595,7 +630,30 @@ export function App({ fuentes }: Props) {
       <a className="saltar" href="#escena">
         {T.saltarEscena}
       </a>
-      <BarraSuperior nombre={estado.nombre} estadoCalculo={estadoBarra} restablecer={opcionesRestablecer} alCancelar={cancelarLineas} />
+      <BarraSuperior
+        nombre={estado.nombre}
+        estadoCalculo={estadoBarra}
+        restablecer={opcionesRestablecer}
+        exportar={opcionesExportar}
+        alAbrir={elegirArchivo}
+        alCancelar={cancelarLineas}
+      />
+      <input ref={entrada} type="file" accept=".json,application/json" hidden onChange={alElegir} data-prueba="entrada-archivo" />
+      {erroresApertura ? (
+        <DialogoErrores
+          {...erroresApertura}
+          alCerrar={cerrarErrores}
+          alElegirOtro={() => {
+            cerrarErrores();
+            elegirArchivo();
+          }}
+        />
+      ) : null}
+      {arrastrando ? (
+        <div className="soltar-archivo" aria-hidden="true">
+          <p>{T.archivo.soltar}</p>
+        </div>
+      ) : null}
       <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} escalaActual={escalaActual} detallesLineas={detallesLineas} />
       <VistaEscena
         fuentes={fuentes}
