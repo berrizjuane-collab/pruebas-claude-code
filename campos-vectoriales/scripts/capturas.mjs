@@ -6,7 +6,7 @@
  */
 import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { auditarPaleta } from './lib/paleta.mjs';
@@ -34,7 +34,12 @@ const PREPARAR = {
   },
   // Rotacional con la rueda de paletas en P = (1, 0, 0) (la tarjeta del inspector llega con INS-02).
   C4: async (page) => {
+    // En el modo consulta las tarjetas están en la hoja inferior: se abre, se elige y se pliega.
+    const hoja = page.locator('.panel-hoja [data-prueba="boton-panel"]');
+    const enHoja = (await hoja.count()) > 0;
+    if (enHoja) await hoja.click();
     await page.locator('[data-campo="rotacional"]').click();
+    if (enHoja) await hoja.click();
     await esperarCalculo(page);
     await page.evaluate(() => window.__campos.fijarEstado((s) => ({ ...s, punto: [1, 0, 0] })));
     await page.waitForFunction(() => window.__campos.escena().rueda?.visible === true && window.__campos.escena().seleccion?.flecha === true);
@@ -246,7 +251,15 @@ try {
   await navegador.close();
   servidor?.kill();
 }
-writeFileSync(resolve('evidencia', tarea, 'capturas.json'), JSON.stringify(informe, null, 2));
+// Se acumula con lo ya capturado para la tarea (otras capturas o tamaños de ejecuciones anteriores).
+const rutaInforme = resolve('evidencia', tarea, 'capturas.json');
+if (existsSync(rutaInforme)) {
+  const previo = JSON.parse(readFileSync(rutaInforme, 'utf8'));
+  const clave = (r) => `${r.captura}-${r.tamano}`;
+  const nuevas = new Set(informe.resultados.map(clave));
+  informe.resultados = [...(previo.resultados ?? []).filter((r) => !nuevas.has(clave(r))), ...informe.resultados];
+}
+writeFileSync(rutaInforme, JSON.stringify(informe, null, 2));
 const fallos = informe.resultados.filter((r) => !r.paleta.superada || r.maquetacion.length || r.alineacion.incidencias.length || r.errores.length);
 console.log(fallos.length ? `${fallos.length} capturas con incidencias` : 'Todas las capturas superan las auditorías automáticas');
 process.exitCode = fallos.length ? 1 : 0;

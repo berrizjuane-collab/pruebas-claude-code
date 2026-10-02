@@ -133,7 +133,10 @@ export function auditarDensidad() {
   const panel = document.querySelector('.panel');
   if (!panel) return null;
   const p = panel.getBoundingClientRect();
-  const enteras = [...panel.children]
+  // Las secciones van dentro de `.panel-cuerpo` (VIS-06); en la hoja inferior, también su cabecera.
+  const cuerpo = panel.querySelector('.panel-cuerpo');
+  const secciones = [...(cuerpo && !cuerpo.hidden ? cuerpo.children : []), ...[...panel.children].filter((c) => c !== cuerpo)];
+  const enteras = secciones
     .filter((s) => {
       const r = s.getBoundingClientRect();
       return r.height > 0 && r.top >= p.top - 0.5 && r.bottom <= p.bottom + 0.5;

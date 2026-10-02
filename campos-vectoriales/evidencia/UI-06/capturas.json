@@ -1,7 +1,7 @@
 {
   "tarea": "UI-06",
   "objetivo": "dev",
-  "fecha": "2026-10-02T19:50:35.962Z",
+  "fecha": "2026-10-02T23:00:17.853Z",
   "resultados": [
     {
       "captura": "C6",
@@ -23,7 +23,7 @@
         "anclajes": 19
       },
       "densidad": {
-        "scrollHeight": 1188,
+        "scrollHeight": 1176,
         "clientHeight": 1032,
         "seccionesEnteras": [
           "Campo",
@@ -32,7 +32,8 @@
           "Parámetros",
           "Visualización",
           "Líneas de corriente",
-          "Corte"
+          "Corte",
+          "Divergencia y rotacional"
         ],
         "interactivos": 50
       },
@@ -75,7 +76,7 @@
         "anclajes": 19
       },
       "densidad": {
-        "scrollHeight": 1188,
+        "scrollHeight": 1176,
         "clientHeight": 852,
         "seccionesEnteras": [
           "Ecuaciones",
@@ -128,7 +129,7 @@
         "anclajes": 19
       },
       "densidad": {
-        "scrollHeight": 1188,
+        "scrollHeight": 1176,
         "clientHeight": 672,
         "seccionesEnteras": [
           "Parámetros",
@@ -139,7 +140,7 @@
           "Dominio y muestreo",
           "Avanzado"
         ],
-        "interactivos": 44
+        "interactivos": 45
       },
       "tipografia": {
         "tamanos": [

@@ -1,0 +1,41 @@
+# A11Y-01 · Teclado, foco y atajos · 2026-10-02T23:10:20Z
+✓  86 [chromium] › tests/e2e/h8.spec.ts:148:3 › A11Y-01 · teclado, foco y atajos › 5 conmuta perspectiva / ortográfica: el centro y la escala en el objetivo no cambian; el botón lo anuncia con aria-pressed (2.7s)
+✓  87 [chromium] › tests/e2e/h8.spec.ts:173:3 › A11Y-01 · teclado, foco y atajos › escena enfocada: ← → ↑ ↓ orbitan 5°, Mayús + flechas desplaza, + − acercan, Intro inspecciona el nodo central (2.9s)
+✓  88 [chromium] › tests/e2e/h8.spec.ts:204:3 › A11Y-01 · teclado, foco y atajos › WCAG 2.1.4: los atajos de una tecla se desactivan en «Avanzado» (F1 sigue funcionando) y la preferencia se recuerda (5.3s)
+✓  91 [chromium] › tests/e2e/h8.spec.ts:229:3 › A11Y-01 · teclado, foco y atajos › V-A11Y-02 · guion de teclado: cada requisito se completa sin ratón (7.3s)
+✓  93 [chromium] › tests/e2e/h8.spec.ts:330:3 › A11Y-01 · teclado, foco y atajos › V-A11Y-03 · foco visible en cada elemento enfocable: contorno ≥ 2 px, contraste ≥ 3:1 y nunca tapado (1.8s)
+HTML autocontenido (file://, CSP estricta): superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+V-A11Y-02 · guion de teclado (cada requisito sin ratón), pasos completados:
+   - Saltar a la escena (1 Tab)
+   - Elegir el campo rotacional (6 Tab)
+   - Editar R = 0.5*z (4 Tab)
+   - Mover ω con el deslizador (2 Tab)
+   - Activar las partículas (7 Tab)
+   - Activar el corte (7 Tab)
+   - Inspeccionar P = (1, 0, 0) por coordenadas (0 Tab)
+   - Restablecer el experimento (19 Tab)
+   - Exportar la configuración (1 Tab)
+   - Abrir una configuración (1 Tab)
+   - Abrir y cerrar la ayuda (0 Tab)
+   - Vista XY, ortográfica y órbita (30 Tab)
+   - Exportar la imagen PNG (18 Tab)
+   Total: 13/13 (100 %)
+
+V-A11Y-03 · foco visible, recorriendo con Tab todo lo enfocable (secciones del panel desplegadas, inspector abierto):
+   98 elementos; fallos (contorno < 2 px, contraste < 3:1 o tapado): 0
+   Corregido durante la revisión: el anillo interior oscuro de las opciones elegidas de un control segmentado
+   deshabilitado tenía 1.4:1 sobre su fondo; ahora es claro.
+
+Atajos (PLAN §3.1) añadidos en H8:
+- 5: proyección ortográfica emparejada (D-56); el centro de la vista no se mueve (< 10⁻⁶ px) y la selección por
+  clic sigue funcionando. Botón en la barra de la escena (cono / cuadrado, aria-pressed).
+- Escena enfocada: ← → ↑ ↓ orbitan 5° exactos; Mayús + flechas desplaza; + − acercan ×0.9; Intro elige el nodo cuya proyección cae más cerca del centro ([-1,-0.5,-0.5], a 4.5 px).
+- WCAG 2.1.4: los atajos de una tecla se desactivan en «Avanzado» (F1 sigue funcionando); la preferencia se
+  guarda aparte del experimento y tolera el almacenamiento bloqueado.
+- Esc cierra lo último abierto: menú → diálogo → cajón → inspector (las descripciones emergentes y los campos lo
+  consumen antes).
+
+Incidencia de rendimiento detectada y corregida: el panel se volvía a pintar entero al teclear (los «?» y una
+función nueva en cada pintado de App): el retraso de aplicación pasó de 333 a 353 ms de mediana. Con el panel
+memorizado vuelve a 332 ms (V-FUN-02 ≤ 400 ms).

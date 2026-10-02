@@ -1,0 +1,28 @@
+# A11Y-02 · ARIA, lector de pantalla y movimiento reducido · 2026-10-02T23:10:20Z
+Estado: PARTE AUTOMÁTICA SUPERADA · falta V-A11Y-04 (sesión con lector en el equipo del usuario).
+
+✓  68 [chromium] › tests/e2e/h8-a11y.spec.ts:41:3 › A11Y-02 · V-A11Y-01 con axe-core › C1, C4, C6, C8, panel desplegado, diálogos abiertos y modo consulta: 0 infracciones serious o critical (22.5s)
+✓  74 [chromium] › tests/e2e/h8-a11y.spec.ts:109:3 › A11Y-02 · nombres, regiones vivas y resumen de la escena › la escena es una aplicación con nombre de rol y un resumen vivo que cambia con el campo (910ms)
+✓  75 [chromium] › tests/e2e/h8-a11y.spec.ts:126:3 › A11Y-02 · nombres, regiones vivas y resumen de la escena › el estado del cálculo se anuncia (status) y un error, como alerta; las notificaciones son status (2.5s)
+✓  77 [chromium] › tests/e2e/h8-a11y.spec.ts:143:3 › A11Y-02 · nombres, regiones vivas y resumen de la escena › VV-10 con la ayuda: con movimiento reducido no hay animaciones al abrir el cajón ni los diálogos (5.1s)
+HTML autocontenido (file://, CSP estricta): superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+V-A11Y-01 · axe-core (reglas WCAG 2.0/2.1/2.2 A y AA):
+   - C1 estado inicial: 0 infracciones, 29 reglas superadas
+   - Panel desplegado: 0 infracciones, 29 reglas superadas
+   - C4 inspector: 0 infracciones, 32 reglas superadas
+   - C6 ayuda (Conceptos): 0 infracciones, 34 reglas superadas
+   - Ayuda (Sintaxis): 0 infracciones, 35 reglas superadas
+   - C9 diálogo PNG: 0 infracciones, 16 reglas superadas
+   - Diálogo de errores: 0 infracciones, 14 reglas superadas
+   - Menú «Restablecer»: 0 infracciones, 34 reglas superadas
+   - C8 galería: 0 infracciones, 29 reglas superadas
+   - V5 consulta: 0 infracciones, 22 reglas superadas
+   - V5 hoja abierta: 0 infracciones, 29 reglas superadas
+   Criterio: 0 infracciones serious o critical. Resultado: 0 infracciones de cualquier impacto.
+
+Resumen vivo de la escena (aria-live=polite, enlazado con aria-describedby desde la escena role=application, aria-roledescription=«escena 3D»): «Campo Radial saliente: 728 flechas.»
+Estado del cálculo: role=status («Listo · 729 nodos», «Aviso: …»), error como alerta; notificaciones role=status.
+VV-10 con la ayuda y los diálogos: 0 animaciones en curso con movimiento reducido (además de la prueba de REV-03).
+
+Pendiente (V-A11Y-04): seguir guion-lector.md con NVDA + Firefox o VoiceOver + Safari y anotar el resultado.

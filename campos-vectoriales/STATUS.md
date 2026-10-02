@@ -151,6 +151,10 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-50 | El autoguardado no se recupera ni se escribe en el modo de captura (`?captura`), y `?campo=` tiene prioridad sobre él | Siempre activo | Las capturas reutilizan el contexto del navegador: con autoguardado, cada escena dependería de la anterior | Sí |
 | D-51 | La imagen exportada copia la composición de la pantalla: tarjeta de ecuaciones arriba a la izquierda y leyenda abajo a la izquierda, dibujadas en Canvas 2D con los mismos textos y glifos (trazados SVG con `Path2D`). 3840 × 2160 = 1920 × 1080 a escala 2 (mismo encuadre, el doble de detalle; las tarjetas miden exactamente el doble) | Rasterizar el DOM con `foreignObject`; banda lateral | Chrome contamina el lienzo con `foreignObject` y no deja exportarlo; la leyenda impresa es la misma que se ve (prueba de igualdad de textos) | Sí |
 | D-52 | Al aplicar una cámara, OrbitControls la pasa por coordenadas esféricas (restos de 10⁻¹⁵): el estado se compara exacto y la cámara del controlador con tolerancia 10⁻⁹ | Forzar la posición exacta tras cada actualización | La escena resultante es idéntica píxel a píxel (V-FUN-10); el redondeo no es observable | Sí |
+| D-53 | Con el panel como cajón (768–1279 px), abrir la ayuda lo pliega | Dos cajones a la vez | En 1024 px no queda escena útil entre dos cajones de 320 y 400 px; el botón «Panel» lo vuelve a abrir | Sí |
+| D-54 | Panel de 336 px a partir de 1600 px (DESIGN §5.4); la fracción mínima de escena a 1920 × 1080 pasa del 79 % al 78 % (máximo posible: 78.8 %) | Panel fijo de 320 px | DESIGN §1 y §5.4 se contradecían; la prueba de VIS-03 lo detectó y se corrigió §1 | Sí |
+| D-55 | Lo que flota en la escena se reparte en el área libre cuando hay un cajón abierto: con el panel como cajón, leyenda arriba a la izquierda, inspector arriba a la derecha, barra abajo a la derecha y notificaciones abajo a la izquierda; con la ayuda abierta, la barra sube (sin triedro), el inspector queda debajo y la fila inferior es de la leyenda; en el modo consulta con la ayuda, lo flotante se oculta | Apartar solo horizontalmente | En 1024 y 1280 px no caben leyenda, notificación y barra en una fila (VV-08); nada enfocable queda tapado (V-A11Y-03) | Sí |
+| D-56 | Proyección ortográfica «emparejada»: la cámara ortográfica copia posición y orientación de la de navegación y su semialto es d·tan(FOV/2) | Cámara ortográfica independiente con su propio zoom | La órbita, el zoom, la selección y la escala de la leyenda (px por unidad en el objetivo) no cambian; RF-13 (P0) no la tenía y se detectó al completar los atajos de PLAN §3.1 | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
@@ -274,6 +278,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | Q-01 | ¿Cuál es tu equipo? | **Respondida**: i9, RTX 4060, 144 Hz (D-20) |
 | Q-02 | ¿Nivel del público? | **Respondida**: universitarios superiores y expertos (S-01, D-21) |
 | Q-03 | ¿Publicación web? | **Respondida**: basta un HTML autocontenido y funcional (D-15) |
+| Q-04 | Sesión con lector de pantalla (V-A11Y-04, A11Y-02): NVDA + Firefox o VoiceOver + Safari | **Pendiente del usuario**: necesita tu equipo. Guion en `evidencia/A11Y-02/guion-lector.md` (unos 15 min); con tus notas, A11Y-02 pasa a verificada. Todo lo automatizable ya pasa (axe, regiones vivas, VV-10) |
 
 ---
 

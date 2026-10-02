@@ -1399,10 +1399,25 @@
 }
 
 /* Con el cajón abierto, lo que flota a la derecha de la escena se aparta a su izquierda: nada
-   enfocable queda tapado (V-A11Y-03) y la escena no cambia de tamaño. */
+   enfocable queda tapado (V-A11Y-03) y la escena no cambia de tamaño. El área libre es más
+   estrecha, así que la barra de vistas sube arriba (sin triedro) y el inspector queda debajo:
+   la fila inferior es solo de la leyenda (D-55). */
 .con-ayuda .esquina-inferior-derecha,
 .con-ayuda .inspector {
   right: calc(min(var(--m-ayuda), 100%) + var(--e-4));
+}
+
+.con-ayuda .esquina-inferior-derecha {
+  top: var(--e-4);
+  bottom: auto;
+}
+
+.con-ayuda .triedro {
+  display: none;
+}
+
+.con-ayuda .inspector {
+  top: calc(var(--e-4) + 42px + var(--e-3));
 }
 
 /* ---------- Adaptación a pantallas (VIS-06, DESIGN §5.4, SPEC §9) ---------- */

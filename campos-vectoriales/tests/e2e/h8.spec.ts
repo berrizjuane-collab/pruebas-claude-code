@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { abrir, registrar, sinErrores } from '../util/app';
+import { auditarMaquetacion } from '../../scripts/lib/maquetacion.mjs';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const gancho = (page: Page, expr: string, arg?: unknown) =>
@@ -118,6 +119,8 @@ test.describe('UI-06 · cajón de ayuda', () => {
     await botonAyuda.focus();
     await page.keyboard.press('Enter');
     await expect(ayuda(page)).toBeVisible();
+    // Con inspector y ayuda abiertos a la vez, nada flotante se solapa (VV-08).
+    expect((await page.evaluate(auditarMaquetacion)).incidencias).toEqual([]);
     // Un menú abierto se cierra primero, sin tocar el cajón ni el inspector.
     const exportar = page.getByRole('button', { name: 'Exportar', exact: true });
     await exportar.focus();

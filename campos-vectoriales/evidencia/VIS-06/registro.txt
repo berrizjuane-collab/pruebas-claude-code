@@ -1,0 +1,47 @@
+# VIS-06 · Adaptación a pantallas · 2026-10-02T23:10:20Z
+✓  78 [chromium] › tests/e2e/h8-pantallas.spec.ts:31:3 › VIS-06 · adaptación a pantallas › niveles por ancho: amplio, referencia, cajón, compacto y consulta; VV-08 sin incidencias en cada uno (3.1s)
+✓  79 [chromium] › tests/e2e/h8-pantallas.spec.ts:58:3 › VIS-06 · adaptación a pantallas › cajón (1024 × 768): «Panel» lo oculta y lo muestra; acciones solo con icono pero con nombre; todas las funciones siguen a mano (4.0s)
+✓  80 [chromium] › tests/e2e/h8-pantallas.spec.ts:96:3 › VIS-06 · adaptación a pantallas › compacto (900 × 700): inspector de 256 px y leyenda plegada al empezar (2.5s)
+✓  81 [chromium] › tests/e2e/h8-pantallas.spec.ts:107:3 › VIS-06 · adaptación a pantallas › consulta (390 × 844, DPR 3): hoja inferior con la fórmula que se despliega al 60 %, «Menú» con todas las acciones y densidad 7³ (2.9s)
+✓  82 [chromium] › tests/e2e/h8-pantallas.spec.ts:148:3 › VIS-06 · adaptación a pantallas › V-A11Y-05 · zoom al 200 % en V3 (1280 × 720): pasa al modo consulta sin perder funciones ni desplazar en horizontal (2.4s)
+HTML autocontenido (file://, CSP estricta): superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+Niveles (DESIGN §5.4, SPEC §9) y VV-08 sin incidencias en cada uno:
+   - 1920×1080: amplio, incidencias 0
+   - 1440×900: referencia, incidencias 0
+   - 1280×720: referencia, incidencias 0
+   - 1100×760: cajon, incidencias 0
+   - 1024×768: cajon, incidencias 0
+   - 900×700: compacto, incidencias 0
+   - 390×844: consulta, incidencias 0
+
+- ≥ 1600: panel de 336 px (D-54) y jacobiana desplegada en el inspector.
+- 1024–1279: panel como cajón superpuesto (abierto por defecto, botón «Panel» con aria-pressed y aria-controls);
+  acciones de la barra solo con icono, con nombre accesible y descripción emergente. Abrir la ayuda pliega el
+  cajón (D-53). Lo que flota se reparte en el área libre (D-55).
+- 768–1023: además, inspector de 256 px y leyenda plegada al empezar.
+- < 768 (consulta): barra con «Menú» (restablecer, exportar, abrir, ayuda); panel en hoja inferior con cabecera
+  de 64 px y la fórmula, desplegable al 60 % de la altura; inspector como hoja en la escena; leyenda como botón;
+  densidad por defecto 7³ (343 flechas).
+- V-A11Y-05 · zoom al 200 % en V3 (640 × 360 CSS): pasa al modo consulta, sin desplazamiento horizontal y con
+  todas las funciones (menú con 7 opciones, panel en la hoja).
+
+Capturas (capturas/ y capturas.json): C1 en V1–V5; C2, C4 y C6 en V4; C4 en V5. Todas: paleta 0 píxeles fuera,
+maquetación 0 incidencias, 0 errores.
+VV-06 (densidad del panel, C1):
+   - V1: secciones enteras ["Campo","Ejemplos","Ecuaciones","Parámetros","Visualización","Líneas de corriente","Corte"], 44 interactivos visibles
+   - V2: secciones enteras ["Campo","Ejemplos","Ecuaciones","Parámetros"], 37 interactivos visibles
+   - V3: secciones enteras ["Campo","Ejemplos","Ecuaciones"], 31 interactivos visibles
+   - V4: secciones enteras ["Campo","Ejemplos","Ecuaciones","Parámetros"], 33 interactivos visibles
+   - V5: secciones enteras ["hoja-cabecera"], 12 interactivos visibles
+   En V3 caben enteras las secciones 1–4 (Campo, Ejemplos, Ecuaciones, Parámetros).
+
+Incidencias encontradas y corregidas:
+1. La auditoría de densidad dejó de ver las secciones al envolverlas en .panel-cuerpo: corregida.
+2. El «?» de 24 px alargaba 4 px las cabeceras simples y Parámetros dejaba de caber en V3: margen vertical
+   negativo, objetivo de 24 × 24 intacto (V-A11Y-06).
+3. Con la ayuda abierta en V3 la barra de vistas chocaba con la leyenda: la barra sube al abrir la ayuda (D-55).
+4. En el modo consulta, C4 elegía el campo en una hoja plegada: la receta abre la hoja como haría una persona.
+
+Revisión manual: V4 (C1, C2, C4, C6) y V5 (C1, C4) legibles; en V5 la escena es pequeña por diseño (modo
+consulta, SPEC §9: consultar y demostrar, no trabajar) y el inspector se desplaza dentro de su hoja.

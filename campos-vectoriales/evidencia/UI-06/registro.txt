@@ -1,0 +1,28 @@
+# UI-06 · Cajón de ayuda y ayuda contextual · 2026-10-02T23:10:20Z
+✓  83 [chromium] › tests/e2e/h8.spec.ts:49:3 › UI-06 · cajón de ayuda › cada «?» abre su apartado (pestaña y título enfocado); Esc lo cierra y el foco vuelve al «?» (2.6s)
+✓  84 [chromium] › tests/e2e/h8.spec.ts:77:3 › UI-06 · cajón de ayuda › ? y F1 la abren en Conceptos; ← → recorren las pestañas; Sintaxis lista las 23 funciones de la lista blanca (2.4s)
+✓  85 [chromium] › tests/e2e/h8.spec.ts:113:3 › UI-06 · cajón de ayuda › Esc cierra lo último abierto: menú → cajón → inspector (2.5s)
+Vitest (src/ui/help/contenido.test.ts): 3 pruebas superadas.
+HTML autocontenido (file://, CSP estricta): superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+Criterios (PLAN §UI-06):
+1. Cada «?» abre su apartado (pestaña y título enfocado, a la vista dentro del cajón):
+   - sintaxis-expresiones → Sintaxis › Operadores y precedencia
+   - sintaxis-parametros → Sintaxis › Parámetros
+   - magnitud → Conceptos › Magnitud, dirección y escala visual
+   - lineas → Conceptos › Líneas de corriente
+   - cortes → Conceptos › Cortes planos
+   - divergencia → Conceptos › Divergencia
+   - supuestos-muestreo → Supuestos › Muestreo y escala
+   - supuestos-derivadas → Supuestos › Derivadas
+2. La tabla de funciones de «Sintaxis» se genera desde la lista blanca del analizador (FUNCIONES y
+   ALIAS_FUNCIONES): mismas 23 funciones, en el mismo orden, con alias y aridades (Vitest y e2e).
+3. Esc (o ×) cierra el cajón y devuelve el foco al elemento que lo abrió; Esc cierra lo último abierto
+   (menú → cajón → inspector). ? y F1 lo abren en Conceptos; ← → Inicio Fin recorren las pestañas.
+
+No es modal: la escena no cambia de tamaño. Lo que flota a la derecha se aparta a su izquierda, y con
+el inspector y la ayuda abiertos a la vez no hay solapes (VV-08).
+Captura C6 (ayuda en «Divergencia») en V1–V3: paleta 0 píxeles fuera, maquetación 0, alineación 0, 0 errores.
+Revisión del contenido: Conceptos (campo y dominio, magnitud y escala, equilibrios, divergencia, rotacional,
+rueda de paletas, líneas, partículas, cortes, singularidades, campo y representación), Sintaxis, Atajos (tabla
+única de PLAN §3.1) y Supuestos (muestreo, derivadas, integración, monocromo); cifras de SPEC §3 y §5.

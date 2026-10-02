@@ -761,3 +761,9 @@
 .boton-ayuda.boton-icono:focus-visible {
   color: var(--texto-1);
 }
+
+/* En las cabeceras simples (línea de 20 px), el «?» de 24 × 24 no alarga la cabecera: el ritmo
+   vertical del panel no cambia y las secciones 1–4 siguen enteras en V3 (VV-06). */
+.seccion-cabecera-simple .boton-ayuda {
+  margin: -2px 0;
+}

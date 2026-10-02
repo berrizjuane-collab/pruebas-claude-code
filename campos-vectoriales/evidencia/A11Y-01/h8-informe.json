@@ -1,0 +1,194 @@
+{
+  "V-A11Y-01 axe": {
+    "C1 estado inicial": {
+      "infracciones": [],
+      "superadas": 29
+    },
+    "Panel desplegado": {
+      "infracciones": [],
+      "superadas": 29
+    },
+    "C4 inspector": {
+      "infracciones": [],
+      "superadas": 32
+    },
+    "C6 ayuda (Conceptos)": {
+      "infracciones": [],
+      "superadas": 34
+    },
+    "Ayuda (Sintaxis)": {
+      "infracciones": [],
+      "superadas": 35
+    },
+    "C9 diálogo PNG": {
+      "infracciones": [],
+      "superadas": 16
+    },
+    "Diálogo de errores": {
+      "infracciones": [],
+      "superadas": 14
+    },
+    "Menú «Restablecer»": {
+      "infracciones": [],
+      "superadas": 34
+    },
+    "C8 galería": {
+      "infracciones": [],
+      "superadas": 29
+    },
+    "V5 consulta": {
+      "infracciones": [],
+      "superadas": 22
+    },
+    "V5 hoja abierta": {
+      "infracciones": [],
+      "superadas": 29
+    }
+  },
+  "A11Y-02 resumen": "Campo Radial saliente: 728 flechas.",
+  "VIS-06 niveles": {
+    "1920×1080": {
+      "nivel": "amplio",
+      "incidencias": []
+    },
+    "1440×900": {
+      "nivel": "referencia",
+      "incidencias": []
+    },
+    "1280×720": {
+      "nivel": "referencia",
+      "incidencias": []
+    },
+    "1100×760": {
+      "nivel": "cajon",
+      "incidencias": []
+    },
+    "1024×768": {
+      "nivel": "cajon",
+      "incidencias": []
+    },
+    "900×700": {
+      "nivel": "compacto",
+      "incidencias": []
+    },
+    "390×844": {
+      "nivel": "consulta",
+      "incidencias": []
+    }
+  },
+  "VIS-06 consulta": {
+    "hojaPlegada": 65,
+    "hojaAbierta": "60 %",
+    "densidad": "7³"
+  },
+  "UI-06 «?»": {
+    "sintaxis-expresiones": "Sintaxis › Operadores y precedencia",
+    "sintaxis-parametros": "Sintaxis › Parámetros",
+    "magnitud": "Conceptos › Magnitud, dirección y escala visual",
+    "lineas": "Conceptos › Líneas de corriente",
+    "cortes": "Conceptos › Cortes planos",
+    "divergencia": "Conceptos › Divergencia",
+    "supuestos-muestreo": "Supuestos › Muestreo y escala",
+    "supuestos-derivadas": "Supuestos › Derivadas"
+  },
+  "A11Y-01 proyección": {
+    "centro": [
+      559.9999999999999,
+      426
+    ],
+    "centroOrto": [
+      559.9999999999999,
+      426
+    ],
+    "esquina": [
+      598.6430824516269,
+      300.77323197680954
+    ],
+    "esquinaOrto": [
+      587.800086048749,
+      335.9110447255521
+    ]
+  },
+  "A11Y-01 Intro": {
+    "P": [
+      -1,
+      -0.5,
+      -0.5
+    ],
+    "distanciaAlCentro": 4.457991102400773
+  },
+  "V-A11Y-02 guion": {
+    "pasos": [
+      {
+        "paso": "Saltar a la escena",
+        "tabs": 1,
+        "ok": true
+      },
+      {
+        "paso": "Elegir el campo rotacional",
+        "tabs": 6,
+        "ok": true
+      },
+      {
+        "paso": "Editar R = 0.5*z",
+        "tabs": 4,
+        "ok": true
+      },
+      {
+        "paso": "Mover ω con el deslizador",
+        "tabs": 2,
+        "ok": true
+      },
+      {
+        "paso": "Activar las partículas",
+        "tabs": 7,
+        "ok": true
+      },
+      {
+        "paso": "Activar el corte",
+        "tabs": 7,
+        "ok": true
+      },
+      {
+        "paso": "Inspeccionar P = (1, 0, 0) por coordenadas",
+        "tabs": 0,
+        "ok": true
+      },
+      {
+        "paso": "Restablecer el experimento",
+        "tabs": 19,
+        "ok": true
+      },
+      {
+        "paso": "Exportar la configuración",
+        "tabs": 1,
+        "ok": true
+      },
+      {
+        "paso": "Abrir una configuración",
+        "tabs": 1,
+        "ok": true
+      },
+      {
+        "paso": "Abrir y cerrar la ayuda",
+        "tabs": 0,
+        "ok": true
+      },
+      {
+        "paso": "Vista XY, ortográfica y órbita",
+        "tabs": 30,
+        "ok": true
+      },
+      {
+        "paso": "Exportar la imagen PNG",
+        "tabs": 18,
+        "ok": true
+      }
+    ],
+    "completados": "13/13"
+  },
+  "V-A11Y-03 foco": {
+    "revisados": 98,
+    "fallos": []
+  }
+}
