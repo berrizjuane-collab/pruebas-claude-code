@@ -219,7 +219,7 @@ test.describe('UI-07 · mensajes y estados de pantalla', () => {
     expect((await estado(page)).parametros[0].valor).toBe(0.9);
   });
 
-  test('estado vacío (C10): campo no definido en todo el dominio, con causa y acción', async ({ page }) => {
+  test('estado vacío (C10): campo no definido en todo el dominio, con causa y acción (V-FUN-15)', async ({ page }) => {
     const reg = registrar(page);
     await abrir(page);
     await expresion(page, 'P').fill('sqrt(-1-x^2)');
@@ -233,7 +233,7 @@ test.describe('UI-07 · mensajes y estados de pantalla', () => {
     sinErrores(reg);
   });
 
-  test('estado vacío para el campo nulo', async ({ page }) => {
+  test('estado vacío para el campo nulo (V-FUN-15)', async ({ page }) => {
     await abrir(page);
     for (const c of ['P', 'Q', 'R'] as const) await expresion(page, c).fill('0');
     await expresion(page, 'R').blur();

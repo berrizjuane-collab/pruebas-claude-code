@@ -32,6 +32,6 @@ export default defineConfig({
   // pruebas en paralelo: con la CPU saturada por otros navegadores no miden la aplicación.
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' }, grepInvert: /@rendimiento/ },
-    { name: 'rendimiento', use: { browserName: 'chromium' }, grep: /@rendimiento/, dependencies: ['chromium'] },
+    { name: 'rendimiento', use: { browserName: 'chromium' }, grep: /@rendimiento/, dependencies: ['chromium'], workers: 1 },
   ],
 });

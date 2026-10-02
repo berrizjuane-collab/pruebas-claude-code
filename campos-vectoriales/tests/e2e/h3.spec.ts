@@ -156,7 +156,7 @@ test.describe('CMP-02 · orquestación, cancelación y presupuestos', () => {
     sinErrores(reg);
   });
 
-  test('«Cancelar» detiene el cálculo de líneas en menos de 100 ms', { tag: '@rendimiento' }, async ({ page }) => {
+  test('«Cancelar» detiene el cálculo de líneas en menos de 100 ms; antes se ve el progreso (V-FUN-15)', { tag: '@rendimiento' }, async ({ page }) => {
     const reg = registrar(page);
     await abrir(page);
     // Cálculo largo: 256 semillas, hélice que no sale de Ω ni se cierra, paso pequeño y una expresión cara.

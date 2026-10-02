@@ -16,79 +16,106 @@ import { Etiqueta } from '../text/etiquetas';
 
 export class CapaEjes {
   readonly grupo = new THREE.Group();
+  /*
+   * Caja, líneas, puntas, letras y el «0» se crean una sola vez: al cambiar el dominio solo
+   * cambian sus geometrías y posiciones. Si se desecharan sus materiales, three.js liberaría
+   * los programas de shader que nadie más usa y el siguiente fotograma tendría que volver a
+   * compilarlos (≈ 0.5 s con WebGL por software; V-FUN-16).
+   */
+  private readonly caja: THREE.LineSegments;
+  private readonly lineas: LineSegments2[] = [];
   private readonly materialesLinea: LineMaterial[] = [];
-  private etiquetas: Etiqueta[] = [];
+  private readonly puntas: THREE.Mesh[] = [];
+  private readonly letras: Etiqueta[] = [];
+  private readonly cero: Etiqueta;
+  /** Marcas numéricas del dominio actual (su número cambia con el dominio). */
+  private marcas: Etiqueta[] = [];
   /** Letra y marcas de cada eje: se ocultan cuando el eje apunta a la cámara. */
   private porEje: Etiqueta[][] = [[], [], []];
-  private objetos: THREE.Object3D[] = [];
+
+  constructor() {
+    this.caja = new THREE.LineSegments(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: new THREE.Color().setStyle(escena.caja, THREE.SRGBColorSpace), toneMapped: false }),
+    );
+    this.caja.name = 'caja-dominio';
+    this.grupo.add(this.caja);
+    const colorEje = new THREE.Color().setStyle(escena.eje, THREE.SRGBColorSpace);
+    const matPunta = new THREE.MeshBasicMaterial({ color: colorEje, toneMapped: false });
+    for (let k = 0; k < 3; k++) {
+      // x continuo, y discontinuo, z punteado (las longitudes del trazo dependen del dominio).
+      const mat = new LineMaterial({ color: colorEje.getHex(), linewidth: 1.5, dashed: k > 0, toneMapped: false });
+      mat.color.copy(colorEje);
+      this.materialesLinea.push(mat);
+      const linea = new LineSegments2(new LineSegmentsGeometry(), mat);
+      linea.name = `eje-${NOMBRE_EJE[k]}`;
+      this.lineas.push(linea);
+      const punta = new THREE.Mesh(new THREE.BufferGeometry(), matPunta);
+      punta.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(k === 0 ? 1 : 0, k === 1 ? 1 : 0, k === 2 ? 1 : 0));
+      this.puntas.push(punta);
+      this.letras.push(new Etiqueta(NOMBRE_EJE[k], { px: 14, color: escena.etiqueta, peso: 600 }));
+      this.grupo.add(linea, punta, this.letras[k]!.sprite);
+    }
+    this.cero = new Etiqueta('0', { px: 11, color: escena.etiqueta, peso: 500, ancla: [1.3, 1.15] });
+    this.grupo.add(this.cero.sprite);
+  }
+
+  private get etiquetas(): Etiqueta[] {
+    return [...this.letras, this.cero, ...this.marcas];
+  }
 
   fijarDominio(d: Dominio): void {
-    this.limpiar();
     const L = radioDominio(d) * 2;
     const origen = [0, 1, 2].map((k) => (d.min[k]! <= 0 && 0 <= d.max[k]! ? 0 : d.min[k]!)) as [number, number, number];
 
     // Caja del dominio (12 aristas, 1 px, decorativa).
-    const caja = new THREE.LineSegments(
-      new THREE.EdgesGeometry(
-        new THREE.BoxGeometry(d.max[0] - d.min[0], d.max[1] - d.min[1], d.max[2] - d.min[2]).translate(
-          (d.max[0] + d.min[0]) / 2,
-          (d.max[1] + d.min[1]) / 2,
-          (d.max[2] + d.min[2]) / 2,
-        ),
+    this.caja.geometry.dispose();
+    this.caja.geometry = new THREE.EdgesGeometry(
+      new THREE.BoxGeometry(d.max[0] - d.min[0], d.max[1] - d.min[1], d.max[2] - d.min[2]).translate(
+        (d.max[0] + d.min[0]) / 2,
+        (d.max[1] + d.min[1]) / 2,
+        (d.max[2] + d.min[2]) / 2,
       ),
-      new THREE.LineBasicMaterial({ color: new THREE.Color().setStyle(escena.caja, THREE.SRGBColorSpace), toneMapped: false }),
     );
-    caja.name = 'caja-dominio';
-    this.agregar(caja);
 
-    const estilos = [
-      { dashed: false, dash: 1, gap: 0 },
-      { dashed: true, dash: 0.035 * L, gap: 0.022 * L },
-      { dashed: true, dash: 0.008 * L, gap: 0.016 * L },
+    for (const e of this.marcas) {
+      this.grupo.remove(e.sprite);
+      e.dispose();
+    }
+    this.marcas = [];
+    this.porEje = [[], [], []];
+    const trazos = [
+      { dash: 1, gap: 0 },
+      { dash: 0.035 * L, gap: 0.022 * L },
+      { dash: 0.008 * L, gap: 0.016 * L },
     ];
-    const colorEje = new THREE.Color().setStyle(escena.eje, THREE.SRGBColorSpace);
     for (let k = 0; k < 3; k++) {
       const a = [...origen];
       const b = [...origen];
       a[k] = d.min[k]!;
       const extension = 0.07 * L;
       b[k] = d.max[k]! + extension;
-      const geo = new LineSegmentsGeometry().setPositions([a[0]!, a[1]!, a[2]!, b[0]!, b[1]!, b[2]!]);
-      const estilo = estilos[k]!;
-      const mat = new LineMaterial({
-        color: colorEje.getHex(),
-        linewidth: 1.5,
-        dashed: estilo.dashed,
-        dashSize: estilo.dash,
-        gapSize: estilo.gap,
-        toneMapped: false,
-      });
-      mat.color.copy(colorEje);
-      this.materialesLinea.push(mat);
-      const linea = new LineSegments2(geo, mat);
+      const linea = this.lineas[k]!;
+      linea.geometry.dispose();
+      linea.geometry = new LineSegmentsGeometry().setPositions([a[0]!, a[1]!, a[2]!, b[0]!, b[1]!, b[2]!]);
       linea.computeLineDistances();
-      linea.name = `eje-${NOMBRE_EJE[k]}`;
-      this.agregar(linea);
+      const mat = this.materialesLinea[k]!;
+      mat.dashSize = trazos[k]!.dash;
+      mat.gapSize = trazos[k]!.gap;
 
       // Punta del eje positivo.
       const largoPunta = 0.026 * L;
-      const punta = new THREE.Mesh(
-        new THREE.ConeGeometry(0.0075 * L, largoPunta, 16).translate(0, largoPunta / 2, 0),
-        new THREE.MeshBasicMaterial({ color: colorEje, toneMapped: false }),
-      );
-      const dir = new THREE.Vector3(k === 0 ? 1 : 0, k === 1 ? 1 : 0, k === 2 ? 1 : 0);
-      punta.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      const punta = this.puntas[k]!;
+      punta.geometry.dispose();
+      punta.geometry = new THREE.ConeGeometry(0.0075 * L, largoPunta, 16).translate(0, largoPunta / 2, 0);
       punta.position.set(b[0]!, b[1]!, b[2]!);
-      this.agregar(punta);
 
       // Letra del eje.
-      const letra = new Etiqueta(NOMBRE_EJE[k], { px: 14, color: escena.etiqueta, peso: 600 });
+      const letra = this.letras[k]!;
       const pl = [...b];
       pl[k] = b[k]! + largoPunta + 0.03 * L;
       letra.sprite.position.set(pl[0]!, pl[1]!, pl[2]!);
-      this.etiquetas.push(letra);
       this.porEje[k]!.push(letra);
-      this.agregar(letra.sprite);
 
       // Marcas numéricas (sin el 0, que se rotula una sola vez en el origen).
       for (const v of marcasEje(d.min[k]!, d.max[k]!, 4)) {
@@ -97,16 +124,12 @@ export class CapaEjes {
         const pm = [...origen];
         pm[k] = v;
         e.sprite.position.set(pm[0]!, pm[1]!, pm[2]!);
-        this.etiquetas.push(e);
+        this.marcas.push(e);
         this.porEje[k]!.push(e);
-        this.agregar(e.sprite);
+        this.grupo.add(e.sprite);
       }
     }
-    if (origen.every((c) => c === 0)) {
-      const cero = new Etiqueta('0', { px: 11, color: escena.etiqueta, peso: 500, ancla: [1.3, 1.15] });
-      this.etiquetas.push(cero);
-      this.agregar(cero.sprite);
-    }
+    this.cero.sprite.visible = origen.every((c) => c === 0);
   }
 
   /**
@@ -136,28 +159,15 @@ export class CapaEjes {
     for (const e of this.etiquetas) e.rerasterizar();
   }
 
-  private agregar(o: THREE.Object3D) {
-    this.objetos.push(o);
-    this.grupo.add(o);
-  }
-
-  private limpiar() {
-    for (const o of this.objetos) {
-      this.grupo.remove(o);
-      const malla = o as THREE.Mesh;
-      malla.geometry?.dispose?.();
-      const mat = malla.material as THREE.Material | THREE.Material[] | undefined;
-      if (Array.isArray(mat)) mat.forEach((x) => x.dispose());
-      else mat?.dispose?.();
-    }
-    for (const e of this.etiquetas) e.dispose();
-    this.objetos = [];
-    this.etiquetas = [];
-    this.porEje = [[], [], []];
-    this.materialesLinea.length = 0;
-  }
-
   dispose(): void {
-    this.limpiar();
+    this.caja.geometry.dispose();
+    (this.caja.material as THREE.Material).dispose();
+    for (const l of this.lineas) l.geometry.dispose();
+    for (const m of this.materialesLinea) m.dispose();
+    for (const p of this.puntas) p.geometry.dispose();
+    (this.puntas[0]?.material as THREE.Material | undefined)?.dispose();
+    for (const e of this.etiquetas) e.dispose();
+    this.marcas = [];
+    this.porEje = [[], [], []];
   }
 }

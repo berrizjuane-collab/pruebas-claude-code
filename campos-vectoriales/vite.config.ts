@@ -37,5 +37,17 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // VAL-01: cobertura de las capas puras; ≥ 90 % de líneas en math/ y numerics/.
+    coverage: {
+      provider: 'v8',
+      include: ['src/math/**', 'src/numerics/**', 'src/geometria/**', 'src/state/**'],
+      exclude: ['**/*.test.ts', '**/*.medida.test.ts'],
+      reporter: ['text', 'text-summary', 'json-summary'],
+      reportsDirectory: 'coverage',
+      thresholds: {
+        'src/math/**': { lines: 90 },
+        'src/numerics/**': { lines: 90 },
+      },
+    },
   },
 });

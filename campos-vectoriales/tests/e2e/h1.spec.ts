@@ -37,7 +37,7 @@ test.describe('REN-01 · escena base', () => {
     sinErrores(reg);
   });
 
-  test('sin WebGL2 se muestra un estado vacío explicativo', async ({ page }) => {
+  test('sin WebGL2 se muestra un estado vacío explicativo (V-FUN-15)', async ({ page }) => {
     await page.addInitScript(() => {
       const original = HTMLCanvasElement.prototype.getContext;
       (HTMLCanvasElement.prototype as any).getContext = function (tipo: string, ...resto: unknown[]) {

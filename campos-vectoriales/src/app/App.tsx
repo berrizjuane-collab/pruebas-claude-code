@@ -532,6 +532,8 @@ export function App({ fuentes }: Props) {
         return s ? { n: s.n, pos: Array.from(s.pos), edad: Array.from(s.edad), renacimientos: s.renacimientos } : null;
       },
       dibujar: () => controlador.dibujar(),
+      /** Programas de shader vivos (ids): cambiar el dominio no debe obligar a recompilarlos. */
+      programas: () => (controlador.renderer.info.programs ?? []).map((p) => p.id),
       notificaciones: () => notificador.almacen.obtener().map((n) => ({ tipo: n.tipo, texto: n.texto, accion: n.accion?.texto ?? null })),
       medidasCancelacion: () => [...cliente.medidasCancelacion],
       pendiente: () => orquestador.pendiente,

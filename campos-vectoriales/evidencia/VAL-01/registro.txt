@@ -1,0 +1,49 @@
+# VAL-01 · Batería matemática y numérica completa · 2026-10-02T23:13:52Z
+
+Comandos: `npm test` (415 pruebas superadas, 3 omitidas: la medida informativa V-PERF-05, que solo se
+ejecuta con MEDIR=1) y `npm run test:cobertura` (Vitest + v8, umbrales en vite.config.ts).
+
+## Cobertura de líneas (criterio: ≥ 90 % en math/ y numerics/)
+
+| Capa | Líneas cubiertas |
+| --- | --- |
+| math/ | 91.7 % (716/781) |
+| numerics/ | 97.2 % (561/577) |
+| geometria/ | 98.9 % (267/270) |
+| state/ | 95.2 % (394/414) |
+
+Superado: math/ 91.7 %, numerics/ 97.2 %. Los umbrales quedan en la configuración: si bajan del 90 %,
+`npm run test:cobertura` falla. Detalle por archivo en cobertura.txt y coverage-summary.json.
+
+Al medir se encontró `src/math/vec3.ts` sin ningún uso desde H1 (0 % de cobertura): se retiró (PLAN
+actualizado). Sin él, math/ pasó de 90.4 % a 91.7 %.
+
+## Errores medidos frente a las tolerancias (VALIDATION §2)
+
+Salida MEDIDA de `npx vitest run --silent=false` (medidas.txt). Idénticas a las de H3 (VALIDATION §2.1):
+ningún cambio posterior ha alterado la numérica.
+
+| # | Caso | Tolerancia | Medido | Margen |
+| --- | --- | --- | --- | --- |
+| T-01 | Evaluación compilada frente al nativo | 10⁻¹⁴·max(1, \|a\|, \|b\|) | pasa (MAT-03) | — |
+| T-02 | Derivada simbólica frente a la analítica | 10⁻¹²(1 + \|v\|) | pasa (MAT-04) | — |
+| T-03 | Diferencias finitas, T1 | 10⁻⁷(1 + \|v\|) | 1.45 × 10⁻¹⁰ | 690× |
+| T-04 | Diferencias finitas, catálogo afín | 10⁻⁸(1 + \|v\|) | 0 | — |
+| T-05 | Orden de las diferencias centradas | p ∈ [1.9, 2.1] | 2.000 / 2.000 / 2.000 | — |
+| T-06 | Rectitud, campo uniforme | 10⁻¹²·L | ≤ 4.7 × 10⁻¹⁶ | > 2000× |
+| T-07 | Radio de la circunferencia (ρ₀ = 0.25 · 1 · 1.9) | 4.3 × 10⁻⁴ · 4.2 × 10⁻⁷ · 1.7 × 10⁻⁸ | 2.5 × 10⁻⁵ · 2.6 × 10⁻⁸ · 1.0 × 10⁻⁹ | ≥ 16× |
+| T-08 | Cierre de órbita: longitud relativa | 10⁻³ | ≤ 1.5 × 10⁻⁴ (ρ₀ = 0.25); 2.1 × 10⁻⁷ (ρ₀ = 1) | ≥ 6.6× |
+| T-09 | Paso de hélice | 10⁻⁵ relativo | ≤ 1.3 × 10⁻⁶ | ≥ 7.7× |
+| T-10 | Radio de la hélice | 10⁻⁶ | ≤ 4.6 × 10⁻⁶ (ρ₀ = 0.5); 1.0 × 10⁻⁷ (ρ₀ = 1) | ver nota |
+| T-11 | Invariante xy de la silla | 10⁻⁵ relativo | 2.2 × 10⁻⁷ | 45× |
+| T-12 | Orden de RK4 normalizado | p ∈ [3.7, 4.3] | 3.925 / 3.916 / 3.950 | — |
+| T-13 | Orden de RK4 en t | p ∈ [3.8, 4.2] | 3.973 / 3.985 | — |
+| T-14 | Partículas en la silla, δt = 0.01 | 10⁻⁸ relativo | 8.3 × 10⁻¹¹ | 120× |
+| T-15 | Alineación radial | 10⁻¹² | 4.2 × 10⁻¹⁶ | > 2000× |
+| T-16 | Recorte al borde | 10⁻⁹·lado (4 × 10⁻⁹) | ≤ 4.7 × 10⁻¹¹ | 85× |
+| T-17 | Flechas en la GPU (INS-03) | 10⁻⁶ rad · 10⁻⁶ rel. · 1/255 | 2.7 × 10⁻⁷ · 6.5 × 10⁻⁸ · 6.0 × 10⁻⁶ | ≥ 3.7× |
+| T-18 | Rueda frente a partículas, 2 s (V-FUN-08) | 10⁻³ rad | 4.1 × 10⁻¹³ | > 10⁹× |
+| T-19 | Proyección tangencial F∥·n | 0 exacto | 0 | — |
+
+Nota T-10: la tolerancia de 10⁻⁶ es la de ρ₀ = 1 (el caso de VALIDATION); con ρ₀ = 0.5 la prueba usa la
+tolerancia escalada con (h/ρ₀)⁵, igual que T-07, y el valor medido (4.6 × 10⁻⁶) queda dentro de ella.

@@ -151,7 +151,7 @@ campos-vectoriales/
 │   ├── design/                    tokens.ts (fuente única), base.css, fuentes.ts
 │   ├── i18n/es.ts                 todos los textos de la interfaz
 │   ├── math/                      ── PURO ──
-│   │   ├── vec3.ts
+│   │   ├── tipos.ts               Vec3, Dominio, semillas (vec3.ts se retiró en VAL-01: sin uso)
 │   │   ├── expr/                  lexer, parser, ast, compile, diff, simplify, tex, unicode, errors
 │   │   ├── field.ts               especificación → campo compilado (F, J, div, rot)
 │   │   └── catalog/               6 campos: expresiones + oráculo nativo + ficha
@@ -472,7 +472,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Objetivo**: los seis campos como funciones nativas con J, div y rot analíticos, más sus
   metadatos (parámetros, semillas, ficha, equilibrios).
 - **Dependencias**: FND-01.
-- **Componentes**: `src/math/vec3.ts`, `src/math/catalog/`.
+- **Componentes**: `src/math/catalog/` (`src/math/vec3.ts` se retiró en VAL-01: nadie lo usaba).
 - **Procedimiento**: implementar SPEC §4.1–4.6 y los campos auxiliares T1–T6 (§4.7).
 - **Aceptación**: V-MAT-01 pasa.
 - **Verificación**: `npm test`.
