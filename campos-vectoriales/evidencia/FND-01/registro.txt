@@ -1,0 +1,31 @@
+# FND-01 · Andamiaje del subproyecto · 2026-10-02T04:25:22Z · base 12c0d52 (cambios sin confirmar)
+
+## (1) npm run check (lint + tipos + unitarias)
+> npm run lint && npm run typecheck && npm test
+> campos-vectoriales@0.1.0 lint
+> eslint .
+> campos-vectoriales@0.1.0 typecheck
+> tsc --noEmit
+> campos-vectoriales@0.1.0 test
+> vitest run
+ RUN  v5.0.3 /home/user/pruebas-claude-code/campos-vectoriales
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  04:25:26
+   Duration  265ms (transform 72%, import 13%, tests 11%, worker 4%)
+
+## (2) Compilación y HTML autocontenido
+✓ built in 486ms
+HTML autocontenido: dist/campos-vectoriales.html · 0.68 MB · sha256 ce3c8a770df60db80414f021a865177ca3d06f0d90e8507e4ad7f5152ad5f263
+
+## (2b) Sonda: HTML abierto con file://, red cortada
+{"modo": "Cálculo: worker", "familia": "\"Inter Variable\", Inter, system-ui, sans-serif", "consola": [], "peticionesExternas": []}
+
+## (3) Compilación del proyecto de la raíz (juego) sin cambios
+✓ built in 823ms
+✔ Artifact autocontenido: dist/neon-wraiths-standalone.html (234 KB)
+
+## (4) Prueba negativa de fronteras
+  1:1  error  'three' import is restricted from being used by a pattern. math/ es puro: solo puede importar math/  no-restricted-imports
+  1:25  error  Unexpected use of 'document'. Capa pura: sin acceso al DOM ni al navegador  no-restricted-globals
+✖ 2 problems (2 errors, 0 warnings)

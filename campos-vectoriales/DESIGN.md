@@ -70,13 +70,13 @@ Por qué los ajustes:
 | `escena.eje` | `#8C8C8C` | Ejes coordenados |
 | `escena.etiqueta` | `#B0B0B0` | Letras de los ejes y números de las marcas |
 | `escena.halo` | `#101010` | Contorno oscuro de flechas, líneas y marcas (§9.2) |
-| `rampa.magnitud` | L\* 45 → 96.5 (`#6B6B6B` → `#F5F5F5`) | Luminancia de los glifos según la magnitud (banda **clara**) |
+| `rampa.magnitud` | L\* 45.2 → 96.5 (`#6B6B6B` → `#F5F5F5`) | Luminancia de los glifos según la magnitud (banda **clara**) |
 | `escena.linea` | `#A0A0A0` | Líneas de corriente, luminancia constante |
 | `escena.semilla` | `#B0B0B0` | Círculo hueco de las semillas |
 | `escena.particula` | `#F5F5F5` | Punto de la partícula |
 | `escena.estela` | `#8C8C8C` | Estela de la partícula (se estrecha con la antigüedad) |
 | `escena.corte` | `#8C8C8C` discontinuo; relleno `#F5F5F5` al 3 % | Contorno y velo del plano de corte |
-| `rampa.escalar` | L\* 6 → 38 (`#131313` → `#595959`) | Valor absoluto del escalar sobre el corte (banda **oscura**) |
+| `rampa.escalar` | L\* 6 → 32 (`#131313` → `#4B4B4B`) | Valor absoluto del escalar sobre el corte (banda **oscura**) |
 | `escena.patron` | +10 L\* sobre la base local | Puntos (signo +) y rayado (signo −) |
 | `escena.cero` | `#B0B0B0` discontinuo | Curva de nivel cero del escalar |
 | `escena.seleccion` | `#F5F5F5` | Aro, cruz y etiqueta del punto seleccionado |
@@ -84,7 +84,7 @@ Por qué los ajustes:
 **Rampas uniformes en L\***: la luminancia percibida crece de forma proporcional al valor,
 sin saltos. El gris más oscuro de la rampa de magnitud (`#6B6B6B`) tiene un contraste de
 **3.57:1** con el fondo, así que incluso las flechas más débiles cumplen 3:1. Las dos rampas
-**no se solapan** (6–38 frente a 45–96.5): un glifo nunca se confunde con el mapa del corte.
+**no se solapan**: 6–32 (hasta 42 con los patrones) frente a 45.2–96.5: un glifo nunca se confunde con el mapa del corte.
 
 ### 2.3 Colores de estado
 
@@ -113,6 +113,7 @@ No hay rojo, ámbar ni verde. El estado se comunica con **icono + palabra + form
 | Esquema de color | `color-scheme: dark` en `:root` |
 | Iconos de emoji en color | Prohibidos; solo SVG monocromos |
 | Botón de selección de archivo | Oculto; se activa con un botón propio |
+| Suavizado subpíxel del texto (ClearType/LCD): franjas de color en los bordes de las letras | Es una técnica del sistema y del monitor, no un color del diseño, y no se controla desde CSS en Windows o Linux. Las capturas de auditoría usan suavizado en escala de grises (`--disable-lcd-text`); los textos que la aplicación rasteriza (etiquetas de la escena, exportación PNG) se dibujan en lienzos con transparencia, que Chromium suaviza en gris. Hallazgo de FND-02 |
 
 ---
 
@@ -413,7 +414,7 @@ plegadas, las secciones 1–5 caben **sin desplazamiento**.
 | Orientación del glifo | Flecha | Dirección de $\mathbf F$ (o de $\nabla\times\mathbf F$ con «Glifos: rot F») | — |
 | Punta cónica | Flecha | **Sentido** | — |
 | Longitud | Flecha | $\lVert\mathbf F\rVert$ (modo proporcional; saturada en $F_{\text{ref}}$) | Profundidad |
-| Luminancia, **banda clara** (L\* 45–96.5) | Flechas y glifos | $\lVert\mathbf F\rVert$ o $\lVert\nabla\times\mathbf F\rVert$, según el modo de glifos | Profundidad, iluminación, selección |
+| Luminancia, **banda clara** (L\* 45.2–96.5) | Flechas y glifos | $\lVert\mathbf F\rVert$ o $\lVert\nabla\times\mathbf F\rVert$, según el modo de glifos | Profundidad, iluminación, selección |
 | Doble punta | Flecha | $\lVert\mathbf F\rVert\ge F_{\text{ref}}$ (saturada) | — |
 | Rombo hueco ◇ | Nodo, final de línea | $\lVert\mathbf F\rVert < 2\%\,F_{\text{ref}}$ | Equilibrio exacto |
 | Aspa × | Nodo, final de línea | No definido o singular | — |
@@ -422,7 +423,7 @@ plegadas, las secciones 1–5 caben **sin desplazamiento**.
 | Círculo hueco ○ | Semilla | Origen de la integración | — |
 | Punto + estela que se estrecha | Partícula | Posición actual + recientes (más fina = más antigua) | Magnitud |
 | Rectángulo discontinuo + etiqueta | Plano | Plano de corte («z = 0.00») | — |
-| Luminancia, **banda oscura** (L\* 6–38) | Superficie del corte | Valor absoluto del escalar elegido | Magnitud de flechas |
+| Luminancia, **banda oscura** (L\* 6–32; patrones hasta 42) | Superficie del corte | Valor absoluto del escalar elegido | Magnitud de flechas |
 | Patrón de puntos / rayado a 45° | Superficie del corte | Signo **+** / **−** del escalar | — |
 | Curva discontinua | Superficie del corte | Nivel cero del escalar | — |
 | Glifos +/−, ⊙/⊗, ↺/↻ dispersos | Superficie del corte | Signo de div, de $F_n$ y de $(\nabla\times\mathbf F)\cdot\mathbf n$ | — |
@@ -453,7 +454,7 @@ oclusión, halo y paralaje al orbitar.
 ### 9.3 Magnitud
 
 - **Proporcional** (por defecto): $\ell=\ell_{\max}\min(\lVert\mathbf F\rVert/F_{\text{ref}},1)$
-  y luminancia $L^*=45+51.5\,u$ con $u=\min(\lVert\mathbf F\rVert/F_{\text{ref}},1)$.
+  y luminancia $L^*=45.2+51.3\,u$ con $u=\min(\lVert\mathbf F\rVert/F_{\text{ref}},1)$.
 - **Normalizada**: longitud constante $0.75\,\ell_{\max}$; la magnitud **solo** por
   luminancia. La leyenda lo dice: «longitud constante: solo dirección».
 - **Luminancia logarítmica** (Avanzado), para campos con singularidades:

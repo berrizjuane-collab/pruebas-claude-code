@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Planificación (PLN-01) |
-| **Situación** | Documentos entregados. **Esperando la aprobación del usuario.** No hay código de la aplicación |
-| **Siguiente paso** | Tras la aprobación: H0 (FND-01, FND-02, VIS-01) y H1, la primera entrega (§7) |
+| **Fase** | Implementación — H0 Fundaciones |
+| **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
+| **Siguiente paso** | H0 (FND-01, FND-02, VIS-01) y H1, la primera entrega (§7) |
 | **Bloqueos** | Ninguno |
 
 ### 1.1 Estado por hito
@@ -28,7 +28,7 @@
 | H6 Inspección | 3 | 0/3 | — |
 | H7 Exportación | 3 | 0/3 | — |
 | H8 Transversal | 4 | 0/4 | — |
-| H9 Validación | 5 | 0/5 | — |
+| H9 Validación | 6 | 0/6 | Incluye ENT-01 (HTML autocontenido) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -70,11 +70,17 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-12 | Glifos de F y de rot F excluyentes | Simultáneos | Un único significado para la banda clara de luminancia | Sí |
 | D-13 | Etiquetas de los ejes como *sprites* dentro del lienzo | `CSS2DRenderer` | Aparecen en la exportación PNG | Sí |
 | D-14 | Experimento inicial: Helicoidal, a = 0.25, flechas + líneas | Rotacional | Muestra la tridimensionalidad desde el primer instante | Sí |
-| D-15 | Sin despliegue público en la 1.0 | GitHub Pages | Pages ya publica el juego de la raíz (AMP-13) | Sí |
+| D-15 | **Entrega como un único HTML autocontenido** (`campos-vectoriales.html`) que funciona desde disco, sin servidor ni red (RNF-14) | Despliegue web | Respuesta del usuario (Q-03) | Sí |
 | D-16 | Partículas con prioridad P1 | P0 o ampliación | Valor educativo alto y coste bajo, pero no imprescindibles | Sí |
 | D-17 | Líneas 2D sobre cortes pospuestas | Incluidas | Riesgo de malinterpretación (SPEC §3.7) | Sí |
 | D-18 | Densidad por defecto 9³ con malla en nodos | 11³; centros de celda | Legibilidad 3D; el origen visible con N impar | Sí |
 | D-19 | Inter (interfaz), JetBrains Mono (expresiones), KaTeX (fórmulas), todas locales | Fuentes del sistema | Consistencia entre plataformas y capturas reproducibles | Sí |
+| D-20 | Equipo de referencia R1: Intel Core i9, NVIDIA RTX 4060, monitor de 144 Hz → objetivos de rendimiento a 144 fps (VALIDATION §6.4) | Portátil con GPU integrada (S-04 original) | Respuesta del usuario (Q-01) | Sí |
+| D-21 | Para un público experto, el inspector añade autovalores de $J$ y helicidad, y se aceptan `asinh`, `acosh` y `atanh` | Inspector básico | Respuesta del usuario (Q-02) | Sí |
+| D-22 | El *worker* se incrusta como `Blob`; si el navegador no permite crearlo desde `file://`, el cálculo pasa al hilo principal con el mismo código (degradación controlada y anunciada) | Exigir servidor | RNF-14 sin perder robustez | Sí |
+| D-23 | Auditorías visuales con suavizado de texto en escala de grises | Tolerar franjas de color | El suavizado subpíxel es del sistema, no del diseño (DESIGN §2.4); hallazgo de FND-02 | Sí |
+| D-24 | Sin `noUncheckedIndexedAccess` en TypeScript (desviación de FND-01) | Activarlo | En núcleos numéricos con `Float64Array` obliga a aserciones `!` en cada acceso y reduce la legibilidad; el resto de opciones estrictas sí están activas | Sí |
+| D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
 
@@ -82,10 +88,10 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 
 | ID | Supuesto | Si resulta falso |
 | --- | --- | --- |
-| S-01 | Público de primeros cursos universitarios de Cálculo vectorial | Ajustar la profundidad de la ayuda (no cambia la arquitectura) |
+| S-01 | Público universitario de cursos superiores y expertos (confirmado por el usuario) | — |
 | S-02 | Uso principal en escritorio a ≥ 1280×720 | Reforzar VIS-06 |
 | S-03 | El usuario dispone de Node ≥ 22.12 para ejecutar en local | Documentar la instalación con nvm o fnm |
-| S-04 | Equipo de referencia R1: portátil de 2021 o posterior con GPU integrada, 1080p | Recalibrar los objetivos de V-PERF |
+| S-04 | Equipo de referencia R1: i9 + RTX 4060 + 144 Hz (confirmado por el usuario); resolución del monitor por registrar en la medición | Recalibrar los objetivos de V-PERF |
 | S-05 | Navegadores modernos con WebGL2 | Estado vacío informativo; no hay respaldo en 2D |
 | S-06 | Sin servidor ni cuentas | — |
 | S-07 | Bastan 8 parámetros | Subir el límite (afecta a la densidad del panel) |
@@ -173,9 +179,9 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 
 | ID | Pregunta | Por defecto |
 | --- | --- | --- |
-| Q-01 | ¿Cuál es tu equipo (CPU, GPU, pantalla, navegador) para fijar R1? | S-04; se mide en tu equipo en VAL-03 |
-| Q-02 | ¿El público es el de S-01 o necesitas otro nivel (bachillerato, posgrado)? | S-01 |
-| Q-03 | ¿Quieres publicarlo en la web (exige reorganizar el GitHub Pages actual)? | No en la 1.0 (D-15) |
+| Q-01 | ¿Cuál es tu equipo? | **Respondida**: i9, RTX 4060, 144 Hz (D-20) |
+| Q-02 | ¿Nivel del público? | **Respondida**: universitarios superiores y expertos (S-01, D-21) |
+| Q-03 | ¿Publicación web? | **Respondida**: basta un HTML autocontenido y funcional (D-15) |
 
 ---
 
@@ -184,6 +190,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | Fecha | Cambio |
 | --- | --- |
 | 2026-10-02 | Planificación inicial: SPEC, DESIGN, PLAN, VALIDATION y STATUS; evidencia de calibración y de entorno en `evidencia/PLN-01/` |
+| 2026-10-02 | Plan aprobado. Incorporadas las respuestas: R1 = i9 + RTX 4060 + 144 Hz; público experto; entrega como HTML autocontenido (RNF-14, D-15, D-20 … D-22, ENT-01) |
 
 ---
 

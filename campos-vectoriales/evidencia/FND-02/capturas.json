@@ -1,0 +1,157 @@
+{
+  "tarea": "FND-02",
+  "objetivo": "dev",
+  "fecha": "2026-10-02T04:25:06.807Z",
+  "resultados": [
+    {
+      "captura": "C1",
+      "tamano": "V1",
+      "archivo": "capturas/C1-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "tipografia": {
+        "tamanos": [
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          600
+        ],
+        "familias": [
+          "Inter Variable"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C1",
+      "tamano": "V2",
+      "archivo": "capturas/C1-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "tipografia": {
+        "tamanos": [
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          600
+        ],
+        "familias": [
+          "Inter Variable"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C1",
+      "tamano": "V3",
+      "archivo": "capturas/C1-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "tipografia": {
+        "tamanos": [
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          600
+        ],
+        "familias": [
+          "Inter Variable"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C1",
+      "tamano": "V4",
+      "archivo": "capturas/C1-V4.png",
+      "paleta": {
+        "ancho": 1024,
+        "alto": 768,
+        "pixeles": 786432,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "tipografia": {
+        "tamanos": [
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          600
+        ],
+        "familias": [
+          "Inter Variable"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C1",
+      "tamano": "V5",
+      "archivo": "capturas/C1-V5.png",
+      "paleta": {
+        "ancho": 1170,
+        "alto": 2532,
+        "pixeles": 2962440,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "tipografia": {
+        "tamanos": [
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          600
+        ],
+        "familias": [
+          "Inter Variable"
+        ]
+      },
+      "errores": []
+    }
+  ]
+}

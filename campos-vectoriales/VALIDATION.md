@@ -99,7 +99,7 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 | V-NUM-13 | Partículas: frente a la solución exacta en la silla; rapidez $=\lVert\mathbf F\rVert$ (relativo $\le10^{-12}$ en la primera etapa); renacen al salir, al llegar a ≈ 0 o a un punto no definido | T-13, T-14 |
 | V-NUM-14 | Corte: $\mathbf F_\parallel\cdot\mathbf n=0$; $F_n$, div, rot·n y \|F\| en el plano iguales a la evaluación directa; $V_{\text{ref}}$ simétrico | T-19, T-01 |
 | V-NUM-15 | Singularidades: T2 con un nodo en el origen → no definido y excluido de $F_{\text{ref}}$; líneas que se acercan al origen se detienen con `NO_DEFINIDO`; `tan` cerca de $\pi/2$ → singular por magnitud > $F_{\max}$ | Clasificación correcta |
-| V-NUM-16 | Derivadas no finitas: `sqrt(x)` en $x=0$ → diferencia unilateral si hay un lado válido, si no «no definida» | Método informado correcto |
+| V-NUM-16 | Derivadas no finitas: `sqrt(x)` en $x=0$ → «no acotada (∞)»; `sqrt(x)^2` en $x=0$ (forma $0\cdot\infty$) → diferencia unilateral = 1 (±10⁻⁶) con método «numérica»; sin lado válido → «no definida» | Valor y método informados correctos |
 
 ## 5. Pruebas funcionales y de coherencia (V-FUN)
 
@@ -121,6 +121,7 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 | V-FUN-14 | **Dominio y densidad** | N = 21 → 9261 instancias; límites inválidos rechazados con mensaje; la caja, los ejes y el corte se adaptan; la cámara se reencuadra |
 | V-FUN-15 | **Estados de pantalla** | Sin WebGL2 → estado vacío explicativo; todo indefinido → estado vacío con sugerencias; campo nulo → aviso; cálculo de > 300 ms → progreso y «Cancelar» que funciona |
 | V-FUN-16 | **Robustez**: 200 ediciones aleatorias rápidas (expresiones, parámetros, dominio) | 0 errores en consola; 0 excepciones no capturadas; la interfaz responde al final (< 1 s) |
+| V-FUN-17 | **HTML autocontenido** abierto con `file://` en Chromium con la red cortada | 0 peticiones de red; 0 errores en consola; *worker* activo (o respaldo anunciado); escena, edición, inspector y exportaciones operativos; tamaño ≤ 3 MB |
 
 ---
 
@@ -130,7 +131,7 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 
 | Equipo | Descripción | Qué se mide |
 | --- | --- | --- |
-| **R1** (referencia) | El equipo del usuario. Se registran CPU, GPU, RAM, sistema operativo, navegador y versión, resolución y `devicePixelRatio`. Supuesto hasta conocerlo (S-04): portátil de 2021 o posterior con GPU integrada de gama media, 1920×1080, Chrome estable | FPS y latencias |
+| **R1** (referencia) | El equipo del usuario: **Intel Core i9, NVIDIA RTX 4060, monitor de 144 Hz** (D-20). Se registran además RAM, sistema operativo, navegador y versión, resolución y `devicePixelRatio` | FPS y latencias |
 | **C0** (integración) | Este contenedor: 4 vCPU, 15 GiB, **sin GPU**, Chromium 1194 sin interfaz con SwiftShader | Solo métricas de CPU: tiempos de cálculo y tareas largas. **Los FPS de C0 no cuentan** |
 
 ### 6.2 Escenas reproducibles
@@ -145,10 +146,13 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 
 ```bash
 npm run build
-npm run perf -- --escena=PERF-A --equipo=R1 --dpr=1   # en R1: añade --headed --channel=chrome
+npm run perf -- --escena=PERF-A --equipo=C0     # en este entorno (solo CPU)
 ```
 
-1. `vite preview` sirve la versión de producción; Playwright abre `?perf=PERF-A`.
+En R1 no hace falta Node: se abre `campos-vectoriales.html?perf=PERF-A` en Chrome, se pulsa
+«Iniciar medición» y se descarga el JSON del informe.
+
+1. La aplicación carga la escena reproducible indicada en `?perf=`.
 2. Calentamiento de 2 s; después se miden **600 fotogramas** con los intervalos de
    `requestAnimationFrame`: p50, p95, p99 y % de fotogramas > 33 ms.
 3. Tiempos de cálculo con `performance.now()` dentro del *worker*: mediana de 10 repeticiones
@@ -163,12 +167,12 @@ npm run perf -- --escena=PERF-A --equipo=R1 --dpr=1   # en R1: añade --headed -
 
 | ID | Métrica | Objetivo |
 | --- | --- | --- |
-| V-PERF-01 | PERF-A en R1, p95 del fotograma | ≤ 16.7 ms (60 fps) con DPR 1; ≤ 25 ms con DPR 2 |
-| V-PERF-02 | PERF-B en R1, p95 del fotograma | ≤ 33 ms (30 fps) |
+| V-PERF-01 | PERF-A en R1, p95 del intervalo entre fotogramas | ≤ 7.5 ms (cadencia de 144 Hz sostenida) |
+| V-PERF-02 | PERF-B en R1, p95 del intervalo entre fotogramas | ≤ 10 ms (≥ 100 fps) |
 | V-PERF-03 | Cálculo (R1 y C0): malla 15³ · corte 41² con derivadas · líneas PERF-A · líneas PERF-B | ≤ 30 ms · ≤ 40 ms · ≤ 250 ms · ≤ 1 s (con progreso) |
 | V-PERF-04 | PERF-C: tareas largas en el hilo principal; latencia de actualización de flechas | 0 tareas > 50 ms; p95 ≤ 50 ms |
 | V-PERF-05 | *Benchmark* de evaluación (Node, C0): cierres compilados frente a funciones nativas | Se registra la proporción (objetivo ≤ 3×); es informativo |
-| V-PERF-06 | Arranque hasta interfaz interactiva (`preview` local, R1) | ≤ 1.5 s |
+| V-PERF-06 | Arranque hasta interfaz interactiva (HTML autocontenido desde disco, R1) | ≤ 1.5 s |
 | V-PERF-07 | Regresión en C0 | Ningún tiempo de cálculo empeora > 30 % respecto al último registro |
 
 Si R1 no alcanza un objetivo, la primera medida es **ajustar los valores por defecto**

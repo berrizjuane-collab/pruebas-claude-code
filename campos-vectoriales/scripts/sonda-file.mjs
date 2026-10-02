@@ -1,0 +1,18 @@
+import { chromium } from '@playwright/test';
+const archivo = 'file://' + process.argv[2];
+const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const ctx = await browser.newContext();
+await ctx.setOffline(true);
+const page = await ctx.newPage();
+const consola = [], peticiones = [];
+page.on('console', (m) => consola.push(`${m.type()}: ${m.text()}`));
+page.on('pageerror', (e) => consola.push(`pageerror: ${e.message}`));
+page.on('request', (r) => { if (!r.url().startsWith('data:') && !r.url().startsWith('blob:') && r.url() !== archivo) peticiones.push(r.url()); });
+await page.goto(archivo);
+await page.waitForFunction(() => document.querySelector('[data-prueba="modo-calculo"]')?.textContent?.includes(': w') || document.querySelector('[data-prueba="modo-calculo"]')?.textContent?.includes('hilo'), null, { timeout: 10000 });
+await page.waitForFunction(() => document.querySelector('[data-prueba="fuentes"]')?.textContent?.includes('listas'), null, { timeout: 10000 });
+const modo = await page.textContent('[data-prueba="modo-calculo"]');
+const fuentes = await page.evaluate(() => [...document.fonts].map((f) => `${f.family} ${f.weight} ${f.status}`));
+const familia = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
+console.log(JSON.stringify({ archivo, modo, fuentes, familia, consola, peticionesExternas: peticiones }, null, 1));
+await browser.close();

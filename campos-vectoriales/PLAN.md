@@ -192,14 +192,16 @@ npx playwright install chromium    # una vez, ~150 MB, para las pruebas de naveg
 npm run test:e2e                   # pruebas funcionales y de accesibilidad
 npm run capturas                   # capturas de revisión visual → evidencia/
 npm run check                      # lint + tipos + unitarias (antes de cada commit)
-npm run build && npm run preview   # versión de producción en http://localhost:4173
+npm run build                      # → dist/campos-vectoriales.html (archivo único)
 ```
 
 - **Requisitos**: Node ≥ 22.12 (lo exige Vitest 5) y npm ≥ 10. Navegador con WebGL2.
 - **Conexión**: solo para instalar dependencias y el navegador de pruebas. En ejecución,
   **ninguna** (fuentes empaquetadas, sin CDN ni telemetría).
-- **No se abre con `file://`**: los módulos ES y los *workers* necesitan un servidor HTTP
-  local (`npm run preview` o cualquier servidor estático).
+- **Entrega**: `npm run build` produce `dist/campos-vectoriales.html`, un **único archivo**
+  con el código, los estilos, las fuentes (`woff2` en base64) y el *worker* (como `Blob`)
+  incrustados, y una CSP con huella SHA-256. Se abre con doble clic (`file://`), sin
+  servidor ni red. La copia publicada en el repositorio está en `entrega/`.
 - **En este entorno en la nube**: Playwright usa el Chromium preinstalado en
   `/opt/pw-browsers` (no se descarga).
 
@@ -327,7 +329,7 @@ H0 Fundaciones ─┬─▶ H1 Primera entrega ───────────
 | **H6** Inspección | Selección, inspector, coherencia comprobada | INS-01 … INS-03 |
 | **H7** Exportación | JSON, autoguardado, PNG | EXP-01 … EXP-03 |
 | **H8** Transversal | Teclado, accesibilidad, ayuda, adaptación a pantallas | A11Y-01, A11Y-02, UI-06, VIS-06 |
-| **H9** Validación | Baterías completas, rendimiento medido, revisión visual final, documentación | VAL-01 … VAL-03, REV-04, DOC-01 |
+| **H9** Validación y entrega | Baterías completas, rendimiento medido, revisión visual final, HTML autocontenido, documentación | VAL-01 … VAL-03, REV-04, ENT-01, DOC-01 |
 
 H2 puede avanzar en paralelo a H1, porque solo depende de FND-01.
 
@@ -400,6 +402,7 @@ aceptación con la evidencia indicada.
 | VAL-02 | Batería funcional de extremo a extremo | H9 | H4 … H8 | Pendiente |
 | VAL-03 | Medición de rendimiento | H9 | CMP-02, H5 | Pendiente |
 | REV-04 | Revisión visual final | H9 | VIS-06, A11Y-02, EXP-03 | Pendiente |
+| ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Pendiente |
 | DOC-01 | Documentación final | H9 | VAL-01 … REV-04 | Pendiente |
 
 ### 5.2 Detalle de las tareas
@@ -540,7 +543,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Componentes**: `ui/scene/Legend.tsx`.
 - **Procedimiento**: DESIGN §9.3 y §9.12.
 - **Aceptación**: (1) las marcas coinciden con la $F_{\text{ref}}$ calculada; (2) el píxel
-  central de la barra tiene L\* = 70.75 ± 1; (3) solo aparecen entradas de capas visibles.
+  central de la barra tiene L\* = 70.85 ± 1; (3) solo aparecen entradas de capas visibles.
 - **Verificación**: e2e + muestreo de píxeles.
 - **Evidencia**: captura y valores medidos.
 
@@ -967,6 +970,18 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Aceptación**: todas las VV superadas; capturas de referencia guardadas.
 - **Verificación**: automática + manual.
 - **Evidencia**: PNG + `informe.md`.
+
+#### ENT-01 · HTML autocontenido final — Pendiente
+- **Objetivo**: entregar `campos-vectoriales.html` operativo desde disco y sin red (RNF-14).
+- **Dependencias**: VAL-02, REV-04.
+- **Componentes**: `scripts/autocontenido.mjs`, `entrega/campos-vectoriales.html`.
+- **Procedimiento**: compilar; incrustar JS, CSS, fuentes y *worker*; escribir la CSP con la
+  huella del script; abrirlo con `file://` en Chromium con la red cortada y recorrer los
+  flujos principales.
+- **Aceptación**: V-FUN-17 pasa; tamaño ≤ 3 MB; el archivo de `entrega/` coincide byte a byte
+  con la compilación del commit indicado.
+- **Verificación**: e2e sobre `file://` con `context.setOffline(true)`.
+- **Evidencia**: registro de la prueba, tamaño y SHA-256 del archivo.
 
 #### DOC-01 · Documentación final — Pendiente
 - **Objetivo**: README de uso, ayuda revisada y STATUS final.

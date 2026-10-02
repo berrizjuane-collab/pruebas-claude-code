@@ -34,9 +34,10 @@ Idioma: **español** en interfaz, mensajes, ayuda y documentación.
 
 ### 1.1 Público y contexto de uso (supuestos)
 
-- **Público principal:** estudiantes de primeros cursos universitarios de Cálculo vectorial
-  (Cálculo III, Física general, Ingeniería) y docentes que proyectan en clase. Supuesto S-01
-  en STATUS.md.
+- **Público principal:** estudiantes universitarios de cursos superiores y **expertos**
+  (docentes, investigadores, ingenieros) que dominan el cálculo vectorial. La ayuda es
+  concisa y rigurosa; la interfaz expone detalles técnicos (jacobiana y sus autovalores,
+  método numérico, pasos y tolerancias). Decisión del usuario, 2026-10-02 (S-01).
 - **Plataforma:** navegador de escritorio moderno, ratón o panel táctil, teclado. Pantallas
   de 1280×720 o más. Las pantallas pequeñas se tratan en §9.
 - **Sin servidor:** todo se calcula en el navegador. No hay cuentas ni datos personales.
@@ -80,7 +81,7 @@ recortable si compromete la solidez del resto (se documentaría en STATUS.md).
 | RF-05 | **Dominio y densidad**: caja $\Omega$ configurable y número de nodos por eje (3–21). | P0 |
 | RF-06 | **Flechas**: sentido, magnitud por longitud y luminancia, modo proporcional o normalizado, escala automática o fija, marcas de saturación, de $\mathbf F\approx\mathbf 0$ y de punto no definido. | P0 |
 | RF-07 | **Líneas de corriente**: RK4, integración en ambos sentidos, tres estrategias de semillas, criterios de parada explícitos, marcas de sentido. | P0 |
-| RF-08 | **Inspector de punto**: $\mathbf F$, $\lVert\mathbf F\rVert$, $\hat{\mathbf F}$, $J$, div, rot, método de derivación e interpretación textual. Selección con clic o por coordenadas. | P0 |
+| RF-08 | **Inspector de punto**: $\mathbf F$, $\lVert\mathbf F\rVert$, $\hat{\mathbf F}$, $J$ y sus autovalores, div, rot, helicidad $\mathbf F\cdot(\nabla\times\mathbf F)$, método de derivación e interpretación textual. Selección con clic o por coordenadas. | P0 |
 | RF-09 | **Visualización de magnitud** con leyenda numérica siempre visible y $F_{\text{ref}}$ explícita. | P0 |
 | RF-10 | **Cortes** en planos XY, XZ e YZ con posición ajustable: flechas del corte, proyección tangencial y componente normal. | P0 |
 | RF-11 | **Divergencia y rotacional**: expresiones simbólicas, valores en el inspector, mapa escalar sobre el corte (div, $(\nabla\times\mathbf F)\cdot\mathbf n$, $\mathbf F\cdot\mathbf n$, $\lVert\mathbf F\rVert$), capa de glifos de rotacional y rueda de paletas en el punto inspeccionado. | P0 |
@@ -110,6 +111,7 @@ Requisitos no funcionales:
 | RNF-11 | **Precisión**: cálculo en coma flotante de 64 bits; la GPU solo recibe datos ya calculados (32 bits). |
 | RNF-12 | **Mantenibilidad**: capas con fronteras comprobadas automáticamente; cobertura ≥ 90 % de líneas en `math/` y `numerics/`. |
 | RNF-13 | **Pantallas**: soporte completo ≥ 1280×720; degradado entre 768 y 1279 px de ancho; modo consulta por debajo (§9). |
+| RNF-14 | **Entrega autocontenida**: un único archivo `campos-vectoriales.html` con todo incrustado (código, estilos, fuentes y *worker*), que funciona al abrirlo desde disco (`file://`) en Chrome, Edge y Firefox, sin servidor ni red. Decisión del usuario, 2026-10-02. |
 
 ### 2.2 Ampliaciones posteriores
 
@@ -129,7 +131,7 @@ Se posponen para que la 1.0 sea completa y sólida. Cada una indica qué deja pr
 | AMP-10 | **Deshacer/rehacer** general | Historial de estado completo. | Estado serializable e inmutable. |
 | AMP-11 | Aviso de **muestreo insuficiente** (aliasing) | Heurística a calibrar. | Malla y estadísticas por nodo. |
 | AMP-12 | Arrastrar el plano de corte o el punto en la escena | Manipuladores 3D accesibles. | Deslizadores y teclado. |
-| AMP-13 | Despliegue público (GitHub Pages) | La publicación de Pages del repositorio ya la usa otro proyecto (STATUS R-10). | Compilación con rutas relativas. |
+| AMP-13 | Despliegue público en la web | El usuario se conforma con el HTML autocontenido (RNF-14). | El propio HTML se puede alojar tal cual en cualquier servidor estático. |
 
 ### 2.3 Fuera de alcance
 
@@ -561,6 +563,7 @@ numero      = digitos , [ "." , digitos ] , [ ("e" | "E") , [ "+" | "-" ] , digi
 | --- | --- | --- | --- |
 | `sin`, `cos`, `tan` | 1 | $\cos u$, $-\sin u$, $1+\tan^2u$ | `tan` se dispara cerca de $\pi/2+k\pi$ → magnitud excesiva |
 | `asin`, `acos` | 1 | $\pm1/\sqrt{1-u^2}$ | $\lvert u\rvert\le1$; derivada infinita en ±1 |
+| `asinh`, `acosh`, `atanh` | 1 | $1/\sqrt{u^2+1}$, $1/\sqrt{u^2-1}$, $1/(1-u^2)$ | `acosh`: $u\ge1$; `atanh`: $\lvert u\rvert<1$ |
 | `atan` | 1 | $1/(1+u^2)$ | — |
 | `atan2(y, x)` | 2 | $(x\,dy-y\,dx)/(x^2+y^2)$ | no diferenciable en el origen |
 | `sinh`, `cosh`, `tanh` | 1 | $\cosh$, $\sinh$, $1-\tanh^2$ | desbordamiento → magnitud excesiva |
@@ -611,9 +614,13 @@ son válidas. Al aplicar se usa un retardo de 300 ms tras la última tecla.
   rotacional»).
 - **Numéricas (diferencias finitas)** cuando son necesarias:
   1. el árbol de la derivada supera el límite de nodos;
-  2. la derivada simbólica no es finita pero $\mathbf F$ sí lo es en un entorno (por ejemplo
-     `sqrt` cerca de 0); el inspector lo indica;
+  2. la derivada simbólica da `NaN` (forma indeterminada como $0\cdot\infty$) mientras
+     $\mathbf F$ está definido en un entorno: p. ej. $(\sqrt x)^2$ en $x=0$, cuya derivada
+     unilateral es 1; el inspector indica «numérica»;
   3. como **oráculo cruzado** en las pruebas.
+- **Derivada no acotada**: si la derivada simbólica es $\pm\infty$ (p. ej. `sqrt(x)` en
+  $x=0$), se informa «no acotada (∞)». No se sustituye por un cociente incremental, que
+  daría un número finito sin significado.
 - **Puntos no diferenciables**: si el argumento de `abs`, `min`, `max`, `atan2` o `hypot` está a
   menos de $10^{-9}(1+\lvert\cdot\rvert)$ de su punto anguloso, la derivada se declara **no
   definida** en ese punto. No se informa del valor de la rama.
@@ -783,9 +790,11 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
   propiedades, asignaciones, cadenas ni llamadas fuera de la lista blanca.
 - El JSON importado se valida campo a campo antes de tocar el estado; las expresiones
   importadas pasan por el mismo analizador.
-- Política de seguridad de contenidos en `index.html`: `default-src 'self'`;
-  `script-src 'self'`; `worker-src 'self' blob:`; `style-src 'self' 'unsafe-inline'` (KaTeX
-  usa estilos en línea); `img-src 'self' data: blob:`; `font-src 'self' data:`.
+- Política de seguridad de contenidos del HTML autocontenido (la escribe el empaquetador):
+  `default-src 'none'`; `script-src 'sha256-…'` (huella del único script incrustado);
+  `worker-src blob: data:`; `style-src 'unsafe-inline'` (KaTeX y React usan atributos
+  `style`); `img-src data: blob:`; `font-src data:`; **`connect-src 'none'`**. El propio
+  navegador impide así cualquier petición de red.
 - Ninguna petición de red en ejecución. Ningún dato sale del navegador.
 
 ## 9. Pantallas pequeñas: adaptación y límites

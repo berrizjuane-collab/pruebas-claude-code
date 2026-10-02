@@ -1,0 +1,5 @@
+# FND-02 · Arnés de pruebas · 2026-10-02T04:25:36Z
+  ✓  1 [chromium] › tests/e2e/humo.spec.ts:7:1 › la aplicación arranca sin errores, con worker y sin peticiones externas (394ms)
+  ✓  2 [chromium] › tests/e2e/humo.spec.ts:14:1 › la auditoría de paleta acepta la página gris y rechaza un píxel de color (1.1s)
+  ✓  3 [chromium] › tests/e2e/humo.spec.ts:29:1 › el detector de maquetación señala solapamientos y desplazamiento horizontal (326ms)
+  3 passed (3.8s)

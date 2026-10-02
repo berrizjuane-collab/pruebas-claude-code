@@ -1,0 +1,14 @@
+# VIS-01 · Tokens y contraste · 2026-10-02T04:25:35Z
+ ✓ src/design/tokens.test.ts > tokens de color > todos los colores de interfaz y escena son grises neutros (R = G = B) 3ms
+ ✓ src/design/tokens.test.ts > tokens de color > reproduce la tabla de contrastes de DESIGN §2.1 (±0.01) 1ms
+ ✓ src/design/tokens.test.ts > tokens de color > todo texto cumple ≥ 4.5:1 sobre las tres superficies 1ms
+ ✓ src/design/tokens.test.ts > tokens de color > el contorno de los controles cumple ≥ 3:1 sobre las tres superficies (WCAG 1.4.11) 0ms
+ ✓ src/design/tokens.test.ts > tokens de color > el anillo de foco (texto-1) cumple ≥ 3:1 sobre cualquier superficie, incluido el pulsado 0ms
+ ✓ src/design/tokens.test.ts > rampas de la escena > la flecha más débil (L* 45.2) cumple ≥ 3:1 frente al fondo y al halo 0ms
+ ✓ src/design/tokens.test.ts > rampas de la escena > la rampa de magnitud termina en el texto principal (#F5F5F5) 0ms
+ ✓ src/design/tokens.test.ts > rampas de la escena > las bandas de magnitud y del escalar son disjuntas 0ms
+ ✓ src/design/tokens.test.ts > rampas de la escena > L* ↔ gris es una ida y vuelta exacta a 8 bits 6ms
+ ✓ src/design/tokens.test.ts > variables CSS > genera variables para color, espacio, radios y tipografía 1ms
+      Tests  10 passed (10)
+
+Peticiones externas al cargar el HTML autocontenido: ver FND-01 (2b): []
