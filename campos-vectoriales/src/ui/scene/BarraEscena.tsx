@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Box, Pause, Play, Scan } from 'lucide-react';
+import { Box, Crosshair, Pause, Play, Scan } from 'lucide-react';
 import type { Vista } from '../../render/camara';
 import { T } from '../../i18n/es';
 import { BotonIcono } from '../controls/Boton';
@@ -11,10 +11,12 @@ interface Props {
   animando: boolean;
   hayAnimacion: boolean;
   alAnimar: () => void;
+  /** Inspeccionar un punto por coordenadas (tecla I, F7.1). */
+  alInspeccionar: () => void;
 }
 
 /** Barra de la escena (DESIGN §5.2): encuadre, vistas predefinidas y pausa, con atajos. */
-function BarraEscenaBase({ alEncuadrar, alVista, animando, hayAnimacion, alAnimar }: Props) {
+function BarraEscenaBase({ alEncuadrar, alVista, animando, hayAnimacion, alAnimar, alInspeccionar }: Props) {
   return (
     <div className="barra-escena flotante" data-flotante="barra-escena" role="toolbar" aria-label="Vistas y animación">
       <BotonIcono etiqueta={T.vistas.encuadrar} icono={Scan} tamanoIcono={18} atajo="R" onClick={alEncuadrar} />
@@ -24,6 +26,7 @@ function BarraEscenaBase({ alEncuadrar, alVista, animando, hayAnimacion, alAnima
       ))}
       <BotonIcono etiqueta={T.vistas.iso} icono={Box} tamanoIcono={18} atajo="4" onClick={() => alVista('iso')} />
       <span className="barra-escena-separador" aria-hidden="true" />
+      <BotonIcono etiqueta={T.inspector.inspeccionar} icono={Crosshair} tamanoIcono={18} atajo="I" onClick={alInspeccionar} />
       {/* Pausa / reanudar: siempre visible (DESIGN §8), con la tecla Espacio. */}
       <BotonIcono
         etiqueta={animando ? T.vistas.pausar : T.vistas.reanudar}

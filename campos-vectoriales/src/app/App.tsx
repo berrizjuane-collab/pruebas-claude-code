@@ -6,15 +6,16 @@ import { FINAL } from '../geometria/lineas';
 import { peticionMalla } from '../compute/peticiones';
 import { CATALOGO, type IdCampo } from '../math/catalog';
 import { compilarCampo } from '../math/field';
-import { rotacional } from '../math/derivadas';
-import { derivadasEnPunto } from '../numerics/finiteDiff';
+import { conDerivadas, inspeccionar } from '../numerics/inspeccion';
+import { CLASE } from '../numerics/grid';
+import { anillosRotacional, calcularFlechas } from '../geometria/flechas';
 import type { ControladorEscena } from '../render/ControladorEscena';
 import type { Vista } from '../render/camara';
-import { EJES_PLANO, NOMBRE_EJE, type Dominio } from '../math/tipos';
+import { EJES_PLANO, NOMBRE_EJE, type Dominio, type Vec3 } from '../math/tipos';
 import { rotuloCorte } from '../render/layers/corte';
 import type { DatosEscalar } from '../render/layers/escalar';
 import { UMBRAL_CERO } from '../geometria/escalar';
-import { fijarCapa, fijarCorte, fijarGlifos, seleccionarCampo } from '../state/actions';
+import { centroDominio, fijarCapa, fijarCorte, fijarGlifos, fijarPunto, moverPunto, seleccionarCampo } from '../state/actions';
 import { EXPERIMENTO_INICIAL, experimentoDesdeCatalogo, type EstadoExperimento } from '../state/schema';
 import { crearAlmacen } from '../state/store';
 import { T } from '../i18n/es';
@@ -25,6 +26,7 @@ import { Boton } from '../ui/controls/Boton';
 import { crearNotificador, Notificaciones } from '../ui/controls/Notificaciones';
 import { AvisoEscena, Carga, EstadoVacio } from '../ui/scene/Mensajes';
 import { BarraEscena } from '../ui/scene/BarraEscena';
+import { Inspector } from '../ui/scene/Inspector';
 import { Leyenda } from '../ui/scene/Leyenda';
 import { Triedro } from '../ui/scene/Triedro';
 import { VistaEscena } from '../ui/scene/VistaEscena';
@@ -57,6 +59,19 @@ function signosPresentes(d: DatosEscalar): { positivo: boolean; negativo: boolea
     else if (v <= -umbral) negativo = true;
   }
   return { positivo, negativo, cero: !!d.contorno && d.contorno.length > 0 };
+}
+
+/** Punto de la rejilla N×N de las flechas «solo corte» (como en numerics/slice: c dentro de Ω). */
+function puntoDeRejillaCorte(e: EstadoExperimento, total: number, nodo: number): Vec3 {
+  const N = Math.round(Math.sqrt(total));
+  const { u, v, n } = EJES_PLANO[e.corte.plano];
+  const d = e.dominio;
+  const coord = (k: number, i: number) => (N === 1 ? ((d.min[k] as number) + (d.max[k] as number)) / 2 : (d.min[k] as number) + (((d.max[k] as number) - (d.min[k] as number)) * i) / (N - 1));
+  const q: [number, number, number] = [0, 0, 0];
+  q[u] = coord(u, nodo % N);
+  q[v] = coord(v, Math.floor(nodo / N));
+  q[n] = Math.min(d.max[n] as number, Math.max(d.min[n] as number, e.corte.c));
+  return q;
 }
 
 export function App({ fuentes }: Props) {
@@ -164,13 +179,14 @@ export function App({ fuentes }: Props) {
   }, [animacion, controlador]);
   const valoresParametros = useMemo(() => Float64Array.from(estado.parametros.map((p) => p.valor)), [estado.parametros]);
   const punto = estado.punto;
-  // Rueda en P: eje = sentido de ∇×F(P), ω = ½‖∇×F(P)‖ (SPEC §3.4).
-  const rueda = useMemo(() => {
+  // Valores en P (INS-02): se recalculan en vivo con los parámetros.
+  const inspeccion = useMemo(() => {
     if (!campo || !punto) return null;
     const L = Math.min(...[0, 1, 2].map((k) => (dominio.max[k] as number) - (dominio.min[k] as number))) / 2;
-    const d = derivadasEnPunto(campo, punto[0], punto[1], punto[2], valoresParametros, L);
-    return d.definido && !d.anguloso ? datosRueda(rotacional(d.J)) : null;
+    return inspeccionar(campo, valoresParametros, punto, L);
   }, [campo, punto, valoresParametros, dominio]);
+  // Rueda en P: eje = sentido de ∇×F(P), ω = ½‖∇×F(P)‖ (SPEC §3.4).
+  const rueda = useMemo(() => (inspeccion && conDerivadas(inspeccion) ? datosRueda(inspeccion.derivadas.rot) : null), [inspeccion]);
   const capaParticulas = estado.capas.particulas;
   const opcionesParticulas = estado.particulas;
   const definicion = estado.campo;
@@ -195,6 +211,100 @@ export function App({ fuentes }: Props) {
     controlador?.fijarRueda(rueda && punto && malla ? { centro: punto, eje: rueda.eje, radio: 0.45 * malla.deltaRef, omega: rueda.omega } : null);
   }, [controlador, rueda, punto, malla]);
   const hayAnimacion = capaParticulas || rueda !== null;
+
+  // Marcas de P (INS-01): aro, cruz, rótulo y glifo exacto del modo vigente (F o rot F).
+  const modoGlifosP = estado.capas.glifos;
+  const modoLongitud = estado.flechas.modo;
+  const modoLuminancia = estado.flechas.luminancia;
+  useEffect(() => {
+    if (!controlador) return;
+    if (!inspeccion || !malla) {
+      controlador.fijarSeleccion(null);
+      return;
+    }
+    let flecha = null;
+    const rot = modoGlifosP === 'rotacional';
+    const v = !inspeccion.definido ? null : rot ? (conDerivadas(inspeccion) ? inspeccion.derivadas.rot : null) : inspeccion.F;
+    if (v) {
+      const m = Math.hypot(v[0], v[1], v[2]);
+      flecha = calcularFlechas(
+        { total: 1, pos: inspeccion.punto, F: v, mag: [m], clase: [CLASE.VALIDO] },
+        { fRef: malla.escalaGlifos.ref, modo: modoLongitud, luminancia: modoLuminancia, lMax: malla.lMax },
+      );
+      if (rot) flecha.anillos = anillosRotacional(flecha, malla.lMax);
+    }
+    controlador.fijarSeleccion({ punto: inspeccion.punto, dominio, flecha });
+  }, [controlador, inspeccion, malla, dominio, modoGlifosP, modoLongitud, modoLuminancia]);
+
+  // Elegir P con un clic (flecha → su nodo exacto; plano de corte → punto del plano) y moverlo
+  // con Alt + flechas / Alt + RePág / AvPág en pasos de Δ (F7).
+  useEffect(() => {
+    if (!controlador) return;
+    const quitarClic = controlador.alClic((x, y) => {
+      const sel = controlador.elegir(x, y);
+      const m = almacenCalculo.obtener().malla;
+      let P: Vec3 | null = null;
+      if (sel?.tipo === 'flecha' && m) P = [m.pos[3 * sel.nodo] as number, m.pos[3 * sel.nodo + 1] as number, m.pos[3 * sel.nodo + 2] as number];
+      else if (sel?.tipo === 'flechaCorte' && m?.corte) P = puntoDeRejillaCorte(almacen.obtener(), m.corte.total, sel.nodo);
+      else if (sel?.tipo === 'corte') P = sel.punto;
+      if (P) {
+        const q = P;
+        almacen.fijar((s) => fijarPunto(s, q));
+      }
+    });
+    const quitarTecla = controlador.alTecla((e) => {
+      const delta = almacenCalculo.obtener().malla?.deltaRef;
+      if (e.altKey && delta) {
+        const mov: Record<string, [0 | 1 | 2, number]> = {
+          ArrowLeft: [0, -1],
+          ArrowRight: [0, 1],
+          ArrowDown: [1, -1],
+          ArrowUp: [1, 1],
+          PageDown: [2, -1],
+          PageUp: [2, 1],
+        };
+        const m = mov[e.key];
+        if (m) {
+          e.preventDefault();
+          almacen.fijar((s) => moverPunto(s, m[0], m[1] * delta));
+        }
+      } else if (e.key === 'Escape' && almacen.obtener().punto) {
+        almacen.fijar((s) => fijarPunto(s, null));
+      }
+    });
+    return () => {
+      quitarClic();
+      quitarTecla();
+    };
+  }, [controlador, almacen, almacenCalculo]);
+  const [enfocarInspector, setEnfocarInspector] = useState(0);
+  const abrirInspector = useCallback(() => {
+    almacen.fijar((s) => (s.punto ? s : fijarPunto(s, centroDominio(s.dominio))));
+    setEnfocarInspector((n) => n + 1);
+  }, [almacen]);
+  const cerrarInspector = useCallback(() => {
+    almacen.fijar((s) => fijarPunto(s, null));
+    document.querySelector<HTMLElement>('[data-prueba="lienzo"]')?.focus();
+  }, [almacen]);
+  const alPuntoInspector = useCallback((p: Vec3) => almacen.fijar((s) => fijarPunto(s, p)), [almacen]);
+  const copiarValores = useCallback(
+    (texto: string) => {
+      const avisar = (ok: boolean) => notificador.notificar({ tipo: ok ? 'exito' : 'error', texto: ok ? T.inspector.copiados : T.inspector.noCopiados, clave: 'copiar' });
+      // Portapapeles asíncrono y, si no está (algunos navegadores con file://), el método clásico.
+      const clasico = () => {
+        const area = document.createElement('textarea');
+        area.value = texto;
+        document.body.appendChild(area);
+        area.select();
+        const ok = document.execCommand('copy');
+        area.remove();
+        avisar(ok);
+      };
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(texto).then(() => avisar(true), clasico);
+      else clasico();
+    },
+    [notificador],
+  );
   useEffect(() => {
     animacion.fijarEnMarcha(animando);
     controlador?.fijarPausaRueda(!animando);
@@ -211,9 +321,10 @@ export function App({ fuentes }: Props) {
       p: () => almacen.fijar((s) => fijarCapa(s, 'particulas', !s.capas.particulas)),
       g: () => almacen.fijar((s) => fijarGlifos(s, s.capas.glifos === 'campo' ? 'rotacional' : 'campo')),
       c: () => almacen.fijar((s) => fijarCorte(s, { activo: !s.corte.activo })),
+      i: abrirInspector,
       ' ': conmutarAnimacion,
     }),
-    [almacen, conmutarAnimacion],
+    [almacen, conmutarAnimacion, abrirInspector],
   );
   useAtajos(restablecer.camara, vista, atajosLetras);
   const parametrosPorDefecto = estado.parametros.every((p) => p.valor === p.porDefecto);
@@ -252,7 +363,9 @@ export function App({ fuentes }: Props) {
       camara: () => controlador.obtenerCamara(),
       proyectar: (x: number, y: number, z: number) => controlador.proyectar([x, y, z]),
       auditarEscena: () => controlador.auditarEscena(),
+      elegir: (x: number, y: number) => controlador.elegir(x, y),
       conosProyectados: () => controlador.conosProyectados(),
+      flechaDibujada: (k: number, seleccion?: boolean) => controlador.flechaDibujada(k, seleccion),
       /** Reloj determinista de la animación: avanza `segundos` en pasos de 1/60 s. */
       avanzarAnimacion: (segundos: number) => animacion.avanzarFijo(segundos),
       animacion: () => ({ enMarcha: animacion.enMarcha, tau: animacion.tau, tiempo: animacion.tiempo, anguloRueda: animacion.anguloRueda }),
@@ -522,9 +635,21 @@ export function App({ fuentes }: Props) {
             {animando ? T.vistas.enMarcha : T.vistas.enPausa}
           </p>
         ) : null}
+        {inspeccion && malla ? (
+          <Inspector
+            inspeccion={inspeccion}
+            cifras={estado.cifras}
+            fRef={malla.escala.ref}
+            dominio={dominio}
+            enfocar={enfocarInspector}
+            alPunto={alPuntoInspector}
+            alCerrar={cerrarInspector}
+            alCopiar={copiarValores}
+          />
+        ) : null}
         {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} alFijarVRef={fijarVRef} /> : null}
         <div className="esquina-inferior-derecha">
-          <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} />
+          <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} alInspeccionar={abrirInspector} />
           <Triedro controlador={controlador} />
         </div>
       </VistaEscena>

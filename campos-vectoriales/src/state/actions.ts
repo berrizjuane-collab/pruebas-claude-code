@@ -218,3 +218,26 @@ export function fijarCifras(s: EstadoExperimento, cifras: number): EstadoExperim
   if (!(c >= 2 && c <= 8) || c === s.cifras) return s;
   return { ...s, cifras: c };
 }
+
+/** Punto inspeccionado P (INS-01): dentro de Ω, o null para cerrar el inspector. */
+export function fijarPunto(s: EstadoExperimento, p: Vec3 | null): EstadoExperimento {
+  if (p === null) return s.punto === null ? s : { ...s, punto: null };
+  const dentro = [0, 1, 2].every((k) => Number.isFinite(p[k]) && (p[k] as number) >= (s.dominio.min[k] as number) - 1e-12 && (p[k] as number) <= (s.dominio.max[k] as number) + 1e-12);
+  if (!dentro) return s;
+  if (s.punto && s.punto.every((v, k) => v === p[k])) return s;
+  return { ...s, punto: [p[0], p[1], p[2]] };
+}
+
+/** P desplazado `pasos` celdas Δ en el eje `k`, sin salir de Ω (Alt + flechas, F7.3). */
+export function moverPunto(s: EstadoExperimento, k: 0 | 1 | 2, delta: number): EstadoExperimento {
+  const base: Vec3 = s.punto ?? (centroDominio(s.dominio) as Vec3);
+  const q: [number, number, number] = [base[0], base[1], base[2]];
+  q[k] = Math.min(s.dominio.max[k] as number, Math.max(s.dominio.min[k] as number, Number((q[k] + delta).toPrecision(12))));
+  return fijarPunto(s, q);
+}
+
+/** Centro de Ω, o el origen si está dentro (punto de partida del inspector por teclado). */
+export function centroDominio(d: Dominio): Vec3 {
+  const dentro = [0, 1, 2].every((k) => (d.min[k] as number) <= 0 && 0 <= (d.max[k] as number));
+  return dentro ? [0, 0, 0] : ([0, 1, 2].map((k) => ((d.min[k] as number) + (d.max[k] as number)) / 2) as unknown as Vec3);
+}

@@ -37,7 +37,8 @@ const PREPARAR = {
     await page.locator('[data-campo="rotacional"]').click();
     await esperarCalculo(page);
     await page.evaluate(() => window.__campos.fijarEstado((s) => ({ ...s, punto: [1, 0, 0] })));
-    await page.waitForFunction(() => window.__campos.escena().rueda?.visible === true);
+    await page.waitForFunction(() => window.__campos.escena().rueda?.visible === true && window.__campos.escena().seleccion?.flecha === true);
+    await page.locator('[data-prueba="inspector"]').waitFor();
   },
   // Radial saliente con la densidad máxima, 21³ (estrés visual, VV-05).
   C7: async (page) => {

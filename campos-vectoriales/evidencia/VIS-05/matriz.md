@@ -3,13 +3,13 @@
 Fecha: 2026-10-02 · Chromium 1194 (SwiftShader) · servidor de desarrollo y HTML autocontenido.
 
 Para cada fila de la tabla de codificación (DESIGN §9.1) se indica qué la comprueba y qué señal no
-tonal la identifica. Las pruebas citadas están en `tests/e2e/h1.spec.ts` (H1), `h4.spec.ts` (H4) y
-`h5.spec.ts` (H5), y en las pruebas unitarias de `src/` (Vitest). «Superada» significa que la prueba
+tonal la identifica. Las pruebas citadas están en `tests/e2e/h1.spec.ts` (H1), `h4.spec.ts` (H4),
+`h5.spec.ts` (H5), `h6.spec.ts` y `coherencia.spec.ts` (H6), y en las pruebas unitarias de `src/` (Vitest). «Superada» significa que la prueba
 automática pasa y que la revisión de las capturas de REV-03 lo confirma.
 
 | # | Variable visual · marca | Significado | Señal no tonal | Escena de prueba | Comprobación | Resultado |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Orientación del glifo · flecha | Dirección de F (o de ∇×F con «Glifos: rot F») | Forma (eje de la flecha) | Helicoidal; campo con ∇×F = (2x, 0, −2z) | V-FUN-05 (H1): dirección = F/‖F‖ (10⁻⁶ rad); `rotacional.test.ts`: dirección = ∇×F/‖∇×F‖ | Superada |
+| 1 | Orientación del glifo · flecha | Dirección de F (o de ∇×F con «Glifos: rot F») | Forma (eje de la flecha) | Helicoidal; campo con ∇×F = (2x, 0, −2z) | V-FUN-05: REN-02 (H1) y INS-03 (H6), con la geometría leída de los búferes de la GPU en todas las flechas de los 6 campos y T6: dirección = F/‖F‖ (peor 2.7 × 10⁻⁷ rad); `rotacional.test.ts`: dirección = ∇×F/‖∇×F‖ | Superada |
 | 2 | Punta cónica · flecha | Sentido | Forma (cono) + base oscura y degradado al apuntar a la cámara | C1 | VV-05: cono ≥ 6 px en el 97.9 % de las flechas delanteras legibles por su geometría; muestra manual de 20 flechas: 20 identificables | Superada (criterio revisado, D-37) |
 | 3 | Longitud · flecha | ‖F‖ (proporcional, saturada en F_ref) | Longitud | Escala fija entre campos | REN-04: ℓ = ℓmax·min(‖F‖/F_ref, 1) con error < 10⁻⁶; normalizada: 0.75 ℓmax constante | Superada |
 | 4 | Luminancia, banda clara · flechas y glifos | ‖F‖ o ‖∇×F‖, según el modo | Texto de la leyenda («‖F‖» o «‖rot F‖», F_ref o C_ref) | Helicoidal y rotacional con «Glifos: rot F» | REN-04 (gris = rampa ± 1/255, lineal y log); REN-07 (leyenda con ‖rot F‖ y C_ref = 2); los dos modos son excluyentes | Superada |
@@ -26,7 +26,7 @@ automática pasa y que la revisión de las capturas de REV-03 lo confirma.
 | 15 | Curva discontinua · corte | Nivel cero del escalar | Forma (discontinua) | T6 | V-FUN-07: todos los puntos en x = −0.5 ± 1 celda; trazo en el 60 % de las filas (6-4) | Superada |
 | 16 | Glifos +/−, ⊙/⊗, ↺/↻ · corte | Signo de div, de F·n y de (∇×F)·n | Forma | T6, (0, 0, x), rotacional ω = ±1 | REN-06: formas por signo en las tres magnitudes; ‖F‖ sin signos | Superada |
 | 17 | Anillo con flecha · glifo de rot F | Sentido de giro (mano derecha) | Forma (puntas en el anillo) | Rotacional ω = ±1 | REN-07 (Vitest y e2e): antihorario visto desde +z con ω = 1, horario con ω = −1; puntas delanteras hacia la cámara | Superada |
-| 18 | Aro + cruz + etiqueta «P» · punto | Punto inspeccionado | Forma + texto | — | Pertenece a INS-01/INS-02 (H6). La rueda de paletas en P ya se dibuja (V-FUN-08) | Pendiente de H6 |
+| 18 | Aro + cruz + etiqueta «P» · punto | Punto inspeccionado | Forma (aro de 14 px siempre visible) + geometría (cruz discontinua de cara a cara) + texto «P» | Helicoidal (clic en una flecha); rotacional en P = (1, 0, 0) (C4) | INS-01: aro, cruz discontinua con sus tres tramos de cara a cara de Ω, rótulo y glifo exacto en P; INS-03: el glifo exacto en un nodo es idéntico a la flecha de la rejilla (10⁻⁶); revisión de C4 en V1–V3 | Superada |
 | 19 | Letra + estilo de línea · ejes | x continuo · y discontinuo · z punteado | Forma (estilo) + texto | Escena inicial | REN-01 (H1); REV-03: los rótulos de un eje que apunta a la cámara se ocultan | Superada |
 
 ## «Nunca significa» y «prohibido en la escena»
@@ -59,5 +59,5 @@ automática pasa y que la revisión de las capturas de REV-03 lo confirma.
 
 ## Resumen
 
-18 de 19 filas superadas; la fila 18 (punto P) corresponde a H6 y se comprobará en INS-01, INS-03 y
-REV-04. Ninguna variable visual tiene dos significados simultáneos sin explicación en la leyenda.
+19 de 19 filas superadas (la fila 18, el punto P, se cerró en H6 con INS-01, INS-03 y la captura C4;
+REV-04 la revisará de nuevo). Ninguna variable visual tiene dos significados simultáneos sin explicación en la leyenda.

@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { escena as colores } from '../design/tokens';
-import type { Dominio, Vec3 } from '../math/tipos';
+import { EJES_PLANO, type Dominio, type Vec3 } from '../math/tipos';
 import {
   VISTAS,
   centroDominio,
@@ -28,6 +28,7 @@ import { CapaCorte, type DatosCorte } from './layers/corte';
 import type { DatosEscalar } from './layers/escalar';
 import { CapaParticulas, type DatosParticulas } from './layers/particulas';
 import { CapaRueda, type DatosRueda } from './layers/rueda';
+import { CapaSeleccion, type DatosSeleccion } from './layers/seleccion';
 import { factorEscalaSprites } from './text/etiquetas';
 
 export interface OpcionesControlador {
@@ -40,11 +41,13 @@ export interface EstadoCamara {
   objetivo: Vec3;
 }
 
-export interface Seleccion {
-  tipo: 'flecha';
-  flecha: number;
-  nodo: number;
-}
+/** Lo que hay bajo un punto de la pantalla (INS-01): la intersección más cercana a la cámara. */
+export type Seleccion =
+  | { tipo: 'flecha'; flecha: number; nodo: number }
+  /** Flecha «solo corte»: índice del punto en la rejilla N×N del plano. */
+  | { tipo: 'flechaCorte'; flecha: number; nodo: number }
+  /** Punto del plano de corte (dentro de su rectángulo). */
+  | { tipo: 'corte'; punto: Vec3 };
 
 const FOV = 35;
 const DURACION_TRANSICION = 400;
@@ -59,6 +62,7 @@ export class ControladorEscena {
   readonly corte = new CapaCorte();
   readonly particulas = new CapaParticulas();
   readonly rueda = new CapaRueda();
+  readonly seleccion = new CapaSeleccion();
   private readonly ejes = new CapaEjes();
   private dominio: Dominio = { min: [-2, -2, -2], max: [2, 2, 2] };
   private raf = 0;
@@ -105,7 +109,7 @@ export class ControladorEscena {
       this.transicion = null;
     });
     // Las líneas, antes que las flechas: con ambas capas, las flechas quedan encima (DESIGN §9.4).
-    this.escena.add(this.ejes.grupo, this.lineas.grupo, this.flechas.grupo, this.corte.grupo, this.particulas.grupo, this.rueda.grupo);
+    this.escena.add(this.ejes.grupo, this.lineas.grupo, this.flechas.grupo, this.corte.grupo, this.particulas.grupo, this.rueda.grupo, this.seleccion.grupo);
     this.observador = new ResizeObserver(() => this.redimensionar());
     this.observador.observe(lienzo.parentElement ?? lienzo);
     this.redimensionar();
@@ -115,6 +119,7 @@ export class ControladorEscena {
       this.ejes.rasterizarDeNuevo();
       this.corte.rerasterizar();
       this.rueda.rerasterizar();
+      this.seleccion.rerasterizar();
       this.pedirFotograma();
     });
   }
@@ -166,6 +171,12 @@ export class ControladorEscena {
   /** Rueda de paletas en P (o null), su ángulo y si está en pausa (flecha curva de sentido). */
   fijarRueda(d: DatosRueda | null): void {
     this.rueda.fijar(d);
+    this.pedirFotograma();
+  }
+
+  /** Punto inspeccionado P: aro, cruz, rótulo y glifo exacto (o null). */
+  fijarSeleccion(d: DatosSeleccion | null): void {
+    this.seleccion.fijar(d);
     this.pedirFotograma();
   }
 
@@ -324,6 +335,11 @@ export class ControladorEscena {
     return res;
   }
 
+  /** Flecha k tal como se envía a la GPU: de la rejilla o, con `seleccion`, el glifo exacto en P. */
+  flechaDibujada(k: number, seleccion = false) {
+    return (seleccion ? this.seleccion.flecha : this.flechas).dibujada(k);
+  }
+
   /** Posición en pantalla (px CSS relativos al lienzo) de un punto del dominio. */
   proyectar(p: Vec3): [number, number] {
     this.camara.updateMatrixWorld();
@@ -349,18 +365,79 @@ export class ControladorEscena {
     for (const fn of this.escuchasCamara) fn();
   }
 
-  /** Flecha bajo un punto de la pantalla (coordenadas CSS relativas al lienzo). */
+  /**
+   * Lo que hay bajo un punto de la pantalla (coordenadas CSS relativas al lienzo), INS-01: una
+   * flecha del volumen, una flecha «solo corte» o el plano de corte, la más cercana a la cámara.
+   */
   elegir(xCss: number, yCss: number): Seleccion | null {
     const ndc = new THREE.Vector2((xCss / this.anchoCss) * 2 - 1, -(yCss / this.altoCss) * 2 + 1);
     const rayo = new THREE.Raycaster();
+    this.camara.updateMatrixWorld();
     rayo.setFromCamera(ndc, this.camara);
-    const impactos = rayo.intersectObjects([this.flechas.conos, this.flechas.cilindros], false);
-    for (const i of impactos) {
-      const f = this.flechas.flechaDeInterseccion(i.object, i.instanceId);
-      const inst = this.flechas.instancias;
-      if (f >= 0 && inst) return { tipo: 'flecha', flecha: f, nodo: inst.nodo[f] as number };
+    let mejor: { distancia: number; sel: Seleccion } | null = null;
+    const proponer = (distancia: number, sel: Seleccion) => {
+      if (!mejor || distancia < mejor.distancia) mejor = { distancia, sel };
+    };
+    for (const [capa, tipo] of [
+      [this.flechas, 'flecha'],
+      [this.corte.flechas, 'flechaCorte'],
+    ] as const) {
+      const inst = capa.instancias;
+      if (!inst || !capa.grupo.visible || !capa.grupo.parent?.visible) continue;
+      for (const i of rayo.intersectObjects([capa.conos, capa.cilindros], false)) {
+        const f = capa.flechaDeInterseccion(i.object, i.instanceId);
+        if (f >= 0) {
+          proponer(i.distance, { tipo, flecha: f, nodo: inst.nodo[f] as number });
+          break;
+        }
+      }
     }
-    return null;
+    const plano = this.corte.planoActivo;
+    if (plano) {
+      const k = EJES_PLANO[plano.plano].n;
+      const o = rayo.ray.origin.getComponent(k);
+      const d = rayo.ray.direction.getComponent(k);
+      if (Math.abs(d) > 1e-12) {
+        const t = (plano.c - o) / d;
+        if (t > 0) {
+          const p = rayo.ray.at(t, new THREE.Vector3());
+          const q: [number, number, number] = [p.x, p.y, p.z];
+          q[k] = plano.c;
+          const dentro = [0, 1, 2].every((j) => j === k || (q[j] >= (plano.dominio.min[j] as number) && q[j] <= (plano.dominio.max[j] as number)));
+          if (dentro) proponer(t, { tipo: 'corte', punto: q });
+        }
+      }
+    }
+    return (mejor as { distancia: number; sel: Seleccion } | null)?.sel ?? null;
+  }
+
+  /** Teclas pulsadas con el lienzo enfocado (Alt + flechas mueve P, Esc lo descarta). */
+  alTecla(fn: (e: KeyboardEvent) => void): () => void {
+    this.lienzo.addEventListener('keydown', fn);
+    return () => this.lienzo.removeEventListener('keydown', fn);
+  }
+
+  /** Clics sobre el lienzo (sin arrastre): para elegir P (INS-01). */
+  alClic(fn: (xCss: number, yCss: number) => void): () => void {
+    let inicio: { x: number; y: number; t: number } | null = null;
+    const abajo = (e: PointerEvent) => {
+      inicio = e.button === 0 ? { x: e.clientX, y: e.clientY, t: performance.now() } : null;
+    };
+    const arriba = (e: PointerEvent) => {
+      if (!inicio || e.button !== 0) return;
+      const movido = Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y);
+      const rapido = performance.now() - inicio.t < 600;
+      inicio = null;
+      if (movido > 4 || !rapido) return;
+      const r = this.lienzo.getBoundingClientRect();
+      fn(e.clientX - r.left, e.clientY - r.top);
+    };
+    this.lienzo.addEventListener('pointerdown', abajo);
+    this.lienzo.addEventListener('pointerup', arriba);
+    return () => {
+      this.lienzo.removeEventListener('pointerdown', abajo);
+      this.lienzo.removeEventListener('pointerup', arriba);
+    };
   }
 
   pedirFotograma(): void {
@@ -396,6 +473,8 @@ export class ControladorEscena {
     this.flechas.orientarAnillos(this.camara.position);
     this.corte.ajustar(this.camara, k, this.pixelesPorUnidad(), this.anchoCss, this.altoCss);
     this.rueda.ajustar(this.camara, k, this.pixelesPorUnidad());
+    this.seleccion.ajustar(k, this.pixelesPorUnidad(), this.anchoCss, this.altoCss);
+    this.seleccion.flecha.orientarAnillos(this.camara.position);
     this.renderer.render(this.escena, this.camara);
     this.fotogramasDibujados++;
   }
@@ -416,6 +495,7 @@ export class ControladorEscena {
     this.corte.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
     this.particulas.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
     this.rueda.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
+    this.seleccion.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
     this.pedirFotograma();
   }
 
@@ -430,6 +510,7 @@ export class ControladorEscena {
       corte: this.corte.estadisticas,
       particulas: this.particulas.estadisticas,
       rueda: this.rueda.estadisticas,
+      seleccion: this.seleccion.estadisticas,
       tamano: [this.anchoCss, this.altoCss, this.pixelRatio],
       camara: this.obtenerCamara(),
     };
@@ -445,6 +526,7 @@ export class ControladorEscena {
     this.corte.dispose();
     this.particulas.dispose();
     this.rueda.dispose();
+    this.seleccion.dispose();
     this.ejes.dispose();
     this.renderer.dispose();
   }

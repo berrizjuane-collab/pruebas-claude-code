@@ -146,6 +146,11 @@ export class CapaCorte {
     this.escalar.setResolucion(anchoPx, altoPx, pixelRatio);
   }
 
+  /** Plano visible (para elegir puntos sobre él), o null. */
+  get planoActivo(): DatosCorte | null {
+    return this.grupo.visible ? this.datos : null;
+  }
+
   get rotulo(): string | null {
     return this.datos ? rotuloCorte(this.datos.plano, this.datos.c) : null;
   }

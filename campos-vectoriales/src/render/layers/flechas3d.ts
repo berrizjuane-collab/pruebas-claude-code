@@ -203,6 +203,12 @@ export class CapaFlechas {
     this.conos.instanceMatrix.needsUpdate = true;
     if (this.cilindros.instanceColor) this.cilindros.instanceColor.needsUpdate = true;
     if (this.conos.instanceColor) this.conos.instanceColor.needsUpdate = true;
+    // El raycast de InstancedMesh guarda su esfera envolvente la primera vez: se invalida con
+    // cada lote de instancias para que la selección por clic (INS-01) vea las flechas nuevas.
+    for (const o of [this.cilindros, this.conos]) {
+      o.boundingSphere = null;
+      o.boundingBox = null;
+    }
 
     const gris = hexARgb(escena.cero)[0] / 255;
     const ceros = glifosUniformes(d.ceros, FORMA.ROMBO, 9, gris);
@@ -305,6 +311,47 @@ export class CapaFlechas {
 
   get instancias(): InstanciasFlechas | null {
     return this.datos;
+  }
+
+  /**
+   * Flecha k tal como se envía a la GPU (INS-03, T-17): se lee de los búferes de instancia
+   * (float32), no de los datos del cálculo. Centro, dirección, longitud (cilindro + cono),
+   * puntas y gris sRGB de la instancia.
+   */
+  dibujada(k: number): { centro: number[]; dir: number[]; largo: number; puntas: number; gris: number; desfaseCono: number; alineacion: number } | null {
+    if (k < 0 || k >= this.cilindros.count) return null;
+    const m = new THREE.Matrix4();
+    const p = new THREE.Vector3();
+    const q = new THREE.Quaternion();
+    const s = new THREE.Vector3();
+    this.cilindros.getMatrixAt(k, m);
+    m.decompose(p, q, s);
+    const dir = new THREE.Vector3(0, 1, 0).applyQuaternion(q);
+    const conos: number[] = [];
+    for (let i = 0; i < this.conos.count; i++) if (this.conoAFlecha[i] === k) conos.push(i);
+    if (!conos.length) return null;
+    // ℓ = cilindro + cono (las dos escalas, sin restar posiciones); el cono delantero debe
+    // empezar donde acaba el cilindro (desfase ≈ 0) y estar alineado con él.
+    const mc = new THREE.Matrix4();
+    const pc = new THREE.Vector3();
+    const qc = new THREE.Quaternion();
+    const sc = new THREE.Vector3();
+    let frente = -Infinity;
+    let alineacion = 1;
+    for (const i of conos) {
+      this.conos.getMatrixAt(i, mc);
+      mc.decompose(pc, qc, sc);
+      const eje = pc.clone().sub(p);
+      frente = Math.max(frente, eje.dot(dir));
+      alineacion = Math.min(alineacion, new THREE.Vector3(0, 1, 0).applyQuaternion(qc).dot(dir));
+    }
+    const largo = s.y + sc.y;
+    const color = new THREE.Color();
+    this.cilindros.getColorAt(k, color);
+    const srgb = { r: 0, g: 0, b: 0 };
+    color.getRGB(srgb, THREE.SRGBColorSpace);
+    const centro = p.clone().addScaledVector(dir, largo / 2);
+    return { centro: centro.toArray(), dir: dir.toArray(), largo, puntas: conos.length, gris: srgb.r, desfaseCono: frente - s.y, alineacion };
   }
 
   setVisible(v: boolean): void {
