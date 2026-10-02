@@ -9,10 +9,10 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 a H7 completados; H8 en curso |
+| **Fase** | Implementación — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9 en curso |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H8: teclado, foco y atajos completos (A11Y-01), lector de pantalla y contraste (A11Y-02), pantallas pequeñas (UI-06) y revisión visual transversal (VIS-06) |
-| **Bloqueos** | Ninguno |
+| **Siguiente paso** | H9: baterías completas matemática, funcional y de rendimiento (VAL-01 … VAL-03), revisión visual final (REV-04), HTML final (ENT-01) y documentación (DOC-01) |
+| **Bloqueos** | Ninguno para H9. A11Y-02 (y por tanto la revisión final REV-04) necesita la sesión con lector de pantalla en el equipo del usuario (Q-04) |
 
 ### 1.1 Estado por hito
 
@@ -27,7 +27,7 @@
 | H5 Capas científicas | 9 | 9/9 | — |
 | H6 Inspección | 3 | 3/3 | — |
 | H7 Exportación | 3 | 3/3 | — |
-| H8 Transversal | 4 | 0/4 | — |
+| H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
 | H9 Validación | 6 | 0/6 | Incluye ENT-01 (HTML autocontenido) |
 
 ### 1.2 Tareas completadas y verificadas
@@ -77,6 +77,9 @@
 - EXP-01 · 2026-10-02 · `1a6c6a5` · [evidencia/EXP-01/](evidencia/EXP-01/)
 - EXP-02 · 2026-10-02 · `1a6c6a5` · [evidencia/EXP-02/](evidencia/EXP-02/)
 - EXP-03 · 2026-10-02 · `1a6c6a5` · [evidencia/EXP-03/](evidencia/EXP-03/)
+- UI-06 · 2026-10-02 · `61c2549` · [evidencia/UI-06/](evidencia/UI-06/)
+- A11Y-01 · 2026-10-02 · `61c2549` · [evidencia/A11Y-01/](evidencia/A11Y-01/)
+- VIS-06 · 2026-10-02 · `61c2549` · [evidencia/VIS-06/](evidencia/VIS-06/)
 
 ---
 
@@ -293,6 +296,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-02 | H5 completado y verificado: líneas de corriente, magnitud y escala, cortes, mapa escalar, rot F, rueda de paletas, partículas y leyenda completa; decisiones D-37 … D-45 |
 | 2026-10-02 | H6 completado y verificado: selección de puntos, tarjeta del inspector y coherencia ecuaciones–geometría–leyenda–inspector en los 6 campos y T6; decisiones D-46 … D-48 |
 | 2026-10-02 | H7 completado y verificado: configuración JSON v1 con validación estricta, autoguardado con recuperación y exportación PNG compuesta en tres tamaños; decisiones D-49 … D-52 |
+| 2026-10-02 | H8: UI-06, A11Y-01 y VIS-06 completados y verificados; A11Y-02 con la parte automática superada (axe, regiones vivas, VV-10) y V-A11Y-04 pendiente del usuario; decisiones D-53 … D-56; RF-13 (ortográfica) completado |
 
 ---
 

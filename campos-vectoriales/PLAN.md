@@ -396,10 +396,10 @@ aceptación con la evidencia indicada.
 | EXP-01 | Configuración JSON v1 | H7 | UI-05 | Completada y verificada |
 | EXP-02 | Autoguardado y recuperación | H7 | EXP-01 | Completada y verificada |
 | EXP-03 | Exportación PNG compuesta | H7 | VIS-05 | Completada y verificada |
-| A11Y-01 | Teclado, foco y atajos | H8 | INS-01, UI-08 | Pendiente |
-| A11Y-02 | ARIA, lector de pantalla y movimiento reducido | H8 | REN-08, A11Y-01 | Pendiente |
-| UI-06 | Cajón de ayuda y ayuda contextual | H8 | VIS-02, MAT-04 | Pendiente |
-| VIS-06 | Adaptación a pantallas | H8 | INS-02, UI-08 | Pendiente |
+| A11Y-01 | Teclado, foco y atajos | H8 | INS-01, UI-08 | Completada y verificada |
+| A11Y-02 | ARIA, lector de pantalla y movimiento reducido | H8 | REN-08, A11Y-01 | Parcial: falta V-A11Y-04 (sesión con lector del usuario, Q-04) |
+| UI-06 | Cajón de ayuda y ayuda contextual | H8 | VIS-02, MAT-04 | Completada y verificada |
+| VIS-06 | Adaptación a pantallas | H8 | INS-02, UI-08 | Completada y verificada |
 | VAL-01 | Batería matemática y numérica completa | H9 | MAT-05, NUM-02 … NUM-06 | Pendiente |
 | VAL-02 | Batería funcional de extremo a extremo | H9 | H4 … H8 | Pendiente |
 | VAL-03 | Medición de rendimiento | H9 | CMP-02, H5 | Pendiente |
@@ -914,7 +914,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e que lee el archivo descargado.
 - **Evidencia**: PNG exportados + auditoría.
 
-#### A11Y-01 · Teclado, foco y atajos — Pendiente
+#### A11Y-01 · Teclado, foco y atajos — Completada y verificada
 - **Objetivo**: §3.1 completo; foco visible y nunca tapado.
 - **Dependencias**: INS-01, UI-08.
 - **Componentes**: `app/atajos.ts`, todos los componentes.
@@ -923,7 +923,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e + manual.
 - **Evidencia**: guion, salida y vídeo o capturas del recorrido.
 
-#### A11Y-02 · ARIA, lector de pantalla y movimiento reducido — Pendiente
+#### A11Y-02 · ARIA, lector de pantalla y movimiento reducido — Parcial (falta V-A11Y-04)
 - **Objetivo**: nombres accesibles, regiones vivas, resumen de la escena y movimiento reducido.
 - **Dependencias**: REN-08, A11Y-01.
 - **Componentes**: transversal.
@@ -932,7 +932,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: axe + manual.
 - **Evidencia**: salida de axe; notas de la sesión con el lector.
 
-#### UI-06 · Cajón de ayuda y ayuda contextual — Pendiente
+#### UI-06 · Cajón de ayuda y ayuda contextual — Completada y verificada
 - **Objetivo**: Conceptos, Sintaxis, Atajos y Supuestos, con accesos «?».
 - **Dependencias**: VIS-02, MAT-04.
 - **Componentes**: `ui/help/`.
@@ -942,7 +942,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e + revisión de contenido.
 - **Evidencia**: captura C6.
 
-#### VIS-06 · Adaptación a pantallas — Pendiente
+#### VIS-06 · Adaptación a pantallas — Completada y verificada
 - **Objetivo**: puntos de ruptura de DESIGN §5.4 y niveles de SPEC §9.
 - **Dependencias**: INS-02, UI-08.
 - **Componentes**: CSS de la composición, cajón y hoja inferior.
