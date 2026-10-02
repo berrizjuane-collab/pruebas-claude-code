@@ -1,0 +1,43 @@
+# INS-01 · Selección de puntos · 2026-10-02T18:16:57Z
+✓  60 [chromium] › tests/e2e/h6.spec.ts:36:3 › INS-01 · selección de puntos › clic sobre una flecha: P es su nodo exacto; el aro, la cruz y la flecha exacta aparecen (4.9s)
+✓  62 [chromium] › tests/e2e/h6.spec.ts:73:3 › INS-01 · selección de puntos › clic sobre el corte: P está en el plano (|error| < Δ/100) (4.7s)
+✓  64 [chromium] › tests/e2e/h6.spec.ts:89:3 › INS-01 · selección de puntos › Alt + flechas y Alt + RePág/AvPág mueven P en pasos de Δ sin salir de Ω; I abre las coordenadas; Esc cierra (3.6s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+Criterios (PLAN §INS-01):
+1. Clic sobre la flecha visible más cercana a la cámara (nodo (2, 2, 2), en (598.6, 300.8) px del lienzo): P = su nodo exacto.
+   Aparecen el aro, la cruz discontinua (tres tramos paralelos a los ejes, de cara a cara de Ω = [−2, 2]³), el rótulo «P» y el glifo exacto en P.
+2. Clic sobre el corte z = 0.5 en el punto proyectado de (0.73, −0.41, 0.5): P = (0.7299996, −0.4100001, 0.5); |error| = 3.9 × 10⁻⁷ < Δ/100 = 5 × 10⁻³.
+3. Tecla I: P en el origen y foco en x; x = 1 con Intro; Alt+→, Alt+↑ y Alt+AvPág → (1.5, 0.5, −0.5); cuatro Alt+→ más se detienen en x = 2 (borde de Ω); Esc quita P y cierra la tarjeta.
+
+Incidencia resuelta: el raycast de three r186 sobre InstancedMesh guarda la esfera envolvente la primera vez
+(antes de que haya instancias) y descartaba todos los rayos. CapaFlechas la invalida en cada actualización.
+
+Medidas (test-results/h6-informe.json, OBJETIVO=archivo):
+{
+  "INS-01 clic flecha": {
+    "nodo": [
+      2,
+      2,
+      2
+    ],
+    "pantalla": [
+      598.6430824516269,
+      300.77323197680954
+    ]
+  },
+  "INS-01 clic corte": {
+    "meta": [
+      0.73,
+      -0.41,
+      0.5
+    ],
+    "P": [
+      0.7299996307297798,
+      -0.4100001239890565,
+      0.5
+    ],
+    "error": 3.895302063366848e-7,
+    "limite": 0.005
+  }
+}

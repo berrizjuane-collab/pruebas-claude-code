@@ -1,0 +1,60 @@
+# INS-03 · Coherencia entre ecuaciones, geometría, leyenda e inspector · 2026-10-02T18:17:12Z
+✓   1 [chromium] › tests/e2e/coherencia.spec.ts:92:5 › INS-03 · coherencia ecuaciones–geometría–leyenda–inspector › Uniforme: V-FUN-05 (todas las flechas, 20 en detalle) y V-FUN-06 (3 nodos) (4.4s)
+✓   3 [chromium] › tests/e2e/coherencia.spec.ts:92:5 › INS-03 · coherencia ecuaciones–geometría–leyenda–inspector › Radial saliente: V-FUN-05 (todas las flechas, 20 en detalle) y V-FUN-06 (3 nodos) (8.2s)
+✓   6 [chromium] › tests/e2e/coherencia.spec.ts:92:5 › INS-03 · coherencia ecuaciones–geometría–leyenda–inspector › Radial entrante: V-FUN-05 (todas las flechas, 20 en detalle) y V-FUN-06 (3 nodos) (7.1s)
+✓   9 [chromium] › tests/e2e/coherencia.spec.ts:92:5 › INS-03 · coherencia ecuaciones–geometría–leyenda–inspector › Rotacional: V-FUN-05 (todas las flechas, 20 en detalle) y V-FUN-06 (3 nodos) (8.0s)
+✓  11 [chromium] › tests/e2e/coherencia.spec.ts:92:5 › INS-03 · coherencia ecuaciones–geometría–leyenda–inspector › Helicoidal: V-FUN-05 (todas las flechas, 20 en detalle) y V-FUN-06 (3 nodos) (7.0s)
+✓  13 [chromium] › tests/e2e/coherencia.spec.ts:92:5 › INS-03 · coherencia ecuaciones–geometría–leyenda–inspector › Silla: V-FUN-05 (todas las flechas, 20 en detalle) y V-FUN-06 (3 nodos) (6.0s)
+✓  14 [chromium] › tests/e2e/coherencia.spec.ts:92:5 › INS-03 · coherencia ecuaciones–geometría–leyenda–inspector › T6: V-FUN-05 (todas las flechas, 20 en detalle) y V-FUN-06 (3 nodos) (7.5s)
+HTML autocontenido (file://, CSP estricta): 7 de 7 pruebas superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+Oráculo independiente (tests/e2e/coherencia.spec.ts): F, ‖F‖, div y rot se evalúan en la prueba a partir de
+las fórmulas; F_ref con la regla de SPEC §5.1 (P95 por rango más cercano + redondeo legible); rampa de gris
+(DESIGN §9.3) y formato numérico (DESIGN §3.3) reimplementados. La geometría de TODAS las flechas se lee de
+los búferes de instancia que se envían a la GPU (float32): centro, dirección, ℓ = cilindro + cono, puntas, gris.
+
+Comprobaciones por campo:
+- Ecuaciones: el texto de P, Q y R en el panel = las fórmulas del oráculo.
+- Leyenda: F_ref de la aplicación = F_ref del oráculo; marcas «0 · F_ref/2 · ≥ F_ref»; ℓmax = 0.9 Δ.
+- Geometría (V-FUN-05, T-17): una flecha por nodo con ‖F‖ ≥ 2 % F_ref, centrada en él, sin repetir nodo;
+  dirección, longitud y gris = F y la rampa; dos puntas si ‖F‖ ≥ F_ref; cono alineado y a continuación del cilindro.
+- Inspector (V-FUN-06) en 3 nodos: F, ‖F‖, F̂, div (con su lectura), rot = valores de tabla formateados;
+  «Derivadas analíticas»; el glifo exacto en P es idéntico a la flecha de la rejilla en ese nodo.
+
+Peores errores sobre todas las flechas (tolerancias T-17: 10⁻⁶ rad · 10⁻⁶ relativo · 1/255 ≈ 3.9 × 10⁻³):
+
+| Campo | F_ref | Marcas | Flechas | Centro | Ángulo (rad) | ℓ relativo | Gris | Desfase cono |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Uniforme | 1 | 0 · 0.5 · ≥ 1 | 729 | 8.2e-8 | 2.2e-16 | 6.0e-8 | 6.4e-7 | 3.0e-8 |
+| Radial saliente | 3 | 0 · 1.5 · ≥ 3 | 728 | 8.4e-8 | 1.5e-7 | 6.5e-8 | 5.7e-6 | 2.0e-7 |
+| Radial entrante | 3 | 0 · 1.5 · ≥ 3 | 728 | 1.5e-7 | 1.5e-7 | 6.5e-8 | 5.7e-6 | 1.0e-7 |
+| Rotacional | 2.5 | 0 · 1.25 · ≥ 2.5 | 720 | 1.0e-7 | 1.5e-7 | 4.6e-8 | 5.6e-6 | 8.4e-8 |
+| Helicoidal | 3 | 0 · 1.5 · ≥ 3 | 729 | 1.1e-7 | 2.7e-7 | 6.0e-8 | 5.9e-6 | 7.3e-8 |
+| Silla | 2.5 | 0 · 1.25 · ≥ 2.5 | 720 | 1.0e-7 | 1.5e-7 | 4.6e-8 | 5.6e-6 | 9.0e-8 |
+| T6 | 5 | 0 · 2.5 · ≥ 5 | 720 | 8.2e-8 | 2.6e-7 | 5.9e-8 | 6.0e-6 | 1.0e-7 |
+
+Inspector (valores mostrados):
+- Uniforme en (-2, -2, -2): F = (1.000, 0, 0), ‖F‖ = 1.000, div F = 0, rot F = (0, 0, 0)
+- Uniforme en (0, 0, 0): F = (1.000, 0, 0), ‖F‖ = 1.000, div F = 0, rot F = (0, 0, 0)
+- Uniforme en (2, 2, 2): F = (1.000, 0, 0), ‖F‖ = 1.000, div F = 0, rot F = (0, 0, 0)
+- Radial saliente en (-2, -2, -2): F = (−2.000, −2.000, −2.000), ‖F‖ = 3.464, div F = +3.000, rot F = (0, 0, 0)
+- Radial saliente en (0.5, 0, 0): F = (0.5000, 0, 0), ‖F‖ = 0.5000, div F = +3.000, rot F = (0, 0, 0)
+- Radial saliente en (2, 2, 2): F = (2.000, 2.000, 2.000), ‖F‖ = 3.464, div F = +3.000, rot F = (0, 0, 0)
+- Radial entrante en (-2, -2, -2): F = (2.000, 2.000, 2.000), ‖F‖ = 3.464, div F = −3.000, rot F = (0, 0, 0)
+- Radial entrante en (0.5, 0, 0): F = (−0.5000, 0, 0), ‖F‖ = 0.5000, div F = −3.000, rot F = (0, 0, 0)
+- Radial entrante en (2, 2, 2): F = (−2.000, −2.000, −2.000), ‖F‖ = 3.464, div F = −3.000, rot F = (0, 0, 0)
+- Rotacional en (-2, -2, -2): F = (2.000, −2.000, 0), ‖F‖ = 2.828, div F = 0, rot F = (0, 0, 2.000)
+- Rotacional en (0.5, 0, 0): F = (0, 0.5000, 0), ‖F‖ = 0.5000, div F = 0, rot F = (0, 0, 2.000)
+- Rotacional en (2, 2, 2): F = (−2.000, 2.000, 0), ‖F‖ = 2.828, div F = 0, rot F = (0, 0, 2.000)
+- Helicoidal en (-2, -2, -2): F = (2.000, −2.000, 0.2500), ‖F‖ = 2.839, div F = 0, rot F = (0, 0, 2.000)
+- Helicoidal en (0, 0, 0): F = (0, 0, 0.2500), ‖F‖ = 0.2500, div F = 0, rot F = (0, 0, 2.000)
+- Helicoidal en (2, 2, 2): F = (−2.000, 2.000, 0.2500), ‖F‖ = 2.839, div F = 0, rot F = (0, 0, 2.000)
+- Silla en (-2, -2, -2): F = (−2.000, 2.000, 0), ‖F‖ = 2.828, div F = 0, rot F = (0, 0, 0)
+- Silla en (0.5, 0, 0): F = (0.5000, 0, 0), ‖F‖ = 0.5000, div F = 0, rot F = (0, 0, 0)
+- Silla en (2, 2, 2): F = (2.000, −2.000, 0), ‖F‖ = 2.828, div F = 0, rot F = (0, 0, 0)
+- T6 en (-2, -2, -2): F = (4.000, −2.000, 0), ‖F‖ = 4.472, div F = −3.000, rot F = (0, 0, 0)
+- T6 en (0.5, 0, 0): F = (0.2500, 0, 0), ‖F‖ = 0.2500, div F = +2.000, rot F = (0, 0, 0)
+- T6 en (2, 2, 2): F = (4.000, 2.000, 0), ‖F‖ = 4.472, div F = +5.000, rot F = (0, 0, 0)
+
+Detalle de los 20 nodos por campo: coherencia-informe.json (campo «detalle»).
+Servidor de desarrollo: 69/69 pruebas e2e superadas en una pasada completa limpia (incluidas las 13 de H6).

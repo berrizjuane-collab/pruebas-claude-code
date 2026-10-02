@@ -1,0 +1,29 @@
+# INS-02 · Tarjeta del inspector · 2026-10-02T18:16:57Z
+✓  66 [chromium] › tests/e2e/h6.spec.ts:117:3 › INS-02 · tarjeta del inspector › V-FUN-06: rotacional ω = 1 en (1, 0, 0) y radial saliente en (1, 2, 2) muestran los valores de tabla (7.9s)
+✓  68 [chromium] › tests/e2e/h6.spec.ts:144:3 › INS-02 · tarjeta del inspector › P fuera del dominio de definición y en un punto anguloso; Esc dentro de la tarjeta la cierra (4.6s)
+✓  69 [chromium] › tests/e2e/h6.spec.ts:155:3 › INS-02 · tarjeta del inspector › «Copiar valores» copia texto tabulado y lo notifica; con «Glifos: rot F», el glifo exacto en P lleva anillo (3.9s)
+HTML autocontenido (file://, CSP estricta): 3 de 3 pruebas superadas con OBJETIVO=archivo; también en el servidor de desarrollo.
+
+V-FUN-06 (valores de tabla, SPEC §4.8):
+- Rotacional ω = 1 en (1, 0, 0): F = (0, 1.000, 0), ‖F‖ = 1.000, div F = 0 · «lo que entra sale», rot F = (0, 0, 2.000), «ω = 1.000 rad/t», «Derivadas analíticas».
+- En vivo con ω = 2: ‖F‖ = 2.000, rot F = (0, 0, 4.000).
+- Radial saliente k = 1 en (1, 2, 2): ‖F‖ = 3.000, div F = +3.000 · «fuente local: sale más de lo que entra», autovalores 1.000 · 1.000 · 1.000.
+- √x en (−1, 0, 0): «F no está definido en P». |x| en (0, 1, 0): derivadas no disponibles por punto anguloso. Esc dentro de la tarjeta la cierra.
+
+«Copiar valores» (texto tabulado copiado al portapapeles, rotacional en (1, 0, 0)):
+  P ⇥ 1.000 ⇥ 0 ⇥ 0
+  F ⇥ 0 ⇥ 1.000 ⇥ 0
+  ‖F‖ ⇥ 1.000
+  F̂ ⇥ 0 ⇥ 1.000 ⇥ 0
+  div F ⇥ 0
+  rot F ⇥ 0 ⇥ 0 ⇥ 2.000
+  F · (∇ × F) ⇥ 0
+  ω ⇥ 1.000
+  J (fila 1) ⇥ 0 ⇥ −1.000 ⇥ 0
+  J (fila 2) ⇥ 1.000 ⇥ 0 ⇥ 0
+  J (fila 3) ⇥ 0 ⇥ 0 ⇥ 0
+  Autovalores ⇥ 0 ⇥ 0 + 1.000 i ⇥ 0 − 1.000 i
+
+Captura C4 (rotacional, P = (1, 0, 0), tarjeta del inspector y rueda de paletas) en V1, V2 y V3: capturas/ y capturas.json.
+Auditorías: paleta monocroma 3/3 (0 píxeles fuera), maquetación 0 incidencias, alineación 0/22, 0 errores de consola.
+Revisión manual: aro con halo, rótulo «P», tramo vertical de la cruz y rueda con «ω = 1.000 rad/t» identificables; la tarjeta no tapa la escena central.
