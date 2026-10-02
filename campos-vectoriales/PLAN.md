@@ -361,10 +361,10 @@ aceptación con la evidencia indicada.
 | UI-01 | Selección de campo predefinido | H1 | VIS-03, MAT-01, REN-02 | Completada y verificada |
 | VIS-04 | Leyenda inicial | H1 | REN-02, VIS-03 | Completada y verificada |
 | REV-01 | Revisión de capturas de la primera entrega | H1 | FND-02, UI-01, VIS-04 | Completada y verificada |
-| MAT-02 | Analizador léxico y sintáctico | H2 | FND-01 | Pendiente |
-| MAT-03 | Compilador y evaluación | H2 | MAT-02 | Pendiente |
-| MAT-04 | Derivación simbólica, TeX y Unicode | H2 | MAT-03 | Pendiente |
-| MAT-05 | Catálogo como expresiones + contraste con oráculos | H2 | MAT-01, MAT-04 | Pendiente |
+| MAT-02 | Analizador léxico y sintáctico | H2 | FND-01 | Completada y verificada |
+| MAT-03 | Compilador y evaluación | H2 | MAT-02 | Completada y verificada |
+| MAT-04 | Derivación simbólica, TeX y Unicode | H2 | MAT-03 | Completada y verificada |
+| MAT-05 | Catálogo como expresiones + contraste con oráculos | H2 | MAT-01, MAT-04 | Completada y verificada |
 | NUM-02 | Diferencias finitas | H3 | MAT-03 | Pendiente |
 | NUM-03 | Líneas de corriente: RK4 en σ y parada | H3 | NUM-01, MAT-03 | Pendiente |
 | NUM-04 | Semillas | H3 | NUM-03 | Pendiente |
@@ -558,7 +558,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: automática + revisión manual con la plantilla de VALIDATION §7.4.
 - **Evidencia**: PNG + `informe.md`.
 
-#### MAT-02 · Analizador léxico y sintáctico — Pendiente
+#### MAT-02 · Analizador léxico y sintáctico — Completada y verificada
 - **Objetivo**: gramática de SPEC §5.2 con errores en español y posición.
 - **Dependencias**: FND-01.
 - **Componentes**: `math/expr/lexer.ts`, `parser.ts`, `ast.ts`, `errors.ts`.
@@ -568,7 +568,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida de Vitest con el recuento de casos.
 
-#### MAT-03 · Compilador y evaluación — Pendiente
+#### MAT-03 · Compilador y evaluación — Completada y verificada
 - **Objetivo**: árbol → cierres `(x, y, z, p) => número`, sin `eval`.
 - **Dependencias**: MAT-02.
 - **Componentes**: `math/expr/compile.ts`, `math/field.ts`.
@@ -578,7 +578,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`; *benchmark*.
 - **Evidencia**: salidas de las pruebas y del *benchmark*.
 
-#### MAT-04 · Derivación simbólica, TeX y Unicode — Pendiente
+#### MAT-04 · Derivación simbólica, TeX y Unicode — Completada y verificada
 - **Objetivo**: J, div y rot simbólicos; simplificación mínima; TeX y texto Unicode lineal.
 - **Dependencias**: MAT-03.
 - **Componentes**: `math/expr/diff.ts`, `simplify.ts`, `tex.ts`, `unicode.ts`.
@@ -588,7 +588,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: `npm test`.
 - **Evidencia**: salida de Vitest.
 
-#### MAT-05 · Catálogo como expresiones + contraste con oráculos — Pendiente
+#### MAT-05 · Catálogo como expresiones + contraste con oráculos — Completada y verificada
 - **Objetivo**: cada campo del catálogo se define por expresiones y se contrasta con su
   oráculo nativo.
 - **Dependencias**: MAT-01, MAT-04.
