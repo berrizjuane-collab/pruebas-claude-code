@@ -33,6 +33,8 @@ export interface OpcionesParticulas {
   vidaMax?: number;
   /** Posiciones de la estela. */
   estela?: number;
+  /** Pasos entre dos posiciones guardadas de la estela (1 = todas; la más reciente es siempre la actual). */
+  pasosPorPunto?: number;
 }
 
 export const SUBPASOS_MAX = 8;
@@ -47,6 +49,8 @@ export class SistemaParticulas {
   readonly llenado: Uint8Array;
   cabeza = 0;
   renacimientos = 0;
+  private pasos = 0;
+  private readonly pasosPorPunto: number;
   private readonly azar: () => number;
   private readonly vidaMax: number;
   private readonly k = new Float64Array(12);
@@ -56,6 +60,7 @@ export class SistemaParticulas {
   constructor(private readonly o: OpcionesParticulas) {
     this.n = o.n;
     this.largoEstela = o.estela ?? 12;
+    this.pasosPorPunto = Math.max(1, Math.round(o.pasosPorPunto ?? 1));
     this.vidaMax = o.vidaMax ?? 8;
     this.azar = mulberry32(o.semilla);
     this.pos = new Float64Array(3 * this.n);
@@ -82,7 +87,11 @@ export class SistemaParticulas {
     const dt = tau * dtReal;
     const d = this.o.dominio;
     const umbral = CERO_VISUAL * fRef;
-    this.cabeza = (this.cabeza + 1) % this.largoEstela;
+    // Cada `pasosPorPunto` pasos la estela gana una posición; entre medias, la más reciente se
+    // sustituye por la actual (la estela siempre llega hasta la partícula).
+    const nuevoPunto = this.pasos % this.pasosPorPunto === 0;
+    this.pasos++;
+    if (nuevoPunto) this.cabeza = (this.cabeza + 1) % this.largoEstela;
     for (let i = 0; i < this.n; i++) {
       const r = this.r;
       r[0] = this.pos[3 * i] as number;
@@ -109,7 +118,7 @@ export class SistemaParticulas {
       this.estela[j] = this.pos[3 * i] as number;
       this.estela[j + 1] = this.pos[3 * i + 1] as number;
       this.estela[j + 2] = this.pos[3 * i + 2] as number;
-      this.llenado[i] = Math.min(this.largoEstela, (this.llenado[i] as number) + 1);
+      if (nuevoPunto || this.llenado[i] === 0) this.llenado[i] = Math.min(this.largoEstela, (this.llenado[i] as number) + 1);
     }
   }
 

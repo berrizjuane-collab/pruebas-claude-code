@@ -26,6 +26,8 @@ import { CapaFlechas } from './layers/flechas3d';
 import { CapaLineas } from './layers/lineas';
 import { CapaCorte, type DatosCorte } from './layers/corte';
 import type { DatosEscalar } from './layers/escalar';
+import { CapaParticulas, type DatosParticulas } from './layers/particulas';
+import { CapaRueda, type DatosRueda } from './layers/rueda';
 import { factorEscalaSprites } from './text/etiquetas';
 
 export interface OpcionesControlador {
@@ -55,6 +57,8 @@ export class ControladorEscena {
   readonly flechas = new CapaFlechas();
   readonly lineas = new CapaLineas();
   readonly corte = new CapaCorte();
+  readonly particulas = new CapaParticulas();
+  readonly rueda = new CapaRueda();
   private readonly ejes = new CapaEjes();
   private dominio: Dominio = { min: [-2, -2, -2], max: [2, 2, 2] };
   private raf = 0;
@@ -101,7 +105,7 @@ export class ControladorEscena {
       this.transicion = null;
     });
     // Las líneas, antes que las flechas: con ambas capas, las flechas quedan encima (DESIGN §9.4).
-    this.escena.add(this.ejes.grupo, this.lineas.grupo, this.flechas.grupo, this.corte.grupo);
+    this.escena.add(this.ejes.grupo, this.lineas.grupo, this.flechas.grupo, this.corte.grupo, this.particulas.grupo, this.rueda.grupo);
     this.observador = new ResizeObserver(() => this.redimensionar());
     this.observador.observe(lienzo.parentElement ?? lienzo);
     this.redimensionar();
@@ -110,6 +114,7 @@ export class ControladorEscena {
       if (this.destruido) return;
       this.ejes.rasterizarDeNuevo();
       this.corte.rerasterizar();
+      this.rueda.rerasterizar();
       this.pedirFotograma();
     });
   }
@@ -149,6 +154,28 @@ export class ControladorEscena {
   /** Mapa escalar sobre el corte (REN-06) o null. */
   fijarEscalarCorte(d: DatosEscalar | null): void {
     this.corte.fijarEscalar(d);
+    this.pedirFotograma();
+  }
+
+  /** Partículas y estelas del fotograma (o null para ocultarlas). */
+  fijarParticulas(d: DatosParticulas | null): void {
+    this.particulas.actualizar(d);
+    this.pedirFotograma();
+  }
+
+  /** Rueda de paletas en P (o null), su ángulo y si está en pausa (flecha curva de sentido). */
+  fijarRueda(d: DatosRueda | null): void {
+    this.rueda.fijar(d);
+    this.pedirFotograma();
+  }
+
+  fijarAnguloRueda(theta: number): void {
+    this.rueda.fijarAngulo(theta);
+    this.pedirFotograma();
+  }
+
+  fijarPausaRueda(pausa: boolean): void {
+    this.rueda.fijarPausa(pausa);
     this.pedirFotograma();
   }
 
@@ -307,7 +334,9 @@ export class ControladorEscena {
   dibujar(): void {
     const k = factorEscalaSprites(this.camara, this.altoCss);
     this.ejes.ajustar(k, this.anchoCss, this.altoCss, this.camara);
+    this.flechas.orientarAnillos(this.camara.position);
     this.corte.ajustar(this.camara, k, this.pixelesPorUnidad(), this.anchoCss, this.altoCss);
+    this.rueda.ajustar(this.camara, k, this.pixelesPorUnidad());
     this.renderer.render(this.escena, this.camara);
     this.fotogramasDibujados++;
   }
@@ -326,6 +355,8 @@ export class ControladorEscena {
     this.flechas.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
     this.lineas.setResolucion(w, h, this.pixelRatio);
     this.corte.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
+    this.particulas.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
+    this.rueda.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
     this.pedirFotograma();
   }
 
@@ -338,6 +369,8 @@ export class ControladorEscena {
       conos: this.flechas.conos.count,
       lineas: this.lineas.estadisticas,
       corte: this.corte.estadisticas,
+      particulas: this.particulas.estadisticas,
+      rueda: this.rueda.estadisticas,
       tamano: [this.anchoCss, this.altoCss, this.pixelRatio],
       camara: this.obtenerCamara(),
     };
@@ -351,6 +384,8 @@ export class ControladorEscena {
     this.flechas.dispose();
     this.lineas.dispose();
     this.corte.dispose();
+    this.particulas.dispose();
+    this.rueda.dispose();
     this.ejes.dispose();
     this.renderer.dispose();
   }

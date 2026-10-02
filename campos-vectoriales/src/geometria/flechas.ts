@@ -52,10 +52,30 @@ export interface InstanciasFlechas {
   ceros: Float32Array;
   indefinidos: Float32Array;
   nSaturadas: number;
+  /** Anillos de giro de los glifos de rot F (DESIGN §9.7); null con «Glifos: F». */
+  anillos: AnillosRotacional | null;
+}
+
+/** Anillo alrededor del eje de cada glifo de rot F, con su punta de flecha. */
+export interface AnillosRotacional {
+  n: number;
+  /** Centro del anillo: el nodo (centro de la flecha), 3n. */
+  centro: Float32Array;
+  /** Radio del anillo. */
+  radio: Float32Array;
+  /**
+   * Dos puntas de flecha por anillo, opuestas (así una queda siempre por delante del eje):
+   * punto del anillo (3·2n) y tangente unitaria en el sentido de giro (3·2n).
+   */
+  punta: Float32Array;
+  tangente: Float32Array;
+  /** Longitud y radio de la punta del anillo. */
+  largoPunta: Float32Array;
+  radioPunta: Float32Array;
 }
 
 /** Fracciones de ℓmax de la geometría (DESIGN §9.2). */
-export const PROPORCION = { cono: 0.3, radioCono: 0.09, radio: 0.025, normalizada: 0.75 } as const;
+export const PROPORCION = { cono: 0.3, radioCono: 0.09, radio: 0.025, normalizada: 0.75, anillo: 0.2, puntaAnillo: 0.15, radioPuntaAnillo: 0.065 } as const;
 
 /** u ∈ [0, 1] de la rampa a partir de ‖F‖/F_ref. */
 export function fraccionMagnitud(m: number, fRef: number, luminancia: ModoLuminancia): number {
@@ -138,5 +158,81 @@ export function calcularFlechas(e: EntradaFlechas, o: OpcionesFlechas): Instanci
     ceros: Float32Array.from(ceros),
     indefinidos: Float32Array.from(indefinidos),
     nSaturadas,
+    anillos: null,
   };
+}
+
+/**
+ * Puntas de los anillos orientadas hacia la cámara (para dibujarlas): una en el punto del
+ * anillo más cercano a la cámara y otra en el opuesto, con la tangente del giro positivo
+ * (t = d × e1, regla de la mano derecha). Así la punta delantera se ve siempre de perfil. Si
+ * el anillo se ve de frente (cámara casi sobre su eje), se usan las puntas de `anillos`.
+ */
+export function puntasHaciaCamara(a: AnillosRotacional, dir: ArrayLike<number>, camara: readonly [number, number, number], punta: Float32Array, tangente: Float32Array): void {
+  for (let i = 0; i < a.n; i++) {
+    const d = [dir[3 * i] as number, dir[3 * i + 1] as number, dir[3 * i + 2] as number];
+    const v = [0, 1, 2].map((k) => camara[k]! - (a.centro[3 * i + k] as number));
+    const lv = Math.hypot(v[0]!, v[1]!, v[2]!);
+    const vd = v[0]! * d[0]! + v[1]! * d[1]! + v[2]! * d[2]!;
+    const e = v.map((x, k) => x - vd * d[k]!);
+    const le = Math.hypot(e[0]!, e[1]!, e[2]!);
+    if (!(le > 0.1 * lv)) {
+      punta.set(a.punta.subarray(6 * i, 6 * i + 6), 6 * i);
+      tangente.set(a.tangente.subarray(6 * i, 6 * i + 6), 6 * i);
+      continue;
+    }
+    const e1 = e.map((x) => x / le);
+    const t = [d[1]! * e1[2]! - d[2]! * e1[1]!, d[2]! * e1[0]! - d[0]! * e1[2]!, d[0]! * e1[1]! - d[1]! * e1[0]!];
+    const r = a.radio[i] as number;
+    for (let k = 0; k < 3; k++) {
+      punta[6 * i + k] = (a.centro[3 * i + k] as number) + r * e1[k]!;
+      tangente[6 * i + k] = t[k]!;
+      punta[6 * i + 3 + k] = (a.centro[3 * i + k] as number) - r * e1[k]!;
+      tangente[6 * i + 3 + k] = -t[k]!;
+    }
+  }
+}
+
+/**
+ * Anillos de los glifos de rot F (DESIGN §9.7): en el centro de cada flecha, perpendiculares
+ * a su eje, con una punta de flecha cuyo sentido sigue la regla de la mano derecha (con el
+ * pulgar en el sentido de ∇×F, los dedos giran como el anillo: antihorario visto desde la
+ * punta de la flecha). Radio 0.2·ℓmax, escalado como la flecha si esta es corta.
+ */
+export function anillosRotacional(inst: InstanciasFlechas, lMax: number): AnillosRotacional {
+  const n = inst.n;
+  const centro = new Float32Array(3 * n);
+  const radio = new Float32Array(n);
+  const punta = new Float32Array(6 * n);
+  const tangente = new Float32Array(6 * n);
+  const largoPunta = new Float32Array(n);
+  const radioPunta = new Float32Array(n);
+  const conoMax = PROPORCION.cono * lMax;
+  for (let i = 0; i < n; i++) {
+    const d = [inst.dir[3 * i] as number, inst.dir[3 * i + 1] as number, inst.dir[3 * i + 2] as number] as const;
+    const l = inst.largo[i] as number;
+    const s = conoMax > 0 ? (inst.cono[i] as number) / conoMax : 1;
+    const c = [0, 1, 2].map((k) => (inst.cola[3 * i + k] as number) + (d[k] * l) / 2);
+    // e1 ⊥ d, construido con el eje coordenado menos alineado con d; t = d × e1 (giro positivo).
+    const k = [0, 1, 2].reduce((m, j) => (Math.abs(d[j]!) < Math.abs(d[m]!) ? j : m), 0);
+    const a = [0, 0, 0];
+    a[k] = 1;
+    const e = [d[1] * a[2]! - d[2] * a[1]!, d[2] * a[0]! - d[0] * a[2]!, d[0] * a[1]! - d[1] * a[0]!];
+    const le = Math.hypot(e[0]!, e[1]!, e[2]!);
+    const e1 = e.map((x) => x / le);
+    const t = [d[1] * e1[2]! - d[2] * e1[1]!, d[2] * e1[0]! - d[0] * e1[2]!, d[0] * e1[1]! - d[1] * e1[0]!];
+    const r = PROPORCION.anillo * lMax * s;
+    for (let j = 0; j < 3; j++) {
+      centro[3 * i + j] = c[j]!;
+      // En c + r·e1 el giro positivo va según t = d × e1; en el punto opuesto, según −t.
+      punta[6 * i + j] = c[j]! + r * e1[j]!;
+      tangente[6 * i + j] = t[j]!;
+      punta[6 * i + 3 + j] = c[j]! - r * e1[j]!;
+      tangente[6 * i + 3 + j] = -t[j]!;
+    }
+    radio[i] = r;
+    largoPunta[i] = PROPORCION.puntaAnillo * lMax * s;
+    radioPunta[i] = PROPORCION.radioPuntaAnillo * lMax * s;
+  }
+  return { n, centro, radio, punta, tangente, largoPunta, radioPunta };
 }

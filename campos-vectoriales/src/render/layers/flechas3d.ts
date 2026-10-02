@@ -6,10 +6,17 @@
 import * as THREE from 'three';
 import { hexARgb } from '../../design/color';
 import { escena } from '../../design/tokens';
-import type { InstanciasFlechas } from '../../geometria/flechas';
+import { puntasHaciaCamara, type InstanciasFlechas } from '../../geometria/flechas';
 import { CapaGlifos, FORMA, glifosUniformes } from '../glifos';
 
 const EJE_Y = new THREE.Vector3(0, 1, 0);
+const EJE_Z = new THREE.Vector3(0, 0, 1);
+
+/** Toro unitario en el plano XY (normal +z): anillo de giro de los glifos de rot F. */
+export function geometriaAnillo(): THREE.BufferGeometry {
+  // Grosor del tubo = radio del cilindro de la flecha (0.025 ℓmax) / radio del anillo (0.2 ℓmax).
+  return new THREE.TorusGeometry(1, 0.125, 4, 28);
+}
 
 const verticeHalo = /* glsl */ `
 uniform float uAncho;
@@ -84,12 +91,21 @@ export class CapaFlechas {
   readonly conos: THREE.InstancedMesh;
   private readonly haloCilindros: THREE.InstancedMesh;
   private readonly haloConos: THREE.InstancedMesh;
+  /** Anillos de giro (rot F) y sus puntas, con halo (DESIGN §9.7). */
+  readonly anillos: THREE.InstancedMesh;
+  readonly puntasAnillo: THREE.InstancedMesh;
+  private readonly haloAnillos: THREE.InstancedMesh;
+  private readonly haloPuntasAnillo: THREE.InstancedMesh;
   private readonly matHalo: THREE.ShaderMaterial;
   private readonly marcas = new CapaGlifos();
   /** Para cada instancia de cono, la flecha a la que pertenece. */
   conoAFlecha = new Uint32Array(0);
   private datos: InstanciasFlechas | null = null;
   readonly capacidad: number;
+  /** Cámara con la que se orientaron las puntas de los anillos (se reorientan al moverse). */
+  private camaraAnillos: [number, number, number] | null = null;
+  private puntaVista = new Float32Array(0);
+  private tangenteVista = new Float32Array(0);
 
   constructor(capacidad = 9261) {
     this.capacidad = capacidad;
@@ -109,14 +125,33 @@ export class CapaFlechas {
     // Los halos comparten las matrices de instancia con las flechas.
     this.haloCilindros.instanceMatrix = this.cilindros.instanceMatrix;
     this.haloConos.instanceMatrix = this.conos.instanceMatrix;
-    for (const m of [this.cilindros, this.conos, this.haloCilindros, this.haloConos]) {
+    const gAnillo = geometriaAnillo();
+    this.anillos = new THREE.InstancedMesh(gAnillo, new THREE.MeshBasicMaterial({ toneMapped: false }), capacidad);
+    this.puntasAnillo = new THREE.InstancedMesh(gCono, [matCono, matCono, matBaseCono], 2 * capacidad);
+    this.haloAnillos = new THREE.InstancedMesh(gAnillo, this.matHalo, capacidad);
+    this.haloPuntasAnillo = new THREE.InstancedMesh(gCono, this.matHalo, 2 * capacidad);
+    this.haloAnillos.instanceMatrix = this.anillos.instanceMatrix;
+    this.haloPuntasAnillo.instanceMatrix = this.puntasAnillo.instanceMatrix;
+    this.anillos.name = 'flechas-anillos';
+    this.puntasAnillo.name = 'flechas-puntas-anillo';
+    for (const m of [this.cilindros, this.conos, this.haloCilindros, this.haloConos, this.anillos, this.puntasAnillo, this.haloAnillos, this.haloPuntasAnillo]) {
       m.frustumCulled = false;
       m.count = 0;
       m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     }
     this.cilindros.name = 'flechas-cilindros';
     this.conos.name = 'flechas-conos';
-    this.grupo.add(this.haloCilindros, this.haloConos, this.cilindros, this.conos, this.marcas.objeto);
+    this.grupo.add(
+      this.haloCilindros,
+      this.haloConos,
+      this.haloAnillos,
+      this.haloPuntasAnillo,
+      this.cilindros,
+      this.conos,
+      this.anillos,
+      this.puntasAnillo,
+      this.marcas.objeto,
+    );
   }
 
   actualizar(d: InstanciasFlechas): void {
@@ -159,6 +194,7 @@ export class CapaFlechas {
       }
     }
     this.conoAFlecha = conoAFlecha;
+    this.actualizarAnillos(d);
     this.cilindros.count = d.n;
     this.haloCilindros.count = d.n;
     this.conos.count = ic;
@@ -178,6 +214,85 @@ export class CapaFlechas {
       tam: [...Array.from(ceros.tam), ...Array.from(indef.tam)],
       gris: [...Array.from(ceros.gris), ...Array.from(indef.gris)],
     });
+  }
+
+  /** Anillos de giro de los glifos de rot F: toro en el centro de la flecha y punta tangente. */
+  private actualizarAnillos(d: InstanciasFlechas): void {
+    const a = d.anillos;
+    const n = a ? a.n : 0;
+    if (a) {
+      const m = new THREE.Matrix4();
+      const q = new THREE.Quaternion();
+      const v = new THREE.Vector3();
+      const p = new THREE.Vector3();
+      const s = new THREE.Vector3();
+      const color = new THREE.Color();
+      for (let i = 0; i < n; i++) {
+        v.set(d.dir[3 * i] as number, d.dir[3 * i + 1] as number, d.dir[3 * i + 2] as number);
+        q.setFromUnitVectors(EJE_Z, v);
+        p.set(a.centro[3 * i] as number, a.centro[3 * i + 1] as number, a.centro[3 * i + 2] as number);
+        const r = a.radio[i] as number;
+        s.set(r, r, r);
+        m.compose(p, q, s);
+        this.anillos.setMatrixAt(i, m);
+        color.setRGB(d.gris[i] as number, d.gris[i] as number, d.gris[i] as number, THREE.SRGBColorSpace);
+        this.anillos.setColorAt(i, color);
+        this.puntasAnillo.setColorAt(2 * i, color);
+        this.puntasAnillo.setColorAt(2 * i + 1, color);
+      }
+      this.anillos.instanceMatrix.needsUpdate = true;
+      this.puntaVista = new Float32Array(6 * n);
+      this.tangenteVista = new Float32Array(6 * n);
+      this.camaraAnillos = null;
+      this.colocarPuntas(a.punta, a.tangente);
+      if (this.anillos.instanceColor) this.anillos.instanceColor.needsUpdate = true;
+      if (this.puntasAnillo.instanceColor) this.puntasAnillo.instanceColor.needsUpdate = true;
+    }
+    for (const o of [this.anillos, this.haloAnillos]) o.count = n;
+    for (const o of [this.puntasAnillo, this.haloPuntasAnillo]) o.count = 2 * n;
+  }
+
+  /** Dos puntas por anillo: conos a lo largo de la tangente, centrados en su punto del anillo. */
+  private colocarPuntas(punta: Float32Array, tangente: Float32Array): void {
+    const a = this.datos?.anillos;
+    if (!a) return;
+    const m = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const v = new THREE.Vector3();
+    const p = new THREE.Vector3();
+    const s = new THREE.Vector3();
+    for (let i = 0; i < a.n; i++) {
+      const largo = a.largoPunta[i] as number;
+      const rp = a.radioPunta[i] as number;
+      for (let k = 2 * i; k < 2 * i + 2; k++) {
+        v.set(tangente[3 * k] as number, tangente[3 * k + 1] as number, tangente[3 * k + 2] as number);
+        q.setFromUnitVectors(EJE_Y, v);
+        p.set((punta[3 * k] as number) - (v.x * largo) / 2, (punta[3 * k + 1] as number) - (v.y * largo) / 2, (punta[3 * k + 2] as number) - (v.z * largo) / 2);
+        s.set(rp, largo, rp);
+        m.compose(p, q, s);
+        this.puntasAnillo.setMatrixAt(k, m);
+      }
+    }
+    this.puntasAnillo.instanceMatrix.needsUpdate = true;
+  }
+
+  /**
+   * Orienta las puntas de los anillos hacia la cámara (solo si se ha movido): la delantera se
+   * ve siempre de perfil, con el sentido de giro de la mano derecha.
+   */
+  orientarAnillos(camara: THREE.Vector3): void {
+    const a = this.datos?.anillos;
+    if (!a || !this.grupo.visible) return;
+    const c = this.camaraAnillos;
+    if (c && Math.hypot(c[0] - camara.x, c[1] - camara.y, c[2] - camara.z) < 1e-6) return;
+    this.camaraAnillos = [camara.x, camara.y, camara.z];
+    puntasHaciaCamara(a, this.datos!.dir, this.camaraAnillos, this.puntaVista, this.tangenteVista);
+    this.colocarPuntas(this.puntaVista, this.tangenteVista);
+  }
+
+  /** Puntas de anillo tal como se dibujan (para las pruebas). */
+  get puntasDibujadas() {
+    return { punta: Array.from(this.puntaVista), tangente: Array.from(this.tangenteVista) };
   }
 
   /** Índice de flecha de una intersección de rayo, o -1. */
@@ -210,6 +325,10 @@ export class CapaFlechas {
     this.matHalo.dispose();
     this.cilindros.dispose();
     this.conos.dispose();
+    this.anillos.geometry.dispose();
+    (this.anillos.material as THREE.Material).dispose();
+    this.anillos.dispose();
+    this.puntasAnillo.dispose();
     this.marcas.dispose();
   }
 }

@@ -530,3 +530,277 @@ test.describe('REN-06 · mapa escalar del corte', () => {
     expect((await estado(page)).corte.escala).toEqual({ tipo: 'auto' });
   });
 });
+
+// ---------------------------------------------------------------- REN-07 (glifos de rot F)
+
+test.describe('REN-07 · glifos de rotacional', () => {
+  test('rotacional con ω = ±1: glifos hacia ±z, anillo antihorario (ω = 1) u horario (ω = −1) visto desde arriba; puntas del lado de la cámara', async ({ page }) => {
+    const reg = registrar(page);
+    await abrir(page);
+    await page.locator('[data-campo="rotacional"]').click();
+    await estable(page);
+    // «Glifos: rot F» con el atajo G.
+    await page.locator('body').press('g');
+    await page.waitForFunction(() => (window as any).__campos.resultados().malla?.glifos === 'rotacional');
+    await estable(page);
+    const medidas: Record<string, unknown> = {};
+    for (const omega of [1, -1]) {
+      await fijar(page, `{ ...s, parametros: s.parametros.map((p) => ({ ...p, valor: ${omega} })) }`);
+      await page.waitForFunction((w) => {
+        const m = (window as any).__campos.resultados().malla;
+        return m?.glifos === 'rotacional' && m.instancias.n > 0 && Math.sign(m.instancias.dir[2]) === Math.sign(w);
+      }, omega);
+      await estable(page);
+      await gancho(page, '(c) => c.dibujar()');
+      const a = await gancho(page, '(c) => c.anillos()');
+      const cam = (await gancho(page, '(c) => c.camara()')).posicion as number[];
+      expect(a.n).toBe(729);
+      expect(a.dibujados).toBe(729);
+      let delante = 0;
+      for (let i = 0; i < a.n; i++) {
+        expect(a.dir[3 * i + 2]).toBeCloseTo(omega, 6);
+        for (const j of [0, 1]) {
+          const k = 2 * i + j;
+          const e = [0, 1, 2].map((q) => a.punta[3 * k + q] - a.centro[3 * i + q]);
+          const t = [0, 1, 2].map((q) => a.tangente[3 * k + q]);
+          const g = [e[1]! * t[2]! - e[2]! * t[1]!, e[2]! * t[0]! - e[0]! * t[2]!, e[0]! * t[1]! - e[1]! * t[0]!];
+          // Giro visto desde +z: antihorario (g_z > 0) con ω = 1, horario con ω = −1.
+          expect(Math.sign(g[2]!)).toBe(omega);
+        }
+        // La primera punta está en el lado del anillo que mira a la cámara.
+        const d = (p: number[]) => Math.hypot(p[0]! - cam[0]!, p[1]! - cam[1]!, p[2]! - cam[2]!);
+        if (d(a.punta.slice(6 * i, 6 * i + 3)) < d(a.centro.slice(3 * i, 3 * i + 3))) delante++;
+      }
+      expect(delante).toBe(a.n);
+      medidas[`omega=${omega}`] = { glifos: a.n, ejeZ: Math.sign(a.dir[2]), puntasDelante: delante };
+    }
+    informe['REN-07 orientación'] = medidas;
+    // Leyenda: la banda clara es ‖rot F‖ con su C_ref, y el anillo se explica.
+    const leyenda = page.locator('[data-prueba="leyenda-flechas"]');
+    await expect(page.locator('.leyenda')).toContainText('‖rot F‖');
+    await expect(leyenda).toContainText('eje de giro: rot F');
+    await expect(leyenda).toContainText('regla de la mano derecha');
+    await expect(page.locator('[data-prueba="leyenda-escala"]')).toContainText('C_ref = 2 · auto (P95)');
+    // Fijar C_ref no toca F_ref.
+    await page.getByRole('button', { name: 'Fijar escala' }).click();
+    expect((await estado(page)).flechas).toMatchObject({ escala: { tipo: 'auto' }, escalaRot: { tipo: 'fija', valor: 2 } });
+    // Volver a «Glifos: F»: la leyenda vuelve a ‖F‖ y F_ref.
+    await page.locator('body').press('g');
+    await expect(page.locator('[data-prueba="leyenda-escala"]')).toContainText('F_ref');
+    // F = (−ωy, ωx, 0) es nulo en el eje z: 9 nodos «≈ 0» y 720 flechas.
+    await expect.poll(async () => (await gancho(page, '(c) => c.escena()')).flechas).toBe(720);
+    sinErrores(reg);
+  });
+});
+
+// ---------------------------------------------------------------- REN-08 (partículas y animación)
+
+test.describe('REN-08 · partículas y control de animación', () => {
+  /** Suma de los desplazamientos de las partículas entre dos lecturas. */
+  const posiciones = async (page: Page) => (await gancho(page, '(c) => c.particulas()')).pos as number[];
+  const movimiento = (a: number[], b: number[]) => a.reduce((s, v, i) => s + Math.abs(v - (b[i] ?? v)), 0);
+
+  test('Espacio y el botón de la barra pausan y reanudan; la leyenda muestra τ y el estado se anuncia', async ({ page }) => {
+    const reg = registrar(page);
+    // Reloj real (`prueba=1`, sin congelar la animación) y sin movimiento reducido.
+    await abrir(page, 'prueba=1');
+    const boton = page.locator('[data-prueba="boton-animacion"]');
+    const avanza = async () => {
+      const a = await posiciones(page);
+      await expect.poll(async () => movimiento(a, await posiciones(page)), { timeout: 10_000 }).toBeGreaterThan(0.01);
+    };
+    // Sin partículas ni rueda no hay nada que animar: el botón está, pero deshabilitado con su motivo.
+    await expect(boton).toHaveAttribute('aria-disabled', 'true');
+    await page.locator('body').press('p');
+    await expect(boton).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(boton).toHaveAttribute('aria-label', 'Pausar la animación');
+    await expect.poll(async () => (await gancho(page, '(c) => c.animacion()')).enMarcha).toBe(true);
+    await avanza();
+    // Espacio: pausa (y lo anuncia); las partículas no se mueven.
+    await page.keyboard.press(' ');
+    await expect(boton).toHaveAttribute('aria-label', 'Reanudar la animación');
+    await expect(page.locator('[data-prueba="anuncio-animacion"]')).toHaveText('Animación en pausa');
+    await expect(page.locator('[data-prueba="leyenda-tau"]')).toContainText('animación en pausa');
+    const quietas = await posiciones(page);
+    await page.waitForTimeout(600);
+    expect(movimiento(quietas, await posiciones(page))).toBe(0);
+    // El botón la reanuda.
+    await boton.click();
+    await expect(page.locator('[data-prueba="anuncio-animacion"]')).toHaveText('Animación en marcha');
+    await avanza();
+    // Con el foco en un botón, Espacio pulsa el botón y no conmuta la animación.
+    await page.getByRole('button', { name: 'Vista isométrica' }).focus();
+    await page.keyboard.press(' ');
+    expect((await gancho(page, '(c) => c.animacion()')).enMarcha).toBe(true);
+    // τ = Δ/F_ref = 0.5/3 en el helicoidal.
+    await expect(page.locator('[data-prueba="leyenda-tau"]')).toContainText('1 s ≙ τ = 0.167 unidades de t');
+    expect((await gancho(page, '(c) => c.animacion()')).tau).toBeCloseTo(0.5 / 3, 12);
+    const esc = (await gancho(page, '(c) => c.escena()')).particulas;
+    expect(esc).toMatchObject({ visible: true, particulas: 400 });
+    expect(esc.tramos).toBeGreaterThan(400 * 8);
+    informe['REN-08 pausa'] = { tau: 0.5 / 3, particulas: esc.particulas, tramosEstela: esc.tramos };
+    sinErrores(reg);
+  });
+
+  test('con movimiento reducido arranca en pausa y la estela ya muestra el sentido', async ({ browser }) => {
+    const contexto = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await contexto.newPage();
+    await abrir(page, 'prueba=1');
+    await page.locator('body').press('p');
+    await expect(page.locator('[data-prueba="boton-animacion"]')).toHaveAttribute('aria-label', 'Reanudar la animación');
+    expect((await gancho(page, '(c) => c.animacion()')).enMarcha).toBe(false);
+    const a = await posiciones(page);
+    await page.waitForTimeout(300);
+    expect(movimiento(a, await posiciones(page))).toBe(0);
+    // La estela está llena (12 posiciones → 11 tramos por partícula, salvo las que renacieron).
+    expect((await gancho(page, '(c) => c.escena()')).particulas.tramos).toBeGreaterThan(400 * 8);
+    await expect(page.locator('[data-prueba="leyenda-tau"]')).toContainText('animación en pausa');
+    await contexto.close();
+  });
+
+  test('V-FUN-08 · rueda frente a partículas: rotacional ω = 1, reloj determinista, 2 s → mismo ángulo (T-18) y «ω = 1.000 rad/t»', async ({ page }) => {
+    const reg = registrar(page);
+    await abrir(page);
+    await page.locator('[data-campo="rotacional"]').click();
+    await estable(page);
+    await fijar(page, `{ ...s, punto: [1, 0, 0], capas: { ...s.capas, particulas: true } }`);
+    await page.waitForFunction(() => (window as any).__campos.escena().rueda?.visible === true);
+    const rueda = (await gancho(page, '(c) => c.escena()')).rueda;
+    expect(rueda).toMatchObject({ omega: 1, eje: [0, 0, 1], rotulo: 'ω = 1.000 rad/t' });
+    const antes = await gancho(page, '(c) => c.particulas()');
+    const t0 = await gancho(page, '(c) => c.animacion()');
+    await gancho(page, '(c) => c.avanzarAnimacion(2)');
+    const despues = await gancho(page, '(c) => c.particulas()');
+    const t1 = await gancho(page, '(c) => c.animacion()');
+    const dRueda = t1.anguloRueda - t0.anguloRueda;
+    // Ángulo de la rueda: ω·τ·2 s, con τ = Δ/F_ref.
+    expect(dRueda).toBeCloseTo(t1.tau * 2, 12);
+    // Partículas que no han renacido (edad + 2 s) y lejos de las caras: giran lo mismo que la rueda.
+    let comparadas = 0;
+    let peor = 0;
+    for (let i = 0; i < antes.n; i++) {
+      if (Math.abs(despues.edad[i] - antes.edad[i] - 2) > 1e-9) continue;
+      const x0 = antes.pos[3 * i];
+      const y0 = antes.pos[3 * i + 1];
+      const x1 = despues.pos[3 * i];
+      const y1 = despues.pos[3 * i + 1];
+      if (Math.hypot(x0, y0) < 0.2) continue;
+      let d = Math.atan2(y1, x1) - Math.atan2(y0, x0);
+      d = ((d + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
+      peor = Math.max(peor, Math.abs(d - dRueda));
+      comparadas++;
+    }
+    informe['V-FUN-08'] = { anguloRueda: dRueda, tau: t1.tau, particulasComparadas: comparadas, maxDiferencia: peor };
+    expect(comparadas).toBeGreaterThan(100);
+    expect(peor).toBeLessThanOrEqual(1e-3);
+    expect((await gancho(page, '(c) => c.escena()')).rueda.angulo).toBeCloseTo(t1.anguloRueda, 12);
+    sinErrores(reg);
+  });
+});
+
+// ---------------------------------------------------------------- UI-08 (secciones de líneas, corte y derivadas)
+
+test.describe('UI-08 · secciones de líneas, corte y derivadas', () => {
+  test('líneas: semillas en rejilla o aleatorias, validación de 256, paso fijo y «Detalles del cálculo» con el recuento por motivo', async ({ page }) => {
+    const reg = registrar(page);
+    await abrir(page);
+    await estable(page);
+    await page.getByRole('button', { name: 'Líneas de corriente', exact: true }).click();
+    // Rejilla XY en z = 0.5 de 3 × 3: nueve semillas en ese plano.
+    await page.getByRole('group', { name: 'Plano de la rejilla de semillas' }).getByRole('button', { name: 'Plano XY' }).click();
+    for (const [campo, v] of [
+      ['semillas-c', '0.5'],
+      ['semillas-nu', '3'],
+      ['semillas-nv', '3'],
+    ]) {
+      await page.locator(`[data-prueba="${campo}"]`).fill(v);
+      await page.locator(`[data-prueba="${campo}"]`).press('Enter');
+    }
+    await expect.poll(async () => (await estado(page)).lineas.semillas).toMatchObject({ tipo: 'rejilla', plano: 'XY', c: 0.5, nu: 3, nv: 3 });
+    await estable(page);
+    const l = await gancho(page, '(c) => c.lineasDibujadas()');
+    expect(l.semillas.length / 3).toBe(9);
+    for (let i = 0; i < 9; i++) expect(l.semillas[3 * i + 2]).toBeCloseTo(0.5, 5);
+    // Más de 256: se explica y no se aplica.
+    await page.locator('[data-prueba="semillas-nu"]').fill('100');
+    await page.locator('[data-prueba="semillas-nu"]').press('Enter');
+    await expect(page.locator('[data-prueba="seccion-lineas"] .mensaje-campo')).toContainText('256');
+    expect((await estado(page)).lineas.semillas.nu).toBe(3);
+    await page.locator('[data-prueba="semillas-nu"]').press('Escape');
+    // Aleatorias: 20 con semilla 7.
+    await page.getByRole('group', { name: 'Estrategia de las semillas' }).getByRole('button', { name: 'Aleatoria' }).click();
+    await page.locator('[data-prueba="semillas-n"]').fill('20');
+    await page.locator('[data-prueba="semillas-n"]').press('Enter');
+    await page.locator('[data-prueba="semillas-semilla"]').fill('7');
+    await page.locator('[data-prueba="semillas-semilla"]').press('Enter');
+    await expect.poll(async () => (await estado(page)).lineas.semillas).toEqual({ tipo: 'aleatoria', n: 20, semilla: 7 });
+    // «Desde P» necesita un punto.
+    await expect(page.getByRole('group', { name: 'Estrategia de las semillas' }).getByRole('button', { name: 'Desde P' })).toHaveAttribute('aria-disabled', 'true');
+    // Paso fijo.
+    await page.getByRole('group', { name: 'Paso de integración h' }).getByRole('button', { name: 'Fijo' }).click();
+    await page.locator('[data-prueba="lineas-paso"]').fill('0.02');
+    await page.locator('[data-prueba="lineas-paso"]').press('Enter');
+    await expect.poll(async () => (await estado(page)).lineas.paso).toBe(0.02);
+    await estable(page);
+    // Detalles del cálculo: el recuento de cada motivo coincide con el del cálculo.
+    await page.getByRole('button', { name: 'Detalles del cálculo' }).click();
+    const r = await gancho(page, '(c) => c.resultados().lineas');
+    expect(r.paso).toBe(0.02);
+    const detalles = page.locator('[data-prueba="detalles-lineas"]');
+    await expect(detalles).toContainText(`${r.nLineas} líneas desde ${r.semillas.n} semillas`);
+    await expect(detalles).toContainText('Paso h = 0.02000');
+    const motivos = Object.entries(r.recuentoMotivos as Record<string, number>).filter(([, n]) => n > 0);
+    expect(motivos.length).toBeGreaterThan(0);
+    for (const [m, n] of motivos) await expect(page.locator(`[data-prueba="motivos-parada"] [data-motivo="${m}"] dd`)).toHaveText(String(n));
+    informe['UI-08 líneas'] = { lineas: r.nLineas, semillas: r.semillas, motivos: r.recuentoMotivos, paso: r.paso };
+    sinErrores(reg);
+  });
+
+  test('derivadas: div F de T6 se muestra como 2x + 1; los accesos directos llevan al corte y a «Glifos: rot F»', async ({ page }) => {
+    await abrir(page);
+    await fijar(page, `{ ...s, nombre: 'T6', base: null, campo: { P: 'x^2', Q: 'y', R: '0' }, parametros: [] }`);
+    await estable(page);
+    await page.getByRole('button', { name: 'Divergencia y rotacional' }).click();
+    // Texto visible de KaTeX, sin espacios (ni el de anchura cero que pone tras los subíndices).
+    const texto = (sel: string) => page.locator(`${sel} .katex-html`).evaluate((e) => (e.textContent ?? '').replace(/[\s\u200b]/g, ''));
+    expect(await texto('[data-prueba="div-simbolica"]')).toBe('∇⋅F=2x+1');
+    for (const k of ['x', 'y', 'z']) expect(await texto(`[data-prueba="rot-simbolico-${k}"]`)).toBe(`(∇×F)${k}=0`);
+    await expect(page.locator('[data-prueba="seccion-derivadas"]')).toContainText('campo irrotacional');
+    // Rotacional: rot F = (0, 0, 2ω), agrupado.
+    await page.locator('[data-campo="rotacional"]').click();
+    await expect.poll(() => texto('[data-prueba="rot-simbolico-z"]')).toBe('(∇×F)z=2ω');
+    await expect(page.locator('[data-prueba="seccion-derivadas"]')).toContainText('campo solenoidal');
+    // Accesos directos.
+    await page.getByRole('button', { name: 'Ver div en el corte' }).click();
+    expect((await estado(page)).corte).toMatchObject({ activo: true, escalar: 'divergencia' });
+    await page.getByRole('button', { name: 'Ver rot · n en el corte' }).click();
+    expect((await estado(page)).corte).toMatchObject({ activo: true, escalar: 'rotacional' });
+    const glifos = page.locator('[data-prueba="seccion-derivadas"]').getByRole('button', { name: 'Glifos de rot F' });
+    await glifos.click();
+    await expect(glifos).toHaveAttribute('aria-pressed', 'true');
+    expect((await estado(page)).capas.glifos).toBe('rotacional');
+  });
+
+  test('avanzado: número de partículas, τ fija (la leyenda la muestra), semilla y cifras significativas', async ({ page }) => {
+    await abrir(page);
+    await estable(page);
+    await page.locator('body').press('p');
+    await page.getByRole('button', { name: 'Avanzado' }).click();
+    await page.locator('[data-prueba="particulas-n"]').fill('100');
+    await page.locator('[data-prueba="particulas-n"]').press('Enter');
+    await expect.poll(async () => (await gancho(page, '(c) => c.escena()')).particulas.particulas).toBe(100);
+    await page.getByRole('group', { name: 'Escala temporal τ (unidades de t por segundo)' }).getByRole('button', { name: 'Fija' }).click();
+    await page.locator('[data-prueba="particulas-tau"]').fill('0.5');
+    await page.locator('[data-prueba="particulas-tau"]').press('Enter');
+    await expect(page.locator('[data-prueba="leyenda-tau"]')).toContainText('τ = 0.5 unidades de t');
+    expect((await gancho(page, '(c) => c.animacion()')).tau).toBe(0.5);
+    const antes = (await gancho(page, '(c) => c.particulas()')).pos.slice(0, 3);
+    await page.locator('[data-prueba="particulas-semilla"]').fill('9');
+    await page.locator('[data-prueba="particulas-semilla"]').press('Enter');
+    await expect.poll(async () => (await gancho(page, '(c) => c.particulas()')).pos.slice(0, 3)).not.toEqual(antes);
+    await page.locator('[data-prueba="cifras"]').fill('6');
+    await page.locator('[data-prueba="cifras"]').press('Enter');
+    expect((await estado(page)).cifras).toBe(6);
+    expect((await estado(page)).particulas).toEqual({ n: 100, tau: 0.5, semilla: 9 });
+  });
+});

@@ -112,6 +112,7 @@ export class CapaCorte {
   ajustar(camara: THREE.Camera, factorSprites: number, pxPorUnidad: number, anchoCss: number, altoCss: number): void {
     this.matContorno.resolution.set(anchoCss, altoCss);
     this.escalar.ajustar(pxPorUnidad, anchoCss, altoCss);
+    this.flechas.orientarAnillos(camara.position);
     if (!this.datos || pxPorUnidad <= 0) return;
     this.matContorno.dashSize = 6 / pxPorUnidad;
     this.matContorno.gapSize = 4 / pxPorUnidad;

@@ -764,7 +764,7 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
   "dominio": { "min": [-2, -2, -2], "max": [2, 2, 2] },
   "muestreo": { "n": [9, 9, 9], "posicion": "nodos", "corteResolucion": 21 },
   "capas": { "flechas": true, "lineas": true, "particulas": false, "glifos": "campo" },
-  "flechas": { "modo": "proporcional", "escala": { "tipo": "auto" }, "luminancia": "lineal" },
+  "flechas": { "modo": "proporcional", "escala": { "tipo": "auto" }, "escalaRot": { "tipo": "auto" }, "luminancia": "lineal" },
   "lineas": { "semillas": { "tipo": "rejilla", "plano": "XZ", "c": 0, "u": [0.5, 2], "v": [0, 0], "nu": 4, "nv": 1 }, "paso": 0.0625, "longitudMax": 27.7 },
   "particulas": { "n": 400, "tau": null, "semilla": 1 },
   "corte": { "activo": false, "plano": "XY", "c": 0, "flechas": "todas", "vector": "completo", "escalar": "ninguno", "escala": { "tipo": "auto" } },

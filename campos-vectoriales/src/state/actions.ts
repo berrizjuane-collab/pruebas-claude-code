@@ -161,7 +161,7 @@ type OpcionesFlechas = EstadoExperimento['flechas'];
 /** Opciones de magnitud de las flechas (REN-04, DESIGN §9.3 y §9.10). */
 export function fijarOpcionesFlechas(s: EstadoExperimento, cambios: Partial<OpcionesFlechas>): EstadoExperimento {
   const f = { ...s.flechas, ...cambios };
-  if (f.escala.tipo === 'fija' && !(f.escala.valor > 0 && Number.isFinite(f.escala.valor))) return s;
+  for (const e of [f.escala, f.escalaRot]) if (e.tipo === 'fija' && !(e.valor > 0 && Number.isFinite(e.valor))) return s;
   if (JSON.stringify(f) === JSON.stringify(s.flechas)) return s;
   return { ...s, flechas: f };
 }
@@ -175,4 +175,46 @@ export function fijarCorte(s: EstadoExperimento, cambios: Partial<Corte>): Estad
   if (cambios.escalar !== undefined && cambios.escalar !== s.corte.escalar && !cambios.escala) nuevo.escala = { tipo: 'auto' };
   if (JSON.stringify(nuevo) === JSON.stringify(s.corte)) return s;
   return { ...s, corte: nuevo };
+}
+
+type OpcionesLineas = EstadoExperimento['lineas'];
+
+/** Motivo por el que unas semillas no son válidas (SPEC §5.6: como mucho 256), o null. */
+export function motivoSemillas(e: OpcionesLineas['semillas']): string | null {
+  if (e.tipo === 'rejilla') {
+    if (![e.nu, e.nv].every((n) => Number.isInteger(n) && n >= 1)) return 'La rejilla necesita al menos 1 × 1 puntos';
+    if (e.nu * e.nv > LIMITES.semillasMax) return `Como máximo ${LIMITES.semillasMax} semillas (${e.nu} × ${e.nv} = ${e.nu * e.nv})`;
+    if (!Number.isFinite(e.c)) return 'La posición del plano debe ser un número';
+  } else if (e.tipo === 'aleatoria') {
+    if (!Number.isInteger(e.n) || e.n < 1 || e.n > LIMITES.semillasMax) return `Entre 1 y ${LIMITES.semillasMax} semillas`;
+    if (!Number.isInteger(e.semilla) || e.semilla < 0) return 'La semilla es un entero ≥ 0';
+  }
+  return null;
+}
+
+/** Semillas, paso y longitud máxima de las líneas (UI-08, F5). Un valor inválido no se aplica. */
+export function fijarLineas(s: EstadoExperimento, cambios: Partial<OpcionesLineas>): EstadoExperimento {
+  const l = { ...s.lineas, ...cambios };
+  if (motivoSemillas(l.semillas)) return s;
+  if (l.paso !== null && !(l.paso > 0 && Number.isFinite(l.paso))) return s;
+  if (l.longitudMax !== null && !(l.longitudMax > 0 && Number.isFinite(l.longitudMax))) return s;
+  if (JSON.stringify(l) === JSON.stringify(s.lineas)) return s;
+  return { ...s, lineas: l };
+}
+
+/** Partículas: número (1–2000), escala temporal τ (null = Δ/F_ref) y semilla (REN-08). */
+export function fijarParticulas(s: EstadoExperimento, cambios: Partial<EstadoExperimento['particulas']>): EstadoExperimento {
+  const p = { ...s.particulas, ...cambios };
+  if (!Number.isInteger(p.n) || p.n < 1 || p.n > LIMITES.particulasMax) return s;
+  if (p.tau !== null && !(p.tau > 0 && Number.isFinite(p.tau))) return s;
+  if (!Number.isInteger(p.semilla) || p.semilla < 0) return s;
+  if (JSON.stringify(p) === JSON.stringify(s.particulas)) return s;
+  return { ...s, particulas: p };
+}
+
+/** Cifras significativas de los valores mostrados (2–8). */
+export function fijarCifras(s: EstadoExperimento, cifras: number): EstadoExperimento {
+  const c = Math.round(cifras);
+  if (!(c >= 2 && c <= 8) || c === s.cifras) return s;
+  return { ...s, cifras: c };
 }

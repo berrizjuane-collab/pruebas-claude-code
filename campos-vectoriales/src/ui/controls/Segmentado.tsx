@@ -10,6 +10,9 @@ export interface Opcion<V extends string> {
   texto: string;
   /** Nombre accesible si `texto` es una abreviatura. */
   etiqueta?: string;
+  /** Opción no disponible por sí sola (el resto del grupo sí), con su motivo (DESIGN §7). */
+  deshabilitada?: boolean;
+  motivo?: string;
 }
 
 interface Props<V extends string> {
@@ -28,24 +31,41 @@ export function Segmentado<V extends string>({ etiqueta, opciones, valor, alCamb
   const conMotivo = deshabilitado && !!motivo;
   return (
     <div className="segmentado" role="group" aria-label={etiqueta} aria-disabled={deshabilitado || undefined}>
-      {opciones.map((o) => (
-        <button
-          key={o.valor}
-          type="button"
-          className="segmentado-opcion"
-          aria-pressed={o.valor === valor}
-          aria-label={o.etiqueta}
-          aria-disabled={deshabilitado || undefined}
-          data-forzar={forzar?.valor === o.valor ? forzar.estado : undefined}
-          {...(conMotivo ? d.props : {})}
-          onClick={() => {
-            if (!deshabilitado && o.valor !== valor) alCambiar(o.valor);
-          }}
-        >
-          {o.texto}
-        </button>
-      ))}
+      {opciones.map((o) =>
+        !deshabilitado && o.deshabilitada ? (
+          <OpcionDeshabilitada key={o.valor} o={o} elegida={o.valor === valor} />
+        ) : (
+          <button
+            key={o.valor}
+            type="button"
+            className="segmentado-opcion"
+            aria-pressed={o.valor === valor}
+            aria-label={o.etiqueta}
+            aria-disabled={deshabilitado || undefined}
+            data-forzar={forzar?.valor === o.valor ? forzar.estado : undefined}
+            {...(conMotivo ? d.props : {})}
+            onClick={() => {
+              if (!deshabilitado && o.valor !== valor) alCambiar(o.valor);
+            }}
+          >
+            {o.texto}
+          </button>
+        ),
+      )}
       {conMotivo ? d.elemento : null}
     </div>
+  );
+}
+
+/** Opción deshabilitada sola: se puede enfocar y explica su motivo (patrón `aria-disabled`, D-34). */
+function OpcionDeshabilitada<V extends string>({ o, elegida }: { o: Opcion<V>; elegida: boolean }) {
+  const d = useDescripcion({ texto: o.motivo ?? '' });
+  return (
+    <>
+      <button type="button" className="segmentado-opcion" aria-pressed={elegida} aria-label={o.etiqueta} aria-disabled {...(o.motivo ? d.props : {})}>
+        {o.texto}
+      </button>
+      {o.motivo ? d.elemento : null}
+    </>
   );
 }

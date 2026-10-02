@@ -34,6 +34,8 @@ export const peticionMalla = (e: EstadoExperimento): SinId<PeticionMalla> => ({
   n: e.muestreo.n,
   posicion: e.muestreo.posicion,
   escala: e.flechas.escala,
+  glifos: e.capas.glifos,
+  escalaRot: e.flechas.escalaRot,
   flechas: { modo: e.flechas.modo, luminancia: e.flechas.luminancia },
   corte: corteDeFlechas(e),
 });

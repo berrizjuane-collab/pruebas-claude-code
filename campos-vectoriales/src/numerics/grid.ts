@@ -124,7 +124,7 @@ export function escalaAutomatica(mag: Float64Array, clase: Uint8Array): Escala {
 }
 
 /** Marca como CERO los nodos con ‖F‖ ≤ ε₀ = max(10⁻¹², 10⁻⁹·F_ref) (SPEC §3.3). */
-export function clasificarCeros(muestra: MuestraMalla, fRef: number): void {
+export function clasificarCeros(muestra: Pick<MuestraMalla, 'mag' | 'clase' | 'recuento'>, fRef: number): void {
   const eps0 = Math.max(1e-12, 1e-9 * fRef);
   const { mag, clase } = muestra;
   for (let i = 0; i < mag.length; i++) {
@@ -134,7 +134,7 @@ export function clasificarCeros(muestra: MuestraMalla, fRef: number): void {
   recontar(muestra);
 }
 
-function recontar(m: MuestraMalla): void {
+function recontar(m: Pick<MuestraMalla, 'clase' | 'recuento'>): void {
   const r = { validos: 0, ceros: 0, noDefinidos: 0, singulares: 0 };
   for (let i = 0; i < m.clase.length; i++) {
     const c = m.clase[i];

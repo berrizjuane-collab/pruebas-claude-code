@@ -6,6 +6,8 @@ import { FINAL } from '../geometria/lineas';
 import { peticionMalla } from '../compute/peticiones';
 import { CATALOGO, type IdCampo } from '../math/catalog';
 import { compilarCampo } from '../math/field';
+import { rotacional } from '../math/derivadas';
+import { derivadasEnPunto } from '../numerics/finiteDiff';
 import type { ControladorEscena } from '../render/ControladorEscena';
 import type { Vista } from '../render/camara';
 import { EJES_PLANO, NOMBRE_EJE, type Dominio } from '../math/tipos';
@@ -27,7 +29,8 @@ import { Leyenda } from '../ui/scene/Leyenda';
 import { Triedro } from '../ui/scene/Triedro';
 import { VistaEscena } from '../ui/scene/VistaEscena';
 import { ESTADO_CALCULO_INICIAL, Orquestador, type EstadoCalculo } from './orquestador';
-import { modoPrueba, parametrosUrl, publicarGancho } from './pruebas';
+import { modoCaptura, modoPrueba, parametrosUrl, publicarGancho } from './pruebas';
+import { Animacion, datosRueda } from './animacion';
 import { useAtajos } from './atajos';
 import { useEdicion } from './edicion';
 
@@ -144,6 +147,60 @@ export function App({ fuentes }: Props) {
     controlador?.fijarLineas(estado.capas.lineas && lineas ? lineas.geometria : null);
   }, [controlador, lineas, estado.capas.lineas]);
 
+  // Animación del campo (REN-08): partículas y rueda de paletas con un reloj común. Con
+  // movimiento reducido arranca en pausa (DESIGN §8); en modo captura el reloj es determinista.
+  const [animando, setAnimando] = useState(() => !movimientoReducido);
+  const [animacion] = useState(() => new Animacion(modoCaptura()));
+  useEffect(() => () => animacion.destruir(), [animacion]);
+  useEffect(() => {
+    animacion.fijarSalida(
+      controlador
+        ? (f) => {
+            controlador.fijarParticulas(f.sistema);
+            controlador.fijarAnguloRueda(f.anguloRueda);
+          }
+        : null,
+    );
+  }, [animacion, controlador]);
+  const valoresParametros = useMemo(() => Float64Array.from(estado.parametros.map((p) => p.valor)), [estado.parametros]);
+  const punto = estado.punto;
+  // Rueda en P: eje = sentido de ∇×F(P), ω = ½‖∇×F(P)‖ (SPEC §3.4).
+  const rueda = useMemo(() => {
+    if (!campo || !punto) return null;
+    const L = Math.min(...[0, 1, 2].map((k) => (dominio.max[k] as number) - (dominio.min[k] as number))) / 2;
+    const d = derivadasEnPunto(campo, punto[0], punto[1], punto[2], valoresParametros, L);
+    return d.definido && !d.anguloso ? datosRueda(rotacional(d.J)) : null;
+  }, [campo, punto, valoresParametros, dominio]);
+  const capaParticulas = estado.capas.particulas;
+  const opcionesParticulas = estado.particulas;
+  const definicion = estado.campo;
+  useEffect(() => {
+    // Con una edición inválida se conserva la última animación válida.
+    if (!campo || !malla) return;
+    animacion.configurar({
+      campo,
+      p: valoresParametros,
+      dominio,
+      n: capaParticulas ? opcionesParticulas.n : 0,
+      semilla: opcionesParticulas.semilla,
+      tau: opcionesParticulas.tau ?? malla.deltaRef / malla.escala.ref,
+      fRef: malla.escala.ref,
+      delta: malla.deltaRef,
+      omegaRueda: rueda?.omega ?? null,
+      clave: JSON.stringify([dominio, opcionesParticulas.n, opcionesParticulas.semilla]),
+      claveCampo: JSON.stringify([definicion, Array.from(valoresParametros)]),
+    });
+  }, [animacion, campo, malla, valoresParametros, dominio, capaParticulas, opcionesParticulas, rueda, definicion]);
+  useEffect(() => {
+    controlador?.fijarRueda(rueda && punto && malla ? { centro: punto, eje: rueda.eje, radio: 0.45 * malla.deltaRef, omega: rueda.omega } : null);
+  }, [controlador, rueda, punto, malla]);
+  const hayAnimacion = capaParticulas || rueda !== null;
+  useEffect(() => {
+    animacion.fijarEnMarcha(animando);
+    controlador?.fijarPausaRueda(!animando);
+  }, [animacion, animando, controlador]);
+  const conmutarAnimacion = useCallback(() => setAnimando((a) => !a), []);
+
   const { acciones, restablecer } = useEdicion(almacen, controlador, notificador);
   const vista = useCallback((v: Vista) => controlador?.irAVista(v), [controlador]);
   const cancelarLineas = useCallback(() => orquestador?.cancelarLineas(), [orquestador]);
@@ -154,8 +211,9 @@ export function App({ fuentes }: Props) {
       p: () => almacen.fijar((s) => fijarCapa(s, 'particulas', !s.capas.particulas)),
       g: () => almacen.fijar((s) => fijarGlifos(s, s.capas.glifos === 'campo' ? 'rotacional' : 'campo')),
       c: () => almacen.fijar((s) => fijarCorte(s, { activo: !s.corte.activo })),
+      ' ': conmutarAnimacion,
     }),
-    [almacen],
+    [almacen, conmutarAnimacion],
   );
   useAtajos(restablecer.camara, vista, atajosLetras);
   const parametrosPorDefecto = estado.parametros.every((p) => p.valor === p.porDefecto);
@@ -193,6 +251,14 @@ export function App({ fuentes }: Props) {
       cancelarLineas: () => orquestador.cancelarLineas(),
       camara: () => controlador.obtenerCamara(),
       proyectar: (x: number, y: number, z: number) => controlador.proyectar([x, y, z]),
+      /** Reloj determinista de la animación: avanza `segundos` en pasos de 1/60 s. */
+      avanzarAnimacion: (segundos: number) => animacion.avanzarFijo(segundos),
+      animacion: () => ({ enMarcha: animacion.enMarcha, tau: animacion.tau, tiempo: animacion.tiempo, anguloRueda: animacion.anguloRueda }),
+      /** Posición y edad de cada partícula (para seguirlas entre pasos del reloj). */
+      particulas: () => {
+        const s = animacion.particulas;
+        return s ? { n: s.n, pos: Array.from(s.pos), edad: Array.from(s.edad), renacimientos: s.renacimientos } : null;
+      },
       dibujar: () => controlador.dibujar(),
       notificaciones: () => notificador.almacen.obtener().map((n) => ({ tipo: n.tipo, texto: n.texto, accion: n.accion?.texto ?? null })),
       medidasCancelacion: () => [...cliente.medidasCancelacion],
@@ -252,6 +318,14 @@ export function App({ fuentes }: Props) {
         }
         return null;
       },
+      /** Anillos de rot F tal como se dibujan: centro, eje y puntas orientadas hacia la cámara. */
+      anillos: () => {
+        const inst = controlador.flechas.instancias;
+        const a = inst?.anillos;
+        if (!inst || !a) return null;
+        const d = controlador.flechas.puntasDibujadas;
+        return { n: a.n, centro: Array.from(a.centro), dir: Array.from(inst.dir.subarray(0, 3 * a.n)), punta: d.punta, tangente: d.tangente, dibujados: controlador.flechas.anillos.count };
+      },
       /** Flechas «solo corte»: centro (nodo del plano) y dirección de cada una. */
       flechasCorte: () => {
         const inst = mallaActual()?.corte?.instancias;
@@ -278,24 +352,44 @@ export function App({ fuentes }: Props) {
         };
       },
     });
-  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador]);
+  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador, animacion]);
 
   const modoFlechas = estado.flechas.modo;
   const luminancia = estado.flechas.luminancia;
-  const escalaEstado = estado.flechas.escala;
+  // La escala de los glifos dibujados: F_ref con «Glifos: F», C_ref con «Glifos: rot F».
+  const modoGlifos = estado.capas.glifos;
+  const escalaEstado = modoGlifos === 'rotacional' ? estado.flechas.escalaRot : estado.flechas.escala;
   const deltaFija = escalaEstado.tipo === 'fija' ? (escalaEstado.delta ?? null) : null;
   const capaFlechas = estado.capas.flechas;
   const escalaActual = useMemo(() => (malla ? { fRef: malla.escala.ref, delta: malla.deltaRef } : null), [malla]);
-  // Candado de la leyenda: congela F_ref y Δ actuales o vuelve a la escala automática (DESIGN §9.10).
+  // Candado de la leyenda: congela la escala de los glifos dibujados (F_ref o C_ref) y Δ, o
+  // vuelve a la automática (DESIGN §9.10).
   const fijarEscala = useCallback(
     (fija: boolean) => {
       const m = almacenCalculo.obtener().malla;
-      acciones.alFlechas({ escala: fija && m ? { tipo: 'fija', valor: m.escala.ref, delta: m.deltaRef } : { tipo: 'auto' } });
+      const escala = fija && m ? { tipo: 'fija' as const, valor: m.escalaGlifos.ref, delta: m.deltaRef } : { tipo: 'auto' as const };
+      acciones.alFlechas(m?.glifos === 'rotacional' ? { escalaRot: escala } : { escala });
     },
     [almacenCalculo, acciones],
   );
   const capaLineas = estado.capas.lineas;
   const actualizandoLineas = calculo.progresoLineas !== null;
+  // «Detalles del cálculo» de las líneas (UI-08).
+  const detallesLineas = useMemo(
+    () =>
+      lineas
+        ? {
+            nLineas: lineas.nLineas,
+            semillas: lineas.semillas,
+            recuentoMotivos: lineas.recuentoMotivos,
+            vertices: lineas.posiciones.length / 3,
+            limiteVertices: lineas.limiteVertices,
+            paso: lineas.paso,
+            ms: lineas.ms,
+          }
+        : null,
+    [lineas],
+  );
 
   // Mapa escalar del corte (REN-06): V_ref automática (P95 del corte) o fijada en la leyenda.
   const resultadoCorte = calculo.corte;
@@ -334,7 +428,8 @@ export function App({ fuentes }: Props) {
     const inst = conCorte ? malla.corte!.instancias : malla.instancias;
     const d = datosEscalar;
     return {
-      escala: malla.escala,
+      glifos: malla.glifos,
+      escala: malla.escalaGlifos,
       lMax: conCorte ? malla.corte!.lMax : malla.lMax,
       modo: modoFlechas,
       luminancia,
@@ -349,6 +444,7 @@ export function App({ fuentes }: Props) {
         capaLineas && lineas && lineas.nLineas > 0
           ? { finalesCero: contar(FINAL.ROMBO), finalesIndefinidos: contar(FINAL.ASPA), actualizando: actualizandoLineas }
           : null,
+      particulas: capaParticulas ? { tau: opcionesParticulas.tau ?? malla.deltaRef / malla.escala.ref, enPausa: !animando } : null,
       corte: d
         ? {
             tipo: d.tipo,
@@ -362,7 +458,8 @@ export function App({ fuentes }: Props) {
           }
         : null,
     };
-  }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas, soloCorte, datosEscalar, corte.escala]);
+  }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas, soloCorte, datosEscalar, corte.escala, capaParticulas, opcionesParticulas, animando]);
+
 
   const estadoBarra: EstadoCalculoBarra = useMemo(() => {
     if (calculo.error) return { tipo: 'error', texto: calculo.error };
@@ -384,7 +481,7 @@ export function App({ fuentes }: Props) {
         {T.saltarEscena}
       </a>
       <BarraSuperior nombre={estado.nombre} estadoCalculo={estadoBarra} restablecer={opcionesRestablecer} alCancelar={cancelarLineas} />
-      <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} escalaActual={escalaActual} />
+      <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} escalaActual={escalaActual} detallesLineas={detallesLineas} />
       <VistaEscena
         fuentes={fuentes}
         movimientoReducido={movimientoReducido}
@@ -418,9 +515,14 @@ export function App({ fuentes }: Props) {
           />
         ) : null}
         <Notificaciones notificador={notificador} />
+        {hayAnimacion ? (
+          <p className="solo-lector" aria-live="polite" data-prueba="anuncio-animacion">
+            {animando ? T.vistas.enMarcha : T.vistas.enPausa}
+          </p>
+        ) : null}
         {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} alFijarVRef={fijarVRef} /> : null}
         <div className="esquina-inferior-derecha">
-          <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} />
+          <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} />
           <Triedro controlador={controlador} />
         </div>
       </VistaEscena>

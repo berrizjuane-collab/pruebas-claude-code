@@ -5,13 +5,17 @@ import {
   anadirParametro,
   aplicarEcuaciones,
   eliminarParametro,
+  fijarCifras,
   fijarDominio,
+  fijarLineas,
   fijarMuestreo,
+  fijarParticulas,
   fijarParametro,
   fijarRangoParametro,
   motivoIntervalo,
   motivoNombreParametro,
   motivoRango,
+  motivoSemillas,
   nombrePersonalizado,
   restablecerExperimento,
   restablecerParametro,
@@ -119,5 +123,32 @@ describe('acciones de edición (UI-02 … UI-05)', () => {
     expect(s.muestreo.n).toEqual([21, 3, 21]);
     expect(fijarMuestreo(hel, { corteResolucion: 100 }).muestreo.corteResolucion).toBe(61);
     expect(fijarMuestreo(hel, { posicion: 'nodos' })).toBe(hel);
+  });
+});
+
+describe('UI-08 · líneas, partículas y cifras', () => {
+  const hel = EXPERIMENTO_INICIAL;
+  it('semillas: rejilla hasta 256 puntos, aleatorias 1–256 con semilla entera; paso y longitud positivos o automáticos', () => {
+    const rejilla = { tipo: 'rejilla' as const, plano: 'XY' as const, c: 0, nu: 16, nv: 16 };
+    expect(fijarLineas(hel, { semillas: rejilla }).lineas.semillas).toEqual(rejilla);
+    expect(fijarLineas(hel, { semillas: { ...rejilla, nv: 17 } })).toBe(hel);
+    expect(motivoSemillas({ ...rejilla, nv: 17 })).toMatch(/256/);
+    expect(fijarLineas(hel, { semillas: { tipo: 'aleatoria', n: 32, semilla: 1 } }).lineas.semillas).toMatchObject({ n: 32 });
+    expect(fijarLineas(hel, { semillas: { tipo: 'aleatoria', n: 0, semilla: 1 } })).toBe(hel);
+    expect(fijarLineas(hel, { semillas: { tipo: 'aleatoria', n: 10, semilla: 1.5 } })).toBe(hel);
+    expect(fijarLineas(hel, { paso: 0.01 }).lineas.paso).toBe(0.01);
+    expect(fijarLineas(hel, { paso: -1 })).toBe(hel);
+    expect(fijarLineas(hel, { longitudMax: null })).toBe(hel);
+    expect(fijarLineas(hel, { longitudMax: 10 }).lineas.longitudMax).toBe(10);
+  });
+
+  it('partículas: 1–2000, τ positiva o automática, semilla entera; cifras 2–8', () => {
+    expect(fijarParticulas(hel, { n: 2000 }).particulas.n).toBe(2000);
+    expect(fijarParticulas(hel, { n: 2001 })).toBe(hel);
+    expect(fijarParticulas(hel, { tau: 0.5 }).particulas.tau).toBe(0.5);
+    expect(fijarParticulas(hel, { tau: 0 })).toBe(hel);
+    expect(fijarParticulas(hel, { semilla: 7 }).particulas.semilla).toBe(7);
+    expect(fijarCifras(hel, 6).cifras).toBe(6);
+    expect(fijarCifras(hel, 9)).toBe(hel);
   });
 });

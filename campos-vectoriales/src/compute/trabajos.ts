@@ -3,11 +3,12 @@
  * navegador no permite crearlo, en el hilo principal (D-22).
  */
 import { compilarCampo, type CampoCompilado } from '../math/field';
-import { calcularFlechas } from '../geometria/flechas';
+import { anillosRotacional, calcularFlechas } from '../geometria/flechas';
 import { contornoCero } from '../geometria/escalar';
 import { geometriaLineas } from '../geometria/lineas';
 import { clasificarCeros, crearMalla, escalaAutomatica, muestrearMalla, type Escala } from '../numerics/grid';
 import { generarSemillas } from '../numerics/seeds';
+import { muestrearRotacional } from '../numerics/rotacional';
 import { muestrearCorte } from '../numerics/slice';
 import { lineaTroceada, MOTIVOS, opcionesPorDefecto, type MotivoParada } from '../numerics/streamlines';
 import { EJES_PLANO } from '../math/tipos';
@@ -31,18 +32,30 @@ export function obtenerCampo(def: DefinicionCampo): CampoCompilado {
   return r.campo;
 }
 
+/** Escala de referencia fija o automática (P95) de unas magnitudes. */
+const escalaDe = (e: PeticionMalla['escala'], mag: Float64Array, clase: Uint8Array): Escala =>
+  e.tipo === 'fija' ? { ref: e.valor, origen: 'fija', nulo: false } : escalaAutomatica(mag, clase);
+
+/** Escala de longitud del paso de las derivadas numéricas (SPEC §5.4): medio lado menor de Ω. */
+const escalaLongitud = (d: PeticionMalla['dominio']) => Math.min(...[0, 1, 2].map((k) => (d.max[k] as number) - (d.min[k] as number))) / 2;
+
 export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
   const t0 = performance.now();
   const campo = obtenerCampo(pet.campo);
   const p = Float64Array.from(pet.p);
   const malla = crearMalla(pet.dominio, pet.n, pet.posicion);
   const muestra = muestrearMalla(campo.F, p, malla);
-  const escala: Escala = pet.escala.tipo === 'fija' ? { ref: pet.escala.valor, origen: 'fija', nulo: false } : escalaAutomatica(muestra.mag, muestra.clase);
+  const escala = escalaDe(pet.escala, muestra.mag, muestra.clase);
   clasificarCeros(muestra, escala.ref);
   const lMax = 0.9 * malla.deltaRef;
-  const opciones = { fRef: escala.ref, modo: pet.flechas.modo, luminancia: pet.flechas.luminancia };
-  const instancias = calcularFlechas(muestra, { ...opciones, lMax });
-  const corte = pet.corte ? flechasCorte(campo, p, pet, opciones) : null;
+  // «Glifos: rot F»: las flechas dibujan ∇×F con su propia C_ref (DESIGN §9.7).
+  const rot = pet.glifos === 'rotacional' ? muestrearRotacional(campo, p, muestra.pos, muestra.clase, escalaLongitud(pet.dominio)) : null;
+  const escalaGlifos = rot ? escalaDe(pet.escalaRot, rot.mag, rot.clase) : escala;
+  if (rot) clasificarCeros(rot, escalaGlifos.ref);
+  const opciones = { fRef: escalaGlifos.ref, modo: pet.flechas.modo, luminancia: pet.flechas.luminancia };
+  const instancias = calcularFlechas(rot ? { total: muestra.total, pos: muestra.pos, F: rot.C, mag: rot.mag, clase: rot.clase } : muestra, { ...opciones, lMax });
+  if (rot) instancias.anillos = anillosRotacional(instancias, lMax);
+  const corte = pet.corte ? flechasCorte(campo, p, pet, opciones, !!rot) : null;
   return {
     total: muestra.total,
     n: pet.n,
@@ -53,6 +66,9 @@ export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
     clase: muestra.clase,
     recuento: muestra.recuento,
     escala,
+    glifos: pet.glifos,
+    escalaGlifos,
+    rot,
     lMax,
     instancias,
     corte,
@@ -60,25 +76,47 @@ export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
   };
 }
 
-/** Flechas del corte en una rejilla N×N del plano, comparables con las del volumen (misma F_ref). */
+/**
+ * Flechas del corte en una rejilla N×N del plano, comparables con las del volumen (misma
+ * F_ref o C_ref). Con «Glifos: rot F» dibujan ∇×F; «tangencial» anula la componente normal.
+ */
 function flechasCorte(
   campo: CampoCompilado,
   p: Float64Array,
   pet: PeticionMalla,
   opciones: { fRef: number; modo: PeticionMalla['flechas']['modo']; luminancia: PeticionMalla['flechas']['luminancia'] },
+  conRot: boolean,
 ): FlechasCorte {
   const esp = pet.corte!;
-  const { u, v } = EJES_PLANO[esp.plano];
+  const { u, v, n } = EJES_PLANO[esp.plano];
   const N = Math.max(pet.n[u], pet.n[v]);
   const d = pet.dominio;
   const lado = (k: number) => (d.max[k] as number) - (d.min[k] as number);
-  const L = Math.min(lado(0), lado(1), lado(2)) / 2;
+  const L = escalaLongitud(d);
   const m = muestrearCorte(campo, p, { plano: esp.plano, c: esp.c, M: N, dominio: d, escalar: null }, L);
-  const tangencial = esp.vector === 'tangencial';
-  const mag = tangencial ? Float64Array.from({ length: m.total }, (_, i) => Math.hypot(m.Fpar[3 * i] as number, m.Fpar[3 * i + 1] as number, m.Fpar[3 * i + 2] as number)) : m.mag;
+  let vector: Float64Array = m.F;
+  let mag: Float64Array = m.mag;
+  let clase: Uint8Array = m.clase;
+  if (conRot) {
+    const r = muestrearRotacional(campo, p, m.pos, m.clase, L);
+    clasificarCeros(r, opciones.fRef);
+    vector = r.C;
+    mag = r.mag;
+    clase = r.clase;
+  }
+  if (esp.vector === 'tangencial') {
+    // Proyección tangencial exacta: n es un eje coordenado.
+    vector = Float64Array.from(vector);
+    mag = new Float64Array(m.total);
+    for (let i = 0; i < m.total; i++) {
+      vector[3 * i + n] = Number.isNaN(vector[3 * i + n] as number) ? NaN : 0;
+      mag[i] = Math.hypot(vector[3 * i] as number, vector[3 * i + 1] as number, vector[3 * i + 2] as number);
+    }
+  }
   const deltaRef = Math.min(lado(u), lado(v)) / (N - 1);
   const lMax = 0.9 * deltaRef;
-  const instancias = calcularFlechas({ total: m.total, pos: m.pos, F: tangencial ? m.Fpar : m.F, mag, clase: m.clase }, { ...opciones, lMax });
+  const instancias = calcularFlechas({ total: m.total, pos: m.pos, F: vector, mag, clase }, { ...opciones, lMax });
+  if (conRot) instancias.anillos = anillosRotacional(instancias, lMax);
   return { instancias, lMax, deltaRef, total: m.total };
 }
 

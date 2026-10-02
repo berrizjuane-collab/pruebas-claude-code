@@ -11,6 +11,14 @@ export function enCampoDeTexto(objetivo: EventTarget | null): boolean {
   return el.isContentEditable || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT';
 }
 
+/** ¿La tecla Espacio ya tiene uso en el elemento (botón, interruptor, casilla, deslizador…)? */
+function usaEspacio(objetivo: EventTarget | null): boolean {
+  const el = objetivo as HTMLElement | null;
+  if (!el?.getAttribute) return false;
+  const rol = el.getAttribute('role') ?? '';
+  return el.tagName === 'BUTTON' || el.tagName === 'A' || ['button', 'switch', 'checkbox', 'radio', 'slider', 'tab', 'option', 'spinbutton', 'menuitem'].includes(rol);
+}
+
 /**
  * Atajos globales (PLAN §3.1): encuadre, vistas y, en `letras`, las acciones de una letra
  * (F, L, P, G…). No se activan dentro de campos de texto ni con modificadores, ni cuando la
@@ -20,6 +28,7 @@ export function useAtajos(encuadrar: () => void, vista: (v: Vista) => void, letr
   useEffect(() => {
     const alPulsar = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || enCampoDeTexto(e.target)) return;
+      if (e.key === ' ' && usaEspacio(e.target)) return;
       const vistas: Record<string, Vista> = { '1': 'XY', '2': 'XZ', '3': 'YZ', '4': 'iso' };
       const letra = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       if (letra === 'r') {

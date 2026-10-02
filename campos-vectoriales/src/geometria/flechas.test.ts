@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calcularFlechas, fraccionMagnitud, grisRampaMagnitud, PROPORCION } from './flechas';
+import { calcularFlechas, fraccionMagnitud, grisRampaMagnitud, PROPORCION, puntasHaciaCamara, type AnillosRotacional } from './flechas';
 import { crearMalla, escalaAutomatica, muestrearMalla, clasificarCeros } from '../numerics/grid';
 import { campoPorId, valoresParametros } from '../math/catalog';
 import { lstarDeGris } from '../design/color';
@@ -98,5 +98,41 @@ describe('rampa de magnitud', () => {
     expect(fraccionMagnitud(1, 1, 'log')).toBeCloseTo(1, 12);
     expect(fraccionMagnitud(0.5, 1, 'log')).toBeCloseTo(Math.log10(5.5), 12);
     expect(fraccionMagnitud(3, 1, 'log')).toBe(1);
+  });
+});
+
+describe('REN-07 · puntas de los anillos hacia la cámara', () => {
+  // Un anillo de radio 0.2 en el origen con eje +z.
+  const a: AnillosRotacional = {
+    n: 1,
+    centro: Float32Array.from([0, 0, 0]),
+    radio: Float32Array.from([0.2]),
+    punta: Float32Array.from([0, 0.2, 0, 0, -0.2, 0]),
+    tangente: Float32Array.from([-1, 0, 0, 1, 0, 0]),
+    largoPunta: Float32Array.from([0.05]),
+    radioPunta: Float32Array.from([0.02]),
+  };
+  const dir = Float32Array.from([0, 0, 1]);
+
+  it('la punta delantera, en el punto del anillo más cercano a la cámara, con el giro de la mano derecha', () => {
+    const punta = new Float32Array(6);
+    const tangente = new Float32Array(6);
+    puntasHaciaCamara(a, dir, [5, -5, 3], punta, tangente);
+    const s = Math.SQRT1_2;
+    expect(Array.from(punta.slice(0, 3)).map((x) => Number(x.toFixed(6)))).toEqual([Number((0.2 * s).toFixed(6)), Number((-0.2 * s).toFixed(6)), 0]);
+    // t = d × e1 = ẑ × (s, −s, 0) = (s, s, 0): antihorario visto desde +z.
+    expect(tangente[0]).toBeCloseTo(s, 6);
+    expect(tangente[1]).toBeCloseTo(s, 6);
+    // La trasera, opuesta y con la tangente opuesta.
+    expect(punta[3]).toBeCloseTo(-0.2 * s, 6);
+    expect(tangente[3]).toBeCloseTo(-s, 6);
+  });
+
+  it('con la cámara sobre el eje (anillo de frente) se conservan las puntas geométricas', () => {
+    const punta = new Float32Array(6);
+    const tangente = new Float32Array(6);
+    puntasHaciaCamara(a, dir, [0.001, 0, 10], punta, tangente);
+    expect(Array.from(punta)).toEqual(Array.from(a.punta));
+    expect(Array.from(tangente)).toEqual(Array.from(a.tangente));
   });
 });

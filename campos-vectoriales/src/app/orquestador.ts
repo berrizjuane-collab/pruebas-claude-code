@@ -46,7 +46,7 @@ const RETRASO_LINEAS = 120;
 const UMBRAL_PROGRESO = 300;
 
 const claveMalla = (e: EstadoExperimento) =>
-  JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.muestreo.n, e.muestreo.posicion, e.flechas, corteDeFlechas(e)]);
+  JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.muestreo.n, e.muestreo.posicion, e.flechas, e.capas.glifos, corteDeFlechas(e)]);
 // «Flechas» y «Vector» del corte no cambian su muestreo (las flechas del plano van con la malla).
 const claveCorte = (e: EstadoExperimento) =>
   JSON.stringify([definicionCampo(e), valores(e), e.dominio, e.corte.activo, e.corte.plano, e.corte.c, e.corte.escalar, e.muestreo.corteResolucion]);

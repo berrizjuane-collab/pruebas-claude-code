@@ -11,6 +11,9 @@ import type { TipoEscalar } from '../../numerics/slice';
 import { T } from '../../i18n/es';
 
 export interface DatosLeyenda {
+  /** Vector de los glifos: F o rot F (DESIGN §9.1: la banda clara tiene un único significado). */
+  glifos: 'campo' | 'rotacional';
+  /** Escala de los glifos dibujados: F_ref o C_ref. */
   escala: Escala;
   lMax: number;
   modo: 'proporcional' | 'normalizado';
@@ -26,6 +29,8 @@ export interface DatosLeyenda {
   nFlechas: number;
   /** Líneas de corriente visibles (null si la capa está apagada o no hay líneas). */
   lineas: { finalesCero: number; finalesIndefinidos: number; actualizando: boolean } | null;
+  /** Partículas visibles: escala temporal τ y si la animación está en pausa (null si apagadas). */
+  particulas: { tau: number; enPausa: boolean } | null;
   /** Mapa escalar del corte (null si no hay): rótulo del plano, eje normal y V_ref. */
   corte: {
     tipo: TipoEscalar;
@@ -85,6 +90,28 @@ const GLIFO = {
   semilla: (
     <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true" style={{ color: escena.semilla }}>
       <circle cx="11" cy="6" r="3.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  ),
+  // Partícula: punto claro con halo; estela gris que se estrecha hacia atrás (DESIGN §9.1).
+  particula: (
+    <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true">
+      <circle cx="16" cy="6" r="3.2" fill={escena.particula} stroke={escena.halo} strokeWidth="1.5" />
+    </svg>
+  ),
+  estela: (
+    <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true">
+      <path d="M2 7.6 15 5 15 7z" fill={escena.estela} />
+      <circle cx="16" cy="6" r="2.6" fill={escena.particula} stroke={escena.halo} strokeWidth="1.2" />
+    </svg>
+  ),
+  // Anillo de giro alrededor del eje (visto un poco desde la punta): la mitad delantera
+  // queda a la izquierda y su flecha baja, como manda la regla de la mano derecha.
+  anillo: (
+    <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true">
+      <path d="M1 6h13" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M13 2l7 4-7 4z" fill="currentColor" />
+      <ellipse cx="7" cy="6" rx="2.6" ry="4.7" fill="none" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M2.9 4.9 4.4 7.6 5.9 4.9" fill="none" stroke="currentColor" strokeWidth="1.2" />
     </svg>
   ),
 };
@@ -185,6 +212,11 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef }: Props) 
   // Flecha de referencia: ℓmax (o 0.75 ℓmax en modo normalizado) a la distancia del objetivo.
   const largoRef = Math.round(Math.min(184, Math.max(16, (normalizada ? 0.75 : 1) * datos.lMax * px)));
   const fija = datos.escala.origen === 'fija';
+  // Textos del vector dibujado: F (F_ref) o rot F (C_ref).
+  const rot = datos.glifos === 'rotacional';
+  const texto = rot
+    ? { magnitud: T.leyenda.rot.magnitud, magnitudLog: T.leyenda.rot.magnitudLog, sentido: T.leyenda.rot.eje, saturada: T.leyenda.rot.saturada, cero: T.leyenda.rot.cero, referencia: T.leyenda.rot.referencia, escala: T.leyenda.rot.escala }
+    : { magnitud: T.leyenda.magnitud, magnitudLog: T.leyenda.magnitudLog, sentido: T.leyenda.sentido, saturada: T.leyenda.saturada, cero: T.leyenda.cero, referencia: T.leyenda.referencia, escala: T.leyenda.escala };
   const deltaDistinto = fija && datos.deltaFija !== null && Math.abs(datos.deltaFija - datos.deltaRef) > 1e-9 * datos.deltaRef;
   // «× no definido» aparece una sola vez en toda la leyenda.
   const indefinidoListado = (datos.flechas && datos.indefinidos > 0) || (datos.lineas?.finalesIndefinidos ?? 0) > 0;
@@ -205,7 +237,7 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef }: Props) 
           <div className="leyenda-bloque">
             {hayFlechas ? (
               <div className="leyenda-rampa">
-                <span className="leyenda-rampa-titulo">{datos.luminancia === 'log' ? T.leyenda.magnitudLog : T.leyenda.magnitud}</span>
+                <span className="leyenda-rampa-titulo">{datos.luminancia === 'log' ? texto.magnitudLog : texto.magnitud}</span>
                 <div className="leyenda-barra" style={{ backgroundImage: degradadoMagnitud() }} data-prueba="barra-magnitud" />
                 <div className="leyenda-marcas num" data-prueba="leyenda-marcas" aria-hidden="true">
                   <span>0</span>
@@ -218,19 +250,25 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef }: Props) 
               {hayFlechas ? (
                 <li>
                   {GLIFO.flecha}
-                  <span>{T.leyenda.sentido}</span>
+                  <span>{texto.sentido}</span>
+                </li>
+              ) : null}
+              {hayFlechas && rot ? (
+                <li>
+                  {GLIFO.anillo}
+                  <span>{T.leyenda.rot.giro}</span>
                 </li>
               ) : null}
               {datos.saturadas > 0 && datos.modo === 'proporcional' ? (
                 <li>
                   {GLIFO.doble}
-                  <span>{T.leyenda.saturada(ref)}</span>
+                  <span>{texto.saturada(ref)}</span>
                 </li>
               ) : null}
               {datos.ceros > 0 ? (
                 <li>
                   {GLIFO.rombo}
-                  <span>{T.leyenda.cero}</span>
+                  <span>{texto.cero}</span>
                 </li>
               ) : null}
               {datos.indefinidos > 0 ? (
@@ -247,11 +285,11 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef }: Props) 
                     <path d={`M1 6h${largoRef - 7}`} stroke="currentColor" strokeWidth="1.5" />
                     <path d={`M${largoRef - 7} 2l7 4-7 4z`} fill="currentColor" />
                   </svg>
-                  <span className="num">{normalizada ? T.leyenda.normalizada : T.leyenda.referencia(ref)}</span>
+                  <span className="num">{normalizada ? T.leyenda.normalizada : texto.referencia(ref)}</span>
                 </div>
                 <div className="leyenda-pie-fila">
                   <p className="leyenda-pie num" data-prueba="leyenda-escala">
-                    {T.leyenda.escala(ref, fija ? T.leyenda.escalaFija : T.leyenda.escalaAuto)}
+                    {texto.escala(ref, fija ? T.leyenda.escalaFija : T.leyenda.escalaAuto)}
                     <br />
                     {T.leyenda.longitudMax(formatearCorto(Number(datos.lMax.toPrecision(3))))}
                   </p>
@@ -305,6 +343,29 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef }: Props) 
                 {T.leyenda.actualizando}
               </p>
             ) : null}
+          </div>
+        ) : null}
+        {datos.particulas ? (
+          <div className="leyenda-bloque">
+            <ul className="leyenda-lista" data-prueba="leyenda-particulas">
+              <li>
+                {GLIFO.particula}
+                <span>{T.leyenda.particula}</span>
+              </li>
+              <li>
+                {GLIFO.estela}
+                <span>{T.leyenda.estela}</span>
+              </li>
+            </ul>
+            <p className="leyenda-pie num" data-prueba="leyenda-tau">
+              {T.leyenda.tau(formatearCorto(Number(datos.particulas.tau.toPrecision(3))))}
+              {datos.particulas.enPausa ? (
+                <>
+                  <br />
+                  {T.leyenda.enPausa}
+                </>
+              ) : null}
+            </p>
           </div>
         ) : null}
         {datos.corte ? <BloqueCorte corte={datos.corte} indefinidoYaListado={indefinidoListado} alFijarVRef={alFijarVRef} /> : null}

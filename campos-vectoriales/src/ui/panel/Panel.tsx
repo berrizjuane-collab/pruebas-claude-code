@@ -1,4 +1,4 @@
-import { memo, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { memo, useCallback, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { CATALOGO, campoPorId, type IdCampo } from '../../math/catalog';
 import { texCampo, type CampoCompilado } from '../../math/field';
@@ -17,6 +17,8 @@ import { Parametros } from './Parametros';
 import { Visualizacion } from './Visualizacion';
 import { Avanzado } from './Avanzado';
 import { Corte } from './Corte';
+import { Derivadas } from './Derivadas';
+import { Lineas, type DetallesLineas } from './Lineas';
 
 /** Acciones del panel (las ejecuta App sobre el almacén). */
 export interface AccionesPanel {
@@ -34,6 +36,9 @@ export interface AccionesPanel {
   alGlifos: (g: EstadoExperimento['capas']['glifos']) => void;
   alFlechas: (cambios: Partial<EstadoExperimento['flechas']>) => void;
   alCorte: (cambios: Partial<EstadoExperimento['corte']>) => void;
+  alLineas: (cambios: Partial<EstadoExperimento['lineas']>) => void;
+  alParticulas: (cambios: Partial<EstadoExperimento['particulas']>) => void;
+  alCifras: (cifras: number) => void;
 }
 
 interface Props {
@@ -41,11 +46,14 @@ interface Props {
   campo: CampoCompilado | null;
   acciones: AccionesPanel;
   edicionInvalida: Almacen<boolean>;
-  /** F_ref y Δ de la malla vigente (para fijar la escala). */
+  /** F_ref y Δ de la malla vigente (para fijar la escala y la τ automática). */
   escalaActual: { fRef: number; delta: number } | null;
+  /** Resumen del último cálculo de líneas («Detalles del cálculo»). */
+  detallesLineas: DetallesLineas | null;
 }
 
-export function Panel({ estado, campo, acciones: a, edicionInvalida, escalaActual }: Props) {
+export function Panel({ estado, campo, acciones: a, edicionInvalida, escalaActual, detallesLineas }: Props) {
+  const verEnCorte = useCallback((escalar: 'divergencia' | 'rotacional') => a.alCorte({ activo: true, escalar }), [a]);
   // Los nombres solo cambian al añadir o quitar parámetros (no con sus valores).
   const claveNombres = estado.parametros.map((p) => p.nombre).join('\u0000');
   const nombres = useMemo(() => (claveNombres ? claveNombres.split('\u0000') : []), [claveNombres]);
@@ -72,9 +80,21 @@ export function Panel({ estado, campo, acciones: a, edicionInvalida, escalaActua
         alAnadir={a.alAnadirParametro}
       />
       <Visualizacion capas={estado.capas} alCapa={a.alCapa} alGlifos={a.alGlifos} />
+      <Lineas lineas={estado.lineas} dominio={estado.dominio} hayPunto={estado.punto !== null} detalles={detallesLineas} alLineas={a.alLineas} />
       <Corte corte={estado.corte} dominio={estado.dominio} alCorte={a.alCorte} />
+      <Derivadas campo={campo} glifos={estado.capas.glifos} alVerEnCorte={verEnCorte} alGlifos={a.alGlifos} />
       <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} />
-      <Avanzado flechas={estado.flechas} fRefActual={escalaActual?.fRef ?? null} deltaActual={escalaActual?.delta ?? null} alFlechas={a.alFlechas} />
+      <Avanzado
+        flechas={estado.flechas}
+        particulas={estado.particulas}
+        cifras={estado.cifras}
+        tauActual={escalaActual ? escalaActual.delta / escalaActual.fRef : null}
+        fRefActual={escalaActual?.fRef ?? null}
+        deltaActual={escalaActual?.delta ?? null}
+        alFlechas={a.alFlechas}
+        alParticulas={a.alParticulas}
+        alCifras={a.alCifras}
+      />
     </aside>
   );
 }

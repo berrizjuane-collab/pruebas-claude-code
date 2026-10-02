@@ -1,25 +1,33 @@
 /**
  * Avanzado (DESIGN §5.3, sección 10). Flechas: longitud proporcional o normalizada, escala
  * automática (P95) o fija, luminancia lineal o logarítmica (REN-04, DESIGN §9.3 y §9.10).
+ * Partículas: número, escala temporal τ y semilla (REN-08). Cifras significativas.
  */
 import { memo } from 'react';
-import type { EstadoExperimento } from '../../state/schema';
+import { LIMITES, type EstadoExperimento } from '../../state/schema';
 import { T } from '../../i18n/es';
 import { CampoNumerico } from '../controls/CampoNumerico';
 import { Seccion } from '../controls/Seccion';
 import { Segmentado } from '../controls/Segmentado';
 
 type Flechas = EstadoExperimento['flechas'];
+type Particulas = EstadoExperimento['particulas'];
 
 interface Props {
   flechas: Flechas;
+  particulas: Particulas;
+  cifras: number;
+  /** τ automática vigente (Δ/F_ref), para partir de ella al fijarla. */
+  tauActual: number | null;
+  alParticulas: (cambios: Partial<Particulas>) => void;
+  alCifras: (cifras: number) => void;
   /** F_ref y Δ de la malla vigente: al pasar a «fija» se congela este valor. */
   fRefActual: number | null;
   deltaActual: number | null;
   alFlechas: (cambios: Partial<Flechas>) => void;
 }
 
-function AvanzadoBase({ flechas, fRefActual, deltaActual, alFlechas }: Props) {
+function AvanzadoBase({ flechas, particulas, cifras, tauActual, fRefActual, deltaActual, alFlechas, alParticulas, alCifras }: Props) {
   const fija = flechas.escala.tipo === 'fija';
   return (
     <Seccion titulo={T.avanzado.titulo} datosPrueba="seccion-avanzado">
@@ -74,6 +82,65 @@ function AvanzadoBase({ flechas, fRefActual, deltaActual, alFlechas }: Props) {
             { valor: 'log', texto: T.avanzado.log },
           ]}
           alCambiar={(luminancia) => alFlechas({ luminancia })}
+        />
+      </div>
+      <p className="subtitulo">{T.avanzado.particulas}</p>
+      <div className="fila-control">
+        <span className="fila-etiqueta">{T.avanzado.numero}</span>
+        <CampoNumerico
+          etiqueta={T.avanzado.numeroLargo}
+          valor={particulas.n}
+          paso={50}
+          min={1}
+          max={LIMITES.particulasMax}
+          validar={(v) => (Number.isInteger(v) ? null : T.avanzado.entero(1, LIMITES.particulasMax))}
+          alCambiar={(n) => alParticulas({ n })}
+          datosPrueba="particulas-n"
+        />
+      </div>
+      <div className="fila-control">
+        <span className="fila-etiqueta">{T.avanzado.tau}</span>
+        <Segmentado
+          etiqueta={T.avanzado.tauLargo}
+          valor={particulas.tau === null ? 'auto' : 'fija'}
+          opciones={[
+            { valor: 'auto', texto: T.avanzado.tauAuto },
+            { valor: 'fija', texto: T.avanzado.fija },
+          ]}
+          alCambiar={(v) => alParticulas({ tau: v === 'auto' ? null : Number((tauActual ?? 0.2).toPrecision(3)) })}
+        />
+        {particulas.tau !== null ? (
+          <CampoNumerico
+            etiqueta={T.avanzado.tauValor}
+            valor={particulas.tau}
+            paso={0.05}
+            validar={(v) => (v > 0 ? null : T.avanzado.positivo)}
+            alCambiar={(tau) => alParticulas({ tau })}
+            datosPrueba="particulas-tau"
+          />
+        ) : null}
+      </div>
+      <div className="fila-control">
+        <span className="fila-etiqueta">{T.avanzado.semilla}</span>
+        <CampoNumerico
+          etiqueta={T.avanzado.semillaLargo}
+          valor={particulas.semilla}
+          min={0}
+          validar={(v) => (Number.isInteger(v) ? null : T.avanzado.entero(0, 2 ** 31))}
+          alCambiar={(semilla) => alParticulas({ semilla })}
+          datosPrueba="particulas-semilla"
+        />
+      </div>
+      <div className="fila-control">
+        <span className="fila-etiqueta">{T.avanzado.cifras}</span>
+        <CampoNumerico
+          etiqueta={T.avanzado.cifrasLargo}
+          valor={cifras}
+          min={2}
+          max={8}
+          validar={(v) => (Number.isInteger(v) ? null : T.avanzado.entero(2, 8))}
+          alCambiar={alCifras}
+          datosPrueba="cifras"
         />
       </div>
     </Seccion>
