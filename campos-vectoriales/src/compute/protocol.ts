@@ -5,6 +5,7 @@
  */
 import type { Dominio, EspecSemillas, Plano, Vec3 } from '../math/tipos';
 import type { InstanciasFlechas, ModoLongitud, ModoLuminancia } from '../geometria/flechas';
+import type { GeometriaLineas } from '../geometria/lineas';
 import type { Escala } from '../numerics/grid';
 import type { MotivoParada } from '../numerics/streamlines';
 import type { MuestraCorte, TipoEscalar } from '../numerics/slice';
@@ -24,7 +25,7 @@ export interface PeticionMalla {
   dominio: Dominio;
   n: [number, number, number];
   posicion: 'nodos' | 'centros';
-  escala: { tipo: 'auto' } | { tipo: 'fija'; valor: number };
+  escala: { tipo: 'auto' } | { tipo: 'fija'; valor: number; /** Δ de la malla al fijarla (DESIGN §9.10). */ delta?: number };
   flechas: { modo: ModoLongitud; luminancia: ModoLuminancia };
 }
 
@@ -93,6 +94,8 @@ export interface ResultadoLineas {
   /** Se alcanzó el límite de vértices (SPEC §5.9). */
   limiteVertices: boolean;
   paso: number;
+  /** Geometría para dibujar (segmentos, cheurones, semillas y marcas finales). */
+  geometria: GeometriaLineas;
   ms: number;
 }
 
@@ -117,7 +120,8 @@ export function transferibles(r: Respuesta): Transferable[] {
     add(m.pos, m.F, m.mag, m.clase, i.cola, i.dir, i.largo, i.cono, i.radioCono, i.radio, i.gris, i.saturada, i.nodo, i.ceros, i.indefinidos);
   } else if (r.tipo === 'lineas') {
     const l = r.resultado;
-    add(l.posiciones, l.inicio, l.semilla, l.motivos, l.longitudes);
+    const g = l.geometria;
+    add(l.posiciones, l.inicio, l.semilla, l.motivos, l.longitudes, g.segmentos, g.cheurones, g.tangentes, g.semillas, g.finales, g.formasFinales);
   } else if (r.tipo === 'corte') {
     const c = r.resultado;
     add(c.pos, c.F, c.Fpar, c.Fn, c.mag, c.clase, c.escalar?.valores, c.escalar?.estado);

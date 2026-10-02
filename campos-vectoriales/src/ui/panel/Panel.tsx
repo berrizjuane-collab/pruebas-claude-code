@@ -8,11 +8,14 @@ import type { EstadoExperimento } from '../../state/schema';
 import { T } from '../../i18n/es';
 import type { Dominio as TipoDominio } from '../../math/tipos';
 import type { Almacen } from '../../state/store';
+import type { Capa } from '../../state/actions';
 import { TeX, TextoMat } from '../TeX';
 import { Dominio } from './Dominio';
 import { Ecuaciones } from './Ecuaciones';
 import { Miniatura } from './Miniatura';
 import { Parametros } from './Parametros';
+import { Visualizacion } from './Visualizacion';
+import { Avanzado } from './Avanzado';
 
 /** Acciones del panel (las ejecuta App sobre el almacén). */
 export interface AccionesPanel {
@@ -26,6 +29,9 @@ export interface AccionesPanel {
   alAnadirParametro: (nombre: string) => void;
   alDominio: (d: TipoDominio) => void;
   alMuestreo: (m: Partial<EstadoExperimento['muestreo']>) => void;
+  alCapa: (capa: Capa, activa: boolean) => void;
+  alGlifos: (g: EstadoExperimento['capas']['glifos']) => void;
+  alFlechas: (cambios: Partial<EstadoExperimento['flechas']>) => void;
 }
 
 interface Props {
@@ -33,9 +39,11 @@ interface Props {
   campo: CampoCompilado | null;
   acciones: AccionesPanel;
   edicionInvalida: Almacen<boolean>;
+  /** F_ref y Δ de la malla vigente (para fijar la escala). */
+  escalaActual: { fRef: number; delta: number } | null;
 }
 
-export function Panel({ estado, campo, acciones: a, edicionInvalida }: Props) {
+export function Panel({ estado, campo, acciones: a, edicionInvalida, escalaActual }: Props) {
   // Los nombres solo cambian al añadir o quitar parámetros (no con sus valores).
   const claveNombres = estado.parametros.map((p) => p.nombre).join('\u0000');
   const nombres = useMemo(() => (claveNombres ? claveNombres.split('\u0000') : []), [claveNombres]);
@@ -61,7 +69,9 @@ export function Panel({ estado, campo, acciones: a, edicionInvalida }: Props) {
         alEliminar={a.alEliminarParametro}
         alAnadir={a.alAnadirParametro}
       />
+      <Visualizacion capas={estado.capas} alCapa={a.alCapa} alGlifos={a.alGlifos} />
       <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} />
+      <Avanzado flechas={estado.flechas} fRefActual={escalaActual?.fRef ?? null} deltaActual={escalaActual?.delta ?? null} alFlechas={a.alFlechas} />
     </aside>
   );
 }

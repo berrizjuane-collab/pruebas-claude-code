@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CircleOff, FileQuestion } from 'lucide-react';
 import { ClienteCalculo } from '../compute/client';
 import { huellaMalla } from '../compute/huella';
+import { FINAL } from '../geometria/lineas';
 import { peticionMalla } from '../compute/peticiones';
 import { CATALOGO, type IdCampo } from '../math/catalog';
 import { compilarCampo } from '../math/field';
 import type { ControladorEscena } from '../render/ControladorEscena';
 import type { Vista } from '../render/camara';
 import type { Dominio } from '../math/tipos';
-import { seleccionarCampo } from '../state/actions';
+import { fijarCapa, fijarGlifos, seleccionarCampo } from '../state/actions';
 import { EXPERIMENTO_INICIAL, experimentoDesdeCatalogo, type EstadoExperimento } from '../state/schema';
 import { crearAlmacen } from '../state/store';
 import { T } from '../i18n/es';
@@ -111,10 +112,24 @@ export function App({ fuentes }: Props) {
     controlador?.fijarFlechas(estado.capas.flechas && malla ? malla.instancias : null);
   }, [controlador, malla, estado.capas.flechas]);
 
+  const lineas = calculo.lineas;
+  useEffect(() => {
+    controlador?.fijarLineas(estado.capas.lineas && lineas ? lineas.geometria : null);
+  }, [controlador, lineas, estado.capas.lineas]);
+
   const { acciones, restablecer } = useEdicion(almacen, controlador, notificador);
   const vista = useCallback((v: Vista) => controlador?.irAVista(v), [controlador]);
   const cancelarLineas = useCallback(() => orquestador?.cancelarLineas(), [orquestador]);
-  useAtajos(restablecer.camara, vista);
+  const atajosLetras = useMemo(
+    () => ({
+      f: () => almacen.fijar((s) => fijarCapa(s, 'flechas', !s.capas.flechas)),
+      l: () => almacen.fijar((s) => fijarCapa(s, 'lineas', !s.capas.lineas)),
+      p: () => almacen.fijar((s) => fijarCapa(s, 'particulas', !s.capas.particulas)),
+      g: () => almacen.fijar((s) => fijarGlifos(s, s.capas.glifos === 'campo' ? 'rotacional' : 'campo')),
+    }),
+    [almacen],
+  );
+  useAtajos(restablecer.camara, vista, atajosLetras);
   const parametrosPorDefecto = estado.parametros.every((p) => p.valor === p.porDefecto);
   const opcionesRestablecer = useMemo(
     () => [
@@ -172,6 +187,30 @@ export function App({ fuentes }: Props) {
           cli.terminar();
         }
       },
+      /** Geometría de las líneas aplicadas (cheurones, tangentes, semillas y finales) y sus motivos. */
+      lineasDibujadas: () => {
+        const l = almacenCalculo.obtener().lineas;
+        if (!l) return null;
+        const g = l.geometria;
+        return {
+          nLineas: l.nLineas,
+          vertices: l.posiciones.length / 3,
+          limiteVertices: l.limiteVertices,
+          recuentoMotivos: l.recuentoMotivos,
+          cheurones: Array.from(g.cheurones),
+          tangentes: Array.from(g.tangentes),
+          semillas: Array.from(g.semillas),
+          formasFinales: Array.from(g.formasFinales),
+        };
+      },
+      /** F en un punto cualquiera con el campo aplicado (null si no compila). */
+      campoEn: (x: number, y: number, z: number) => {
+        const r = compilarCampo(almacen.obtener().campo, almacen.obtener().parametros.map((p) => p.nombre));
+        if (!r.ok) return null;
+        const out = new Float64Array(3);
+        r.campo.F(x, y, z, Float64Array.from(almacen.obtener().parametros.map((p) => p.valor)), out, 0);
+        return Array.from(out);
+      },
       /** F y ‖F‖ en el nodo de coordenadas exactas (x, y, z), o null si no es un nodo. */
       campoEnNodo: (x: number, y: number, z: number) => {
         const r = mallaActual();
@@ -202,21 +241,43 @@ export function App({ fuentes }: Props) {
   }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador]);
 
   const modoFlechas = estado.flechas.modo;
+  const luminancia = estado.flechas.luminancia;
+  const escalaEstado = estado.flechas.escala;
+  const deltaFija = escalaEstado.tipo === 'fija' ? (escalaEstado.delta ?? null) : null;
   const capaFlechas = estado.capas.flechas;
-  const datosLeyenda = useMemo(
-    () =>
-      malla && {
-        escala: malla.escala,
-        lMax: malla.lMax,
-        modo: modoFlechas,
-        ceros: malla.instancias.ceros.length / 3,
-        indefinidos: malla.instancias.indefinidos.length / 3,
-        saturadas: malla.instancias.nSaturadas,
-        flechas: capaFlechas,
-        nFlechas: malla.instancias.n,
-      },
-    [malla, modoFlechas, capaFlechas],
+  const escalaActual = useMemo(() => (malla ? { fRef: malla.escala.ref, delta: malla.deltaRef } : null), [malla]);
+  // Candado de la leyenda: congela F_ref y Δ actuales o vuelve a la escala automática (DESIGN §9.10).
+  const fijarEscala = useCallback(
+    (fija: boolean) => {
+      const m = almacenCalculo.obtener().malla;
+      acciones.alFlechas({ escala: fija && m ? { tipo: 'fija', valor: m.escala.ref, delta: m.deltaRef } : { tipo: 'auto' } });
+    },
+    [almacenCalculo, acciones],
   );
+  const capaLineas = estado.capas.lineas;
+  const actualizandoLineas = calculo.progresoLineas !== null;
+  const datosLeyenda = useMemo(() => {
+    if (!malla) return null;
+    const finales = lineas?.geometria.formasFinales;
+    const contar = (f: number) => (finales ? finales.reduce((n, x) => n + (x === f ? 1 : 0), 0) : 0);
+    return {
+      escala: malla.escala,
+      lMax: malla.lMax,
+      modo: modoFlechas,
+      luminancia,
+      deltaRef: malla.deltaRef,
+      deltaFija,
+      ceros: malla.instancias.ceros.length / 3,
+      indefinidos: malla.instancias.indefinidos.length / 3,
+      saturadas: malla.instancias.nSaturadas,
+      flechas: capaFlechas,
+      nFlechas: malla.instancias.n,
+      lineas:
+        capaLineas && lineas && lineas.nLineas > 0
+          ? { finalesCero: contar(FINAL.ROMBO), finalesIndefinidos: contar(FINAL.ASPA), actualizando: actualizandoLineas }
+          : null,
+    };
+  }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas]);
 
   const estadoBarra: EstadoCalculoBarra = useMemo(() => {
     if (calculo.error) return { tipo: 'error', texto: calculo.error };
@@ -238,7 +299,7 @@ export function App({ fuentes }: Props) {
         {T.saltarEscena}
       </a>
       <BarraSuperior nombre={estado.nombre} estadoCalculo={estadoBarra} restablecer={opcionesRestablecer} alCancelar={cancelarLineas} />
-      <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} />
+      <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} escalaActual={escalaActual} />
       <VistaEscena
         fuentes={fuentes}
         movimientoReducido={movimientoReducido}
@@ -272,7 +333,7 @@ export function App({ fuentes }: Props) {
           />
         ) : null}
         <Notificaciones notificador={notificador} />
-        {datosLeyenda ? <Leyenda datos={datosLeyenda} /> : null}
+        {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} /> : null}
         <div className="esquina-inferior-derecha">
           <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} />
           <Triedro controlador={controlador} />

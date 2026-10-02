@@ -320,6 +320,14 @@
   line-height: var(--l-pie);
 }
 
+/* Visualización */
+
+.interruptores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 /* Dominio y muestreo */
 
 .limites {
@@ -720,6 +728,60 @@
   display: flex;
   flex-direction: column;
   gap: var(--e-3);
+}
+
+.leyenda-referencia {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  color: var(--texto-2);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+}
+
+.leyenda-referencia svg {
+  flex: none;
+  color: var(--texto-1);
+}
+
+.leyenda-pie-fila {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--e-2);
+}
+
+.boton-candado {
+  width: 24px;
+  height: 24px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.leyenda-aviso {
+  color: var(--texto-1);
+  border: 1px dashed var(--texto-2);
+  border-radius: var(--r-1);
+  padding: var(--e-1) var(--e-2);
+}
+
+.subtitulo {
+  margin: 0;
+  color: var(--texto-2);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  font-weight: 600;
+}
+
+.leyenda-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-2);
+}
+
+.leyenda-bloque + .leyenda-bloque {
+  padding-top: var(--e-2);
+  border-top: 1px solid var(--borde);
 }
 
 .leyenda-rampa {

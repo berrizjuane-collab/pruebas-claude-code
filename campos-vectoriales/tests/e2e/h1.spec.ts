@@ -6,11 +6,12 @@ import { PNG } from 'pngjs';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const gancho = (page: Page, expr: string) => page.evaluate(`(${expr})(window.__campos)`) as Promise<any>;
-/** Espera a que el orquestador haya aplicado la malla del estado vigente (cálculo en el worker). */
+/** Espera a que el orquestador haya aplicado la malla y las líneas del estado vigente (worker). */
 const estable = (page: Page) =>
   page.waitForFunction(() => {
     const c = (window as any).__campos;
-    return c.resultados().malla !== null && !c.pendiente().malla;
+    const p = c.pendiente();
+    return c.resultados().malla !== null && !p.malla && !p.lineas;
   });
 
 test.describe('REN-01 · escena base', () => {
@@ -135,6 +136,8 @@ test.describe('UI-01 · selección de campo', () => {
 test.describe('VIS-04 · leyenda', () => {
   test('las marcas coinciden con F_ref y el centro de la barra tiene L* = 70.85 ± 1', async ({ page }) => {
     await abrir(page);
+    // Con las líneas ya aplicadas la leyenda no cambia de altura durante la captura.
+    await estable(page);
     const calc = await gancho(page, '(c) => c.calculo()');
     await expect(page.locator('.leyenda-marcas')).toContainText(`≥ ${calc.fRef}`);
     const barra = page.locator('[data-prueba="barra-magnitud"]');
@@ -147,13 +150,14 @@ test.describe('VIS-04 · leyenda', () => {
 
   test('solo aparecen entradas de lo que está en la escena', async ({ page }) => {
     // Helicoidal: ‖F‖ máx. = √8.0625 ≈ 2.84 < F_ref = 3 → sin saturadas ni ceros: solo «sentido».
+    const flechas = page.locator('[data-prueba="leyenda-flechas"] li');
     await abrir(page);
-    await expect(page.locator('.leyenda-lista li')).toHaveCount(1);
+    await expect(flechas).toHaveCount(1);
     // Uniforme: ‖F‖ = F_ref = 1 en todos los nodos → todas saturadas.
     await abrir(page, 'captura=1&campo=uniforme');
-    await expect(page.locator('.leyenda-lista li')).toHaveCount(2);
-    await expect(page.locator('.leyenda-lista')).toContainText('saturada');
+    await expect(flechas).toHaveCount(2);
+    await expect(page.locator('[data-prueba="leyenda-flechas"]')).toContainText('saturada');
     await abrir(page, 'captura=1&campo=rotacional');
-    await expect(page.locator('.leyenda-lista')).toContainText('2 %');
+    await expect(page.locator('[data-prueba="leyenda-flechas"]')).toContainText('2 %');
   });
 });

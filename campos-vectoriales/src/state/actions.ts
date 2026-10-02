@@ -134,3 +134,27 @@ export function fijarMuestreo(s: EstadoExperimento, cambios: Partial<EstadoExper
   if (n.every((v, i) => v === s.muestreo.n[i]) && nuevo.posicion === s.muestreo.posicion && corteResolucion === s.muestreo.corteResolucion) return s;
   return { ...s, muestreo: nuevo };
 }
+
+export type Capa = 'flechas' | 'lineas' | 'particulas';
+
+/** Activa o desactiva una capa (F5). */
+export function fijarCapa(s: EstadoExperimento, capa: Capa, activa: boolean): EstadoExperimento {
+  if (s.capas[capa] === activa) return s;
+  return { ...s, capas: { ...s.capas, [capa]: activa } };
+}
+
+/** «Glifos: F · rot F»: excluyentes, para que la banda clara tenga un único significado (DESIGN §9.1). */
+export function fijarGlifos(s: EstadoExperimento, glifos: EstadoExperimento['capas']['glifos']): EstadoExperimento {
+  if (s.capas.glifos === glifos) return s;
+  return { ...s, capas: { ...s.capas, glifos } };
+}
+
+type OpcionesFlechas = EstadoExperimento['flechas'];
+
+/** Opciones de magnitud de las flechas (REN-04, DESIGN §9.3 y §9.10). */
+export function fijarOpcionesFlechas(s: EstadoExperimento, cambios: Partial<OpcionesFlechas>): EstadoExperimento {
+  const f = { ...s.flechas, ...cambios };
+  if (f.escala.tipo === 'fija' && !(f.escala.valor > 0 && Number.isFinite(f.escala.valor))) return s;
+  if (JSON.stringify(f) === JSON.stringify(s.flechas)) return s;
+  return { ...s, flechas: f };
+}

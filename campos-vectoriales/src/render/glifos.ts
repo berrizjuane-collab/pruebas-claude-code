@@ -46,6 +46,7 @@ attribute float aGris;
 attribute vec3 aTangente;
 uniform float uPixelRatio;
 uniform vec2 uResolucion;
+uniform float uSesgo;
 varying float vForma;
 varying float vGris;
 varying float vAngulo;
@@ -55,6 +56,8 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   vec4 c0 = projectionMatrix * mv;
   gl_Position = c0;
+  // Sesgo de profundidad hacia la cámara (en NDC): el glifo gana a la línea sobre la que está.
+  gl_Position.z -= uSesgo * gl_Position.w;
   vTam = (aTam + 2.0 * ${MARGEN_HALO_CSS.toFixed(1)}) * uPixelRatio;
   vRadio = 0.5 * aTam * uPixelRatio;
   gl_PointSize = vTam;
@@ -131,7 +134,10 @@ void main() {
   }
   float halo = 1.5 * uPixelRatio;
   float aa = 0.6;
-  float alfa = 1.0 - smoothstep(halo - aa, halo + aa, d);
+  // El círculo hueco (semilla) se rellena con el color del halo: la línea que pasa por la
+  // semilla no se ve dentro del aro y la marca se lee como «○», no como «⊖».
+  float dAlfa = forma == 1 ? length(q) - R : d;
+  float alfa = 1.0 - smoothstep(halo - aa, halo + aa, dAlfa);
   if (alfa <= 0.0) discard;
   float mezcla = 1.0 - smoothstep(-aa, aa, d);
   gl_FragColor = vec4(mix(uHalo, vec3(vGris), mezcla), alfa);
@@ -142,12 +148,13 @@ export class CapaGlifos {
   private readonly geometria = new THREE.BufferGeometry();
   private readonly material: THREE.ShaderMaterial;
 
-  constructor(opciones: { siempreVisible?: boolean; orden?: number } = {}) {
+  constructor(opciones: { siempreVisible?: boolean; orden?: number; sesgo?: number } = {}) {
     const [r, g, b] = hexARgb(escena.halo);
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uPixelRatio: { value: 1 },
         uResolucion: { value: new THREE.Vector2(1, 1) },
+        uSesgo: { value: opciones.sesgo ?? 0 },
         uHalo: { value: new THREE.Vector3(r / 255, g / 255, b / 255) },
       },
       vertexShader: vertice,

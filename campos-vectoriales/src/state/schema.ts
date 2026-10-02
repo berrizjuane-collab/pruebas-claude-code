@@ -24,7 +24,7 @@ export interface EstadoExperimento {
   capas: { flechas: boolean; lineas: boolean; particulas: boolean; glifos: ModoGlifos };
   flechas: {
     modo: 'proporcional' | 'normalizado';
-    escala: { tipo: 'auto' } | { tipo: 'fija'; valor: number };
+    escala: { tipo: 'auto' } | { tipo: 'fija'; valor: number; /** Δ de la malla al fijarla (DESIGN §9.10). */ delta?: number };
     luminancia: 'lineal' | 'log';
   };
   lineas: {

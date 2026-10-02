@@ -20,8 +20,10 @@ import {
   type Vista,
 } from './camara';
 import type { InstanciasFlechas } from '../geometria/flechas';
+import type { GeometriaLineas } from '../geometria/lineas';
 import { CapaEjes } from './layers/ejes';
 import { CapaFlechas } from './layers/flechas3d';
+import { CapaLineas } from './layers/lineas';
 import { factorEscalaSprites } from './text/etiquetas';
 
 export interface OpcionesControlador {
@@ -49,6 +51,7 @@ export class ControladorEscena {
   readonly camara: THREE.PerspectiveCamera;
   readonly controles: OrbitControls;
   readonly flechas = new CapaFlechas();
+  readonly lineas = new CapaLineas();
   private readonly ejes = new CapaEjes();
   private dominio: Dominio = { min: [-2, -2, -2], max: [2, 2, 2] };
   private raf = 0;
@@ -94,7 +97,8 @@ export class ControladorEscena {
     this.controles.addEventListener('start', () => {
       this.transicion = null;
     });
-    this.escena.add(this.ejes.grupo, this.flechas.grupo);
+    // Las líneas, antes que las flechas: con ambas capas, las flechas quedan encima (DESIGN §9.4).
+    this.escena.add(this.ejes.grupo, this.lineas.grupo, this.flechas.grupo);
     this.observador = new ResizeObserver(() => this.redimensionar());
     this.observador.observe(lienzo.parentElement ?? lienzo);
     this.redimensionar();
@@ -129,6 +133,12 @@ export class ControladorEscena {
   fijarFlechas(inst: InstanciasFlechas | null): void {
     if (inst) this.flechas.actualizar(inst);
     this.flechas.setVisible(!!inst);
+    this.pedirFotograma();
+  }
+
+  /** Geometría de las líneas de corriente (o null para ocultarlas). */
+  fijarLineas(g: GeometriaLineas | null): void {
+    this.lineas.actualizar(g);
     this.pedirFotograma();
   }
 
@@ -203,6 +213,13 @@ export class ControladorEscena {
     this.controles.update();
     this.pedirFotograma();
     this.notificarCamara();
+  }
+
+  /** Píxeles CSS por unidad del dominio a la distancia del objetivo (flecha de referencia de la leyenda). */
+  pixelesPorUnidad(): number {
+    const d = this.camara.position.distanceTo(this.controles.target);
+    const focal = this.altoCss / 2 / Math.tan(((FOV / 2) * Math.PI) / 180);
+    return d > 0 ? focal / d : 0;
   }
 
   /** Direcciones en pantalla (x a la derecha, y arriba) de los ejes x, y, z, para el triedro. */
@@ -283,6 +300,7 @@ export class ControladorEscena {
     this.camara.aspect = w / h;
     this.camara.updateProjectionMatrix();
     this.flechas.setResolucion(w * this.pixelRatio, h * this.pixelRatio, this.pixelRatio);
+    this.lineas.setResolucion(w, h, this.pixelRatio);
     this.pedirFotograma();
   }
 
@@ -291,6 +309,7 @@ export class ControladorEscena {
       fotogramas: this.fotogramasDibujados,
       flechas: this.flechas.cilindros.count,
       conos: this.flechas.conos.count,
+      lineas: this.lineas.estadisticas,
       tamano: [this.anchoCss, this.altoCss, this.pixelRatio],
       camara: this.obtenerCamara(),
     };
@@ -302,6 +321,7 @@ export class ControladorEscena {
     this.observador.disconnect();
     this.controles.dispose();
     this.flechas.dispose();
+    this.lineas.dispose();
     this.ejes.dispose();
     this.renderer.dispose();
   }

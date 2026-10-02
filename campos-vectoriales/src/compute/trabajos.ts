@@ -4,6 +4,7 @@
  */
 import { compilarCampo, type CampoCompilado } from '../math/field';
 import { calcularFlechas } from '../geometria/flechas';
+import { geometriaLineas } from '../geometria/lineas';
 import { clasificarCeros, crearMalla, escalaAutomatica, muestrearMalla, type Escala } from '../numerics/grid';
 import { generarSemillas } from '../numerics/seeds';
 import { muestrearCorte, type MuestraCorte } from '../numerics/slice';
@@ -127,13 +128,18 @@ export async function trabajoLineas(
     posiciones.set(t, o3);
     o3 += t.length;
   }
+  const tInicio = Uint32Array.from(inicio);
+  const tSemilla = Uint32Array.from(semilla);
+  const tMotivos = Uint8Array.from(motivos);
   return {
     posiciones,
-    inicio: Uint32Array.from(inicio),
-    semilla: Uint32Array.from(semilla),
-    motivos: Uint8Array.from(motivos),
+    inicio: tInicio,
+    semilla: tSemilla,
+    motivos: tMotivos,
     longitudes: Float32Array.from(longitudes),
     nLineas: semilla.length,
+    // Cheurones de sentido cada 1.5 Δ de longitud de arco (DESIGN §9.4).
+    geometria: geometriaLineas(posiciones, tInicio, tSemilla, tMotivos, semilla.length, 1.5 * pet.deltaRef),
     semillas: { n: sem.n, descartadas: sem.descartadas, recortadas: sem.recortadas },
     recuentoMotivos,
     limiteVertices,
