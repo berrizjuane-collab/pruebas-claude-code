@@ -400,8 +400,8 @@ aceptación con la evidencia indicada.
 | A11Y-02 | ARIA, lector de pantalla y movimiento reducido | H8 | REN-08, A11Y-01 | Parcial: falta V-A11Y-04 (sesión con lector del usuario, Q-04) |
 | UI-06 | Cajón de ayuda y ayuda contextual | H8 | VIS-02, MAT-04 | Completada y verificada |
 | VIS-06 | Adaptación a pantallas | H8 | INS-02, UI-08 | Completada y verificada |
-| VAL-01 | Batería matemática y numérica completa | H9 | MAT-05, NUM-02 … NUM-06 | Pendiente |
-| VAL-02 | Batería funcional de extremo a extremo | H9 | H4 … H8 | Pendiente |
+| VAL-01 | Batería matemática y numérica completa | H9 | MAT-05, NUM-02 … NUM-06 | Completada y verificada |
+| VAL-02 | Batería funcional de extremo a extremo | H9 | H4 … H8 | Parcial: falta la prueba de humo manual en Firefox y Safari (Q-05) |
 | VAL-03 | Medición de rendimiento | H9 | CMP-02, H5 | Pendiente |
 | REV-04 | Revisión visual final | H9 | VIS-06, A11Y-02, EXP-03 | Pendiente |
 | ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Pendiente |
@@ -951,7 +951,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: automática + manual.
 - **Evidencia**: capturas.
 
-#### VAL-01 · Batería matemática y numérica completa — Pendiente
+#### VAL-01 · Batería matemática y numérica completa — Completada y verificada
 - **Objetivo**: todas las V-MAT y V-NUM en verde, con los errores medidos registrados.
 - **Dependencias**: MAT-05, NUM-02 … NUM-06.
 - **Componentes**: pruebas.
@@ -960,7 +960,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: CI local.
 - **Evidencia**: informe de cobertura y tabla de errores medidos frente a las tolerancias.
 
-#### VAL-02 · Batería funcional de extremo a extremo — Pendiente
+#### VAL-02 · Batería funcional de extremo a extremo — Parcial (falta la prueba de humo manual, Q-05)
 - **Objetivo**: todas las V-FUN en verde.
 - **Dependencias**: H4 … H8.
 - **Componentes**: `tests/e2e/`.

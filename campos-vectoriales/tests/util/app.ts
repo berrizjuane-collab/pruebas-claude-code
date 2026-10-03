@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type FileChooser, type Page } from '@playwright/test';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
@@ -42,4 +42,28 @@ export async function abrir(page: Page, consulta = 'captura=1'): Promise<void> {
 export function sinErrores(reg: Registro): void {
   expect(reg.consola, reg.consola.join('\n')).toEqual([]);
   expect(reg.externas, reg.externas.join('\n')).toEqual([]);
+}
+
+/**
+ * Selectores de archivo sin carrera. `page.waitForEvent('filechooser')` activa la interceptación
+ * con un mensaje que Playwright no espera: si la acción (sobre todo una tecla, que no hace
+ * comprobaciones previas) llega antes, Chromium abre su diálogo nativo, invisible sin interfaz, y
+ * el evento no llega nunca (8 de 25 intentos con Intro sobre «Abrir»). Se deja una escucha
+ * permanente desde el principio de la prueba y se espera al siguiente selector.
+ */
+export async function interceptarSelectores(page: Page): Promise<() => Promise<FileChooser>> {
+  const pendientes: FileChooser[] = [];
+  const esperas: ((f: FileChooser) => void)[] = [];
+  page.on('filechooser', (f) => {
+    const resolver = esperas.shift();
+    if (resolver) resolver(f);
+    else pendientes.push(f);
+  });
+  await page.evaluate(() => 0);
+  return () =>
+    new Promise<FileChooser>((resolver) => {
+      const f = pendientes.shift();
+      if (f) resolver(f);
+      else esperas.push(resolver);
+    });
 }

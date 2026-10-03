@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { abrir, registrar, sinErrores } from '../util/app';
+import { abrir, interceptarSelectores, registrar, sinErrores } from '../util/app';
 import { auditarMaquetacion } from '../../scripts/lib/maquetacion.mjs';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -229,6 +229,7 @@ test.describe('A11Y-01 · teclado, foco y atajos', () => {
   test('V-A11Y-02 · guion de teclado: cada requisito se completa sin ratón', async ({ page }) => {
     test.setTimeout(180_000);
     const reg = registrar(page);
+    const siguienteSelector = await interceptarSelectores(page);
     await abrir(page);
     await estable(page);
     const pasos: { paso: string; tabs: number; ok: boolean }[] = [];
@@ -292,7 +293,7 @@ test.describe('A11Y-01 · teclado, foco y atajos', () => {
     hecho('Exportar la configuración', n);
     // 9. Abrir una configuración (RF-15).
     n = await tabHasta(page, `el.textContent?.trim() === 'Abrir'`);
-    const selector = page.waitForEvent('filechooser');
+    const selector = siguienteSelector();
     await page.keyboard.press('Enter');
     await (await selector).setFiles('tests/fixtures/configuracion/spec-ejemplo.json');
     await expect.poll(async () => (await estado(page)).base).toBe('helicoidal');

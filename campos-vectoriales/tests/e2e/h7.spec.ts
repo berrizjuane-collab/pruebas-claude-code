@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { PNG } from 'pngjs';
-import { abrir, registrar, sinErrores } from '../util/app';
+import { abrir, interceptarSelectores, registrar, sinErrores } from '../util/app';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const gancho = (page: Page, expr: string, arg?: unknown) =>
@@ -121,6 +121,7 @@ test.describe('EXP-01 · configuración JSON v1', () => {
 
   test('casos inválidos: los errores se listan por dato y el estado queda intacto; Esc cierra y el foco vuelve a «Abrir»', async ({ page }) => {
     const reg = registrar(page);
+    const siguienteSelector = await interceptarSelectores(page);
     await abrir(page);
     await estable(page);
     const antes = await estado(page);
@@ -133,7 +134,7 @@ test.describe('EXP-01 · configuración JSON v1', () => {
     const esperado = [...INVALIDOS, ['300 KB', 'Archivo', /^ocupa 300 KB; el máximo es 256 KB$/] as [string, string, RegExp]];
     for (const [k, [caso, archivo]] of casos.entries()) {
       const abrirBoton = page.getByRole('button', { name: 'Abrir', exact: true });
-      const selector = page.waitForEvent('filechooser');
+      const selector = siguienteSelector();
       await abrirBoton.click();
       await (await selector).setFiles(archivo);
       const dialogo = page.getByRole('dialog', { name: 'No se pudo abrir la configuración' });

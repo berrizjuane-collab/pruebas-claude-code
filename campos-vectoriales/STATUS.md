@@ -28,7 +28,7 @@
 | H6 Inspección | 3 | 3/3 | — |
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
-| H9 Validación | 6 | 0/6 | Incluye ENT-01 (HTML autocontenido) |
+| H9 Validación | 6 | 1/6 | Incluye ENT-01 (HTML autocontenido) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -80,6 +80,7 @@
 - UI-06 · 2026-10-02 · `61c2549` · [evidencia/UI-06/](evidencia/UI-06/)
 - A11Y-01 · 2026-10-02 · `61c2549` · [evidencia/A11Y-01/](evidencia/A11Y-01/)
 - VIS-06 · 2026-10-02 · `61c2549` · [evidencia/VIS-06/](evidencia/VIS-06/)
+- VAL-01 · 2026-10-02 · `5fa7300` · [evidencia/VAL-01/](evidencia/VAL-01/)
 
 ---
 
