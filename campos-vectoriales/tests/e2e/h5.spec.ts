@@ -181,6 +181,8 @@ test.describe('REN-04 · modos de magnitud y escala', () => {
     await expect(page.locator('[data-prueba="leyenda-marcas"]')).toContainText('1.5');
     await page.getByRole('group', { name: 'Luminancia de las flechas' }).getByRole('button', { name: 'Log' }).click();
     await expect(page.locator('[data-prueba="leyenda-marcas"]')).toContainText('0.721');
+    // La leyenda sigue al estado al instante; los grises llegan con la malla nueva del worker.
+    await estable(page);
     const f = await gancho(page, '(c) => c.flecha(10)');
     expect(Math.abs(f.gris - rampa(Math.log10(1 + (9 * f.mag) / 3)))).toBeLessThanOrEqual(1 / 255 + 1e-6);
   });

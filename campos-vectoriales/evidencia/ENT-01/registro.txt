@@ -1,0 +1,42 @@
+# ENT-01 · HTML autocontenido final · 2026-10-03
+
+Archivo entregado: entrega/campos-vectoriales.html
+Tamaño: 1 953 648 bytes (1.86 MB; límite 3 MB)
+SHA-256: c091c977313db26cbc157d52982e4e79dae2dc0028abaf40eb1ebb3ffd4be4ea
+
+## Compilación reproducible
+
+`rm -rf dist && npm run build` dos veces seguidas: las dos dan
+c091c977313db26cbc157d52982e4e79dae2dc0028abaf40eb1ebb3ffd4be4ea, idéntico al archivo de
+entrega/ (sha256sum de dist/ y de entrega/ en el mismo commit). Para comprobarlo en el commit
+de esta evidencia: `npm ci && npm run build && sha256sum dist/campos-vectoriales.html`.
+
+## Contenido y aislamiento
+
+- Script de entrada (módulo ES) y estilos incrustados; fuentes Inter y JetBrains Mono como
+  woff2 en base64; worker de cálculo como Blob (scripts/autocontenido.mjs).
+- CSP (csp.txt): `default-src 'none'`, script solo con su huella SHA-256, `worker-src blob:
+  data:`, `connect-src 'none'`, `base-uri 'none'`, `form-action 'none'`, `object-src 'none'`.
+- Las 6 cadenas con «http(s)://» del archivo son identificadores de espacio de nombres XML
+  (SVG, MathML, xlink) y el texto de los mensajes de error de React: nada se carga de ellas.
+
+## V-FUN-17 y recorrido de los flujos principales sobre file://
+
+- sonda-file.json (`node scripts/sonda-file.mjs`, red cortada): cálculo en «worker», 729
+  flechas, fuente Inter Variable, 0 mensajes de error y 0 peticiones externas.
+- salida-e2e-archivo.txt: `OBJETIVO=archivo npx playwright test --project=chromium
+  --project=rendimiento` contra este HTML abierto con file://: **103 de 103 superadas**. Incluye
+  V-FUN-17 (red cortada: 0 peticiones, worker activo; escena, edición, inspector, exportación
+  JSON y PNG y ayuda operativos), los flujos de todos los hitos (catálogo, editor, parámetros,
+  capas, cortes, inspector, exportar/abrir, autoguardado, ayuda, teclado, pantallas, axe) y el
+  modo de medición.
+- En la primera pasada contra el archivo falló REN-04 (modo logarítmico): la prueba leía el gris
+  de una flecha en cuanto la leyenda cambiaba, sin esperar a la malla nueva del worker; con el
+  archivo el reparto de tiempos es otro. Ahora espera al cálculo como el resto de pruebas
+  (5/5 contra el archivo y verde en la segunda pasada completa).
+
+## Pendiente del usuario
+
+La prueba de humo en Firefox y Safari (Q-05), la sesión con lector de pantalla (Q-04) y la
+medición en R1 (Q-06) se hacen con este mismo archivo. Si alguna obliga a cambiar el código, se
+recompila, se sustituye y se anota aquí la nueva huella.
