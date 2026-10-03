@@ -404,7 +404,7 @@ aceptación con la evidencia indicada.
 | VAL-02 | Batería funcional de extremo a extremo | H9 | H4 … H8 | Parcial: falta la prueba de humo manual en Firefox y Safari (Q-05) |
 | VAL-03 | Medición de rendimiento | H9 | CMP-02, H5 | Parcial: medida en C0; falta la medición en R1 (Q-06) |
 | REV-04 | Revisión visual final | H9 | VIS-06, A11Y-02, EXP-03 | Completada y verificada |
-| ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Pendiente |
+| ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Completada y verificada |
 | DOC-01 | Documentación final | H9 | VAL-01 … REV-04 | Pendiente |
 
 ### 5.2 Detalle de las tareas
@@ -988,7 +988,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: automática + manual.
 - **Evidencia**: PNG + `informe.md`.
 
-#### ENT-01 · HTML autocontenido final — Pendiente
+#### ENT-01 · HTML autocontenido final — Completada y verificada
 - **Objetivo**: entregar `campos-vectoriales.html` operativo desde disco y sin red (RNF-14).
 - **Dependencias**: VAL-02, REV-04.
 - **Componentes**: `scripts/autocontenido.mjs`, `entrega/campos-vectoriales.html`.

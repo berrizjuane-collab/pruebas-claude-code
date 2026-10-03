@@ -1,0 +1,50 @@
+# DOC-01 · Documentación final · 2026-10-03
+
+## 1. Un tercero ejecuta el proyecto siguiendo solo el README
+
+Clon limpio de `main` en un directorio vacío (git clone --depth 1) y, sin nada más que el README:
+
+    cd campos-vectoriales
+    node --version                  → v22.22.0 (README: ≥ 22.12)
+    npm ci                          → found 0 vulnerabilities
+    npm run check                   → lint y tipos sin errores; Tests 419 passed | 3 skipped (422)
+    npm run build                   → dist/campos-vectoriales.html · 1.86 MB ·
+                                      sha256 c091c977313db26cbc157d52982e4e79dae2dc0028abaf40eb1ebb3ffd4be4ea
+                                      (la misma huella que entrega/campos-vectoriales.html)
+    npm run dev                     → http://localhost:5173 responde 200 (probado en otro puerto)
+    npx playwright test tests/e2e/h1.spec.ts tests/e2e/val02.spec.ts --project=chromium
+                                    → 15 passed
+                                      (en este entorno, Chromium preinstalado: no hizo falta
+                                      `npx playwright install chromium`)
+
+## 2. Enlaces e identificadores
+
+    node scripts/revisar-docs.mjs
+    7 documentos · 74 enlaces relativos · 1022 citas de identificadores · 246 identificadores definidos
+    Sin problemas
+
+El script se probó con un documento de control con un enlace roto, un ancla inexistente y dos
+identificadores sin definir: los cuatro se detectan; un ancla con tildes válida se acepta.
+
+## 3. Ayuda revisada frente al código (src/ui/help/contenido.ts)
+
+| Afirmación de la ayuda | Código | ¿Coincide? |
+| --- | --- | --- |
+| N entre 3 y 21, por defecto 9 | LIMITES.nMin/nMax (state/schema.ts); EXPERIMENTO_INICIAL n = 9 | Sí |
+| ℓmax = 0.9 Δ | compute/trabajos.ts: `lMax = 0.9 * deltaRef` | Sí |
+| F_ref = P95 redondeado a 1, 1.5, 2, 2.5, 3, 4, 5, 6 u 8 · 10ᵏ | numerics/stats.ts PASOS_LEGIBLES; numerics/grid.ts percentil 0.95 | Sí |
+| Cero visual < 2 % de F_ref | numerics/grid.ts CERO_VISUAL (leyenda «‖F‖ < 2 % de F_ref») | Sí |
+| Diferencias centradas con h = ε^{1/3} max(\|x\|, L) | numerics/finiteDiff.ts RAIZ_CUBICA_EPS | Sí |
+| Líneas: RK4 en longitud de arco, h = Δ/8, ambos sentidos | numerics/streamlines.ts (`paso ?? deltaRef / 8`) | Sí |
+| Parada en un cero: ‖F‖ < 10⁻³ F_ref; máximo 4000 pasos | streamlines.ts `epsStop ?? 1e-3`; LIMITES.pasosMax = 4000 | Sí |
+| Partículas: RK4 en t con el campo sin normalizar; renacen tras 8 s | numerics/particles.ts `vidaMax ?? 8`, edad += dtReal | Sí |
+| Atajos | Tabla ATAJOS, la misma que usa el cajón y el README | Sí |
+| Funciones de la sintaxis | filasFunciones() desde FUNCIONES y ALIAS_FUNCIONES (contenido.test.ts) | Sí |
+
+No hizo falta corregir la ayuda.
+
+## 4. STATUS
+
+§1 (fase, siguiente paso y bloqueos), §1.2 (cada tarea verificada con su commit y su carpeta de
+evidencia), §3 (decisiones hasta D-61), §7 (lo que queda: Q-04, Q-05 y Q-06 con sus guiones),
+§9 (registro) y §10 (lista de comprobación de DOC-01).

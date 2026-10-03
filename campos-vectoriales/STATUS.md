@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9 en curso: VAL-01 verificada; VAL-02 con la parte automática completa (falta la prueba de humo en Firefox y Safari, Q-05); VAL-03 medida en C0 con todos los objetivos de cálculo cumplidos (falta R1, Q-06); REV-04 verificada |
+| **Fase** | Entrega — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9: VAL-01, REV-04, ENT-01 y DOC-01 verificadas; VAL-02 (101/101 e2e) y VAL-03 (objetivos de cálculo cumplidos en C0) a falta de las comprobaciones del usuario (Q-05, Q-06). HTML final en `entrega/` (sha256 `c091c977…`) |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H9: HTML final (ENT-01) y documentación (DOC-01) |
+| **Siguiente paso** | Las tres comprobaciones del usuario (§7): Q-04, Q-05 y Q-06 |
 | **Bloqueos** | Ninguno para seguir. Necesitan el equipo del usuario: la sesión con lector de pantalla (Q-04, A11Y-02; si obliga a cambiar la interfaz, se repiten las capturas de REV-04), la prueba de humo en Firefox y Safari (Q-05, VAL-02) y la medición en R1 (Q-06, VAL-03) |
 
 ### 1.1 Estado por hito
@@ -28,7 +28,7 @@
 | H6 Inspección | 3 | 3/3 | — |
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
-| H9 Validación | 6 | 2/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
+| H9 Validación | 6 | 3/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -82,6 +82,7 @@
 - VIS-06 · 2026-10-02 · `61c2549` · [evidencia/VIS-06/](evidencia/VIS-06/)
 - VAL-01 · 2026-10-02 · `5fa7300` · [evidencia/VAL-01/](evidencia/VAL-01/)
 - REV-04 · 2026-10-03 · `72f6c36` · [evidencia/REV-04/](evidencia/REV-04/)
+- ENT-01 · 2026-10-03 · `24e634b` · [evidencia/ENT-01/](evidencia/ENT-01/)
 
 ---
 
@@ -264,18 +265,20 @@ Hallazgos de la revisión del encargo y de los propios documentos, y su resoluci
 
 ---
 
-## 7. Siguiente paso propuesto: primera entrega (H1)
+## 7. Siguiente paso: las tres comprobaciones del usuario
 
-**Objetivo**: comprobar pronto, juntas, la arquitectura y la dirección visual con un caso
-real.
+La parte de H9 que se puede hacer en este entorno está terminada. Quedan tres comprobaciones
+que necesitan tu equipo, todas con `entrega/campos-vectoriales.html` y un guion:
 
-- **Incluye**: andamiaje y arnés (H0); seis campos nativos; malla y $F_{\text{ref}}$; escena
-  WebGL2 con ejes, caja, órbita y flechas instanciadas (longitud, luminancia, halo, marcas);
-  barra superior, panel con «Campo» y «Ejemplos», leyenda de magnitud; capturas en V1–V3 con
-  auditoría de paleta.
-- **No incluye**: editor de ecuaciones, líneas de corriente, cortes, inspector ni exportación.
-- **Demostración**: abrir la aplicación → Helicoidal en 3D → cambiar a Radial entrante,
-  Rotacional y Silla → la leyenda y las marcas ≈ 0 cambian con coherencia → informe REV-01.
+| Pregunta | Cierra | Guion | Duración |
+| --- | --- | --- | --- |
+| Q-04 · sesión con lector de pantalla | A11Y-02 (y confirma REV-04) | [evidencia/A11Y-02/guion-lector.md](evidencia/A11Y-02/guion-lector.md) | ~15 min |
+| Q-05 · prueba de humo en Firefox y Safari | VAL-02 | [evidencia/VAL-02/guion-humo.md](evidencia/VAL-02/guion-humo.md) | ~10 min por navegador |
+| Q-06 · medición en R1 (i9 + RTX 4060 + 144 Hz) | VAL-03 | [evidencia/VAL-03/guion-R1.md](evidencia/VAL-03/guion-R1.md) | ~15 min |
+
+Con tus notas (o los 9 informes JSON de Q-06) se marcan las tres tareas; si alguna obliga a
+cambiar la aplicación, se corrige, se repiten las pruebas y las capturas afectadas y se
+sustituye el HTML de `entrega/` con su nueva huella (ENT-01).
 
 ---
 
@@ -309,6 +312,22 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-03 | H9: VAL-01 verificada (cobertura math 91.7 %, numerics 97.2 %; errores frente a tolerancias); VAL-02 con 101/101 e2e y trazabilidad V-FUN completa, pendiente la prueba de humo del usuario (Q-05). V-FUN-16 destapó la recompilación de shaders al cambiar el dominio (D-57); decisiones D-57 y D-58; dos fallos intermitentes del arnés corregidos (proyecto «rendimiento» en serie; selectores de archivo) |
 | 2026-10-03 | H9: VAL-03 en C0. Modo de medición `?perf=` con informe JSON, `npm run perf` con comprobación de objetivos y de regresión, escenas PERF-A/B/C; en C0, malla 15³ 1.2 ms, corte 41² 4.5 ms, líneas 33.9 ms (PERF-A) y 77.1 ms (PERF-B), 0 tareas largas en PERF-C; falta R1 (Q-06); decisión D-59 |
 | 2026-10-03 | H9: REV-04 verificada. Matriz completa de 42 capturas sobre el HTML autocontenido y capturas de referencia en `tests/visual`; destapó el foco invisible en la escena (D-60, corregido) y aclaró el recuento de VV-06 (D-61) |
+| 2026-10-03 | H9: ENT-01 verificada (HTML final reproducible, 103/103 e2e sobre file://) y DOC-01 (README nuevo ejecutado desde un clon limpio, ayuda revisada frente al código, enlaces e identificadores comprobados con `scripts/revisar-docs.mjs`). Quedan Q-04, Q-05 y Q-06 |
+
+---
+
+## 10. Lista de comprobación final (DOC-01)
+
+| # | Comprobación | Resultado | Evidencia |
+| --- | --- | --- | --- |
+| 1 | Un tercero ejecuta el proyecto siguiendo solo el README | ✓ Clon limpio de `main`: `npm ci`, `npm run check` (419 pruebas), `npm run build` (misma huella `c091c977…`), `npm run dev` (200) y 15/15 e2e | [evidencia/DOC-01/](evidencia/DOC-01/) |
+| 2 | Enlaces relativos e identificadores de la documentación | ✓ 7 documentos, 74 enlaces, ~1000 citas: sin problemas (`node scripts/revisar-docs.mjs`) | [evidencia/DOC-01/](evidencia/DOC-01/) |
+| 3 | La ayuda dice lo que hace el código | ✓ Cada cifra de «Supuestos» comprobada en el código; atajos generados de la misma tabla; funciones de la sintaxis desde el catálogo de funciones (prueba de `contenido.test.ts`) | [evidencia/DOC-01/](evidencia/DOC-01/) |
+| 4 | STATUS refleja el estado real con enlaces a la evidencia | ✓ §1 (fase, siguiente paso, bloqueos), §1.2 (tareas con commit y evidencia), §7 (pendiente del usuario) y §9 (registro) al día | Este documento |
+| 5 | El HTML entregado es el de la compilación del commit | ✓ `entrega/` = `dist/` del commit de ENT-01, compilación reproducible | [evidencia/ENT-01/](evidencia/ENT-01/) |
+| 6 | Lo pendiente está identificado, con guion y responsable | ✓ Q-04, Q-05 y Q-06 (usuario), §7 | §7 y §8 |
+
+Revisado por Claude Code el 2026-10-03. Pendiente: tu conformidad al leerla.
 
 ---
 
