@@ -405,7 +405,7 @@ aceptación con la evidencia indicada.
 | VAL-03 | Medición de rendimiento | H9 | CMP-02, H5 | Parcial: medida en C0; falta la medición en R1 (Q-06) |
 | REV-04 | Revisión visual final | H9 | VIS-06, A11Y-02, EXP-03 | Completada y verificada |
 | ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Completada y verificada |
-| DOC-01 | Documentación final | H9 | VAL-01 … REV-04 | Pendiente |
+| DOC-01 | Documentación final | H9 | VAL-01 … REV-04 | Completada y verificada |
 
 ### 5.2 Detalle de las tareas
 
@@ -1000,7 +1000,7 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: e2e sobre `file://` con `context.setOffline(true)`.
 - **Evidencia**: registro de la prueba, tamaño y SHA-256 del archivo.
 
-#### DOC-01 · Documentación final — Pendiente
+#### DOC-01 · Documentación final — Completada y verificada
 - **Objetivo**: README de uso, ayuda revisada y STATUS final.
 - **Dependencias**: VAL-01 … REV-04.
 - **Componentes**: `README.md`, `STATUS.md`, `ui/help/`.

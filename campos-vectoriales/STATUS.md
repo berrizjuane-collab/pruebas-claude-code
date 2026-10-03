@@ -28,7 +28,7 @@
 | H6 Inspección | 3 | 3/3 | — |
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
-| H9 Validación | 6 | 3/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
+| H9 Validación | 6 | 4/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -83,6 +83,7 @@
 - VAL-01 · 2026-10-02 · `5fa7300` · [evidencia/VAL-01/](evidencia/VAL-01/)
 - REV-04 · 2026-10-03 · `72f6c36` · [evidencia/REV-04/](evidencia/REV-04/)
 - ENT-01 · 2026-10-03 · `24e634b` · [evidencia/ENT-01/](evidencia/ENT-01/)
+- DOC-01 · 2026-10-03 · `ac45b2e` · [evidencia/DOC-01/](evidencia/DOC-01/)
 
 ---
 
