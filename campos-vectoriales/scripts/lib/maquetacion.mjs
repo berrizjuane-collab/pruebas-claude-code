@@ -142,9 +142,12 @@ export function auditarDensidad() {
       return r.height > 0 && r.top >= p.top - 0.5 && r.bottom <= p.bottom + 0.5;
     })
     .map((s) => s.querySelector('h2')?.textContent?.trim() ?? s.className);
-  const interactivos = [...document.querySelectorAll('button, input, select, textarea, [tabindex="0"], [role="slider"], [role="combobox"]')].filter((el) => {
+  const visibles = [...document.querySelectorAll('button, input, select, textarea, [tabindex="0"], [role="slider"], [role="combobox"]')].filter((el) => {
     const r = el.getBoundingClientRect();
     return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight && !el.closest('[hidden]') && getComputedStyle(el).visibility !== 'hidden';
-  }).length;
-  return { scrollHeight: panel.scrollHeight, clientHeight: panel.clientHeight, seccionesEnteras: enteras, interactivos };
+  });
+  // En toda la página y solo en el panel (VV-06 trata de la densidad del panel, D-61).
+  const interactivos = visibles.length;
+  const interactivosPanel = visibles.filter((el) => panel.contains(el)).length;
+  return { scrollHeight: panel.scrollHeight, clientHeight: panel.clientHeight, seccionesEnteras: enteras, interactivos, interactivosPanel };
 }

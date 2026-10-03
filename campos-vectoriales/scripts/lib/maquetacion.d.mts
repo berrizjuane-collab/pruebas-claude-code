@@ -9,4 +9,4 @@ export interface InformeMaquetacion {
 export declare function auditarMaquetacion(): InformeMaquetacion;
 export declare function auditarTipografia(): { tamanos: number[]; pesos: number[]; familias: string[] };
 export declare function auditarAlineacion(): { incidencias: { tipo: 'alineacion' | 'ritmo'; detalle: string }[]; anclajes: number };
-export declare function auditarDensidad(): { scrollHeight: number; clientHeight: number; seccionesEnteras: string[]; interactivos: number } | null;
+export declare function auditarDensidad(): { scrollHeight: number; clientHeight: number; seccionesEnteras: string[]; interactivos: number; interactivosPanel: number } | null;

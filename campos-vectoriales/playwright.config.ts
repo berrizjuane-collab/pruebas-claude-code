@@ -32,6 +32,8 @@ export default defineConfig({
   // pruebas en paralelo: con la CPU saturada por otros navegadores no miden la aplicación.
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' }, grepInvert: /@rendimiento/ },
+    // Capturas de referencia (REV-04, VALIDATION §7.5): solo válidas en Linux con Chromium 1194.
+    { name: 'visual', testDir: './tests/visual', use: { browserName: 'chromium' } },
     { name: 'rendimiento', use: { browserName: 'chromium' }, grep: /@rendimiento/, dependencies: ['chromium'], workers: 1 },
   ],
 });

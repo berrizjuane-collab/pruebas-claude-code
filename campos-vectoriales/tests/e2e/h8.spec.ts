@@ -373,7 +373,10 @@ test.describe('A11Y-01 · teclado, foco y atajos', () => {
             break;
           }
           const m = ps.boxShadow.match(/(rgba?\([^)]+\))\s+0px\s+0px\s+0px\s+([\d.]+)px/);
-          if (m && parseFloat(m[2]!) >= 2) {
+          // Una sombra interior se pinta debajo del contenido: en un elemento reemplazado
+          // (canvas, img, video) el contenido opaco la tapa y el anillo no se ve.
+          const reemplazado = ['CANVAS', 'IMG', 'VIDEO', 'IFRAME'].includes(p.tagName);
+          if (m && parseFloat(m[2]!) >= 2 && !(reemplazado && ps.boxShadow.includes('inset'))) {
             portador = p;
             ancho = parseFloat(m[2]!);
             colorAnillo = m[1]!;
