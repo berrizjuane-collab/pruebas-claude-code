@@ -1,0 +1,92 @@
+{
+  "formato": "campos-vectoriales/rendimiento",
+  "version": 1,
+  "escena": "PERF-C",
+  "equipo": "C0",
+  "fecha": "2026-10-03T00:24:25.750Z",
+  "entorno": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.7390.37 Safari/537.36",
+    "nucleos": 4,
+    "memoriaGiB": 8,
+    "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "dpr": 1,
+    "ventana": [
+      1920,
+      1080
+    ],
+    "lienzo": [
+      1584,
+      1032
+    ],
+    "pantalla": [
+      1920,
+      1080
+    ],
+    "modoCalculo": "worker"
+  },
+  "arranqueMs": 625,
+  "fotogramas": null,
+  "calculo": {
+    "malla": {
+      "n": 10,
+      "p50": 0.4,
+      "p95": 7.1,
+      "p99": 7.1,
+      "max": 7.1,
+      "descripcion": "malla 9×9×9",
+      "medianaMs": 0.4,
+      "repeticiones": [
+        1,
+        7.1,
+        0.4,
+        0.4,
+        0.3,
+        0.8,
+        0.2,
+        0.3,
+        0.3,
+        0.5
+      ]
+    },
+    "lineas": {
+      "n": 10,
+      "p50": 3.5,
+      "p95": 5.2,
+      "p99": 5.2,
+      "max": 5.2,
+      "descripcion": "líneas (48 semillas)",
+      "medianaMs": 3.5,
+      "repeticiones": [
+        5,
+        2.9,
+        5.2,
+        3.5,
+        3.9,
+        4.8,
+        3.6,
+        2.8,
+        2.4,
+        3.3
+      ]
+    }
+  },
+  "interaccion": {
+    "valores": 60,
+    "tareasLargas": [],
+    "latencias": {
+      "n": 16,
+      "p50": 182.13,
+      "p95": 498.41,
+      "p99": 498.41,
+      "max": 498.41
+    },
+    "perdidos": 44
+  },
+  "maquina": {
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "nucleos": 4,
+    "memoriaGiB": 16
+  },
+  "consola": [],
+  "duracionS": 8
+}

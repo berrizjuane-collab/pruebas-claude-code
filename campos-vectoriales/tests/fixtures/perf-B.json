@@ -1,0 +1,100 @@
+{
+  "formato": "campos-vectoriales",
+  "version": 1,
+  "nombre": "PERF-B (máxima)",
+  "campo": {
+    "P": "-y",
+    "Q": "x",
+    "R": "a",
+    "base": "helicoidal"
+  },
+  "parametros": [
+    {
+      "nombre": "a",
+      "valor": 0.25,
+      "min": -1,
+      "max": 1,
+      "paso": 0.05,
+      "porDefecto": 0.25
+    }
+  ],
+  "dominio": {
+    "min": [
+      -2,
+      -2,
+      -2
+    ],
+    "max": [
+      2,
+      2,
+      2
+    ]
+  },
+  "muestreo": {
+    "n": [
+      21,
+      21,
+      21
+    ],
+    "posicion": "nodos",
+    "corteResolucion": 61
+  },
+  "capas": {
+    "flechas": true,
+    "lineas": true,
+    "particulas": true,
+    "glifos": "campo"
+  },
+  "flechas": {
+    "modo": "proporcional",
+    "escala": {
+      "tipo": "auto"
+    },
+    "escalaRot": {
+      "tipo": "auto"
+    },
+    "luminancia": "lineal"
+  },
+  "lineas": {
+    "semillas": {
+      "tipo": "rejilla",
+      "plano": "XZ",
+      "c": 0,
+      "nu": 16,
+      "nv": 16
+    },
+    "paso": null,
+    "longitudMax": null
+  },
+  "particulas": {
+    "n": 2000,
+    "tau": null,
+    "semilla": 1
+  },
+  "corte": {
+    "activo": true,
+    "plano": "XY",
+    "c": 0,
+    "flechas": "todas",
+    "vector": "completo",
+    "escalar": "divergencia",
+    "escala": {
+      "tipo": "auto"
+    }
+  },
+  "camara": {
+    "tipo": "perspectiva",
+    "posicion": [
+      5.2,
+      -6.8,
+      4.1
+    ],
+    "objetivo": [
+      0,
+      0,
+      0
+    ]
+  },
+  "punto": null,
+  "cifras": 4
+}

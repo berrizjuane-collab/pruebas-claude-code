@@ -1,0 +1,59 @@
+# VAL-03 · Medición de rendimiento · 2026-10-03
+
+## Herramienta
+
+- `?perf=PERF-A|PERF-B|PERF-C` (src/app/rendimiento.ts y PanelRendimiento.tsx): la aplicación
+  arranca con la escena reproducible de `tests/fixtures/perf-*.json` (incrustada en el HTML),
+  sin tocar el autoguardado, y ofrece «Iniciar medición» y «Descargar informe (.json)».
+  - PERF-A y PERF-B: 2 s de calentamiento y N intervalos entre fotogramas (600 por defecto)
+    con una órbita guionizada (una vuelta cada 10 s) y las partículas en marcha: p50, p95,
+    p99, máximo y % > 33 ms.
+  - Cálculo: mediana de 10 repeticiones por trabajo (malla, corte, líneas), medidas con
+    `performance.now()` dentro del worker (el corte ahora también informa de su `ms`).
+  - PERF-C: ω = 0.05, 0.10, …, 3.00 cada 50 ms; tareas largas con
+    `PerformanceObserver('longtask')`; latencia de cada valor hasta el fotograma que dibuja su
+    malla (ω se lee de la propia malla: F = ω(−y, x, 0) en el nodo (2, 0, 0)). Los valores que
+    el agrupamiento por fotograma sustituye antes de calcularse se cuentan como «agrupados».
+  - V-PERF-06: tiempo desde el inicio de la navegación hasta la interfaz interactiva.
+  - Metadatos: userAgent, núcleos, memoria, GPU (WEBGL_debug_renderer_info), DPR, ventana,
+    lienzo y pantalla.
+- `npm run perf -- --escena=… --equipo=C0` (scripts/perf.mjs): abre el HTML autocontenido con
+  `file://` a 1920 × 1080, guarda el informe en esta carpeta, comprueba V-PERF-03/04 y compara
+  con el registro anterior del mismo equipo y escena (V-PERF-07, > 30 % = regresión).
+- Pruebas: src/app/rendimiento.test.ts (las tres escenas coinciden con VALIDATION §6.2 y no dan
+  avisos al importarse; percentiles) y tests/e2e/val03.spec.ts (PERF-C y PERF-A producen un
+  informe bien formado, restauran la escena y no tocan el autoguardado).
+
+## Resultados en C0 (Xeon 2.1 GHz, 4 vCPU, 16 GiB, SwiftShader; lienzo 1584 × 1032)
+
+| ID | Medida | Objetivo | C0 |
+| --- | --- | --- | --- |
+| V-PERF-03 | Malla 15³ (PERF-A) | ≤ 30 ms | **1.2 ms** (p95 11.2) ✓ |
+| V-PERF-03 | Corte 41² con div F (PERF-A) | ≤ 40 ms | **4.5 ms** (p95 14.3) ✓ |
+| V-PERF-03 | Líneas PERF-A (128 semillas) | ≤ 250 ms | **33.9 ms** (p95 105.2) ✓ |
+| V-PERF-03 | Líneas PERF-B (256 semillas) | ≤ 1 s | **77.1 ms** (p95 119.2) ✓ |
+| — | Malla 21³ · corte 61² (PERF-B) | informativo | 3.6 ms · 11.3 ms |
+| V-PERF-04 | PERF-C: tareas > 50 ms en el hilo principal | 0 | **0** ✓ (0 también en la repetición) |
+| V-PERF-04 | PERF-C: latencia p95 de las flechas | ≤ 50 ms (R1) | 498 ms en C0: no cuenta (D-59) |
+| V-PERF-01/02 | Fotogramas PERF-A / PERF-B | p95 ≤ 7.5 / 10 ms (R1) | 2.6 s / 7.0 s por fotograma en C0: no cuentan (§6.1) |
+| V-PERF-06 | Arranque desde disco | ≤ 1.5 s (R1) | 625–704 ms en C0 (informativo) |
+| V-PERF-07 | Regresión en C0 | ≤ +30 % | primer registro; segunda ejecución de PERF-C: malla 0.4 → 0.4 ms (0 %), líneas 3.5 → 3.1 ms (−11 %) ✓ |
+
+Los tiempos de cálculo de C0 ya cumplen los objetivos de R1 con margen (el p95 recoge la
+primera repetición, con el compilador JIT en frío). Los fotogramas de C0 los dibuja la CPU
+(SwiftShader): con 3375 flechas, 128 líneas, el corte y 1000 partículas, 2.6 s cada uno; por
+eso en C0 se miden 60 en vez de 600 y no se juzgan (VALIDATION §6.1). La latencia de PERF-C
+termina en un fotograma, así que en C0 la fija el dibujo por software: el lado de la CPU
+(0 tareas largas, cálculo de la malla en 0.4 ms de mediana) sí cumple.
+
+## Pendiente: R1 (Q-06)
+
+Guion en `guion-R1.md`: tres mediciones por escena con Chrome en el equipo del usuario. Con
+esos 9 informes se juzgan V-PERF-01, 02, 04 (latencia) y 06, y VAL-03 pasa a verificada o se
+documentan las desviaciones con su plan (primero, ajustar valores por defecto).
+
+## Archivos
+
+- 2026-10-03-C0-PERF-A.json, …-PERF-B.json, …-PERF-C.json (y …-2-C0-PERF-C.json, la
+  repetición que comprueba V-PERF-07): informes completos con metadatos.
+- salida-perf.txt: salida de `npm run perf` de cada ejecución.

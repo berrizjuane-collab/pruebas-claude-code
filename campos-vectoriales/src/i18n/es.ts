@@ -377,4 +377,27 @@ export const T = {
     error: 'No se pudo exportar la imagen. Prueba con un tamaño menor.',
     sinLeyenda: 'No hay leyenda: no hay capas visibles',
   },
+  rendimiento: {
+    titulo: (id: string, nombre: string) => `Medición de rendimiento · ${id} (${nombre})`,
+    nombres: { 'PERF-A': 'típica', 'PERF-B': 'máxima', 'PERF-C': 'interacción' },
+    condiciones: (equipo: string, ancho: number, alto: number) =>
+      `Equipo ${equipo}. Ventana maximizada (se recomienda 1920\u00a0×\u00a01080; ahora ${ancho}\u00a0×\u00a0${alto}), sin otras pestañas pesadas y con el portátil enchufado. Repite la medición tres veces y guarda los tres informes.`,
+    preparando: 'Preparando la escena…',
+    listo: 'Lista para medir',
+    calentando: 'Calentando (2 s)…',
+    fotogramas: (n: number, total: number) => `Fotogramas: ${n} de ${total}`,
+    calculo: (trabajo: string, i: number, k: number) => `Cálculo: ${trabajo}, ${i} de ${k}`,
+    interaccion: 'Interacción: arrastre de ω (3 s)…',
+    terminada: 'Medición terminada',
+    resumenFotogramas: (p50: number, p95: number, p99: number, lentos: number) =>
+      `Fotogramas: p50 ${p50}\u00a0ms · p95 ${p95}\u00a0ms · p99 ${p99}\u00a0ms · ${lentos}\u00a0% por encima de 33\u00a0ms`,
+    resumenCalculo: (trabajo: string, ms: number) => `${trabajo}: mediana ${ms}\u00a0ms`,
+    resumenInteraccion: (largas: number, p95: number | null) =>
+      `Interacción: ${largas} tareas de más de 50\u00a0ms · latencia p95 ${p95 === null ? '—' : `${p95}\u00a0ms`}`,
+    iniciar: 'Iniciar medición',
+    repetir: 'Repetir medición',
+    descargar: 'Descargar informe (.json)',
+    motivoIniciar: 'Hay una medición en curso o la escena aún se está preparando',
+    motivoDescargar: 'Todavía no hay informe',
+  },
 } as const;

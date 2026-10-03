@@ -1,0 +1,100 @@
+{
+  "formato": "campos-vectoriales",
+  "version": 1,
+  "nombre": "PERF-C (interacción)",
+  "campo": {
+    "P": "-omega*y",
+    "Q": "omega*x",
+    "R": "0",
+    "base": "rotacional"
+  },
+  "parametros": [
+    {
+      "nombre": "omega",
+      "valor": 1,
+      "min": -3,
+      "max": 3,
+      "paso": 0.05,
+      "porDefecto": 1
+    }
+  ],
+  "dominio": {
+    "min": [
+      -2,
+      -2,
+      -2
+    ],
+    "max": [
+      2,
+      2,
+      2
+    ]
+  },
+  "muestreo": {
+    "n": [
+      9,
+      9,
+      9
+    ],
+    "posicion": "nodos",
+    "corteResolucion": 21
+  },
+  "capas": {
+    "flechas": true,
+    "lineas": true,
+    "particulas": false,
+    "glifos": "campo"
+  },
+  "flechas": {
+    "modo": "proporcional",
+    "escala": {
+      "tipo": "auto"
+    },
+    "escalaRot": {
+      "tipo": "auto"
+    },
+    "luminancia": "lineal"
+  },
+  "lineas": {
+    "semillas": {
+      "tipo": "rejilla",
+      "plano": "XY",
+      "c": 0,
+      "nu": 8,
+      "nv": 6
+    },
+    "paso": null,
+    "longitudMax": null
+  },
+  "particulas": {
+    "n": 400,
+    "tau": null,
+    "semilla": 1
+  },
+  "corte": {
+    "activo": false,
+    "plano": "XY",
+    "c": 0,
+    "flechas": "todas",
+    "vector": "completo",
+    "escalar": "ninguno",
+    "escala": {
+      "tipo": "auto"
+    }
+  },
+  "camara": {
+    "tipo": "perspectiva",
+    "posicion": [
+      5.2,
+      -6.8,
+      4.1
+    ],
+    "objetivo": [
+      0,
+      0,
+      0
+    ]
+  },
+  "punto": null,
+  "cifras": 4
+}

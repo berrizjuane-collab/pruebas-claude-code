@@ -121,6 +121,7 @@ function flechasCorte(
 }
 
 export function trabajoCorte(pet: PeticionCorte): ResultadoCorte {
+  const t0 = performance.now();
   const campo = obtenerCampo(pet.campo);
   const m = muestrearCorte(campo, Float64Array.from(pet.p), { plano: pet.plano, c: pet.c, M: pet.M, dominio: pet.dominio, escalar: pet.escalar }, pet.L);
   // |F| no tiene signo: sin curva de nivel cero (DESIGN §9.6).
@@ -129,7 +130,7 @@ export function trabajoCorte(pet: PeticionCorte): ResultadoCorte {
     e && e.tipo !== 'magnitud'
       ? contornoCero({ plano: m.plano, c: m.c, dominio: pet.dominio, lado: e.lado, valores: e.valores, estado: e.estado }).segmentos
       : null;
-  return { ...m, contorno, dominio: pet.dominio };
+  return { ...m, contorno, dominio: pet.dominio, ms: performance.now() - t0 };
 }
 
 /** Lote de trabajo entre cesiones del turno (PLAN §1.6). */

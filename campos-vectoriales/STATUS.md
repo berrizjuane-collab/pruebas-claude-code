@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9 en curso: VAL-01 verificada, VAL-02 con la parte automática completa (101/101 e2e; falta la prueba de humo en Firefox y Safari, Q-05) |
+| **Fase** | Implementación — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9 en curso: VAL-01 verificada; VAL-02 con la parte automática completa (falta la prueba de humo en Firefox y Safari, Q-05); VAL-03 medida en C0 con todos los objetivos de cálculo cumplidos (falta R1, Q-06) |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H9: medición de rendimiento (VAL-03: modo `?perf=` y `npm run perf`), revisión visual final (REV-04), HTML final (ENT-01) y documentación (DOC-01) |
+| **Siguiente paso** | H9: revisión visual final (REV-04), HTML final (ENT-01) y documentación (DOC-01) |
 | **Bloqueos** | Ninguno para seguir. Necesitan el equipo del usuario: la sesión con lector de pantalla (Q-04, A11Y-02 y por tanto REV-04), la prueba de humo en Firefox y Safari (Q-05, VAL-02) y la medición en R1 (VAL-03) |
 
 ### 1.1 Estado por hito
@@ -28,7 +28,7 @@
 | H6 Inspección | 3 | 3/3 | — |
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
-| H9 Validación | 6 | 1/6 | VAL-02: falta la prueba de humo manual (Q-05). Incluye ENT-01 (HTML autocontenido) |
+| H9 Validación | 6 | 1/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -161,6 +161,7 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-56 | Proyección ortográfica «emparejada»: la cámara ortográfica copia posición y orientación de la de navegación y su semialto es d·tan(FOV/2) | Cámara ortográfica independiente con su propio zoom | La órbita, el zoom, la selección y la escala de la leyenda (px por unidad en el objetivo) no cambian; RF-13 (P0) no la tenía y se detectó al completar los atajos de PLAN §3.1 | Sí |
 | D-57 | La capa de ejes crea una sola vez sus objetos y materiales (caja, líneas, puntas, letras y «0»); al cambiar el dominio solo cambian geometrías, posiciones y marcas numéricas | Desecharlos y recrearlos | Al desechar sus materiales, three.js liberaba 4 programas de shader que nadie más usaba y el siguiente fotograma los recompilaba: una tarea de 0.5 s en C0 (SwiftShader) y un tirón en hardware real con cada cambio de dominio o de ejemplo. Lo encontró V-FUN-16 (respuesta de 1013 ms); prueba de regresión: los ids de los programas no cambian tras tres cambios de dominio | Sí |
 | D-58 | V-FUN-16 mide la respuesta de la aplicación al final de la ráfaga (clic → estado aplicado → malla calculada y entregada a la escena, < 1 s) y exige que ninguna tarea del hilo principal pase de 250 ms; el fotograma presentado se anota como dato | Exigir el fotograma presentado < 1 s | En C0 el proceso GPU (WebGL y rasterizado por software) tarda hasta ~1.5 s en ponerse al día tras la ráfaga con el hilo principal libre (traza: `RasterDecoderImpl::DoEndRasterCHROMIUM` hasta 225 ms por tarea y ninguna mutación del DOM después de 400 ms); sin ráfaga, el mismo clic se dibuja en ~100 ms. Los fotogramas se miden en R1 (VAL-03, VALIDATION §6.1: «los FPS de C0 no cuentan») | Sí |
+| D-59 | En C0, `npm run perf` mide 60 fotogramas (no 600) y no juzga la latencia de PERF-C; ambas cuentan en R1 | Medir y juzgar igual en C0 | En C0 cada fotograma lo dibuja la CPU (2.6 s en PERF-A, 7 s en PERF-B) y la latencia de PERF-C termina en un fotograma; VALIDATION §6.1 ya dice que en C0 solo cuentan los tiempos de cálculo y las tareas largas | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
@@ -286,6 +287,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | Q-03 | ¿Publicación web? | **Respondida**: basta un HTML autocontenido y funcional (D-15) |
 | Q-04 | Sesión con lector de pantalla (V-A11Y-04, A11Y-02): NVDA + Firefox o VoiceOver + Safari | **Pendiente del usuario**: necesita tu equipo. Guion en `evidencia/A11Y-02/guion-lector.md` (unos 15 min); con tus notas, A11Y-02 pasa a verificada. Todo lo automatizable ya pasa (axe, regiones vivas, VV-10) |
 | Q-05 | Prueba de humo manual en Firefox y Safari (VAL-02) | **Pendiente del usuario**: en el contenedor solo hay Chromium (las 100 pruebas e2e pasan en él). Guion de 13 pasos en `evidencia/VAL-02/guion-humo.md` (unos 10 min por navegador); con tus notas, VAL-02 pasa a verificada |
+| Q-06 | Medición de rendimiento en R1 (VAL-03): PERF-A, PERF-B y PERF-C, tres veces cada una | **Pendiente del usuario**: abrir `campos-vectoriales.html?perf=PERF-A` (B, C) en Chrome, «Iniciar medición» y «Descargar informe». Guion en `evidencia/VAL-03/guion-R1.md` (unos 15 min). C0 ya cumple todos los objetivos de cálculo con margen |
 
 ---
 
@@ -302,6 +304,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-02 | H7 completado y verificado: configuración JSON v1 con validación estricta, autoguardado con recuperación y exportación PNG compuesta en tres tamaños; decisiones D-49 … D-52 |
 | 2026-10-02 | H8: UI-06, A11Y-01 y VIS-06 completados y verificados; A11Y-02 con la parte automática superada (axe, regiones vivas, VV-10) y V-A11Y-04 pendiente del usuario; decisiones D-53 … D-56; RF-13 (ortográfica) completado |
 | 2026-10-03 | H9: VAL-01 verificada (cobertura math 91.7 %, numerics 97.2 %; errores frente a tolerancias); VAL-02 con 101/101 e2e y trazabilidad V-FUN completa, pendiente la prueba de humo del usuario (Q-05). V-FUN-16 destapó la recompilación de shaders al cambiar el dominio (D-57); decisiones D-57 y D-58; dos fallos intermitentes del arnés corregidos (proyecto «rendimiento» en serie; selectores de archivo) |
+| 2026-10-03 | H9: VAL-03 en C0. Modo de medición `?perf=` con informe JSON, `npm run perf` con comprobación de objetivos y de regresión, escenas PERF-A/B/C; en C0, malla 15³ 1.2 ms, corte 41² 4.5 ms, líneas 33.9 ms (PERF-A) y 77.1 ms (PERF-B), 0 tareas largas en PERF-C; falta R1 (Q-06); decisión D-59 |
 
 ---
 

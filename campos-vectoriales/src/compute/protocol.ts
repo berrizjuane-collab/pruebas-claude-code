@@ -120,7 +120,7 @@ export interface ResultadoLineas {
 }
 
 /** Muestra del corte con la curva de nivel cero de su escalar (REN-06), si tiene signo. */
-export type ResultadoCorte = MuestraCorte & { contorno: Float32Array | null; dominio: Dominio };
+export type ResultadoCorte = MuestraCorte & { contorno: Float32Array | null; dominio: Dominio; ms: number };
 
 export type Respuesta =
   | { tipo: 'pong'; id: number }

@@ -42,12 +42,16 @@ import { enCampoDeTexto, useAtajos } from './atajos';
 import { useArchivo } from './archivo';
 import { useExportarPng } from './imagen';
 import { useEdicion } from './edicion';
+import { PanelRendimiento } from './PanelRendimiento';
+import { escenaPerf, type ContextoMedicion, type EscenaPerf } from './rendimiento';
 
 /**
- * Estado inicial: el campo pedido en la URL (`?campo=rotacional`); si no, el último
- * experimento autoguardado (salvo en el modo de captura, D-50); si no, el helicoidal.
+ * Estado inicial: la escena de medición pedida en la URL (`?perf=PERF-A`, VAL-03); si no, el
+ * campo pedido (`?campo=rotacional`); si no, el último experimento autoguardado (salvo en el
+ * modo de captura, D-50); si no, el helicoidal.
  */
-function estadoInicial(): { estado: EstadoExperimento; recuperado: boolean } {
+function estadoInicial(perf: EscenaPerf | null): { estado: EstadoExperimento; recuperado: boolean } {
+  if (perf) return { estado: perf.estado, recuperado: false };
   const pedido = parametrosUrl().get('campo');
   const id = CATALOGO.find((c) => c.id === pedido)?.id;
   if (id) return { estado: experimentoDesdeCatalogo(id), recuperado: false };
@@ -92,7 +96,8 @@ function puntoDeRejillaCorte(e: EstadoExperimento, total: number, nodo: number):
 }
 
 export function App({ fuentes }: Props) {
-  const inicio = useMemo(() => estadoInicial(), []);
+  const perf = useMemo(() => escenaPerf(), []);
+  const inicio = useMemo(() => estadoInicial(perf), [perf]);
   const almacen = useMemo(() => crearAlmacen(inicio.estado), [inicio]);
   const almacenCalculo = useMemo(() => crearAlmacen<EstadoCalculo>(ESTADO_CALCULO_INICIAL), []);
   const edicionInvalida = useMemo(() => crearAlmacen(false), []);
@@ -456,7 +461,8 @@ export function App({ fuentes }: Props) {
     notificador,
     ofrecerDeshacer,
     aplicarCamara,
-    autoguardado: !modoCaptura(),
+    // Ni las capturas ni las mediciones deben pisar el experimento autoguardado del usuario.
+    autoguardado: !modoCaptura() && !perf,
     recuperado: inicio.recuperado,
   });
   const vista = useCallback((v: Vista) => controlador?.irAVista(v), [controlador]);
@@ -501,6 +507,17 @@ export function App({ fuentes }: Props) {
 
   // Gancho de pruebas: listo cuando hay escena, fuentes, cliente de cálculo y una malla dibujada.
   const hayMalla = malla !== null;
+  // Medición de rendimiento (VAL-03): contexto en cuanto la interfaz es interactiva; el arranque
+  // se mide desde el inicio de la navegación hasta ese momento (V-PERF-06).
+  const [contextoMedicion, setContextoMedicion] = useState<ContextoMedicion | null>(null);
+  useEffect(() => {
+    if (!perf || contextoMedicion || !controlador || !fuentesListas || !cliente || !orquestador || !hayMalla) return;
+    const arranqueMs = performance.now();
+    const id = requestAnimationFrame(() =>
+      setContextoMedicion({ escena: perf, controlador, cliente, orquestador, almacen, calculo: almacenCalculo, animacion, arranqueMs }),
+    );
+    return () => cancelAnimationFrame(id);
+  }, [perf, contextoMedicion, controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, animacion]);
   useEffect(() => {
     if (!modoPrueba() || !controlador || !fuentesListas || !cliente || !orquestador || !hayMalla) return;
     controlador.dibujar();
@@ -861,6 +878,7 @@ export function App({ fuentes }: Props) {
             />
           ) : null}
           {ayuda ? <Ayuda estado={ayuda} alPestana={elegirPestana} alCerrar={cerrarAyuda} /> : null}
+          {perf ? <PanelRendimiento contexto={contextoMedicion} /> : null}
           {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} alFijarVRef={fijarVRef} plegadaInicial={nivel === 'compacto' || nivel === 'consulta'} /> : null}
           <div className="esquina-inferior-derecha">
             <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} ortografica={ortografica} alProyeccion={conmutarProyeccion} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} alInspeccionar={abrirInspector} />

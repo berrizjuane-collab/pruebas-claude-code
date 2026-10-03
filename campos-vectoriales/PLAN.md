@@ -402,7 +402,7 @@ aceptación con la evidencia indicada.
 | VIS-06 | Adaptación a pantallas | H8 | INS-02, UI-08 | Completada y verificada |
 | VAL-01 | Batería matemática y numérica completa | H9 | MAT-05, NUM-02 … NUM-06 | Completada y verificada |
 | VAL-02 | Batería funcional de extremo a extremo | H9 | H4 … H8 | Parcial: falta la prueba de humo manual en Firefox y Safari (Q-05) |
-| VAL-03 | Medición de rendimiento | H9 | CMP-02, H5 | Pendiente |
+| VAL-03 | Medición de rendimiento | H9 | CMP-02, H5 | Parcial: medida en C0; falta la medición en R1 (Q-06) |
 | REV-04 | Revisión visual final | H9 | VIS-06, A11Y-02, EXP-03 | Pendiente |
 | ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Pendiente |
 | DOC-01 | Documentación final | H9 | VAL-01 … REV-04 | Pendiente |
@@ -969,10 +969,10 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Verificación**: ejecución.
 - **Evidencia**: informe HTML de Playwright.
 
-#### VAL-03 · Medición de rendimiento — Pendiente
+#### VAL-03 · Medición de rendimiento — Parcial (medida en C0; falta R1, Q-06)
 - **Objetivo**: medir PERF-A y PERF-B en el equipo de referencia R1 y en el entorno C0.
 - **Dependencias**: CMP-02, H5.
-- **Componentes**: `scripts/perf.ts`.
+- **Componentes**: `src/app/rendimiento.ts` y `PanelRendimiento.tsx` (modo `?perf=`), `scripts/perf.mjs` (`npm run perf`), `tests/fixtures/perf-*.json`.
 - **Procedimiento**: VALIDATION §6.
 - **Aceptación**: objetivos de VALIDATION §6 cumplidos, o desviaciones documentadas en
   STATUS con su plan.
