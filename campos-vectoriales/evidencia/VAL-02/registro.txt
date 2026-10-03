@@ -1,0 +1,67 @@
+# VAL-02 · Batería funcional de extremo a extremo · 2026-10-03T00:20:03Z
+
+Comando: `npm run test:e2e` (Playwright 1.56.1, Chromium 1194 sin interfaz con SwiftShader,
+2 workers; el proyecto «rendimiento» después y con 1 worker). Resultado: **101 de 101 superadas** en 4.9 min (98 en «chromium» y 3 de «rendimiento»).
+Informe HTML de Playwright en `informe-playwright/` (abrir `index.html`); salida en consola en
+`salida-e2e.txt`; datos medidos en `val02-informe.json`.
+
+Prueba de humo manual en Firefox y Safari: pendiente del usuario (Q-05), con el guion de
+`guion-humo.md`. En el contenedor solo hay Chromium.
+
+## Trazabilidad V-FUN → pruebas
+
+| Criterio | Pruebas |
+| --- | --- |
+| V-FUN-01 Elegir campo (6 tarjetas) | val02 «las 6 tarjetas…» (fórmula, flechas = nodos válidos, F_ref de la leyenda, semillas del catálogo todas usadas o descartadas con motivo, ✓ + borde 2 px + aria-checked, cámara igual a 10⁻⁹); h1 UI-01 |
+| V-FUN-02 Editar ecuaciones | h4 UI-02 (300 ms, «Incompleta», error al salir, «Añadir como parámetro», Esc) |
+| V-FUN-03 Parámetros | h4 UI-03 |
+| V-FUN-04 Equilibrios | val02 «marcas ≈ 0…»: rotacional y silla 9 (eje z), radiales 1 (origen), helicoidal y uniforme 0, helicoidal con a = 0 → 9 |
+| V-FUN-05 Coherencia flecha–leyenda | coherencia.spec (6 campos y T6: todas las flechas, 20 en detalle) |
+| V-FUN-06 Coherencia del inspector | coherencia.spec y h6 |
+| V-FUN-07 Cortes | h5 REN-05/REN-06 |
+| V-FUN-08 Rueda frente a partículas | h5 REN-08 |
+| V-FUN-09 Restablecer y Deshacer | h4 UI-05 |
+| V-FUN-10 JSON exportar → importar | h7 EXP-01 |
+| V-FUN-11 Autoguardado | h7 EXP-02 |
+| V-FUN-12 PNG | h7 EXP-03 |
+| V-FUN-13 Capas | h5 |
+| V-FUN-14 Dominio y densidad | h4 UI-04 |
+| V-FUN-15 Estados de pantalla | h1 (sin WebGL2), h4 (todo indefinido; campo nulo), h3 (progreso y «Cancelar» < 100 ms) |
+| V-FUN-16 Robustez | val02 «200 ediciones…» y «cambiar el dominio no desecha programas de shader» |
+| V-FUN-17 HTML autocontenido | val02 «file:// con la red cortada…» |
+
+## V-FUN-16 · lo que encontró y cómo se resolvió
+
+1. Primera medida: el clic final tardaba 1013 ms. El perfil de CPU (CDP) mostró ~490 ms en
+   `onFirstUse → getProgramInfoLog/getShaderInfoLog`: el renderizador recompilaba 4 programas
+   de shader (sprites, línea discontinua y dos básicos). Causa: la capa de ejes desechaba y
+   recreaba todos sus materiales con cada cambio de dominio, y three.js libera un programa
+   cuando ningún material lo usa. Arreglo (D-57): objetos y materiales persistentes. Prueba de
+   regresión: los ids de los programas no cambian tras tres cambios de dominio (falla con el
+   código anterior: 4 programas distintos).
+2. Tras el arreglo, la respuesta (estado aplicado + malla calculada y entregada a la escena)
+   es de 423 ms en esta ejecución (216–441 ms en tres repeticiones previas), sin tareas largas en el hilo principal. El fotograma presentado
+   tarda 618 ms en C0 (968–1512 ms en esas repeticiones): una traza de Chrome muestra el proceso GPU rasterizando por
+   software (`RasterDecoderImpl::DoEndRasterCHROMIUM`, hasta 225 ms por tarea) durante
+   ~1.5 s tras la ráfaga, sin mutaciones del DOM después de 400 ms y con el hilo principal
+   libre; sin ráfaga, el mismo clic se dibuja en ~100 ms. La prueba exige la respuesta < 1 s
+   y ninguna tarea > 250 ms (D-58); los fotogramas cuentan en R1 (VAL-03).
+3. Una «reversión» del estado que se sospechó al principio era el estado legítimo tras la
+   ráfaga (registro de cambios vacío).
+
+## Fallos intermitentes del arnés encontrados y corregidos
+
+- CMP-02 «60 cambios de parámetro»: una tarea larga de 67 ms solo cuando corría a la vez que
+  la prueba de 10⁶ vértices. El proyecto «rendimiento» prometía ir en serie pero tenía 2
+  workers; ahora 1 (3/3 ejecuciones verdes).
+- Guion de teclado de A11Y-01 (paso 9, «Abrir»): 1 de cada 5. La aplicación hacía clic en la
+  entrada con activación de usuario, pero Playwright activa la interceptación del selector de
+  archivos sin esperarla y la tecla llegaba antes (8/25 en una sonda). Utilidad
+  `interceptarSelectores` con escucha permanente: 25/25 y 8/8.
+
+## Resultados de val02-informe.json
+
+- V-FUN-01: flechas por tarjeta uniforme 729, radial-saliente 728, radial-entrante 728, rotacional 720, silla 720, helicoidal 729; semillas usadas uniforme 25, radial-saliente 32, radial-entrante 32, rotacional 18, silla 48, helicoidal 4 (silla: 1 descartada por F = 0 en el origen).
+- V-FUN-04: rotacional 9, silla 9, radial-saliente 1, radial-entrante 1, helicoidal 0, uniforme 0, helicoidal a = 0 9.
+- V-FUN-16: 200 ediciones (expresion 103, parametro 32, dominio 23, campo 29, densidad 13); 0 errores en consola; estado aplicado en 48 ms, malla en 423 ms, fotograma en 618 ms; tareas largas: 0. Programas de shader antes y después de tres cambios de dominio: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].
+- V-FUN-17: 1940156 bytes (≤ 3 MB), 0 peticiones de red, cálculo en «worker».

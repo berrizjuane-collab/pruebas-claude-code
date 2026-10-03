@@ -9,10 +9,10 @@
 
 | | |
 | --- | --- |
-| **Fase** | Implementación — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9 en curso |
+| **Fase** | Implementación — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9 en curso: VAL-01 verificada, VAL-02 con la parte automática completa (101/101 e2e; falta la prueba de humo en Firefox y Safari, Q-05) |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | H9: baterías completas matemática, funcional y de rendimiento (VAL-01 … VAL-03), revisión visual final (REV-04), HTML final (ENT-01) y documentación (DOC-01) |
-| **Bloqueos** | Ninguno para H9. A11Y-02 (y por tanto la revisión final REV-04) necesita la sesión con lector de pantalla en el equipo del usuario (Q-04) |
+| **Siguiente paso** | H9: medición de rendimiento (VAL-03: modo `?perf=` y `npm run perf`), revisión visual final (REV-04), HTML final (ENT-01) y documentación (DOC-01) |
+| **Bloqueos** | Ninguno para seguir. Necesitan el equipo del usuario: la sesión con lector de pantalla (Q-04, A11Y-02 y por tanto REV-04), la prueba de humo en Firefox y Safari (Q-05, VAL-02) y la medición en R1 (VAL-03) |
 
 ### 1.1 Estado por hito
 
@@ -28,7 +28,7 @@
 | H6 Inspección | 3 | 3/3 | — |
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
-| H9 Validación | 6 | 1/6 | Incluye ENT-01 (HTML autocontenido) |
+| H9 Validación | 6 | 1/6 | VAL-02: falta la prueba de humo manual (Q-05). Incluye ENT-01 (HTML autocontenido) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -301,6 +301,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-02 | H6 completado y verificado: selección de puntos, tarjeta del inspector y coherencia ecuaciones–geometría–leyenda–inspector en los 6 campos y T6; decisiones D-46 … D-48 |
 | 2026-10-02 | H7 completado y verificado: configuración JSON v1 con validación estricta, autoguardado con recuperación y exportación PNG compuesta en tres tamaños; decisiones D-49 … D-52 |
 | 2026-10-02 | H8: UI-06, A11Y-01 y VIS-06 completados y verificados; A11Y-02 con la parte automática superada (axe, regiones vivas, VV-10) y V-A11Y-04 pendiente del usuario; decisiones D-53 … D-56; RF-13 (ortográfica) completado |
+| 2026-10-03 | H9: VAL-01 verificada (cobertura math 91.7 %, numerics 97.2 %; errores frente a tolerancias); VAL-02 con 101/101 e2e y trazabilidad V-FUN completa, pendiente la prueba de humo del usuario (Q-05). V-FUN-16 destapó la recompilación de shaders al cambiar el dominio (D-57); decisiones D-57 y D-58; dos fallos intermitentes del arnés corregidos (proyecto «rendimiento» en serie; selectores de archivo) |
 
 ---
 

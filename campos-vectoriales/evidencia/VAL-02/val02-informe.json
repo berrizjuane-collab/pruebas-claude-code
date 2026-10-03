@@ -1,0 +1,154 @@
+{
+  "V-FUN-01": {
+    "uniforme": {
+      "flechas": 729,
+      "fRef": 1,
+      "semillas": {
+        "n": 25,
+        "descartadas": {
+          "fuera": 0,
+          "cero": 0,
+          "noDefinido": 0
+        },
+        "recortadas": 0
+      }
+    },
+    "radial-saliente": {
+      "flechas": 728,
+      "fRef": 3,
+      "semillas": {
+        "n": 32,
+        "descartadas": {
+          "fuera": 0,
+          "cero": 0,
+          "noDefinido": 0
+        },
+        "recortadas": 0
+      }
+    },
+    "radial-entrante": {
+      "flechas": 728,
+      "fRef": 3,
+      "semillas": {
+        "n": 32,
+        "descartadas": {
+          "fuera": 0,
+          "cero": 0,
+          "noDefinido": 0
+        },
+        "recortadas": 0
+      }
+    },
+    "rotacional": {
+      "flechas": 720,
+      "fRef": 2.5,
+      "semillas": {
+        "n": 18,
+        "descartadas": {
+          "fuera": 0,
+          "cero": 0,
+          "noDefinido": 0
+        },
+        "recortadas": 0
+      }
+    },
+    "silla": {
+      "flechas": 720,
+      "fRef": 2.5,
+      "semillas": {
+        "n": 48,
+        "descartadas": {
+          "fuera": 0,
+          "cero": 1,
+          "noDefinido": 0
+        },
+        "recortadas": 0
+      }
+    },
+    "helicoidal": {
+      "flechas": 729,
+      "fRef": 3,
+      "semillas": {
+        "n": 4,
+        "descartadas": {
+          "fuera": 0,
+          "cero": 0,
+          "noDefinido": 0
+        },
+        "recortadas": 0
+      }
+    }
+  },
+  "V-FUN-04": {
+    "rotacional": 9,
+    "silla": 9,
+    "radial-saliente": 1,
+    "radial-entrante": 1,
+    "helicoidal": 0,
+    "uniforme": 0,
+    "helicoidal a = 0": 9
+  },
+  "V-FUN-16 detalle": {
+    "tEstado": 48.199999999953434,
+    "tMalla": 422.80000000004657,
+    "tFotograma": 618.1999999999534,
+    "tareasLargas": [],
+    "calculo": {
+      "fRef": 4,
+      "origen": "auto",
+      "lMax": 0.7402500000000001,
+      "recuento": {
+        "validos": 120,
+        "ceros": 5,
+        "noDefinidos": 0,
+        "singulares": 0
+      },
+      "ms": 0.5
+    }
+  },
+  "V-FUN-16": {
+    "ediciones": 200,
+    "tipos": {
+      "expresion": 103,
+      "parametro": 32,
+      "dominio": 23,
+      "campo": 29,
+      "densidad": 13
+    },
+    "respuestaMs": 422.80000000004657,
+    "errores": 0
+  },
+  "V-FUN-16 programas": {
+    "antes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "despues": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "V-FUN-17": {
+    "bytes": 1940156,
+    "peticionesDeRed": 0,
+    "modo": "worker"
+  }
+}
