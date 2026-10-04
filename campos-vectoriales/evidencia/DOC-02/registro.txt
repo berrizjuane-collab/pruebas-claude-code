@@ -1,0 +1,62 @@
+# DOC-02 · Documentación 1.1 · 2026-10-04
+
+## 1. README
+
+- Descripción: F(x, y, z) y, desde la 1.1, F(x, y, z, t); vista libre.
+- Recorrido rápido: catálogo de nueve campos (seis estacionarios y tres temporales) y los
+  puntos 7 (Tiempo), 8 (Alcance) y 9 (Vista libre), con sus teclas.
+- Tabla de atajos: V y las teclas de la vista libre.
+- Estructura: `numerics/` (ventana anclada, RK4 con t), `state/` (JSON v2; abre v1),
+  `render/` (vuelo y dilatación), `app/` (reloj, vista libre).
+- Estado: 1.0 y 1.1 completadas en este entorno salvo Q-04, Q-05 y Q-06.
+
+## 2. Enlaces e identificadores
+
+    node scripts/revisar-docs.mjs
+    7 documentos · 98 enlaces relativos · 1230 citas de identificadores · 305 identificadores definidos
+    Sin problemas
+
+## 3. Ayuda nueva revisada frente al código (src/ui/help/contenido.ts)
+
+| Afirmación de la ayuda | Código | ¿Coincide? |
+| --- | --- | --- |
+| div, rot y J se calculan con t fijo | math/field.ts: t en la ranura p[nParámetros]; derivadas espaciales con VAR_T aparte (math/expr/diff.ts) | Sí |
+| DF/Dt = ∂F/∂t + J·F; el inspector muestra las dos | numerics/inspeccion.ts `derivadasTemporales`; pruebas TMP-05 en inspeccion.test.ts | Sí |
+| F_ref común a la ventana: percentil 95 en 9 instantes | numerics/grid.ts `INSTANTES_VENTANA = 9`, `escalaEnVentana`; e2e D-64 | Sí |
+| Las flechas no se desplazan; las partículas sí | render/layers: flechas en los nodos de la malla; partículas con `pasoRK4Tiempo` | Sí |
+| El reloj avanza τ unidades de t por segundo; bucle y t a mano hacen renacer las partículas | app/animacion.ts (`fijarTiempo`, fin de ventana con bucle → renacer, D-69) | Sí |
+| Si F no depende de t, corriente = trayectoria = traza | Unicidad de las soluciones de ṙ = F(r); con t, V-NUM-18 (líneas rectas) frente a V-NUM-17 (circunferencias) | Sí |
+| Viento giratorio: cada gota describe una circunferencia de radio V/ω | math/catalog: trayectoria exacta; tiempo.test.ts (T-22) y h10-tiempo (±10⁻³) | Sí |
+| Silla giratoria: con ω > k las partículas quedan atrapadas | En el marco que gira, q̇ = M q con M = [[k, ω], [−ω, −k]] y autovalores ±√(k² − ω²): imaginarios si ω > k (SPEC §4.9, T-22 «atrapada») | Sí |
+| «Nacen en: las semillas» dibuja líneas de traza | numerics/particles.ts `semillas`/`espera`; V-NUM-20 (T-26) | Sí |
+| Ampliar ×2 / Estrechar ÷2 conservan Δ mientras N lo permita | state/actions.ts `alcance`; V-FUN-21 | Sí |
+| Sin límites: ventana anclada a la red, escala congelada | numerics/ventana.ts; app/vistaLibre.ts `crearBaseIlimitada`; V-NUM-21, V-FUN-20 | Sí |
+| λ = 4: cruzar una unidad cuesta cuatro veces más; ángulos y valores no cambian | render/vuelo.ts `dilatar`, velocidad v/λ; V-NUM-22 (T-24), V-FUN-19 | Sí |
+| Atajos de la vista libre | ui/help/contenido.ts ATAJOS «Vista libre» = render/ControladorEscena.ts `TECLAS_VUELO` y app/vistaLibre.ts (U, R, H, +, −, Esc, V) | Sí |
+
+## 4. STATUS
+
+§1 (fase, situación, siguiente paso, bloqueos), §1.1 y §1.2 (marcadas con
+`scripts/marcar-tarea.mjs`), §3 (D-62 … D-79), §5 (R-15 … R-17), §6 (hallazgos 25–29),
+§7 y §9 al día.
+
+## 5. Clon limpio
+
+Clon limpio de `main` (git clone --depth 1 -b main) en un directorio vacío y, sin nada más
+que el README:
+
+    git log --oneline -1            → 4ab627d
+    node --version                  → v22.22.0 (README: ≥ 22.12)
+    npm ci                          → found 0 vulnerabilities
+    npm run check                   → lint y tipos sin errores; Tests 502 passed | 3 skipped (505)
+    npm run build                   → dist/campos-vectoriales.html · 1.91 MB ·
+                                      sha256 47b8f541a114a6778339607fcf1d17f1d00756203b85c527c8a7f8c400cbcd7f
+                                      (la misma huella que entrega/campos-vectoriales.html)
+    npx playwright test tests/e2e/h10-tiempo.spec.ts tests/e2e/h10-vista-libre.spec.ts
+      tests/e2e/h1.spec.ts --project=chromium
+                                    → 21 passed
+
+Nota: la rama por defecto del repositorio en GitHub no es `main` (HEAD apunta a
+`claude/exciting-archimedes-xywgfw`, otro proyecto): un `git clone` sin `-b main` no trae
+esta carpeta. Es un ajuste del repositorio que decide el usuario; el README de esta carpeta indica ahora
+`git clone -b main …` en «Desarrollo».

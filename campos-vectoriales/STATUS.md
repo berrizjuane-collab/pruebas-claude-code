@@ -29,7 +29,7 @@
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
 | H9 Validación | 6 | 4/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
-| H10 Exploración y tiempo (1.1) | 15 | 14/15 | En curso (PLAN §5.3) |
+| H10 Exploración y tiempo (1.1) | 15 | 14/15 | Versión 1.1 (PLAN §5.3). HTML en `entrega/` (ENT-02) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -387,6 +387,14 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 6 | Lo pendiente está identificado, con guion y responsable | ✓ Q-04, Q-05 y Q-06 (usuario), §7 | §7 y §8 |
 
 Revisado por Claude Code el 2026-10-03. Pendiente: tu conformidad al leerla.
+
+Repasada para la 1.1 (DOC-02, 2026-10-04): (1) clon limpio de `main`, `npm run check` (502
+pruebas), `npm run build` con la misma huella que `entrega/` (`47b8f541…`) y 21/21 e2e; (2)
+`revisar-docs.mjs`: 7 documentos, 98 enlaces, 1230 citas, sin problemas; (3) la ayuda nueva
+(tiempo, corriente/trayectoria/traza, vista libre) frente al código; (4) §1, §3, §5, §6, §7 y
+§9 al día; (5) `entrega/` = compilación del commit de ENT-02; (6) lo pendiente sigue siendo
+Q-04, Q-05 y Q-06, con un paso de la 1.1 en cada guion (§7). Evidencia:
+[evidencia/DOC-02/](evidencia/DOC-02/).
 
 ---
 

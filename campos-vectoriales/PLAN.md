@@ -3,7 +3,7 @@
 > Cómo se construye lo especificado en [SPEC.md](SPEC.md) y [DESIGN.md](DESIGN.md), y cómo
 > se demuestra con [VALIDATION.md](VALIDATION.md). El estado vivo está en [STATUS.md](STATUS.md).
 >
-> Estado del documento: **aprobado** (1.0, 2026-10-02) · **H10 en curso** (1.1, 2026-10-04):
+> Estado del documento: **aprobado** (1.0, 2026-10-02) · **H10 completado** (1.1, 2026-10-04):
 > flujos F11–F13, teclado de la vista libre (§3.2), hito H10 y sus tareas (§4, §5.3).
 
 ---

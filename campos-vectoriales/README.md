@@ -61,10 +61,12 @@ desplazar, + y − para acercar, Intro para inspeccionar el nodo central.
 
 ## Desarrollo
 
-Requisitos: **Node ≥ 22.12** y npm ≥ 10. La conexión solo hace falta para instalar.
+Requisitos: **Node ≥ 22.12** y npm ≥ 10. La conexión solo hace falta para instalar. El proyecto
+vive en la rama `main` (la rama por defecto del repositorio es otra: clona con `-b main`).
 
 ```bash
-cd campos-vectoriales
+git clone -b main https://github.com/berrizjuane-collab/pruebas-claude-code.git
+cd pruebas-claude-code/campos-vectoriales
 npm ci                             # dependencias (una vez)
 npm run dev                        # http://localhost:5173
 npm run check                      # lint + tipos + pruebas unitarias
