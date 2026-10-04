@@ -141,13 +141,8 @@ export const PREPARAR = {
     await esperarCalculo(page);
     await page.locator('[data-prueba="boton-vista-libre"]').click();
     await page.waitForFunction(() => window.__campos.vistaLibre().activa === true);
-    await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1200);
-    await page.keyboard.up('KeyW');
-    await page.waitForFunction(() => {
-      const v = window.__campos.vistaLibre().vuelo;
-      return v.velocidad.every((c) => c === 0);
-    });
+    // Pose fija dentro de Ω, mirando hacia el eje de las hélices (reproducible).
+    await page.evaluate(() => window.__campos.fijarPoseVuelo([1.7, -1.6, -0.9], 2.2, 0.28));
   },
   // 1.1 · Viento giratorio en t = 1.5 con la sección «Tiempo» a la vista: líneas rectas, partículas en circunferencias.
   C15: async (page) => {

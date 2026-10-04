@@ -66,3 +66,48 @@ test.describe('V-FUN-22 · campos dependientes del tiempo', () => {
     expect((await gancho(page, '(c) => c.calculo()')).fRef).toBe(f0);
   });
 });
+
+test.describe('V-FUN-22 · interfaz del tiempo', () => {
+  test('inspector en la silla giratoria: t, ∂F/∂t y DF/Dt = ∂F/∂t + J·F correctos en (1, 0, 0), t = 0', async ({ page }) => {
+    await abrir(page, 'captura=1&campo=silla-giratoria');
+    await alDia(page);
+    await gancho(page, '(c) => c.fijarEstado((s) => ({ ...s, punto: [1, 0, 0] }))');
+    const ins = page.locator('[data-prueba="inspector"]');
+    await expect(ins.locator('[data-prueba="inspector-temporal"]')).toBeVisible();
+    // k = 1, ω = 1.5, t = 0: F = (1, 0, 0); ∂F/∂t = 2kω(0, 1, 0) = (0, 3, 0); J·F = k²(x, y, 0) = (1, 0, 0).
+    await expect(ins.locator('[data-prueba="inspector-t"]')).toContainText('0');
+    await expect(ins.locator('[data-prueba="inspector-dFdt"]')).toHaveText(/^∂F\/∂t\s*0\s*3(\.0+)?\s*0$/);
+    await expect(ins.locator('[data-prueba="inspector-aceleracion"]')).toHaveText(/^DF\/Dt\s*1(\.0+)?\s*3(\.0+)?\s*0$/);
+  });
+
+  test('la sección «Tiempo»: el deslizador fija t (lectura de la escena y cálculo); con un campo estacionario solo explica', async ({ page }) => {
+    const reg = registrar(page);
+    await abrir(page, 'captura=1&campo=viento-giratorio');
+    await alDia(page);
+    const seccion = page.locator('[data-prueba="seccion-tiempo"]');
+    await expect(seccion.locator('[role="slider"]')).toBeVisible();
+    await seccion.locator('[data-prueba="tiempo-t"]').fill('2.5');
+    await seccion.locator('[data-prueba="tiempo-t"]').press('Enter');
+    await expect.poll(async () => gancho(page, '(c) => c.reloj()')).toBe(2.5);
+    await alDia(page);
+    await expect(page.locator('[data-prueba="lectura-t"]')).toHaveText('t = 2.5');
+    const dir = (await gancho(page, '(c) => c.flecha(0)')).dir;
+    expect(dir[0]).toBeCloseTo(Math.cos(2.5), 5);
+    expect(dir[1]).toBeCloseTo(Math.sin(2.5), 5);
+    // Un campo estacionario: la sección lo explica y no hay lectura de t.
+    await page.locator('[data-campo="helicoidal"]').click();
+    await expect(seccion.locator('[data-prueba="tiempo-estacionario"]')).toBeAttached();
+    await expect(page.locator('[data-prueba="lectura-t"]')).toHaveCount(0);
+    sinErrores(reg);
+  });
+
+  test('escribir t en una ecuación hace temporal el campo: P = t*x crece con t a escala fija de la ventana', async ({ page }) => {
+    await abrir(page);
+    await page.locator('[data-prueba="expr-P"]').fill('t*x');
+    await page.locator('[data-prueba="expr-P"]').press('Tab');
+    await expect.poll(async () => (await gancho(page, '(c) => c.animacion()')).temporal).toBe(true);
+    await alDia(page);
+    await expect(page.locator('[data-prueba="lectura-t"]')).toBeVisible();
+    await expect(page.locator('[data-prueba="leyenda-escala"]')).toContainText('P95 en t ∈');
+  });
+});

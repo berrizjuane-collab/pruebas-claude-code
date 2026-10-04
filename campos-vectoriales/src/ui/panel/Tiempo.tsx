@@ -70,7 +70,8 @@ function TiempoBase({ tiempo, temporal, reloj, animando, alAnimar, tau, alTiempo
             />
             <CampoNumerico etiqueta={T.tiempo.tLargo} valor={t} paso={paso * 10} min={tiempo.inicio} max={tiempo.fin} alCambiar={(v) => alTiempo({ t: v })} datosPrueba="tiempo-t" />
           </div>
-          <div className="fila-control">
+          {/* Una fila por extremo: dos campos con 4π a la vista no caben en 288 px (VV-04). */}
+          <div className="fila-control fila-ventana-tiempo">
             <span className="fila-etiqueta">{T.tiempo.inicio}</span>
             <CampoNumerico
               etiqueta={T.tiempo.inicioLargo}
@@ -81,7 +82,9 @@ function TiempoBase({ tiempo, temporal, reloj, animando, alAnimar, tau, alTiempo
               alCambiar={(inicio) => alTiempo({ inicio })}
               datosPrueba="tiempo-inicio"
             />
-            <span className="etiqueta-intermedia">{T.tiempo.fin}</span>
+          </div>
+          <div className="fila-control fila-ventana-tiempo">
+            <span className="fila-etiqueta">{T.tiempo.fin}</span>
             <CampoNumerico
               etiqueta={T.tiempo.finLargo}
               valor={tiempo.fin}

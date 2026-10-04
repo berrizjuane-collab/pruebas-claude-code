@@ -289,6 +289,16 @@ export class ControladorEscena {
     this.aplicarPoseLibre();
   }
 
+  /** Pose de vuelo exacta (capturas y pruebas reproducibles). */
+  fijarPoseVuelo(posicion: Vec3, angulos: Angulos): void {
+    const l = this.libre;
+    if (!l) return;
+    l.posicion = posicion;
+    l.angulos = { azimut: angulos.azimut, elevacion: acotarElevacion(angulos.elevacion) };
+    l.velocidad = [0, 0, 0];
+    this.aplicarPoseLibre();
+  }
+
   volverAPoseEntrada(): void {
     const l = this.libre;
     if (!l) return;

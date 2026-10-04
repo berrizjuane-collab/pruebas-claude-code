@@ -627,6 +627,7 @@ export function App({ fuentes }: Props) {
       animacion: () => ({ enMarcha: animacion.enMarcha, tau: animacion.tau, tiempo: animacion.tiempo, anguloRueda: animacion.anguloRueda, temporal: animacion.temporal }),
       /** Vista libre: activa, pose de vuelo y ventana sin límites (null fuera de ella). */
       vistaLibre: () => ({ activa: controlador.enVistaLibre, vuelo: controlador.estadoVuelo, ventana: almacenVentana.obtener()?.dominio ?? null }),
+      fijarPoseVuelo: (posicion: Vec3, azimut: number, elevacion: number) => controlador.fijarPoseVuelo(posicion, { azimut, elevacion }),
       /** Instante que ve el cálculo (reloj en vivo con un campo temporal, SPEC §3.10). */
       reloj: () => almacenEntrada.obtener().tiempo.t,
       /** Posición y edad de cada partícula (para seguirlas entre pasos del reloj). */

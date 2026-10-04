@@ -1658,7 +1658,12 @@
   column-gap: var(--e-2);
 }
 
-/* Segunda etiqueta de una fila (Fin, Velocidad): no es el borde izquierdo de la retícula (VV-04). */
+/* Extremos de la ventana de t: caben 10 cifras (4π = 12.56637061) sin recortar. */
+.fila-ventana-tiempo .campo-numerico {
+  width: 112px;
+}
+
+/* Segunda etiqueta de una fila (Velocidad): no es el borde izquierdo de la retícula (VV-04). */
 .etiqueta-intermedia {
   color: var(--texto-2);
   margin-left: var(--e-2);

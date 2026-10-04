@@ -1,8 +1,10 @@
 # Campos — laboratorio de campos vectoriales 3D
 
-Laboratorio en el navegador para explorar campos **F(x, y, z) = (P, Q, R)**: dirección y
-magnitud con flechas, líneas de corriente, partículas, cortes con mapas escalares,
-divergencia y rotacional, e inspección de cualquier punto con sus derivadas. Interfaz
+Laboratorio en el navegador para explorar campos **F(x, y, z) = (P, Q, R)** y, desde la
+versión 1.1, también **F(x, y, z, t)**: dirección y magnitud con flechas, líneas de
+corriente, partículas, cortes con mapas escalares, divergencia y rotacional, e inspección de
+cualquier punto con sus derivadas. Una **vista libre** inmersiva permite recorrer el espacio
+en primera persona. Interfaz
 minimalista y estrictamente monocromática (la magnitud se codifica con longitud y
 luminancia; el signo, con texturas), en español y pensada para estudiantes de cursos
 superiores y especialistas.
@@ -16,7 +18,9 @@ conexión. Su historial de versiones está en [`entrega/LEEME.md`](entrega/LEEME
 
 Recorrido rápido:
 
-1. **Ejemplos**: seis campos del catálogo (uniforme, radial ±, rotacional, helicoidal, silla).
+1. **Ejemplos**: nueve campos del catálogo: seis estacionarios (uniforme, radial ±, rotacional,
+   helicoidal, silla) y tres que dependen del tiempo (viento giratorio, lluvia con ráfagas,
+   silla giratoria).
 2. **Ecuaciones**: escribe P, Q y R con `x`, `y`, `z`, parámetros y funciones (`sin`, `exp`,
    `sqrt`, `atan2`, `hypot`…); se validan mientras escribes y se aplican a los 300 ms.
 3. **Parámetros**: deslizador, valor exacto, rango y paso; añade los tuyos.
@@ -26,6 +30,16 @@ Recorrido rápido:
    rueda de paletas y jacobiana en P.
 6. **Exportar**: configuración `.json` (se vuelve a abrir con «Abrir» o arrastrándola) e
    imagen PNG en tres tamaños. El experimento se guarda solo en el navegador.
+7. **Tiempo** (1.1): escribe `t` en una ecuación o elige un campo temporal. La sección «Tiempo»
+   tiene el instante, reproducir/pausar (Espacio), la ventana y el bucle. Las flechas cambian
+   en su sitio; las partículas (las «gotas») siguen ṙ = F(r, t); las líneas de corriente son
+   las del instante. Con «Nacen en: semillas» (Avanzado) se ven las líneas de traza.
+8. **Alcance** (1.1): en «Dominio y muestreo», «Ampliar ×2» y «Estrechar ÷2» cambian Ω
+   conservando la separación de la malla.
+9. **Vista libre** (1.1): botón de la barra de la escena o **V**. Solo la escena, a pantalla
+   completa: arrastra o usa las flechas para mirar, W A S D, E y Q para moverte, Mayús para
+   ir más rápido, la rueda para la velocidad, + y − para dilatar el espacio (λ), U para el
+   espacio sin límites (la malla te acompaña). Esc o V devuelven todo como estaba.
 
 La **ayuda** (botón «Ayuda», **?** o **F1**) explica los conceptos, la sintaxis completa, los
 atajos y los supuestos. Atajos principales:
@@ -38,6 +52,7 @@ atajos y los supuestos. Atajos principales:
 | R | Encuadrar y restablecer la cámara |
 | I | Inspeccionar un punto por coordenadas |
 | Espacio | Pausar / reanudar la animación |
+| V | Vista libre (inmersiva) · dentro: W A S D E Q, flechas, Mayús, rueda, + −, U, R, H, Esc |
 | Esc | Cierra lo último abierto |
 | Ctrl + Z | Deshacer un restablecimiento o una apertura (mientras dure el aviso) |
 
