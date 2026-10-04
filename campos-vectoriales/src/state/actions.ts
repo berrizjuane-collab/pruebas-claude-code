@@ -208,8 +208,40 @@ export function fijarParticulas(s: EstadoExperimento, cambios: Partial<EstadoExp
   if (!Number.isInteger(p.n) || p.n < 1 || p.n > LIMITES.particulasMax) return s;
   if (p.tau !== null && !(p.tau > 0 && Number.isFinite(p.tau))) return s;
   if (!Number.isInteger(p.semilla) || p.semilla < 0) return s;
+  if (p.nacimiento !== 'dominio' && p.nacimiento !== 'semillas') return s;
   if (JSON.stringify(p) === JSON.stringify(s.particulas)) return s;
   return { ...s, particulas: p };
+}
+
+/** ¿Es válida esta ventana temporal? Devuelve el motivo si no (SPEC §7.2). */
+export function motivoVentana(inicio: number, fin: number): string | null {
+  if (!Number.isFinite(inicio) || !Number.isFinite(fin)) return 'Escribe un número';
+  if (Math.abs(inicio) > LIMITES.tiempoMax || Math.abs(fin) > LIMITES.tiempoMax) return `Como máximo ${LIMITES.tiempoMax} en valor absoluto`;
+  if (!(inicio < fin)) return 'El inicio debe ser menor que el fin';
+  return null;
+}
+
+/**
+ * Tiempo del experimento (RF-24): instante, ventana y bucle. Una ventana nueva válida lleva t
+ * a su interior; un t fuera de la ventana se acota a ella.
+ */
+export function fijarTiempo(s: EstadoExperimento, cambios: Partial<EstadoExperimento['tiempo']>): EstadoExperimento {
+  const n = { ...s.tiempo, ...cambios };
+  if (motivoVentana(n.inicio, n.fin) || !Number.isFinite(n.t)) return s;
+  n.t = Math.min(n.fin, Math.max(n.inicio, n.t));
+  if (n.t === s.tiempo.t && n.inicio === s.tiempo.inicio && n.fin === s.tiempo.fin && n.bucle === s.tiempo.bucle) return s;
+  return { ...s, tiempo: n };
+}
+
+/** Vista libre (RF-20 … RF-23): λ ∈ [1/8, 64], velocidad ∈ [1/16, 16], espacio sin límites. */
+export function fijarExploracion(s: EstadoExperimento, cambios: Partial<EstadoExperimento['exploracion']>): EstadoExperimento {
+  const n = { ...s.exploracion, ...cambios };
+  const acotar = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+  if (!Number.isFinite(n.escala) || !Number.isFinite(n.velocidad)) return s;
+  n.escala = acotar(n.escala, LIMITES.escalaMin, LIMITES.escalaMax);
+  n.velocidad = acotar(n.velocidad, LIMITES.velocidadMin, LIMITES.velocidadMax);
+  if (n.escala === s.exploracion.escala && n.velocidad === s.exploracion.velocidad && n.ilimitado === s.exploracion.ilimitado) return s;
+  return { ...s, exploracion: n };
 }
 
 /** Cifras significativas de los valores mostrados (2–8). */

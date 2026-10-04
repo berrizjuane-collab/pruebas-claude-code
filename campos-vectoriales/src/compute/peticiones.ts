@@ -2,6 +2,8 @@
  * Peticiones de cálculo a partir del estado del experimento (CMP-01). Las usan el
  * orquestador y las pruebas, que así calculan exactamente lo mismo que la aplicación.
  */
+import { analizarExpresion } from '../math/field';
+import { dependeDelTiempo } from '../math/expr/ast';
 import type { EstadoExperimento } from '../state/schema';
 import type { TipoEscalar } from '../numerics/slice';
 import type { DefinicionCampo, PeticionCorte, PeticionLineas, PeticionMalla, ResultadoMalla } from './protocol';
@@ -14,6 +16,24 @@ export const definicionCampo = (e: EstadoExperimento): DefinicionCampo => ({
 });
 
 export const valores = (e: EstadoExperimento) => e.parametros.map((p) => p.valor);
+
+let cacheTemporal: { clave: string; temporal: boolean } | null = null;
+
+/**
+ * ¿Depende del tiempo el campo del estado? (alguna componente válida contiene t). Se guarda la
+ * última respuesta: el orquestador la consulta en cada cambio y el reloj cambia en cada fotograma.
+ */
+export function campoDependeDelTiempo(e: EstadoExperimento): boolean {
+  const nombres = e.parametros.map((p) => p.nombre);
+  const clave = `${e.campo.P}\u0000${e.campo.Q}\u0000${e.campo.R}\u0000${nombres.join(',')}`;
+  if (cacheTemporal?.clave === clave) return cacheTemporal.temporal;
+  const temporal = (['P', 'Q', 'R'] as const).some((c) => {
+    const r = analizarExpresion(e.campo[c], nombres);
+    return r.ok && dependeDelTiempo(r.arbol);
+  });
+  cacheTemporal = { clave, temporal };
+  return temporal;
+}
 
 /** Vector de evaluación de las peticiones (D-63): valores de los parámetros y el instante t. */
 export const vector = (e: EstadoExperimento) => [...valores(e), e.tiempo.t];

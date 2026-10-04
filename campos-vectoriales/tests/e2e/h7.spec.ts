@@ -49,7 +49,7 @@ test.afterAll(() => {
 
 // ---------------------------------------------------------------- EXP-01 (V-FUN-10)
 
-test.describe('EXP-01 · configuración JSON v1', () => {
+test.describe('EXP-01 · configuración JSON (v2 desde la 1.1)', () => {
   test('V-FUN-10: exportar → importar da el mismo estado (igualdad profunda), la misma cámara y la misma escena píxel a píxel; «Deshacer» vuelve atrás', async ({ page }) => {
     const reg = registrar(page);
     await abrir(page);
@@ -74,7 +74,7 @@ test.describe('EXP-01 · configuración JSON v1', () => {
     await expect(notificacion(page).first()).toContainText(`Configuración exportada: ${nombre}`);
     const ruta = await d.path();
     const doc = JSON.parse(readFileSync(ruta, 'utf8'));
-    expect(doc).toMatchObject({ formato: 'campos-vectoriales', version: 1, nombre: 'Rotacional', campo: { P: '-omega*y', Q: 'omega*x', R: '0', base: 'rotacional' } });
+    expect(doc).toMatchObject({ formato: 'campos-vectoriales', version: 2, nombre: 'Rotacional', campo: { P: '-omega*y', Q: 'omega*x', R: '0', base: 'rotacional' } });
     expect(doc.camara).toEqual({ tipo: 'perspectiva', ...camaraA });
 
     // Otro experimento, con otro dominio (que reencuadra la cámara) y otra vista.
@@ -175,7 +175,8 @@ test.describe('EXP-01 · configuración JSON v1', () => {
     }, texto);
     await expect(page.locator('.soltar-archivo')).toHaveCount(0);
     await expect(notificacion(page).filter({ hasText: 'Configuración abierta: arrastrado.json' })).toBeVisible();
-    await expect(notificacion(page).filter({ hasText: 'Al abrir, 3 avisos' })).toBeVisible();
+    // Tres avisos del archivo y, al final, la conversión de la versión 1 a la 2 (D-71).
+    await expect(notificacion(page).filter({ hasText: 'Al abrir, 4 avisos: Se ignora' })).toBeVisible();
     await expect.poll(async () => difCamara(await camara(page), { posicion: [5.2, -6.8, 4.1], objetivo: [0, 0, 0] })).toBeLessThan(1e-9);
     expect((await estado(page)).lineas.semillas).toEqual({ tipo: 'rejilla', plano: 'XZ', c: 0, u: [0.5, 2], v: [0, 0], nu: 4, nv: 1 });
   });

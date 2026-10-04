@@ -54,6 +54,14 @@ export function valoresInspector(i: Inspeccion, cifras: number, fRef: number) {
     for (let k = 0; k < 3; k++) filas.push({ clave: `J${k}`, etiqueta: `J (fila ${k + 1})`, valor: vec(d.J.slice(3 * k, 3 * k + 3), escalaJ) });
     filas.push({ clave: 'autovalores', etiqueta: T.inspector.autovalores, valor: d.autovalores.map((a) => complejo(a, cifras, escalaJ)) });
   }
+  // Campo dependiente del tiempo (SPEC §3.10): t, ∂F/∂t y DF/Dt = ∂F/∂t + J·F.
+  const tem = i.temporal;
+  if (tem) {
+    filas.push({ clave: 't', etiqueta: 't', valor: [f(tem.t)] });
+    const escalaT = (v: readonly number[]) => Math.max(1, ...v.map(Math.abs));
+    if (tem.dFdt) filas.push({ clave: 'dFdt', etiqueta: T.inspector.dFdt, valor: vec(tem.dFdt, escalaT(tem.dFdt)) });
+    if (tem.aceleracion) filas.push({ clave: 'aceleracion', etiqueta: T.inspector.aceleracion, valor: vec(tem.aceleracion, escalaT(tem.aceleracion)) });
+  }
   return { filas, casiCero, texto: tabular(filas) };
 }
 
@@ -179,6 +187,26 @@ function InspectorBase({ inspeccion: i, cifras, fRef, dominio, enfocar, alPunto,
               </p>
             )}
           </Desplegable>
+          {i.temporal ? (
+            <Desplegable titulo={T.inspector.temporal} abierto>
+              <dl className="inspector-filas num" data-prueba="inspector-temporal">
+                <Fila etiqueta="t" clave="t">
+                  {fila('t')[0]}
+                </Fila>
+                {i.temporal.dFdt ? (
+                  <Fila etiqueta={T.inspector.dFdt} clave="dFdt">
+                    <Vector valores={fila('dFdt')} />
+                  </Fila>
+                ) : null}
+                {i.temporal.aceleracion ? (
+                  <Fila etiqueta={T.inspector.aceleracion} clave="aceleracion" titulo={T.inspector.aceleracionLargo}>
+                    <Vector valores={fila('aceleracion')} />
+                  </Fila>
+                ) : null}
+              </dl>
+              {i.temporal.metodo === 'numerica' ? <p className="inspector-nota">{T.inspector.dtNumerica}</p> : null}
+            </Desplegable>
+          ) : null}
           {d ? (
             <Desplegable titulo={T.inspector.jacobiana} abierto={jacobianaAbierta}>
               <table className="inspector-matriz num" data-prueba="inspector-jacobiana">

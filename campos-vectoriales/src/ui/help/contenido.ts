@@ -61,7 +61,7 @@ export function filasFunciones(): string[][] {
 }
 
 /** Atajos de teclado (PLAN §3.1): la tabla de la ayuda y el guion de A11Y-01 salen de aquí. */
-export const ATAJOS: { contexto: 'Global' | 'Escena enfocada' | 'Inspector' | 'Diálogos y cajón'; teclas: string; accion: string }[] = [
+export const ATAJOS: { contexto: 'Global' | 'Escena enfocada' | 'Vista libre' | 'Inspector' | 'Diálogos y cajón'; teclas: string; accion: string }[] = [
   { contexto: 'Global', teclas: '? · F1', accion: 'Ayuda' },
   { contexto: 'Global', teclas: 'Espacio', accion: 'Pausar / reanudar la animación' },
   { contexto: 'Global', teclas: 'R', accion: 'Encuadrar y restablecer la cámara' },
@@ -69,6 +69,7 @@ export const ATAJOS: { contexto: 'Global' | 'Escena enfocada' | 'Inspector' | 'D
   { contexto: 'Global', teclas: '5', accion: 'Perspectiva / ortográfica' },
   { contexto: 'Global', teclas: 'F · L · P · C · G', accion: 'Flechas · líneas · partículas · corte · glifos F / rot F' },
   { contexto: 'Global', teclas: 'I', accion: 'Inspeccionar un punto por coordenadas' },
+  { contexto: 'Global', teclas: 'V', accion: 'Entrar en la vista libre (inmersiva) o salir de ella' },
   { contexto: 'Global', teclas: 'Esc', accion: 'Cierra lo último abierto (menú → diálogo → cajón → inspector)' },
   { contexto: 'Global', teclas: 'Ctrl + Z', accion: 'Deshacer el último restablecimiento o apertura (mientras dure la notificación)' },
   { contexto: 'Escena enfocada', teclas: '← → ↑ ↓', accion: 'Orbitar 5°' },
@@ -76,6 +77,14 @@ export const ATAJOS: { contexto: 'Global' | 'Escena enfocada' | 'Inspector' | 'D
   { contexto: 'Escena enfocada', teclas: '+ · −', accion: 'Acercar · alejar' },
   { contexto: 'Escena enfocada', teclas: 'Intro', accion: 'Inspeccionar el nodo más cercano al centro de la vista' },
   { contexto: 'Escena enfocada', teclas: 'Alt + flechas · Alt + RePág / AvPág', accion: 'Mover P en pasos de Δ por x / y · por z' },
+  { contexto: 'Vista libre', teclas: 'Arrastrar · ← → ↑ ↓', accion: 'Mirar alrededor' },
+  { contexto: 'Vista libre', teclas: 'W · S · A · D', accion: 'Avanzar · retroceder · a la izquierda · a la derecha' },
+  { contexto: 'Vista libre', teclas: 'E · Q', accion: 'Subir · bajar (según z)' },
+  { contexto: 'Vista libre', teclas: 'Mayús · rueda', accion: 'Cuatro veces más rápido mientras se mantiene · cambiar la velocidad' },
+  { contexto: 'Vista libre', teclas: '+ · −', accion: 'Dilatar · contraer el espacio (λ)' },
+  { contexto: 'Vista libre', teclas: 'U', accion: 'Espacio sin límites (la malla acompaña a la cámara)' },
+  { contexto: 'Vista libre', teclas: 'R · H', accion: 'Volver a la pose de entrada · mostrar u ocultar la pista' },
+  { contexto: 'Vista libre', teclas: 'Esc · V', accion: 'Salir (vuelven la cámara y la interfaz)' },
   { contexto: 'Inspector', teclas: 'Esc', accion: 'Cerrar el inspector' },
   { contexto: 'Diálogos y cajón', teclas: 'Esc', accion: 'Cerrar y devolver el foco a donde estaba' },
 ];
@@ -160,6 +169,37 @@ const conceptos: Apartado[] = [
     ],
   },
   {
+    id: 'tiempo',
+    pestana: 'conceptos',
+    titulo: 'Campos dependientes del tiempo',
+    parrafos: [
+      'Un campo puede depender del tiempo: $\\mathbf F(x, y, z, t)$. Es un objeto estándar del cálculo vectorial (flujos no estacionarios, campos electromagnéticos con $\\nabla \\times \\mathbf E = -\\partial \\mathbf B / \\partial t$). Escribe $t$ en P, Q o R, o elige Viento, Lluvia o Silla gira.',
+      'La divergencia, el rotacional y la jacobiana son operadores espaciales: se calculan con $t$ fijo. El tiempo añade la derivada local $\\partial \\mathbf F / \\partial t$ (cómo cambia el vector en un punto fijo) y la aceleración de la partícula que pasa por el punto, $D\\mathbf F/Dt = \\partial \\mathbf F / \\partial t + J\\,\\mathbf F$. El inspector muestra las dos.',
+      'Las flechas no se desplazan: cada una está anclada a su nodo y lo que cambia con $t$ es el vector en ese punto. Lo que se desplaza son las partículas. La escala $F_{\\text{ref}}$ es común a toda la ventana $[t_0, t_1]$ (percentil 95 en 9 instantes), para que el crecimiento o la oscilación del campo se lean en la longitud y en la luminancia.',
+      'El reloj avanza $\\tau$ unidades de $t$ por segundo real. Al llegar al final de la ventana, con bucle vuelve al inicio y las partículas renacen; mover $t$ a mano también las hace renacer, porque una trayectoria integrada hasta otro instante no es una trayectoria del instante elegido.',
+    ],
+  },
+  {
+    id: 'trayectorias-traza',
+    pestana: 'conceptos',
+    titulo: 'Corriente, trayectoria y traza',
+    parrafos: [
+      'Línea de corriente instantánea en $t^*$: $d\\mathbf r/ds = \\mathbf F(\\mathbf r, t^*)$ con $t^*$ fijo; es una fotografía de las direcciones. Trayectoria: $d\\mathbf r/dt = \\mathbf F(\\mathbf r, t)$; es la película de una gota. Línea de traza desde un punto: las posiciones actuales de todas las partículas que pasaron por él; es el humo de una chimenea o la cortina de gotas que deja una nube.',
+      'Si el campo no depende de $t$, las tres coinciden (unicidad de las soluciones). Si depende, en general no: en el viento giratorio las líneas de corriente son rectas en cada instante, pero cada gota describe una circunferencia de radio $V/\\omega$. En la silla giratoria, cada instante es una silla inestable y, sin embargo, si gira deprisa ($\\omega > k$) las partículas quedan atrapadas.',
+      'Con «Nacen en: las semillas» (Avanzado) las partículas se emiten de forma continua desde las semillas de las líneas: dibujan las líneas de traza.',
+    ],
+  },
+  {
+    id: 'vista-libre',
+    pestana: 'conceptos',
+    titulo: 'Vista libre, alcance y dilatación',
+    parrafos: [
+      'La vista libre (botón de la barra de la escena o V) deja solo la escena, a pantalla completa, para recorrer el espacio en primera persona. Siguen activos los atajos de las capas y la pausa; Esc o V devuelven la cámara y la interfaz exactamente como estaban.',
+      'El alcance es la caja $\\Omega$ que se muestrea: «Ampliar ×2» y «Estrechar ÷2» la escalan alrededor de su centro conservando la separación $\\Delta$ mientras $N$ lo permita. En la vista libre, el espacio sin límites (U) hace que la ventana de muestreo acompañe a la cámara anclada a la red de $\\Omega$: las flechas de un punto no cambian al moverse, solo aparecen y desaparecen en los bordes, y la escala queda congelada para comparar.',
+      'La dilatación $\\lambda$ es la escala del explorador, no del campo. Una proyección central no cambia si el mundo se dilata alrededor del ojo; cambia lo que cuesta recorrerlo: con $\\lambda = 4$, cruzar una unidad cuesta cuatro veces más. Con la caja, la dilatación es alrededor de su centro y el espacio crece hacia ti; sin límites, alrededor de ti. Ángulos, magnitudes y valores no cambian.',
+    ],
+  },
+  {
     id: 'cortes',
     pestana: 'conceptos',
     titulo: 'Cortes planos',
@@ -206,7 +246,7 @@ const sintaxis: Apartado[] = [
     titulo: 'Variables y constantes',
     parrafos: [
       'Variables: x, y, z. Derivadas de ellas: r = $\\sqrt{x^2 + y^2 + z^2}$ y rho (o ρ) = $\\sqrt{x^2 + y^2}$, que se derivan correctamente.',
-      'Constantes: pi (π) y e. La letra t está reservada para los campos dependientes del tiempo, que aún no están disponibles.',
+      'Constantes: pi (π) y e. Tiempo: t, la variable de los campos dependientes del tiempo (véase «Campos dependientes del tiempo»); no puede ser un parámetro.',
     ],
   },
   {
@@ -272,7 +312,7 @@ const supuestos: Apartado[] = [
     titulo: 'Líneas y partículas',
     parrafos: [
       'Líneas: Runge–Kutta de orden 4 en longitud de arco, paso $h = \\Delta/8$ (error global $O(h^4)$), en ambos sentidos. Cada rama termina por un motivo: sale de $\\Omega$, llega a un cero ($\\lVert \\mathbf F \\rVert < 10^{-3} F_{\\text{ref}}$), entra en una región no definida, cierra una órbita, o alcanza la longitud o los pasos máximos (4000). «Detalles del cálculo» los resume.',
-      'Partículas: Runge–Kutta 4 en el tiempo con el campo sin normalizar; renacen en una posición aleatoria reproducible al salir de $\\Omega$, al llegar a un cero o a un punto no definido, o tras 8 s.',
+      'Partículas: Runge–Kutta 4 en el tiempo con el campo sin normalizar; con un campo dependiente del tiempo, cada etapa se evalúa en su instante ($t$, $t + h/2$, $t + h$), con error global $O(h^4)$ comprobado frente a soluciones exactas. Renacen en una posición aleatoria reproducible al salir de $\\Omega$, al llegar a un cero o a un punto no definido, o tras 8 s; emitidas desde las semillas, renacen en su semilla.',
     ],
   },
   {

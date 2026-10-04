@@ -22,6 +22,7 @@ import {
   fijarOpcionesFlechas,
   fijarParametro,
   fijarRangoParametro,
+  fijarTiempo,
   restablecerExperimento,
   restablecerParametro,
   restablecerParametros,
@@ -124,6 +125,7 @@ export function useEdicion(almacen: Almacen<EstadoExperimento>, controlador: Con
       alLineas: (cambios) => almacen.fijar((s) => fijarLineas(s, cambios)),
       alParticulas: (cambios) => almacen.fijar((s) => fijarParticulas(s, cambios)),
       alCifras: (cifras) => almacen.fijar((s) => fijarCifras(s, cifras)),
+      alTiempo: (cambios) => almacen.fijar((s) => fijarTiempo(s, cambios)),
     }),
     [almacen, conDeshacer],
   );

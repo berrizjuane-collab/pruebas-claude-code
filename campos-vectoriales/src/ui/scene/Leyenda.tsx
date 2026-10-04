@@ -32,7 +32,12 @@ export interface DatosLeyenda {
   /** Líneas de corriente visibles (null si la capa está apagada o no hay líneas). */
   lineas: { finalesCero: number; finalesIndefinidos: number; actualizando: boolean } | null;
   /** Partículas visibles: escala temporal τ y si la animación está en pausa (null si apagadas). */
-  particulas: { tau: number; enPausa: boolean } | null;
+  particulas: { tau: number; enPausa: boolean; emision: boolean } | null;
+  /**
+   * Campo dependiente del tiempo (DESIGN §9.13): instante de las líneas de corriente
+   * instantáneas (null si no hay); null con un campo estacionario.
+   */
+  tiempo: { tLineas: number | null } | null;
   /** Mapa escalar del corte (null si no hay): rótulo del plano, eje normal y V_ref. */
   corte: {
     tipo: TipoEscalar;
@@ -293,7 +298,7 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef, plegadaIn
                 </div>
                 <div className="leyenda-pie-fila">
                   <p className="leyenda-pie num" data-prueba="leyenda-escala">
-                    {texto.escala(ref, fija ? T.leyenda.escalaFija : T.leyenda.escalaAuto)}
+                    {texto.escala(ref, origenEscala(datos.escala))}
                     <br />
                     {T.leyenda.longitudMax(formatearCorto(Number(datos.lMax.toPrecision(3))))}
                   </p>
@@ -342,9 +347,14 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef, plegadaIn
                 </li>
               ) : null}
             </ul>
-            {datos.lineas.actualizando ? (
-              <p className="leyenda-pie" data-prueba="leyenda-actualizando">
-                {T.leyenda.actualizando}
+            {pieLineas(datos).length ? (
+              <p className="leyenda-pie num" data-prueba={datos.lineas.actualizando ? 'leyenda-actualizando' : 'leyenda-lineas-pie'}>
+                {pieLineas(datos).map((linea, k) => (
+                  <span key={k}>
+                    {k > 0 ? <br /> : null}
+                    {linea}
+                  </span>
+                ))}
               </p>
             ) : null}
           </div>
@@ -362,13 +372,12 @@ function LeyendaBase({ datos, controlador, alFijarEscala, alFijarVRef, plegadaIn
               </li>
             </ul>
             <p className="leyenda-pie num" data-prueba="leyenda-tau">
-              {T.leyenda.tau(formatearCorto(Number(datos.particulas.tau.toPrecision(3))))}
-              {datos.particulas.enPausa ? (
-                <>
-                  <br />
-                  {T.leyenda.enPausa}
-                </>
-              ) : null}
+              {pieParticulas(datos).map((linea, k) => (
+                <span key={k}>
+                  {k > 0 ? <br /> : null}
+                  {linea}
+                </span>
+              ))}
             </p>
           </div>
         ) : null}
@@ -471,6 +480,32 @@ export const Leyenda = memo(LeyendaBase);
  * mismo orden y con los mismos textos que la de pantalla (sin los controles). `largoRef` es la
  * flecha de referencia en px CSS a la escala de la imagen.
  */
+/** Origen de la escala en el pie: fija, auto (P95) o, con un campo temporal, P95 en la ventana. */
+function origenEscala(e: Escala): string {
+  if (e.origen === 'fija') return T.leyenda.escalaFija;
+  return e.ventana ? T.leyenda.escalaAutoVentana(formatearCorto(e.ventana[0]), formatearCorto(e.ventana[1])) : T.leyenda.escalaAuto;
+}
+
+/** Pie del bloque de líneas: instante de las líneas instantáneas y si se están actualizando. */
+function pieLineas(datos: DatosLeyenda): string[] {
+  const pie: string[] = [];
+  if (datos.tiempo?.tLineas != null) pie.push(T.leyenda.lineasInstantaneas(formatearCorto(datos.tiempo.tLineas)));
+  if (datos.lineas?.actualizando) pie.push(T.leyenda.actualizando);
+  return pie;
+}
+
+/** Pie del bloque de partículas: trayectorias o líneas de traza (campo temporal o emisión), τ y pausa. */
+function pieParticulas(datos: DatosLeyenda): string[] {
+  const p = datos.particulas;
+  if (!p) return [];
+  const pie: string[] = [];
+  if (p.emision) pie.push(T.leyenda.lineasTraza);
+  else if (datos.tiempo) pie.push(T.leyenda.trayectorias);
+  pie.push(T.leyenda.tau(formatearCorto(Number(p.tau.toPrecision(3)))));
+  if (p.enPausa) pie.push(T.leyenda.enPausa);
+  return pie;
+}
+
 export function bloquesLeyenda(datos: DatosLeyenda, largoRef: number): BloqueLeyenda[] {
   const bloques: BloqueLeyenda[] = [];
   const ref = formatearCorto(datos.escala.ref);
@@ -496,7 +531,7 @@ export function bloquesLeyenda(datos: DatosLeyenda, largoRef: number): BloqueLey
     if (datos.indefinidos > 0) b.filas.push({ glifo: 'aspa', texto: T.leyenda.indefinido });
     if (hayFlechas) {
       b.filas.push({ glifo: { referencia: largoRef }, texto: datos.modo === 'normalizado' ? T.leyenda.normalizada : tx.referencia(ref) });
-      b.pie.push(tx.escala(ref, fija ? T.leyenda.escalaFija : T.leyenda.escalaAuto), T.leyenda.longitudMax(formatearCorto(Number(datos.lMax.toPrecision(3)))));
+      b.pie.push(tx.escala(ref, origenEscala(datos.escala)), T.leyenda.longitudMax(formatearCorto(Number(datos.lMax.toPrecision(3)))));
       if (fija && datos.deltaFija !== null && Math.abs(datos.deltaFija - datos.deltaRef) > 1e-9 * datos.deltaRef) b.pie.push(T.leyenda.deltaDistinto);
     }
     bloques.push(b);
@@ -508,7 +543,7 @@ export function bloquesLeyenda(datos: DatosLeyenda, largoRef: number): BloqueLey
         { glifo: 'cheuron', texto: T.leyenda.lineaSentido },
         { glifo: 'semilla', texto: T.leyenda.semilla },
       ],
-      pie: datos.lineas.actualizando ? [T.leyenda.actualizando] : [],
+      pie: pieLineas(datos),
     };
     if (datos.lineas.finalesCero > 0 && !(datos.flechas && datos.ceros > 0)) b.filas.push({ glifo: 'rombo', texto: T.leyenda.cero });
     if (datos.lineas.finalesIndefinidos > 0 && !(datos.flechas && datos.indefinidos > 0)) b.filas.push({ glifo: 'aspa', texto: T.leyenda.indefinido });
@@ -520,7 +555,7 @@ export function bloquesLeyenda(datos: DatosLeyenda, largoRef: number): BloqueLey
         { glifo: 'particula', texto: T.leyenda.particula },
         { glifo: 'estela', texto: T.leyenda.estela },
       ],
-      pie: [T.leyenda.tau(formatearCorto(Number(datos.particulas.tau.toPrecision(3)))), ...(datos.particulas.enPausa ? [T.leyenda.enPausa] : [])],
+      pie: pieParticulas(datos),
     });
   }
   const c = datos.corte;

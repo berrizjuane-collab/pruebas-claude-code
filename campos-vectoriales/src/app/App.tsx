@@ -5,7 +5,8 @@ import { huellaMalla } from '../compute/huella';
 import { FINAL } from '../geometria/lineas';
 import { peticionMalla } from '../compute/peticiones';
 import { CATALOGO, type IdCampo } from '../math/catalog';
-import { compilarCampo } from '../math/field';
+import { compilarCampo, vectorEvaluacion } from '../math/field';
+import { generarSemillas } from '../numerics/seeds';
 import { conDerivadas, inspeccionar } from '../numerics/inspeccion';
 import { CLASE } from '../numerics/grid';
 import { anillosRotacional, calcularFlechas } from '../geometria/flechas';
@@ -15,12 +16,13 @@ import { EJES_PLANO, NOMBRE_EJE, type Dominio, type Vec3 } from '../math/tipos';
 import { rotuloCorte } from '../render/layers/corte';
 import type { DatosEscalar } from '../render/layers/escalar';
 import { UMBRAL_CERO } from '../geometria/escalar';
-import { centroDominio, fijarCapa, fijarCorte, fijarGlifos, fijarPunto, moverPunto, seleccionarCampo } from '../state/actions';
+import { centroDominio, fijarCapa, fijarCorte, fijarGlifos, fijarPunto, fijarTiempo, moverPunto, seleccionarCampo } from '../state/actions';
 import { guardarPreferencia, leerPreferencia, recuperarAutoguardado } from '../state/persist';
 import { EXPERIMENTO_INICIAL, experimentoDesdeCatalogo, type EstadoExperimento } from '../state/schema';
 import { crearAlmacen } from '../state/store';
 import { T } from '../i18n/es';
-import { nivelPantalla, panelFlotante, useAlmacen, useNivelPantalla, usePrefiereMovimientoReducido } from '../ui/hooks';
+import { formatearCorto } from '../numerics/format';
+import { nivelPantalla, panelFlotante, useAlmacen, useAlmacenEspaciado, useNivelPantalla, usePrefiereMovimientoReducido } from '../ui/hooks';
 import { Panel } from '../ui/panel/Panel';
 import { BarraSuperior, type EstadoCalculoBarra } from '../ui/topbar/BarraSuperior';
 import { Boton } from '../ui/controls/Boton';
@@ -44,6 +46,10 @@ import { useExportarPng } from './imagen';
 import { useEdicion } from './edicion';
 import { PanelRendimiento } from './PanelRendimiento';
 import { escenaPerf, type ContextoMedicion, type EscenaPerf } from './rendimiento';
+import { crearEntradaCalculo, type Ventana } from './entradaCalculo';
+
+/** La interfaz (inspector, rueda, lectura de t) sigue al reloj como mucho 10 veces por segundo (SPEC §5.11). */
+const INTERVALO_RELOJ_MS = 100;
 
 /**
  * Estado inicial: la escena de medición pedida en la URL (`?perf=PERF-A`, VAL-03); si no, el
@@ -100,6 +106,13 @@ export function App({ fuentes }: Props) {
   const inicio = useMemo(() => estadoInicial(perf), [perf]);
   const almacen = useMemo(() => crearAlmacen(inicio.estado), [inicio]);
   const almacenCalculo = useMemo(() => crearAlmacen<EstadoCalculo>(ESTADO_CALCULO_INICIAL), []);
+  // Reloj del experimento (SPEC §3.10): instante en vivo, que escribe la animación en cada fotograma.
+  const almacenReloj = useMemo(() => crearAlmacen(inicio.estado.tiempo.t), [inicio]);
+  // Ventana del espacio sin límites (SPEC §3.11; null fuera de él).
+  const almacenVentana = useMemo(() => crearAlmacen<Ventana | null>(null), []);
+  // Lo que ve el cálculo: el experimento con el t del reloj y la ventana (D-70).
+  const almacenEntrada = useMemo(() => crearEntradaCalculo(almacen, almacenReloj, almacenVentana), [almacen, almacenReloj, almacenVentana]);
+  useEffect(() => () => almacenEntrada.desconectar(), [almacenEntrada]);
   const edicionInvalida = useMemo(() => crearAlmacen(false), []);
   const notificador = useMemo(() => crearNotificador(), []);
   const estado = useAlmacen(almacen, (s) => s);
@@ -131,7 +144,7 @@ export function App({ fuentes }: Props) {
         return;
       }
       cli = c;
-      orq = new Orquestador(almacen, c, almacenCalculo);
+      orq = new Orquestador(almacenEntrada, c, almacenCalculo);
       orq.iniciar();
       setCliente(c);
       setOrquestador(orq);
@@ -141,7 +154,7 @@ export function App({ fuentes }: Props) {
       orq?.detener();
       cli?.terminar();
     };
-  }, [almacen, almacenCalculo]);
+  }, [almacenEntrada, almacenCalculo]);
 
   // Campo compilado desde las expresiones (MAT-05) para el panel; solo cambia si cambian el texto o los nombres.
   const nombresParametros = estado.parametros.map((p) => p.nombre).join('\u0000');
@@ -207,7 +220,11 @@ export function App({ fuentes }: Props) {
   // Animación del campo (REN-08): partículas y rueda de paletas con un reloj común. Con
   // movimiento reducido arranca en pausa (DESIGN §8); en modo captura el reloj es determinista.
   const [animando, setAnimando] = useState(() => !movimientoReducido);
-  const [animacion] = useState(() => new Animacion(modoCaptura()));
+  const [animacion] = useState(() => {
+    const a = new Animacion(modoCaptura());
+    a.tiempo = inicio.estado.tiempo.t;
+    return a;
+  });
   useEffect(() => () => animacion.destruir(), [animacion]);
   useEffect(() => {
     animacion.fijarSalida(
@@ -215,44 +232,90 @@ export function App({ fuentes }: Props) {
         ? (f) => {
             controlador.fijarParticulas(f.sistema);
             controlador.fijarAnguloRueda(f.anguloRueda);
+            // Con un campo temporal, el reloj mueve también el cálculo (D-70); con uno estacionario, no.
+            if (animacion.temporal) almacenReloj.fijar(f.t);
           }
         : null,
     );
-  }, [animacion, controlador]);
+  }, [animacion, controlador, almacenReloj]);
+  const temporal = campo?.dependeDelTiempo ?? false;
+  // Instante que muestra la interfaz: el del reloj, como mucho 10 veces por segundo.
+  const tReloj = useAlmacenEspaciado(almacenReloj, INTERVALO_RELOJ_MS);
+  const tVista = temporal ? tReloj : estado.tiempo.t;
+  // Un t nuevo en el experimento (deslizador, archivo, deshacer, ejemplo) mueve el reloj; el que
+  // escribe el propio reloj al pausar no (D-69).
+  const tEstado = estado.tiempo.t;
+  const tComprometido = useRef(tEstado);
+  useEffect(() => {
+    if (tEstado === tComprometido.current) return;
+    tComprometido.current = tEstado;
+    animacion.fijarTiempo(tEstado);
+    if (animacion.temporal) almacenReloj.fijar(tEstado);
+  }, [animacion, almacenReloj, tEstado]);
+  /** Guarda en el experimento el instante del reloj (al pausar o al llegar al final de la ventana). */
+  const comprometerTiempo = useCallback(() => {
+    if (!animacion.temporal) return;
+    const t = animacion.tiempo;
+    tComprometido.current = t;
+    almacen.fijar((s) => fijarTiempo(s, { t }));
+  }, [animacion, almacen]);
+  useEffect(() => {
+    animacion.fijarAlDetenerse(() => {
+      setAnimando(false);
+      comprometerTiempo();
+    });
+    return () => animacion.fijarAlDetenerse(null);
+  }, [animacion, comprometerTiempo]);
   const valoresParametros = useMemo(() => Float64Array.from(estado.parametros.map((p) => p.valor)), [estado.parametros]);
+  // Vector de evaluación de la interfaz: parámetros y el instante mostrado (D-63).
+  const pVista = useMemo(() => vectorEvaluacion(valoresParametros, tVista), [valoresParametros, tVista]);
   const punto = estado.punto;
-  // Valores en P (INS-02): se recalculan en vivo con los parámetros.
+  // Valores en P (INS-02): se recalculan en vivo con los parámetros y, si el campo es temporal, con t.
   const inspeccion = useMemo(() => {
     if (!campo || !punto) return null;
     const L = Math.min(...[0, 1, 2].map((k) => (dominio.max[k] as number) - (dominio.min[k] as number))) / 2;
-    return inspeccionar(campo, valoresParametros, punto, L);
-  }, [campo, punto, valoresParametros, dominio]);
+    return inspeccionar(campo, pVista, punto, L);
+  }, [campo, punto, pVista, dominio]);
   // Rueda en P: eje = sentido de ∇×F(P), ω = ½‖∇×F(P)‖ (SPEC §3.4).
   const rueda = useMemo(() => (inspeccion && conDerivadas(inspeccion) ? datosRueda(inspeccion.derivadas.rot) : null), [inspeccion]);
   const capaParticulas = estado.capas.particulas;
   const opcionesParticulas = estado.particulas;
   const definicion = estado.campo;
+  // F_ref y Δ de la malla: con un campo temporal la malla cambia en cada instante, pero no su escala (D-64).
+  const fRefMalla = malla?.escala.ref ?? null;
+  const deltaMalla = malla?.deltaRef ?? null;
+  const ventanaTiempo = estado.tiempo;
+  // Emisión desde semillas (líneas de traza, RF-25): las semillas de las líneas, en el hilo principal.
+  const especSemillas = estado.lineas.semillas;
+  const semillasEmision = useMemo(() => {
+    if (opcionesParticulas.nacimiento !== 'semillas' || !campo || fRefMalla === null || deltaMalla === null) return null;
+    const r = generarSemillas(especSemillas, dominio, campo.F, vectorEvaluacion(valoresParametros, tEstado), fRefMalla, { delta: deltaMalla, punto });
+    return r.n > 0 ? r.puntos.slice(0, 3 * r.n) : null;
+  }, [opcionesParticulas.nacimiento, campo, fRefMalla, deltaMalla, especSemillas, dominio, valoresParametros, tEstado, punto]);
   useEffect(() => {
     // Con una edición inválida se conserva la última animación válida.
-    if (!campo || !malla) return;
+    if (!campo || fRefMalla === null || deltaMalla === null) return;
     animacion.configurar({
       campo,
       p: valoresParametros,
       dominio,
       n: capaParticulas ? opcionesParticulas.n : 0,
       semilla: opcionesParticulas.semilla,
-      tau: opcionesParticulas.tau ?? malla.deltaRef / malla.escala.ref,
-      fRef: malla.escala.ref,
-      delta: malla.deltaRef,
+      tau: opcionesParticulas.tau ?? deltaMalla / fRefMalla,
+      fRef: fRefMalla,
+      delta: deltaMalla,
       omegaRueda: rueda?.omega ?? null,
-      clave: JSON.stringify([dominio, opcionesParticulas.n, opcionesParticulas.semilla]),
+      clave: JSON.stringify([dominio, opcionesParticulas.n, opcionesParticulas.semilla, semillasEmision ? Array.from(semillasEmision) : null]),
       claveCampo: JSON.stringify([definicion, Array.from(valoresParametros)]),
+      t: ventanaTiempo.t,
+      ventana: campo.dependeDelTiempo ? { inicio: ventanaTiempo.inicio, fin: ventanaTiempo.fin, bucle: ventanaTiempo.bucle } : null,
+      semillas: semillasEmision,
     });
-  }, [animacion, campo, malla, valoresParametros, dominio, capaParticulas, opcionesParticulas, rueda, definicion]);
+  }, [animacion, campo, fRefMalla, deltaMalla, valoresParametros, dominio, capaParticulas, opcionesParticulas, rueda, definicion, ventanaTiempo, semillasEmision]);
   useEffect(() => {
     controlador?.fijarRueda(rueda && punto && malla ? { centro: punto, eje: rueda.eje, radio: 0.45 * malla.deltaRef, omega: rueda.omega } : null);
   }, [controlador, rueda, punto, malla]);
-  const hayAnimacion = capaParticulas || rueda !== null;
+  const hayAnimacion = capaParticulas || rueda !== null || temporal;
 
   // Marcas de P (INS-01): aro, cruz, rótulo y glifo exacto del modo vigente (F o rot F).
   const modoGlifosP = estado.capas.glifos;
@@ -391,7 +454,9 @@ export function App({ fuentes }: Props) {
   useEffect(() => {
     animacion.fijarEnMarcha(animando);
     controlador?.fijarPausaRueda(!animando);
-  }, [animacion, animando, controlador]);
+    // Al pausar, el instante del reloj pasa al experimento (se guarda y se exporta, D-69).
+    if (!animando) comprometerTiempo();
+  }, [animacion, animando, controlador, comprometerTiempo]);
   const conmutarAnimacion = useCallback(() => setAnimando((a) => !a), []);
   // Proyección (RF-13, tecla 5): vive en el controlador, como la pose de la cámara.
   const [ortografica, setOrtografica] = useState(false);
@@ -542,7 +607,9 @@ export function App({ fuentes }: Props) {
       flechaDibujada: (k: number, seleccion?: boolean) => controlador.flechaDibujada(k, seleccion),
       /** Reloj determinista de la animación: avanza `segundos` en pasos de 1/60 s. */
       avanzarAnimacion: (segundos: number) => animacion.avanzarFijo(segundos),
-      animacion: () => ({ enMarcha: animacion.enMarcha, tau: animacion.tau, tiempo: animacion.tiempo, anguloRueda: animacion.anguloRueda }),
+      animacion: () => ({ enMarcha: animacion.enMarcha, tau: animacion.tau, tiempo: animacion.tiempo, anguloRueda: animacion.anguloRueda, temporal: animacion.temporal }),
+      /** Instante que ve el cálculo (reloj en vivo con un campo temporal, SPEC §3.10). */
+      reloj: () => almacenEntrada.obtener().tiempo.t,
       /** Posición y edad de cada partícula (para seguirlas entre pasos del reloj). */
       particulas: () => {
         const s = animacion.particulas;
@@ -595,7 +662,7 @@ export function App({ fuentes }: Props) {
         const r = compilarCampo(almacen.obtener().campo, almacen.obtener().parametros.map((p) => p.nombre));
         if (!r.ok) return null;
         const out = new Float64Array(3);
-        r.campo.F(x, y, z, Float64Array.from(almacen.obtener().parametros.map((p) => p.valor)), out, 0);
+        r.campo.F(x, y, z, vectorEvaluacion(almacen.obtener().parametros.map((p) => p.valor), almacenEntrada.obtener().tiempo.t), out, 0);
         return Array.from(out);
       },
       /** F y ‖F‖ en el nodo de coordenadas exactas (x, y, z), o null si no es un nodo. */
@@ -643,7 +710,7 @@ export function App({ fuentes }: Props) {
         };
       },
     });
-  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador, animacion]);
+  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador, animacion, almacenEntrada]);
 
   const modoFlechas = estado.flechas.modo;
   const luminancia = estado.flechas.luminancia;
@@ -735,7 +802,8 @@ export function App({ fuentes }: Props) {
         capaLineas && lineas && lineas.nLineas > 0
           ? { finalesCero: contar(FINAL.ROMBO), finalesIndefinidos: contar(FINAL.ASPA), actualizando: actualizandoLineas }
           : null,
-      particulas: capaParticulas ? { tau: opcionesParticulas.tau ?? malla.deltaRef / malla.escala.ref, enPausa: !animando } : null,
+      particulas: capaParticulas ? { tau: opcionesParticulas.tau ?? malla.deltaRef / malla.escala.ref, enPausa: !animando, emision: opcionesParticulas.nacimiento === 'semillas' } : null,
+      tiempo: temporal ? { tLineas: capaLineas && lineas && lineas.nLineas > 0 ? lineas.t : null } : null,
       corte: d
         ? {
             tipo: d.tipo,
@@ -749,7 +817,7 @@ export function App({ fuentes }: Props) {
           }
         : null,
     };
-  }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas, soloCorte, datosEscalar, corte.escala, capaParticulas, opcionesParticulas, animando]);
+  }, [malla, modoFlechas, luminancia, deltaFija, capaFlechas, capaLineas, lineas, actualizandoLineas, soloCorte, datosEscalar, corte.escala, capaParticulas, opcionesParticulas, animando, temporal]);
 
 
   const png = useExportarPng({ controlador, estado, campo, datosLeyenda, notificador });
@@ -825,7 +893,22 @@ export function App({ fuentes }: Props) {
             <p>{T.archivo.soltar}</p>
           </div>
         ) : null}
-        <Panel estado={estado} campo={campo} acciones={acciones} edicionInvalida={edicionInvalida} escalaActual={escalaActual} detallesLineas={detallesLineas} atajos={atajosUnaTecla} alAtajos={cambiarAtajos} modo={modoPanel} abierto={panelAbierto} alConmutar={conmutarPanel} />
+        <Panel
+          estado={estado}
+          campo={campo}
+          acciones={acciones}
+          edicionInvalida={edicionInvalida}
+          escalaActual={escalaActual}
+          detallesLineas={detallesLineas}
+          atajos={atajosUnaTecla}
+          alAtajos={cambiarAtajos}
+          modo={modoPanel}
+          abierto={panelAbierto}
+          alConmutar={conmutarPanel}
+          reloj={almacenReloj}
+          animando={animando}
+          alAnimar={conmutarAnimacion}
+        />
         <VistaEscena
           fuentes={fuentes}
           movimientoReducido={movimientoReducido}
@@ -881,6 +964,11 @@ export function App({ fuentes }: Props) {
           {perf ? <PanelRendimiento contexto={contextoMedicion} /> : null}
           {datosLeyenda ? <Leyenda datos={datosLeyenda} controlador={controlador} alFijarEscala={fijarEscala} alFijarVRef={fijarVRef} plegadaInicial={nivel === 'compacto' || nivel === 'consulta'} /> : null}
           <div className="esquina-inferior-derecha">
+            {temporal ? (
+              <p className="reloj-escena flotante num" data-prueba="lectura-t" aria-label={T.tiempo.lecturaLargo(formatearCorto(tReloj))}>
+                {T.tiempo.lectura(formatearCorto(tReloj))}
+              </p>
+            ) : null}
             <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} ortografica={ortografica} alProyeccion={conmutarProyeccion} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} alInspeccionar={abrirInspector} />
             <Triedro controlador={controlador} />
           </div>

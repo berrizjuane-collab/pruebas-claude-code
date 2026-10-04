@@ -647,7 +647,7 @@ $[0,4\pi]$ con bucle.
 
 | Aspecto | Contenido |
 | --- | --- |
-| Expresiones | `P = V*cos(w*t)`, `Q = V*sin(w*t)`, `R = 0` |
+| Expresiones | `P = V*cos(omega*t)`, `Q = V*sin(omega*t)`, `R = 0` (el parámetro `omega` se muestra como ω) |
 | Parámetros | V ∈ [0.1, 3], paso 0.05, por defecto 1; ω ∈ [0.1, 3], paso 0.05, por defecto 1 |
 | Geometría | Uniforme en el espacio en cada instante; la dirección gira con velocidad angular ω. $\lVert\mathbf F\rVert=V$ siempre |
 | $J$, div, rot | $J=0$, div $=0$, rot $=\mathbf 0$ en todo instante |
@@ -663,7 +663,7 @@ $[0,4\pi]$ con bucle.
 
 | Aspecto | Contenido |
 | --- | --- |
-| Expresiones | `P = A*sin(w*t - k*z)`, `Q = 0`, `R = -v` |
+| Expresiones | `P = A*sin(omega*t - k*z)`, `Q = 0`, `R = -v` |
 | Parámetros | A ∈ [0, 2], paso 0.05, por defecto 0.8; ω ∈ [0.1, 3], paso 0.05, por defecto 1; k ∈ [0, 3], paso 0.05, por defecto 1.5; v ∈ [0.1, 3], paso 0.05, por defecto 1 |
 | Geometría | Caída uniforme con rapidez $v$ y viento horizontal en ondas que suben con velocidad de fase $\omega/k$ |
 | $J$, div, rot | $J_{13}=-Ak\cos(\omega t-kz)$ y el resto 0; div $=0$; rot $=(0,\,-Ak\cos(\omega t-kz),\,0)$ |
@@ -678,7 +678,7 @@ $[0,4\pi]$ con bucle.
 
 | Aspecto | Contenido |
 | --- | --- |
-| Expresiones | `P = k*(x*cos(2*w*t) + y*sin(2*w*t))`, `Q = k*(x*sin(2*w*t) - y*cos(2*w*t))`, `R = 0` |
+| Expresiones | `P = k*(x*cos(2*omega*t) + y*sin(2*omega*t))`, `Q = k*(x*sin(2*omega*t) - y*cos(2*omega*t))`, `R = 0` |
 | Parámetros | k ∈ [0.1, 3], paso 0.05, por defecto 1; ω ∈ [0, 3], paso 0.05, por defecto 1.5 |
 | Geometría | En cada instante es la silla de §4.6 girada un ángulo $\omega t$: $\mathbf F=R(\omega t)\,\mathrm{diag}(k,-k,0)\,R(\omega t)^{\top}\mathbf r$ |
 | $J$, div, rot | $J$ simétrica sin traza, autovalores $\pm k$ y 0 en todo instante: div $=0$, rot $=\mathbf 0$ |

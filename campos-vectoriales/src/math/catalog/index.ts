@@ -284,8 +284,8 @@ const CATALOGO_TEMPORAL: readonly CampoCatalogo[] = [
     id: 'viento-giratorio',
     nombre: 'Viento giratorio',
     nombreCorto: 'Viento',
-    expresiones: { P: 'V*cos(w*t)', Q: 'V*sin(w*t)', R: '0' },
-    parametros: [param('V', 1, 0.1, 3, 0.05), param('w', 1, 0.1, 3, 0.05)],
+    expresiones: { P: 'V*cos(omega*t)', Q: 'V*sin(omega*t)', R: '0' },
+    parametros: [param('V', 1, 0.1, 3, 0.05), param('omega', 1, 0.1, 3, 0.05)],
     semillas: { tipo: 'rejilla', plano: 'XY', c: 0, nu: 5, nv: 5 },
     tex: '\\mathbf F = V\\,(\\cos\\omega t,\\; \\sin\\omega t,\\; 0)',
     F: (_x, _y, _z, p, out, o) => {
@@ -328,8 +328,8 @@ const CATALOGO_TEMPORAL: readonly CampoCatalogo[] = [
     id: 'lluvia',
     nombre: 'Lluvia con ráfagas',
     nombreCorto: 'Lluvia',
-    expresiones: { P: 'A*sin(w*t - k*z)', Q: '0', R: '-v' },
-    parametros: [param('A', 0.8, 0, 2, 0.05), param('w', 1, 0.1, 3, 0.05), param('k', 1.5, 0, 3, 0.05), param('v', 1, 0.1, 3, 0.05)],
+    expresiones: { P: 'A*sin(omega*t - k*z)', Q: '0', R: '-v' },
+    parametros: [param('A', 0.8, 0, 2, 0.05), param('omega', 1, 0.1, 3, 0.05), param('k', 1.5, 0, 3, 0.05), param('v', 1, 0.1, 3, 0.05)],
     semillas: { tipo: 'rejilla', plano: 'XY', c: 1.9, nu: 5, nv: 5 },
     tex: '\\mathbf F = \\big(A\\sin(\\omega t - kz),\\; 0,\\; -v\\big)',
     F: (_x, _y, z, p, out, o) => {
@@ -379,8 +379,8 @@ const CATALOGO_TEMPORAL: readonly CampoCatalogo[] = [
     id: 'silla-giratoria',
     nombre: 'Silla giratoria',
     nombreCorto: 'Silla gira',
-    expresiones: { P: 'k*(x*cos(2*w*t) + y*sin(2*w*t))', Q: 'k*(x*sin(2*w*t) - y*cos(2*w*t))', R: '0' },
-    parametros: [param('k', 1, 0.1, 3, 0.05), param('w', 1.5, 0, 3, 0.05)],
+    expresiones: { P: 'k*(x*cos(2*omega*t) + y*sin(2*omega*t))', Q: 'k*(x*sin(2*omega*t) - y*cos(2*omega*t))', R: '0' },
+    parametros: [param('k', 1, 0.1, 3, 0.05), param('omega', 1.5, 0, 3, 0.05)],
     semillas: { tipo: 'rejilla', plano: 'XY', c: 0, nu: 7, nv: 7 },
     tex: '\\mathbf F = k\\,\\big(x\\cos 2\\omega t + y\\sin 2\\omega t,\\; x\\sin 2\\omega t - y\\cos 2\\omega t,\\; 0\\big)',
     F: (x, y, _z, p, out, o) => {

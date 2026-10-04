@@ -810,7 +810,7 @@ test.describe('UI-08 · secciones de líneas, corte y derivadas', () => {
     await page.locator('[data-prueba="cifras"]').fill('6');
     await page.locator('[data-prueba="cifras"]').press('Enter');
     expect((await estado(page)).cifras).toBe(6);
-    expect((await estado(page)).particulas).toEqual({ n: 100, tau: 0.5, semilla: 9 });
+    expect((await estado(page)).particulas).toEqual({ n: 100, tau: 0.5, semilla: 9, nacimiento: 'dominio' });
   });
 });
 

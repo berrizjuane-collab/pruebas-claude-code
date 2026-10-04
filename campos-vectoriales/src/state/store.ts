@@ -25,3 +25,21 @@ export function crearAlmacen<T>(inicial: T): Almacen<T> {
     },
   };
 }
+
+/**
+ * Almacén derivado de otros (solo lectura): recalcula `calcular()` cuando cambia alguna fuente
+ * y avisa solo si el resultado es otro objeto. `calcular` debe devolver el mismo objeto cuando
+ * nada relevante cambia (así el orquestador no se despierta en cada fotograma).
+ */
+export function derivarAlmacen<T>(fuentes: readonly Pick<Almacen<unknown>, 'suscribir'>[], calcular: () => T): Almacen<T> & { desconectar(): void } {
+  const interno = crearAlmacen(calcular());
+  const bajas = fuentes.map((f) => f.suscribir(() => interno.fijar(calcular())));
+  return {
+    obtener: interno.obtener,
+    suscribir: interno.suscribir,
+    fijar() {
+      throw new Error('Un almacén derivado es de solo lectura');
+    },
+    desconectar: () => bajas.forEach((b) => b()),
+  };
+}

@@ -53,3 +53,34 @@ export function useNivelPantalla(): NivelPantalla {
 
 /** ¿El panel lateral es un cajón superpuesto o una hoja inferior en este nivel? */
 export const panelFlotante = (n: NivelPantalla) => n === 'cajon' || n === 'compacto' || n === 'consulta';
+
+/**
+ * Valor de un almacén que cambia en cada fotograma (el reloj, SPEC §5.11), entregado como
+ * mucho cada `intervaloMs`; el último valor siempre llega (al pausar, la interfaz queda exacta).
+ */
+export function useAlmacenEspaciado<T>(almacen: Almacen<T>, intervaloMs: number): T {
+  const [valor, setValor] = useState(() => almacen.obtener());
+  useEffect(() => {
+    let ultimo = 0;
+    let temporizador: ReturnType<typeof setTimeout> | null = null;
+    const entregar = () => {
+      ultimo = performance.now();
+      setValor(almacen.obtener());
+    };
+    entregar();
+    const baja = almacen.suscribir(() => {
+      const transcurrido = performance.now() - ultimo;
+      if (transcurrido >= intervaloMs) entregar();
+      else if (!temporizador)
+        temporizador = setTimeout(() => {
+          temporizador = null;
+          entregar();
+        }, intervaloMs - transcurrido);
+    });
+    return () => {
+      baja();
+      if (temporizador) clearTimeout(temporizador);
+    };
+  }, [almacen, intervaloMs]);
+  return valor;
+}

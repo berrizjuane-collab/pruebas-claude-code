@@ -229,10 +229,10 @@ export function importarConfiguracion(texto: string, bytes = new TextEncoder().e
   const m = migrar(crudo, crudo.version, VERSION, MIGRACIONES);
   if (!m.ok) return { ok: false, errores: [{ ruta: 'version', mensaje: m.error }] };
   const val = new Validador();
-  val.avisos.push(...m.avisos);
   const estado = validarDocumento(m.doc, val);
   if (val.errores.length || !estado) return { ok: false, errores: val.errores };
-  return { ok: true, estado, avisos: val.avisos };
+  // La nota de conversión va al final: la notificación empieza por lo que el usuario debe revisar.
+  return { ok: true, estado, avisos: [...val.avisos, ...m.avisos] };
 }
 
 /** Aplica las migraciones de `desde` a `hasta`, una versión cada vez. */

@@ -1,21 +1,28 @@
 /**
- * Animación del campo (REN-08, DESIGN §8; SPEC §3.6 y §5.8): partículas trazadoras y rueda de
- * paletas con un reloj común, en el hilo principal. 1 s real ≙ τ unidades de t, con
- * τ = Δ/F_ref por defecto (una partícula con ‖F‖ = F_ref recorre una celda por segundo).
+ * Animación del campo (REN-08, DESIGN §8; SPEC §3.6, §3.10, §5.8 y §5.11): partículas
+ * trazadoras, rueda de paletas y, con un campo dependiente del tiempo, el reloj del
+ * experimento, en el hilo principal. 1 s real ≙ τ unidades de t, con τ = Δ/F_ref por defecto
+ * (una partícula con ‖F‖ = F_ref recorre una celda por segundo).
  *
  * - En marcha, un bucle `requestAnimationFrame` avanza con el tiempo real (como mucho 1/20 s
  *   por fotograma: al volver a la pestaña no hay saltos).
+ * - Con un campo temporal (1.1) hay un único reloj (D-69): avanza t dentro de la ventana
+ *   [inicio, fin] e integra las partículas con las etapas en su instante. Al llegar al final,
+ *   con bucle vuelve al inicio y las partículas renacen; sin bucle, se detiene. Fijar t a mano
+ *   también las hace renacer (SPEC §3.10).
  * - En modo captura (`?captura=1`) el reloj no avanza solo: es determinista y lo avanzan las
  *   pruebas con pasos fijos (`avanzarFijo`).
  * - Al crear el sistema se avanzan unos pasos para que la estela indique el sentido aunque la
- *   animación empiece en pausa (movimiento reducido).
+ *   animación empiece en pausa (movimiento reducido). Con un campo temporal ese relleno
+ *   empieza antes de t y termina en t: las partículas quedan en el instante del reloj.
  */
-import type { CampoCompilado } from '../math/field';
+import { vectorEvaluacion, type CampoCompilado } from '../math/field';
 import type { Dominio, Vec3 } from '../math/tipos';
 import { SistemaParticulas } from '../numerics/particles';
 
 export interface ConfigAnimacion {
   campo: CampoCompilado;
+  /** Valores de los parámetros (sin el instante: el reloj lo pone en la última ranura, D-63). */
   p: Float64Array;
   dominio: Dominio;
   /** Partículas (0 = capa apagada). */
@@ -27,7 +34,7 @@ export interface ConfigAnimacion {
   delta: number;
   /** Velocidad angular de la rueda (rad por unidad de t) o null sin rueda. */
   omegaRueda: number | null;
-  /** Clave de lo que obliga a recrear las partículas (dominio, n, semilla). */
+  /** Clave de lo que obliga a recrear las partículas (dominio, n, semilla, nacimiento). */
   clave: string;
   /**
    * Clave del campo (expresiones y parámetros). En marcha, las partículas siguen moviéndose
@@ -35,11 +42,19 @@ export interface ConfigAnimacion {
    * congelado se recrean, para que la estela inmóvil muestre el sentido del campo vigente.
    */
   claveCampo: string;
+  /** Instante del experimento: el reloj lo adopta al pasar de un campo estacionario a uno temporal. */
+  t: number;
+  /** Ventana del reloj si el campo depende del tiempo (null si es estacionario). */
+  ventana: { inicio: number; fin: number; bucle: boolean } | null;
+  /** Emisión desde semillas (líneas de traza, RF-25): 3·S coordenadas, o null (nacen en todo Ω). */
+  semillas: Float64Array | null;
 }
 
 export interface FotogramaAnimacion {
   sistema: SistemaParticulas | null;
   anguloRueda: number;
+  /** Instante del reloj. */
+  t: number;
 }
 
 /** Paso de los fotogramas de relleno inicial y del reloj determinista. */
@@ -47,6 +62,8 @@ export const PASO_FIJO = 1 / 60;
 /** La estela guarda una posición cada 3 fotogramas: 12 posiciones ≈ 0.6 s de recorrido. */
 const PASOS_POR_PUNTO = 3;
 const DT_MAX = 1 / 20;
+/** Vida de las partículas emitidas desde semillas: la longitud de la línea de traza (s reales). */
+const VIDA_EMISION = 20;
 
 export class Animacion {
   private config: ConfigAnimacion | null = null;
@@ -54,13 +71,21 @@ export class Animacion {
   private raf = 0;
   private ultimo = 0;
   private marcha = false;
-  /** t del experimento transcurrido con la animación en marcha (o con el reloj fijo). */
+  /** Vector de evaluación de las partículas: parámetros y, en la última ranura, el instante. */
+  private pEval: Float64Array = new Float64Array(1);
+  /** Instante del reloj: t del experimento (con un campo temporal, dentro de la ventana). */
   tiempo = 0;
   anguloRueda = 0;
 
   private alFotograma: ((f: FotogramaAnimacion) => void) | null = null;
+  /** Aviso de que el reloj se detuvo al llegar al final de la ventana sin bucle. */
+  private alDetenerse: (() => void) | null = null;
 
   constructor(private readonly congelada: boolean) {}
+
+  fijarAlDetenerse(fn: (() => void) | null): void {
+    this.alDetenerse = fn;
+  }
 
   /** Destino de cada fotograma (la escena); al fijarlo recibe el estado actual. */
   fijarSalida(fn: ((f: FotogramaAnimacion) => void) | null): void {
@@ -80,18 +105,49 @@ export class Animacion {
     return this.config?.tau ?? null;
   }
 
+  /** ¿El reloj gobierna un campo dependiente del tiempo? */
+  get temporal(): boolean {
+    return !!this.config?.ventana;
+  }
+
   configurar(c: ConfigAnimacion | null): void {
     const campoNuevo = c?.claveCampo !== this.config?.claveCampo;
-    const recrear = !c || c.clave !== this.config?.clave || c.n !== (this.sistema?.n ?? 0) || (campoNuevo && (!this.marcha || this.congelada));
+    const temporalAntes = !!this.config?.ventana;
+    const recrear =
+      !c ||
+      c.clave !== this.config?.clave ||
+      c.n !== (this.sistema?.n ?? 0) ||
+      !!c.ventana !== temporalAntes ||
+      (campoNuevo && (!this.marcha || this.congelada));
     this.config = c;
-    if (recrear) {
-      this.sistema = c && c.n > 0 ? new SistemaParticulas({ n: c.n, semilla: c.semilla, dominio: c.dominio, pasosPorPunto: PASOS_POR_PUNTO }) : null;
-      // Estela inicial: el sentido se ve aunque la animación arranque en pausa.
-      if (this.sistema && c) for (let k = 0; k < this.sistema.largoEstela * PASOS_POR_PUNTO; k++) this.sistema.avanzar(c.campo.F, c.p, PASO_FIJO, c.tau, c.fRef, c.delta);
+    if (c) {
+      if (c.ventana && !temporalAntes) this.tiempo = c.t;
+      if (c.ventana) this.tiempo = Math.min(c.ventana.fin, Math.max(c.ventana.inicio, this.tiempo));
+      this.pEval = vectorEvaluacion(c.p, this.tiempo);
     }
+    if (recrear) this.recrearParticulas();
     if (!c || c.omegaRueda === null) this.anguloRueda = 0;
     this.emitir();
     this.programar();
+  }
+
+  /**
+   * Cambia el dominio y las semillas de emisión sin recrear las partículas (espacio sin
+   * límites, SPEC §3.11): solo renacen las que quedan fuera.
+   */
+  moverDominio(d: Dominio, semillas: Float64Array | null): void {
+    if (!this.config) return;
+    this.config = { ...this.config, dominio: d, semillas };
+    this.sistema?.fijarDominio(d, this.sistema.emision ? semillas : undefined);
+    this.emitir();
+  }
+
+  /** Fija el instante del reloj (deslizador, archivo, deshacer); las partículas renacen (D-69). */
+  fijarTiempo(t: number): void {
+    if (t === this.tiempo) return;
+    this.tiempo = t;
+    if (this.config?.ventana) this.recrearParticulas();
+    this.emitir();
   }
 
   fijarEnMarcha(marcha: boolean): void {
@@ -102,13 +158,29 @@ export class Animacion {
     this.programar();
   }
 
-  /** Avanza dtReal segundos reales: partículas (RK4) y rueda (analítica). */
+  /** Avanza dtReal segundos reales: reloj, partículas (RK4) y rueda (analítica). */
   avanzar(dtReal: number): void {
     const c = this.config;
     if (!c) return;
-    if (this.sistema) this.sistema.avanzar(c.campo.F, c.p, dtReal, c.tau, c.fRef, c.delta);
-    if (c.omegaRueda !== null) this.anguloRueda += c.omegaRueda * c.tau * dtReal;
-    this.tiempo += c.tau * dtReal;
+    const v = c.ventana;
+    const dt = c.tau * dtReal;
+    if (v && this.tiempo + dt > v.fin) {
+      if (v.bucle) {
+        // Vuelta al inicio: la historia no es continua a través del salto (SPEC §3.10).
+        this.tiempo = v.inicio;
+        this.recrearParticulas();
+      } else {
+        this.tiempo = v.fin;
+        this.marcha = false;
+        this.programar();
+        this.alDetenerse?.();
+      }
+      this.emitir();
+      return;
+    }
+    if (this.sistema) this.sistema.avanzar(c.campo.F, this.pEval, dtReal, c.tau, c.fRef, c.delta, v ? this.tiempo : undefined);
+    if (c.omegaRueda !== null) this.anguloRueda += c.omegaRueda * dt;
+    this.tiempo += dt;
     this.emitir();
   }
 
@@ -118,12 +190,34 @@ export class Animacion {
     for (let k = 0; k < pasos; k++) this.avanzar(PASO_FIJO);
   }
 
+  private recrearParticulas(): void {
+    const c = this.config;
+    this.sistema =
+      c && c.n > 0
+        ? new SistemaParticulas({
+            n: c.n,
+            semilla: c.semilla,
+            dominio: c.dominio,
+            pasosPorPunto: PASOS_POR_PUNTO,
+            semillas: c.semillas,
+            ...(c.semillas ? { vidaMax: VIDA_EMISION } : {}),
+          })
+        : null;
+    if (!this.sistema || !c) return;
+    // Estela inicial: el sentido se ve aunque la animación arranque en pausa. Con un campo
+    // temporal, el relleno va de t − 36·τ/60 a t: las partículas quedan en el instante t.
+    const pasos = this.sistema.largoEstela * PASOS_POR_PUNTO;
+    const t0 = this.tiempo - pasos * PASO_FIJO * c.tau;
+    for (let k = 0; k < pasos; k++) this.sistema.avanzar(c.campo.F, this.pEval, PASO_FIJO, c.tau, c.fRef, c.delta, c.ventana ? t0 + k * PASO_FIJO * c.tau : undefined);
+  }
+
   private emitir(): void {
-    this.alFotograma?.({ sistema: this.sistema, anguloRueda: this.anguloRueda });
+    this.alFotograma?.({ sistema: this.sistema, anguloRueda: this.anguloRueda, t: this.tiempo });
   }
 
   private programar(): void {
-    const activa = this.marcha && !this.congelada && !!this.config && (!!this.sistema || this.config.omegaRueda !== null);
+    const c = this.config;
+    const activa = this.marcha && !this.congelada && !!c && (!!this.sistema || c.omegaRueda !== null || !!c.ventana);
     if (!activa) {
       cancelAnimationFrame(this.raf);
       this.raf = 0;

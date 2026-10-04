@@ -126,6 +126,18 @@ function AvanzadoBase({ flechas, particulas, cifras, tauActual, fRefActual, delt
         ) : null}
       </div>
       <div className="fila-control">
+        <span className="fila-etiqueta">{T.avanzado.nacimiento}</span>
+        <Segmentado
+          etiqueta={T.avanzado.nacimientoLargo}
+          valor={particulas.nacimiento}
+          opciones={[
+            { valor: 'dominio', texto: T.avanzado.nacenDominio, etiqueta: T.avanzado.nacenDominioLargo },
+            { valor: 'semillas', texto: T.avanzado.nacenSemillas, etiqueta: T.avanzado.nacenSemillasLargo },
+          ]}
+          alCambiar={(nacimiento) => alParticulas({ nacimiento })}
+        />
+      </div>
+      <div className="fila-control">
         <span className="fila-etiqueta">{T.avanzado.semilla}</span>
         <CampoNumerico
           etiqueta={T.avanzado.semillaLargo}

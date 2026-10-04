@@ -70,7 +70,7 @@ describe('EXP-01 · ida y vuelta (igualdad profunda)', () => {
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     // Es un documento v1: se migra a v2 (D-71) sin avisos de «falta» por las claves nuevas.
-    expect(r.avisos).toEqual(['Convertido de la versión 1 a la 2', 'Falta «cifras»: se usa el valor por defecto']);
+    expect(r.avisos).toEqual(['Falta «cifras»: se usa el valor por defecto', 'Convertido de la versión 1 a la 2']);
     expect(r.estado).toMatchObject({
       nombre: 'Helicoidal',
       base: 'helicoidal',

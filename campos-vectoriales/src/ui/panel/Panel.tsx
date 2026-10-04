@@ -19,6 +19,7 @@ import { Avanzado } from './Avanzado';
 import { Corte } from './Corte';
 import { Derivadas } from './Derivadas';
 import { Lineas, type DetallesLineas } from './Lineas';
+import { Tiempo } from './Tiempo';
 
 /** Acciones del panel (las ejecuta App sobre el almacén). */
 export interface AccionesPanel {
@@ -39,6 +40,7 @@ export interface AccionesPanel {
   alLineas: (cambios: Partial<EstadoExperimento['lineas']>) => void;
   alParticulas: (cambios: Partial<EstadoExperimento['particulas']>) => void;
   alCifras: (cifras: number) => void;
+  alTiempo: (cambios: Partial<EstadoExperimento['tiempo']>) => void;
 }
 
 interface Props {
@@ -60,9 +62,13 @@ interface Props {
   modo: 'lateral' | 'cajon' | 'hoja';
   abierto: boolean;
   alConmutar: () => void;
+  /** Reloj en vivo y estado de la animación (sección «Tiempo», 1.1). */
+  reloj: Almacen<number>;
+  animando: boolean;
+  alAnimar: () => void;
 }
 
-function PanelBase({ estado, campo, acciones: a, edicionInvalida, escalaActual, detallesLineas, atajos, alAtajos, modo, abierto, alConmutar }: Props) {
+function PanelBase({ estado, campo, acciones: a, edicionInvalida, escalaActual, detallesLineas, atajos, alAtajos, modo, abierto, alConmutar, reloj, animando, alAnimar }: Props) {
   const verEnCorte = useCallback((escalar: 'divergencia' | 'rotacional') => a.alCorte({ activo: true, escalar }), [a]);
   // Los nombres solo cambian al añadir o quitar parámetros (no con sus valores).
   const claveNombres = estado.parametros.map((p) => p.nombre).join('\u0000');
@@ -108,6 +114,15 @@ function PanelBase({ estado, campo, acciones: a, edicionInvalida, escalaActual, 
           alRestablecer={a.alRestablecerParametro}
           alEliminar={a.alEliminarParametro}
           alAnadir={a.alAnadirParametro}
+        />
+        <Tiempo
+          tiempo={estado.tiempo}
+          temporal={campo?.dependeDelTiempo ?? false}
+          reloj={reloj}
+          animando={animando}
+          alAnimar={alAnimar}
+          tau={estado.particulas.tau ?? (escalaActual ? escalaActual.delta / escalaActual.fRef : null)}
+          alTiempo={a.alTiempo}
         />
         <Visualizacion capas={estado.capas} alCapa={a.alCapa} alGlifos={a.alGlifos} />
         <Lineas lineas={estado.lineas} dominio={estado.dominio} hayPunto={estado.punto !== null} detalles={detallesLineas} alLineas={a.alLineas} />

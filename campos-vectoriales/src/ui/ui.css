@@ -1648,3 +1648,33 @@
   gap: var(--e-2);
   flex-wrap: wrap;
 }
+
+/* ---------- Tiempo (1.1, DESIGN §6.3) ---------- */
+
+.tiempo-fila {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 64px;
+  align-items: center;
+  column-gap: var(--e-2);
+}
+
+.tiempo-etiqueta-fin {
+  width: auto;
+  margin-left: var(--e-2);
+}
+
+/* Lectura del reloj en la escena (DESIGN §6.3): chip de 32 px junto a la barra de la escena. */
+.reloj-escena {
+  margin: 0;
+  height: var(--m-control);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--e-3);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-3);
+  box-shadow: var(--sombra-n1);
+  color: var(--texto-1);
+  font-size: var(--t-control);
+  font-variant-numeric: tabular-nums;
+}
