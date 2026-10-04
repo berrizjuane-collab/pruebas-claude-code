@@ -15,6 +15,9 @@ export const definicionCampo = (e: EstadoExperimento): DefinicionCampo => ({
 
 export const valores = (e: EstadoExperimento) => e.parametros.map((p) => p.valor);
 
+/** Vector de evaluación de las peticiones (D-63): valores de los parámetros y el instante t. */
+export const vector = (e: EstadoExperimento) => [...valores(e), e.tiempo.t];
+
 const ESCALAR: Record<EstadoExperimento['corte']['escalar'], TipoEscalar | null> = {
   ninguno: null,
   magnitud: 'magnitud',
@@ -29,10 +32,11 @@ type SinId<T> = Omit<T, 'id'>;
 export const peticionMalla = (e: EstadoExperimento): SinId<PeticionMalla> => ({
   tipo: 'malla',
   campo: definicionCampo(e),
-  p: valores(e),
+  p: vector(e),
   dominio: e.dominio,
   n: e.muestreo.n,
   posicion: e.muestreo.posicion,
+  ventana: { inicio: e.tiempo.inicio, fin: e.tiempo.fin },
   escala: e.flechas.escala,
   glifos: e.capas.glifos,
   escalaRot: e.flechas.escalaRot,
@@ -49,7 +53,7 @@ export const peticionCorte = (e: EstadoExperimento): SinId<PeticionCorte> => {
   return {
     tipo: 'corte',
     campo: definicionCampo(e),
-    p: valores(e),
+    p: vector(e),
     dominio: e.dominio,
     plano: e.corte.plano,
     c: e.corte.c,
@@ -62,7 +66,7 @@ export const peticionCorte = (e: EstadoExperimento): SinId<PeticionCorte> => {
 export const peticionLineas = (e: EstadoExperimento, malla: ResultadoMalla): SinId<PeticionLineas> => ({
   tipo: 'lineas',
   campo: definicionCampo(e),
-  p: valores(e),
+  p: vector(e),
   dominio: e.dominio,
   semillas: e.lineas.semillas,
   paso: e.lineas.paso,

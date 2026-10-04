@@ -1,0 +1,74 @@
+
+ RUN  v5.0.3 /home/user/pruebas-claude-code/campos-vectoriales
+
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > uniforme: 1000 puntos (y parámetros aleatorios en su rango) 58ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > radial-saliente: 1000 puntos (y parámetros aleatorios en su rango) 43ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Uniforme: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 46ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Uniforme: la jacobiana nativa coincide con diferencias centradas de F 12ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial saliente: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 29ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial saliente: la jacobiana nativa coincide con diferencias centradas de F 11ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial entrante: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 28ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > radial-entrante: 1000 puntos (y parámetros aleatorios en su rango) 23ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > rotacional: 1000 puntos (y parámetros aleatorios en su rango) 23ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > helicoidal: 1000 puntos (y parámetros aleatorios en su rango) 21ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > silla: 1000 puntos (y parámetros aleatorios en su rango) 23ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > viento-giratorio: 1000 puntos (y parámetros aleatorios en su rango) 22ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Radial entrante: la jacobiana nativa coincide con diferencias centradas de F 11ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Rotacional: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 26ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Rotacional: la jacobiana nativa coincide con diferencias centradas de F 11ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Helicoidal: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 25ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Helicoidal: la jacobiana nativa coincide con diferencias centradas de F 13ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Silla: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 24ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > lluvia: 1000 puntos (y parámetros aleatorios en su rango) 21ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > silla-giratoria: 1000 puntos (y parámetros aleatorios en su rango) 27ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T1: 1000 puntos (y parámetros aleatorios en su rango) 25ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T2: 1000 puntos (y parámetros aleatorios en su rango) 23ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T3: 1000 puntos (y parámetros aleatorios en su rango) 20ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Silla: la jacobiana nativa coincide con diferencias centradas de F 12ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Viento giratorio: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 24ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Viento giratorio: la jacobiana nativa coincide con diferencias centradas de F 11ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Lluvia con ráfagas: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 26ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Lluvia con ráfagas: la jacobiana nativa coincide con diferencias centradas de F 14ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Silla giratoria: div y rot coinciden con la tabla en 1000 puntos y parámetros aleatorios 26ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T4: 1000 puntos (y parámetros aleatorios en su rango) 19ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T5: 1000 puntos (y parámetros aleatorios en su rango) 19ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > T6: 1000 puntos (y parámetros aleatorios en su rango) 19ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-05 · expresiones compiladas frente a oráculos nativos > mismo patrón de no finitos en las singularidades (T2 en el origen, T3 con x < 0, T4 sobre el eje) 1ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > uniforme: 9 derivadas en 500 puntos (T-02) 32ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > radial-saliente: 9 derivadas en 500 puntos (T-02) 31ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > Silla giratoria: la jacobiana nativa coincide con diferencias centradas de F 12ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > los equilibrios analíticos anulan el campo 1ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo nativo (V-MAT-01) > helicoidal sin equilibrios con a ≠ 0 y con el eje z si a = 0 1ms
+ ✓ src/math/catalog/catalogo.test.ts > campos auxiliares T1–T6 > la jacobiana analítica coincide con diferencias centradas (lejos de singularidades) 90ms
+ ✓ src/math/catalog/catalogo.test.ts > campos auxiliares T1–T6 > T2 y T4 no están definidos en sus singularidades 0ms
+ ✓ src/math/catalog/catalogo.test.ts > autovalores de J > silla: k, −k, 0; rotacional: ±iω y 0; radial: k triple 1ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias > hay tres campos temporales y su ventana es [0, 4π] 0ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias > Viento giratorio: ∂F/∂t nativa frente a diferencias centradas en t 8ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias > Viento giratorio: la trayectoria exacta cumple ṙ = F(r, t) y r(t₀) = r₀ 11ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias > Lluvia con ráfagas: ∂F/∂t nativa frente a diferencias centradas en t 7ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias > Lluvia con ráfagas: la trayectoria exacta cumple ṙ = F(r, t) y r(t₀) = r₀ 11ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias > Silla giratoria: ∂F/∂t nativa frente a diferencias centradas en t 8ms
+ ✓ src/math/catalog/catalogo.test.ts > catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias > Silla giratoria: la trayectoria exacta cumple ṙ = F(r, t) y r(t₀) = r₀ 11ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > radial-entrante: 9 derivadas en 500 puntos (T-02) 30ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > rotacional: 9 derivadas en 500 puntos (T-02) 29ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > helicoidal: 9 derivadas en 500 puntos (T-02) 35ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > silla: 9 derivadas en 500 puntos (T-02) 28ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > viento-giratorio: 9 derivadas en 500 puntos (T-02) 29ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > lluvia: 9 derivadas en 500 puntos (T-02) 30ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > silla-giratoria: 9 derivadas en 500 puntos (T-02) 31ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > T1: 9 derivadas en 500 puntos (T-02) 35ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > T2: 9 derivadas en 500 puntos (T-02) 38ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > T3: 9 derivadas en 500 puntos (T-02) 31ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > T4: 9 derivadas en 500 puntos (T-02) 32ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > T6: 9 derivadas en 500 puntos (T-02) 32ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 · jacobiana simbólica frente a la analítica > T5 (|x|): la derivada simbólica coincide lejos de x = 0 y el punto anguloso se detecta 1ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 (1.1) · ∂F/∂t simbólica frente a la analítica (T-21) > viento-giratorio: 3 componentes en 500 puntos e instantes 11ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 (1.1) · ∂F/∂t simbólica frente a la analítica (T-21) > lluvia: 3 componentes en 500 puntos e instantes 11ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 (1.1) · ∂F/∂t simbólica frente a la analítica (T-21) > silla-giratoria: 3 componentes en 500 puntos e instantes 13ms
+ ✓ src/math/catalog/expresiones.test.ts > V-MAT-07 (1.1) · ∂F/∂t simbólica frente a la analítica (T-21) > los seis campos estacionarios no dependen del tiempo 1ms
+
+ Test Files  2 passed (2)
+      Tests  65 passed (65)
+   Start at  04:52:50
+   Duration  1.44s (tests 64%, transform 31%, import 4%, worker 1%)
+

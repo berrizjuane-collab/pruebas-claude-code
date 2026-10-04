@@ -48,6 +48,8 @@ export type Nodo = Rango &
     | { tipo: 'id'; nombre: string }
     | { tipo: 'var'; eje: 0 | 1 | 2 }
     | { tipo: 'param'; nombre: string; indice: number }
+    /** Variable temporal t (SPEC §3.10): se lee en p[indice], la ranura que sigue a los parámetros (D-63). */
+    | { tipo: 'tiempo'; indice: number }
     | { tipo: 'const'; nombre: 'pi' | 'e'; valor: number }
     /** Variable derivada (r, rho): se muestra por su nombre y se evalúa por su árbol. */
     | { tipo: 'derivada'; nombre: 'r' | 'rho'; arbol: Nodo }
@@ -91,6 +93,22 @@ export function dependeDeVariables(n: Nodo): boolean {
   }
 }
 
+/** ¿Depende el árbol del tiempo t? */
+export function dependeDelTiempo(n: Nodo): boolean {
+  switch (n.tipo) {
+    case 'tiempo':
+      return true;
+    case 'neg':
+      return dependeDelTiempo(n.arg);
+    case 'bin':
+      return dependeDelTiempo(n.izq) || dependeDelTiempo(n.der);
+    case 'llamada':
+      return n.args.some(dependeDelTiempo);
+    default:
+      return false;
+  }
+}
+
 /** ¿Es constante (sin variables ni parámetros)? */
 export function esConstante(n: Nodo): boolean {
   switch (n.tipo) {
@@ -119,6 +137,8 @@ export function sexpr(n: Nodo): string {
       return 'xyz'[n.eje] as string;
     case 'param':
       return `$${n.nombre}`;
+    case 'tiempo':
+      return 't';
     case 'const':
       return n.nombre;
     case 'derivada':

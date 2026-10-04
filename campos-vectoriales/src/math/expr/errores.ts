@@ -12,7 +12,6 @@ export type CodigoError =
   | 'FUNCION_SIN_PARENTESIS'
   | 'NO_ES_FUNCION'
   | 'ARIDAD'
-  | 'T_RESERVADA'
   | 'DEMASIADO_LARGA'
   | 'DEMASIADO_PROFUNDA'
   | 'DEMASIADOS_NODOS';

@@ -42,7 +42,7 @@ export function motivoNombreParametro(nombre: string, existentes: readonly DeclP
   if (NOMBRES_RESERVADOS.has(n)) {
     if (['x', 'y', 'z', 'r', 'rho'].includes(n)) return `«${n}» es una variable`;
     if (['pi', 'e'].includes(n)) return `«${n}» es una constante`;
-    if (n === 't') return '«t» está reservada para los campos dependientes del tiempo';
+    if (n === 't') return '«t» es la variable de tiempo';
     return `«${n}» es una función`;
   }
   if (!nombreParametroValido(n)) return 'Usa una letra seguida de letras, cifras o «_» (hasta 16)';

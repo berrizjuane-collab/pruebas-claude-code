@@ -1,0 +1,237 @@
+
+ RUN  v5.0.3 /home/user/pruebas-claude-code/campos-vectoriales
+
+ ✓ src/math/expr/simplificar.test.ts > UI-08 · div F y rot F simplificados para mostrar > T6 (x², y, 0): div F = 2x + 1 y rot F = 0 6ms
+ ✓ src/math/expr/simplificar.test.ts > UI-08 · div F y rot F simplificados para mostrar > términos semejantes: ω + ω → 2ω; x + x → 2x; y − y → 0; −z − z → −2z 2ms
+ ✓ src/math/expr/simplificar.test.ts > UI-08 · div F y rot F simplificados para mostrar > no altera expresiones sin términos semejantes (T1) 1ms
+ ✓ src/math/expr/simplificar.test.ts > UI-08 · div F y rot F simplificados para mostrar > el valor no cambia al agrupar 1ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > t se resuelve como variable temporal en la ranura nParámetros 6ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > t no cuenta como parámetro usado (que no pueda declararse como tal lo prueba state.test.ts) 1ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > sugerencias: «xt» → x*t y «t2» → t*2 1ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > dependeDelTiempo distingue los campos estacionarios 3ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > ∂/∂x, ∂/∂y, ∂/∂z tratan t como constante; ∂t/∂t = 1; ∂r/∂t = ∂ρ/∂t = 0 1ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > exponente temporal: ∂(x^t)/∂t = x^t·ln x y ∂(x^t)/∂x = t·x^(t−1) 0ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > TeX y Unicode escriben t; la ida y vuelta conserva el árbol 1ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · t en el lenguaje > ∂F/∂t compilada en el campo: viento giratorio 1ms
+ ✓ src/math/expr/tiempo.test.ts > V-MAT-11 · ∂/∂t simbólica frente a diferencias finitas en t > 300 expresiones aleatorias con t × 10 puntos (T-03); las espaciales siguen tratando t como constante 175ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > hay al menos 60 casos (73) 2ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «1» → 1 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x» → x 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x+y» → (+ x y) 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x-y-z» → (- (- x y) z) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x*y/z» → (/ (* x y) z) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «-x^2» → (neg (^ x 2)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2^3^2» → (^ 2 (^ 3 2)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2x» → (* 2 x) 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «3(x+1)» → (* 3 (+ x 1)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «(x+1)(x-1)» → (* (+ x 1) (- x 1)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x^2y» → (* (^ x 2) y) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «1/2x» → (* (/ 1 2) x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2^-1» → (^ 2 (neg 1)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «-(x)» → (neg x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «+x» → x 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «--x» → (neg (neg x)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x**2» → (^ x 2) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2·x» → (* 2 x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2×x» → (* 2 x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x−y» → (- x y) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «π» → pi 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «pi» → pi 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «e» → e 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «e^x» → (^ e x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «exp(x)» → (exp x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «sin(x)» → (sin x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «sen(x)» → (sin x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «log(x)» → (ln x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «ln(x)» → (ln x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «log10(x)» → (log10 x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «atan2(y, x)» → (atan2 y x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «hypot(x, y)» → (hypot x y) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «hypot(x,y,z)» → (hypot x y z) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «min(x, y)» → (min x y) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «max(x,y)» → (max x y) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «pow(x, 3)» → (pow x 3) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «sqrt(x^2+1)» → (sqrt (+ (^ x 2) 1)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «cbrt(x)» → (cbrt x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «abs(x)» → (abs x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «r» → r 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «rho» → rho 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «ρ» → rho 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «ω*x» → (* $omega x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «omega*x» → (* $omega x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «k*x» → (* $k x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «.5» → 0.5 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «1e-3» → 0.001 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2.5E2» → 250 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2e» → (* 2 e) 2ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «3pi» → (* 3 pi) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2sin(x)» → (* 2 (sin x)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «sin(x)^2» → (^ (sin x) 2) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x²» → (^ x 2) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x⁻¹» → (^ x (neg 1)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «√(x)» → (sqrt x) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x*-y» → (* x (neg y)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x^-y^2» → (^ x (neg (^ y 2))) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «(((x)))» → x 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «  x  +  y » → (+ x y) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «a» → $a 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «sin(cos(tan(x)))» → (sin (cos (tan x))) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2(x)(y)» → (* (* 2 x) y) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «asinh(x)+acosh(x)+atanh(x)» → (+ (+ (asinh x) (acosh x)) (atanh x)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x/y/z» → (/ (/ x y) z) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «-2^2» → (neg (^ 2 2)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x/(y*z)» → (/ x (* y z)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x-(y-z)» → (- x (- y z)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «w» → $w 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «t» → t 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «2t» → (* 2 t) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «sin(w*t)» → (sin (* $w t)) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «t^2» → (^ t 2) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > «x*t» → (* x t) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-02 · analizador: casos válidos > 1/2x avisa de la interpretación (a/b)·c 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > hay al menos 40 casos (51) 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «» → VACIA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «   » → VACIA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x+» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x*(» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «(x» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin(» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin(x» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «2^» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «-» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «atan2(y,» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x^» → INCOMPLETA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x)» → SIMBOLO_INESPERADO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «()» → SIMBOLO_INESPERADO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x y» → FALTA_OPERADOR 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «2 3» → FALTA_OPERADOR 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «)x» → SIMBOLO_INESPERADO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x$» → CARACTER_NO_PERMITIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x.y» → CARACTER_NO_PERMITIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «1.2.3» → NUMERO_MAL_FORMADO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «xy» → IDENT_DESCONOCIDO 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «q*x» → IDENT_DESCONOCIDO 3ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x2» → IDENT_DESCONOCIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «xt» → IDENT_DESCONOCIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin» → FUNCION_SIN_PARENTESIS 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin x» → FUNCION_SIN_PARENTESIS 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin^2(x)» → FUNCION_SIN_PARENTESIS 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «gamma(x)» → FUNCION_NO_PERMITIDA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x(y)» → NO_ES_FUNCION 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «atan2(y)» → ARIDAD 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «min(x)» → ARIDAD 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «hypot(x)» → ARIDAD 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin(x, y)» → ARIDAD 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin()» → ARIDAD 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «xxxxxxxxxxxxxxxxxxxxxxxx» → DEMASIADO_LARGA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «((((((((((((((((((((((((» → DEMASIADO_PROFUNDA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «------------------------» → DEMASIADO_PROFUNDA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x+*y» → SIMBOLO_INESPERADO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x,y» → FALTA_OPERADOR 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «constructor» → IDENT_DESCONOCIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «__proto__» → IDENT_DESCONOCIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «'a'» → CARACTER_NO_PERMITIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «[1]» → CARACTER_NO_PERMITIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x;y» → CARACTER_NO_PERMITIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «a=1» → CARACTER_NO_PERMITIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «x=>x» → CARACTER_NO_PERMITIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «eval(x)» → FUNCION_NO_PERMITIDA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «Function(x)» → FUNCION_NO_PERMITIDA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «toString» → IDENT_DESCONOCIDO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «hasOwnProperty(x)» → FUNCION_NO_PERMITIDA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «constructor(x)» → FUNCION_NO_PERMITIDA 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > «sin(x))» → SIMBOLO_INESPERADO 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-03 · analizador: casos inválidos > sugerencias: x*y, x*2 y añadir parámetro 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-04 · seguridad y límites > 10 000 entradas aleatorias: nunca una excepción no controlada y < 5 ms cada una 301ms
+ ↓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > helicoidal
+ ↓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > T1 sin/exp/cos
+ ↓ src/math/expr/evaluacion.medida.test.ts > V-PERF-05 · cierres compilados frente a nativo > T2 x/r^3
+ ✓ src/math/expr/expr.test.ts > V-MAT-04 · seguridad y límites > ningún identificador alcanza propiedades de objetos JS 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-05 (parcial) · evaluación > precedencia y valores numéricos 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «1»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 4ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x+y»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x-y-z»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x*y/z»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 3ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «-x^2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2^3^2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «3(x+1)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 2ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «(x+1)(x-1)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x^2y»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «1/2x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2^-1»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «-(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «+x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «--x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x**2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2·x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2×x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x−y»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «π»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «pi»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «e»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «e^x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «exp(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «sin(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «sen(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «log(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «ln(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «log10(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «atan2(y, x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «hypot(x, y)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «hypot(x,y,z)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «min(x, y)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «max(x,y)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «pow(x, 3)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «sqrt(x^2+1)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «cbrt(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «abs(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «r»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «rho»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «ρ»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «ω*x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «omega*x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «k*x»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «.5»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «1e-3»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2.5E2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2e»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «3pi»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2sin(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «sin(x)^2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x²»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x⁻¹»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «√(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x*-y»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x^-y^2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «(((x)))»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «  x  +  y »: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «a»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «sin(cos(tan(x)))»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2(x)(y)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «asinh(x)+acosh(x)+atanh(x)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x/y/z»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «-2^2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x/(y*z)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x-(y-z)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «w»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «t»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «2t»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «sin(w*t)»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «t^2»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-06 · ida y vuelta y TeX > «x*t»: analizar(unicode(árbol)) ≡ árbol y KaTeX lo renderiza 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-08 · derivadas simbólicas frente a diferencias finitas > 500 expresiones aleatorias × 20 puntos (T-03) 281ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-09 · puntos no diferenciables > abs(x) en (0, 0.3, 0.1) → punto anguloso 1ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-09 · puntos no diferenciables > min(x, y) en (0.4, 0.4, 0) → punto anguloso 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-09 · puntos no diferenciables > max(x, y) en (-0.2, -0.2, 1) → punto anguloso 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-09 · puntos no diferenciables > atan2(y, x) en (0, 0, 0.5) → punto anguloso 0ms
+ ✓ src/math/expr/expr.test.ts > V-MAT-09 · puntos no diferenciables > hypot(x, y) en (0, 0, 2) → punto anguloso 0ms
+ ✓ src/math/expr/expr.test.ts > compilación del campo > errores por componente y avisos 1ms
+ ✓ src/math/expr/expr.test.ts > compilación del campo > parámetros usados y TeX de cada componente 1ms
+
+ Test Files  3 passed | 1 skipped (4)
+      Tests  225 passed | 3 skipped (228)
+   Start at  04:52:48
+   Duration  1.07s (tests 53%, transform 27%, import 18%, worker 1%)
+

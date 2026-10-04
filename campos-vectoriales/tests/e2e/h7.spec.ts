@@ -114,7 +114,7 @@ test.describe('EXP-01 · configuración JSON v1', () => {
   const INVALIDOS: [string, string, RegExp][] = [
     ['malformado.json', 'Archivo', /^no es JSON válido/],
     ['formato-ajeno.json', 'formato', /^debe ser «campos-vectoriales»/],
-    ['version-futura.json', 'version', /versión 2, posterior a la que entiende esta aplicación \(1\)/],
+    ['version-futura.json', 'version', /versión 3, posterior a la que entiende esta aplicación \(2\)/],
     ['fuera-de-rango.json', 'dominio.min[2]', /^debe ser menor que dominio\.max\[2\]$/],
     ['expresion-501.json', 'campo.P', /^tiene 501 caracteres; el máximo es 500$/],
   ];

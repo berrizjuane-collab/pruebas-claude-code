@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { derivadasEnPunto, diferenciaCentrada, jacobianaNumerica } from './finiteDiff';
 import { CATALOGO, valoresParametros } from '../math/catalog';
 import { AUXILIARES } from '../math/catalog/auxiliares';
-import { compilarCampo } from '../math/field';
+import { compilarCampo, vectorEvaluacion } from '../math/field';
 import { mulberry32 } from '../math/aleatorio';
 
 const L = 2; // mitad del lado de [−2, 2]³
@@ -14,7 +14,8 @@ describe('V-NUM-01 · diferencias finitas frente a valores analíticos', () => {
     const azar = mulberry32(101);
     const ja = new Float64Array(9);
     let maxRel = 0;
-    for (const c of CATALOGO) {
+    // T-04 vale para los seis campos afines (SPEC §4.8.3); los temporales van en la prueba siguiente.
+    for (const c of CATALOGO.filter((x) => !x.tiempo)) {
       const p = valoresParametros(c.parametros);
       for (let i = 0; i < 300; i++) {
         const q = [azar() * 4 - 2, azar() * 4 - 2, azar() * 4 - 2] as const;
@@ -28,6 +29,20 @@ describe('V-NUM-01 · diferencias finitas frente a valores analíticos', () => {
       }
     }
     medida('T-04', 'catálogo, error máximo relativo', maxRel.toExponential(2), 'exactas salvo redondeo');
+  });
+
+  it('catálogo temporal (1.1) con t aleatorio: T-03, ≤ 10⁻⁷(1 + |v|)', () => {
+    const azar = mulberry32(102);
+    const ja = new Float64Array(9);
+    for (const c of CATALOGO.filter((x) => x.tiempo)) {
+      for (let i = 0; i < 300; i++) {
+        const p = vectorEvaluacion(valoresParametros(c.parametros), azar() * 20 - 10);
+        const q = [azar() * 4 - 2, azar() * 4 - 2, azar() * 4 - 2] as const;
+        const { J } = jacobianaNumerica(c.F, ...q, p, L);
+        c.J(...q, p, ja, 0);
+        for (let k = 0; k < 9; k++) expect(Math.abs((J[k] as number) - (ja[k] as number)) / (1 + Math.abs(ja[k] as number)), `${c.id} J[${k}]`).toBeLessThanOrEqual(1e-7);
+      }
+    }
   });
 
   it('T1 en 2000 puntos: T-03, ≤ 10⁻⁷(1 + |v|); se registra el error máximo', () => {

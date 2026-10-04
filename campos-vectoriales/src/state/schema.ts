@@ -36,7 +36,20 @@ export interface EstadoExperimento {
     /** Longitud máxima por rama; null = 4 × diagonal de Ω. */
     longitudMax: number | null;
   };
-  particulas: { n: number; tau: number | null; semilla: number };
+  particulas: {
+    n: number;
+    tau: number | null;
+    semilla: number;
+    /** Dónde nacen: en todo Ω (1.0) o emitidas desde las semillas de las líneas (líneas de traza, RF-25). */
+    nacimiento: 'dominio' | 'semillas';
+  };
+  /**
+   * Tiempo del experimento (SPEC §3.10, RF-24): instante mostrado t y ventana [inicio, fin] del
+   * reloj, con o sin bucle. Un campo estacionario lo ignora.
+   */
+  tiempo: { t: number; inicio: number; fin: number; bucle: boolean };
+  /** Vista libre (RF-20 … RF-23): dilatación λ, multiplicador de velocidad y espacio sin límites. */
+  exploracion: { escala: number; velocidad: number; ilimitado: boolean };
   corte: {
     activo: boolean;
     plano: Plano;
@@ -53,6 +66,9 @@ export interface EstadoExperimento {
 }
 
 export const DOMINIO_POR_DEFECTO: Dominio = { min: [-2, -2, -2], max: [2, 2, 2] };
+/** Ventana temporal por defecto: [0, 4π] con bucle (SPEC §4.9). */
+export const TIEMPO_POR_DEFECTO: EstadoExperimento['tiempo'] = { t: 0, inicio: 0, fin: 4 * Math.PI, bucle: true };
+export const EXPLORACION_POR_DEFECTO: EstadoExperimento['exploracion'] = { escala: 1, velocidad: 1, ilimitado: false };
 
 export const LIMITES = {
   nMin: 3,
@@ -65,6 +81,14 @@ export const LIMITES = {
   parametrosMax: 8,
   ladoMin: 0.1,
   ladoMax: 1000,
+  /** Dilatación λ de la vista libre (RF-23). */
+  escalaMin: 1 / 8,
+  escalaMax: 64,
+  /** Multiplicador de la velocidad de vuelo (SPEC §5.11). */
+  velocidadMin: 1 / 16,
+  velocidadMax: 16,
+  /** |t| y amplitud de la ventana temporal. */
+  tiempoMax: 1e6,
 } as const;
 
 /** Nuevo experimento a partir de un campo del catálogo (conserva la vista si se da). */
@@ -81,12 +105,16 @@ export function experimentoDesdeCatalogo(id: IdCampo, previo?: EstadoExperimento
     capas: { flechas: true, lineas: true, particulas: false, glifos: 'campo' },
     flechas: { modo: 'proporcional', escala: { tipo: 'auto' }, escalaRot: { tipo: 'auto' }, luminancia: 'lineal' },
     lineas: { semillas: c.semillas, paso: null, longitudMax: null },
-    particulas: { n: 400, tau: null, semilla: 1 },
+    particulas: { n: 400, tau: null, semilla: 1, nacimiento: 'dominio' },
     corte: { activo: false, plano: 'XY', c: 0, flechas: 'todas', vector: 'completo', escalar: 'ninguno', escala: { tipo: 'auto' } },
     camara: null,
     punto: null,
     cifras: 4,
+    tiempo: TIEMPO_POR_DEFECTO,
+    exploracion: EXPLORACION_POR_DEFECTO,
   };
+  // Campos temporales (SPEC §4.9): su ventana, el reloj al inicio y las partículas activas (D-68).
+  const temporal = c.tiempo ?? null;
   return {
     ...base,
     nombre: c.nombre,
@@ -95,6 +123,12 @@ export function experimentoDesdeCatalogo(id: IdCampo, previo?: EstadoExperimento
     campo: { ...c.expresiones },
     parametros: c.parametros.map((p) => ({ ...p })),
     lineas: { ...base.lineas, semillas: c.semillas },
+    ...(temporal
+      ? {
+          tiempo: { t: temporal.inicio, inicio: temporal.inicio, fin: temporal.fin, bucle: true },
+          capas: { ...base.capas, particulas: true },
+        }
+      : {}),
   };
 }
 

@@ -53,7 +53,8 @@ function construir(n: Nodo): FuncionCompilada {
     }
     case 'var':
       return n.eje === 0 ? (x) => x : n.eje === 1 ? (_x, y) => y : (_x, _y, z) => z;
-    case 'param': {
+    case 'param':
+    case 'tiempo': {
       const i = n.indice;
       return (_x, _y, _z, p) => p[i] as number;
     }

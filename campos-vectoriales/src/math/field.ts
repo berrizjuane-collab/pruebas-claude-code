@@ -2,9 +2,9 @@
  * Campo definido por expresiones (MAT-03/MAT-04): analiza, resuelve y compila P, Q y R;
  * deriva la jacobiana simbólica y prepara el chequeo de puntos angulosos y la tipografía.
  */
-import { contarNodos, type Nodo } from './expr/ast';
+import { contarNodos, dependeDelTiempo, type Nodo } from './expr/ast';
 import { compilar } from './expr/compile';
-import { construirChequeoAngulos, jacobianaSimbolica, resta, suma } from './expr/diff';
+import { construirChequeoAngulos, derivadaTemporalSimbolica, jacobianaSimbolica, resta, suma } from './expr/diff';
 import type { AvisoExpresion, ErrorExpresion } from './expr/errores';
 import { analizarSintaxis } from './expr/parser';
 import { resolver } from './expr/resolver';
@@ -33,6 +33,14 @@ export interface CampoCompilado {
   /** Jacobiana simbólica (orden de filas); null si algún árbol excede el límite (→ diferencias finitas). */
   J: EvaluadorJacobiana | null;
   arbolesJ: readonly Nodo[] | null;
+  /** ¿Aparece t en alguna componente? (SPEC §3.10). Si no, el campo es estacionario. */
+  dependeDelTiempo: boolean;
+  /**
+   * ∂F/∂t simbólica (null si el campo es estacionario o algún árbol excede el límite: entonces
+   * se usan diferencias finitas en t). Como F, lee t en p[nParámetros] (D-63).
+   */
+  dFdt: EvaluadorCampo | null;
+  arbolesDt: readonly Nodo[] | null;
   /** ¿Está el punto en un punto anguloso (abs, min, max, atan2, hypot)? */
   enAngulo: (x: number, y: number, z: number, p: Float64Array) => boolean;
   usados: Set<string>;
@@ -74,6 +82,17 @@ export function compilarCampo(expr: Record<Componente, string>, parametros: read
       for (let i = 0; i < 9; i++) out[o + i] = (fj[i] as ReturnType<typeof compilar>)(x, y, z, p);
     };
   }
+  const temporal = componentes.some(dependeDelTiempo);
+  const arbolesDt = temporal ? derivadaTemporalSimbolica(componentes) : null;
+  let dFdt: EvaluadorCampo | null = null;
+  if (arbolesDt) {
+    const [dP, dQ, dR] = arbolesDt.map(compilar) as [ReturnType<typeof compilar>, ReturnType<typeof compilar>, ReturnType<typeof compilar>];
+    dFdt = (x, y, z, p, out, o) => {
+      out[o] = dP(x, y, z, p);
+      out[o + 1] = dQ(x, y, z, p);
+      out[o + 2] = dR(x, y, z, p);
+    };
+  }
   return {
     ok: true,
     campo: {
@@ -81,6 +100,9 @@ export function compilarCampo(expr: Record<Componente, string>, parametros: read
       F,
       J,
       arbolesJ,
+      dependeDelTiempo: temporal,
+      dFdt,
+      arbolesDt,
       enAngulo: construirChequeoAngulos(componentes),
       usados,
       avisos,
@@ -105,3 +127,14 @@ export function texCampo(c: CampoCompilado): string {
 }
 
 export { contarNodos };
+
+/**
+ * Vector de evaluación (D-63): los valores de los parámetros en su orden de declaración y,
+ * en la ranura siguiente, el instante t. Un campo estacionario ignora la última ranura.
+ */
+export function vectorEvaluacion(valores: ArrayLike<number>, t: number): Float64Array {
+  const p = new Float64Array(valores.length + 1);
+  for (let i = 0; i < valores.length; i++) p[i] = valores[i] as number;
+  p[valores.length] = t;
+  return p;
+}

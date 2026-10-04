@@ -178,7 +178,7 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-68 | Catálogo de 9 campos en 3 × 3; al elegir uno temporal se activan las partículas | 8 campos; no tocar las capas | La rejilla queda completa; las trayectorias son la razón de ser de esos campos | Sí |
 | D-69 | Un único reloj para $t$ y las partículas; mover $t$ a mano o cerrar el bucle hace renacer las partículas | Conservarlas | Una trayectoria integrada hasta otro instante no es una trayectoria del instante elegido (SPEC §3.10) | Sí |
 | D-70 | Con el reloj en marcha y un campo temporal: una petición en curso por tipo (malla, corte, líneas), sin el retardo de 120 ms de las líneas; cada resultado guarda su $t$ | Cancelar y relanzar en cada fotograma | Cancelar en cada fotograma dejaría sin terminar los cálculos de más de un fotograma | Sí |
-| D-71 | JSON v2 con migración 1 → 2 silenciosa | Seguir en v1 con claves opcionales | D-49 avisaría de la «falta» de las claves nuevas al abrir un v1; SPEC §7.2 ya preveía migraciones | Sí |
+| D-71 | JSON v2 con migración 1 → 2 sin avisos de «falta» (solo la nota de conversión) | Seguir en v1 con claves opcionales | D-49 avisaría de la «falta» de las claves nuevas al abrir un v1; SPEC §7.2 ya preveía migraciones | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---

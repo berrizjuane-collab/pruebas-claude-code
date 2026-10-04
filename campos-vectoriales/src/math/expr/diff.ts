@@ -6,7 +6,7 @@
  * `sgn`; sus puntos angulosos los detecta `construirChequeoAngulos`.
  */
 import { compilar, type FuncionCompilada } from './compile';
-import { contarNodos, dependeDeVariables, esConstante, type Nodo } from './ast';
+import { contarNodos, dependeDelTiempo, dependeDeVariables, esConstante, type Nodo } from './ast';
 import { LIMITES_EXPRESION } from './errores';
 
 const N = (valor: number): Nodo => ({ tipo: 'num', valor });
@@ -74,19 +74,29 @@ export function pot(a: Nodo, b: Nodo): Nodo {
 
 const llamar = (fn: Extract<Nodo, { tipo: 'llamada' }>['fn'], ...args: Nodo[]): Nodo => ({ tipo: 'llamada', fn, args });
 
-/** Derivada parcial respecto del eje (0 = x, 1 = y, 2 = z). */
-export function derivar(n: Nodo, eje: 0 | 1 | 2): Nodo {
+/** Variable de derivación: 0 = x, 1 = y, 2 = z, 3 = t (SPEC §3.10). */
+export type VariableDerivacion = 0 | 1 | 2 | 3;
+export const VAR_T: VariableDerivacion = 3;
+
+/** ¿Depende el árbol de la variable de derivación? (Las espaciales tratan t como constante y viceversa.) */
+const depende = (n: Nodo, eje: VariableDerivacion) => (eje === VAR_T ? dependeDelTiempo(n) : dependeDeVariables(n));
+
+/** Derivada parcial respecto de x, y, z (eje 0, 1, 2) o t (eje 3). */
+export function derivar(n: Nodo, eje: VariableDerivacion): Nodo {
   switch (n.tipo) {
     case 'num':
     case 'const':
     case 'param':
       return N(0);
+    case 'tiempo':
+      return N(eje === VAR_T ? 1 : 0);
     case 'id':
       throw new Error(`Identificador sin resolver: ${n.nombre}`);
     case 'var':
       return N(n.eje === eje ? 1 : 0);
     case 'derivada':
-      return derivar(n.arbol, eje);
+      // r y ρ solo dependen de x, y, z.
+      return eje === VAR_T ? N(0) : derivar(n.arbol, eje);
     case 'neg':
       return neg(derivar(n.arg, eje));
     case 'bin': {
@@ -105,7 +115,7 @@ export function derivar(n: Nodo, eje: 0 | 1 | 2): Nodo {
           // (u'v − uv')/v² escrito como u'/v − u·v'/v² (mantiene árboles pequeños si v' = 0)
           return resta(div(du, v), div(prod(u, dv), pot(v, N(2))));
         case '^':
-          return derivarPotencia(u, v, du, dv);
+          return derivarPotencia(u, v, du, dv, eje);
       }
       break;
     }
@@ -115,14 +125,14 @@ export function derivar(n: Nodo, eje: 0 | 1 | 2): Nodo {
   throw new Error('Nodo no derivable');
 }
 
-function derivarPotencia(u: Nodo, v: Nodo, du: Nodo, dv: Nodo): Nodo {
-  if (!dependeDeVariables(v)) {
+function derivarPotencia(u: Nodo, v: Nodo, du: Nodo, dv: Nodo, eje: VariableDerivacion): Nodo {
+  if (!depende(v, eje)) {
     // Exponente constante (o con parámetros): v·u^(v−1)·u'
     if (esNum(du, 0)) return N(0);
     const exp = v.tipo === 'num' ? N(v.valor - 1) : resta(v, N(1));
     return prod(prod(v, pot(u, exp)), du);
   }
-  if (!dependeDeVariables(u)) {
+  if (!depende(u, eje)) {
     // Base constante: u^v·ln(u)·v'
     return prod(prod({ tipo: 'bin', op: '^', izq: u, der: v }, llamar('ln', u)), dv);
   }
@@ -130,7 +140,7 @@ function derivarPotencia(u: Nodo, v: Nodo, du: Nodo, dv: Nodo): Nodo {
   return prod({ tipo: 'bin', op: '^', izq: u, der: v }, suma(prod(dv, llamar('ln', u)), div(prod(v, du), u)));
 }
 
-function derivarLlamada(n: Extract<Nodo, { tipo: 'llamada' }>, eje: 0 | 1 | 2): Nodo {
+function derivarLlamada(n: Extract<Nodo, { tipo: 'llamada' }>, eje: VariableDerivacion): Nodo {
   const [a, b, c] = n.args as [Nodo, Nodo | undefined, Nodo | undefined];
   const da = derivar(a, eje);
   const cadena = (f: Nodo) => prod(f, da);
@@ -213,6 +223,20 @@ export function jacobianaSimbolica(componentes: readonly [Nodo, Nodo, Nodo]): No
     }
   }
   return j;
+}
+
+/**
+ * Derivada local ∂F/∂t simbólica (SPEC §3.10), o null si algún árbol supera el límite de
+ * nodos (entonces el inspector usa diferencias finitas en t).
+ */
+export function derivadaTemporalSimbolica(componentes: readonly [Nodo, Nodo, Nodo]): Nodo[] | null {
+  const d: Nodo[] = [];
+  for (const c of componentes) {
+    const dc = derivar(c, VAR_T);
+    if (contarNodos(dc) > LIMITES_EXPRESION.nodosDerivada) return null;
+    d.push(dc);
+  }
+  return d;
 }
 
 /**

@@ -93,9 +93,20 @@ Ninguna medida se aparta más de un orden de magnitud de la calibración.
 | T-15 | Alineación radial | — | $4.2\times10^{-16}$ | Redondeo |
 | T-16 | Recorte al borde | $h/2^{30}\approx6\times10^{-11}$ | ≤ $4.7\times10^{-11}$ | — |
 
-### 2.2 Errores medidos de la 1.1 (TMP-02)
+### 2.2 Errores medidos de la 1.1 (TMP-02, 2026-10-04)
 
-Se completa al cerrar TMP-02 con la salida `MEDIDA` de `npm test`.
+Salida `MEDIDA` de `npx vitest run src/numerics/tiempo.test.ts` (registro en
+`evidencia/TMP-02/`). Partida $\mathbf r_0=(0.6,-0.4,0.3)$, $t_0=0.3$, parámetros por defecto
+salvo en la silla giratoria ($k=1$ y ω indicada).
+
+| # | Caso | Tolerancia | Medido | Comentario |
+| --- | --- | --- | --- | --- |
+| T-22 | Viento giratorio, $\delta t=0.01$, hasta $t_0+2\pi$ | $10^{-7}$ | $1.0\times10^{-14}$ | $\mathbf F$ no depende de $\mathbf r$: RK4 se reduce a la regla de Simpson en $t$ |
+| T-22 | Lluvia con ráfagas | $10^{-7}$ | $1.4\times10^{-11}$ | — |
+| T-22 | Silla giratoria, ω = 1.5 > k (atrapada) | $10^{-7}$ | $1.8\times10^{-9}$ | El peor caso: margen 54× |
+| T-22 | Silla giratoria, ω = 0.6 < k (escapa) | $10^{-7}$ | $9.2\times10^{-10}$ | Error relativo a la posición, que crece como $e^{\mu t}$ |
+| T-22 | Silla giratoria, ω = k | $10^{-7}$ | $7.5\times10^{-10}$ | Caso degenerado $\mathbf q=(I+\tau M)\mathbf q_0$ |
+| T-23 | Orden de RK4 no autónomo, $\delta t=0.1\to0.025$ | $p\in[3.8,4.2]$ | 3.96 – 4.00 en los cinco casos | Teoría: $p=4$ |
 
 ---
 
@@ -167,7 +178,7 @@ Se completa al cerrar TMP-02 con la salida `MEDIDA` de `npm test`.
 | V-FUN-20 | **Espacio sin límites**: U en la vista libre y avanzar 10 Δ | La ventana cambia por múltiplos de Δ; $F_{\text{ref}}$ no cambia; la flecha de un nodo común es idéntica antes y después; sin caja; partículas sin recrear (las que siguen dentro conservan su posición) |
 | V-FUN-21 | **Ampliar y estrechar** Ω | [−2, 2]³, N = 9 → «Ampliar» → [−4, 4]³, N = 17, Δ = 0.5; otra vez → [−8, 8]³, N = 21, Δ = 0.8 con aviso; «Estrechar» deshace; límites de lado (0.1–1000) respetados con motivo |
 | V-FUN-22 | **Tiempo**: viento giratorio y `P = t*x` | Sección «Tiempo» habilitada; mover $t$ cambia las flechas y la lectura; Espacio avanza $t$ con el reloj determinista; una partícula recorre una circunferencia de radio $V/\omega$ (±10⁻³ con el reloj de fotogramas) mientras las líneas de corriente son rectas; inspector con $t$, $\partial\mathbf F/\partial t$ y $D\mathbf F/Dt$ correctos; leyenda con el $t$ de las líneas; campo sin `t` → sección informativa |
-| V-FUN-23 | **JSON v2**: exportar → importar; abrir un v1 | Igualdad profunda; un v1 se abre sin avisos con los valores por defecto de la 1.1; `tiempo.inicio ≥ fin` o `exploracion.escala` fuera de rango → errores listados y estado intacto |
+| V-FUN-23 | **JSON v2**: exportar → importar; abrir un v1 | Igualdad profunda; un v1 se abre con los valores por defecto de la 1.1 y solo el aviso «Convertido de la versión 1 a la 2»; `tiempo.inicio ≥ fin` o `exploracion.escala` fuera de rango → errores listados y estado intacto |
 | V-FUN-17 | **HTML autocontenido** abierto con `file://` en Chromium con la red cortada | 0 peticiones de red; 0 errores en consola; *worker* activo (o respaldo anunciado); escena, edición, inspector y exportaciones operativos; tamaño ≤ 3 MB |
 
 ---

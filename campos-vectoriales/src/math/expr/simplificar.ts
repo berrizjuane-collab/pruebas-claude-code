@@ -19,6 +19,8 @@ function clave(n: Nodo): string {
       return `v:${n.eje}`;
     case 'param':
       return `p:${n.nombre}`;
+    case 'tiempo':
+      return 't';
     case 'const':
       return `c:${n.nombre}`;
     case 'derivada':

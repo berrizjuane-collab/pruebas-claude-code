@@ -107,6 +107,8 @@ export interface Escala {
   origen: 'auto' | 'fija';
   /** Todos los valores definidos son ≈ 0. */
   nulo: boolean;
+  /** Campo temporal con escala automática: ventana [t₀, t₁] en cuyos instantes se calculó (SPEC §3.10). */
+  ventana?: readonly [number, number];
 }
 
 /** F_ref automática: P95 de ‖F‖ en los nodos definidos, redondeado a un valor legible. */
@@ -144,4 +146,46 @@ function recontar(m: Pick<MuestraMalla, 'clase' | 'recuento'>): void {
     else r.singulares++;
   }
   m.recuento = r;
+}
+
+/** Instantes de la ventana con que se calcula la escala de un campo temporal (SPEC §3.10, D-64). */
+export const INSTANTES_VENTANA = 9;
+
+/** t_j = t₀ + j·(t₁ − t₀)/(K − 1), j = 0 … K − 1 (el último es exactamente t₁). */
+export function instantesVentana(t0: number, t1: number, k: number = INSTANTES_VENTANA): number[] {
+  return Array.from({ length: k }, (_, j) => (j === k - 1 ? t1 : t0 + (j * (t1 - t0)) / (k - 1)));
+}
+
+/**
+ * Magnitudes y clases de una magnitud por nodo en los instantes de la ventana, concatenadas
+ * (entrada de `escalaAutomatica`). `p` es un vector de evaluación con t en su última ranura
+ * (D-63); no se modifica. `muestra(pj)` devuelve las magnitudes del instante de pj.
+ */
+export function enVentana(
+  p: Float64Array,
+  t0: number,
+  t1: number,
+  muestra: (pj: Float64Array) => { mag: Float64Array; clase: Uint8Array },
+): { mag: Float64Array; clase: Uint8Array } {
+  const partes = instantesVentana(t0, t1).map((tj) => {
+    const pj = Float64Array.from(p);
+    pj[pj.length - 1] = tj;
+    return muestra(pj);
+  });
+  const total = partes.reduce((s, m) => s + m.mag.length, 0);
+  const mag = new Float64Array(total);
+  const clase = new Uint8Array(total);
+  let o = 0;
+  for (const m of partes) {
+    mag.set(m.mag, o);
+    clase.set(m.clase, o);
+    o += m.mag.length;
+  }
+  return { mag, clase };
+}
+
+/** F_ref de un campo temporal: P95 de ‖F‖ en los nodos y en los 9 instantes de [t₀, t₁] (SPEC §3.10). */
+export function escalaEnVentana(F: EvaluadorCampo, p: Float64Array, malla: Malla, t0: number, t1: number): Escala {
+  const { mag, clase } = enVentana(p, t0, t1, (pj) => muestrearMalla(F, pj, malla));
+  return { ...escalaAutomatica(mag, clase), ventana: [t0, t1] };
 }

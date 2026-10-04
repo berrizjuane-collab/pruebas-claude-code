@@ -1,6 +1,7 @@
 /**
  * Resolución de identificadores (MAT-02): variables, variables derivadas (r, rho),
- * constantes, parámetros declarados y la variable reservada t (AMP-01).
+ * constantes, parámetros declarados y la variable temporal t (SPEC §3.10), que se lee en la
+ * ranura que sigue a los parámetros (D-63).
  */
 import { ALIAS_FUNCIONES, FUNCIONES, type Nodo } from './ast';
 import { crearError, FalloAnalisis, type ErrorExpresion, type Sugerencia } from './errores';
@@ -65,9 +66,7 @@ function resolverId(n: Extract<Nodo, { tipo: 'id' }>, parametros: readonly strin
     case 'e':
       return { tipo: 'const', nombre: 'e', valor: Math.E, ...r };
     case 't':
-      throw new FalloAnalisis(
-        crearError('T_RESERVADA', 'Los campos dependientes del tiempo (t) aún no están disponibles', n.ini ?? 0, n.fin ?? 0),
-      );
+      return { tipo: 'tiempo', indice: parametros.length, ...r };
   }
   const indice = parametros.indexOf(n.nombre);
   if (indice >= 0) {
@@ -81,12 +80,12 @@ function resolverId(n: Extract<Nodo, { tipo: 'id' }>, parametros: readonly strin
 
 function sugerencias(nombre: string, parametros: readonly string[]): Sugerencia[] {
   const s: Sugerencia[] = [];
-  const simples = new Set(['x', 'y', 'z', 'e', ...parametros.filter((p) => p.length === 1)]);
+  const simples = new Set(['x', 'y', 'z', 't', 'e', ...parametros.filter((p) => p.length === 1)]);
   if (nombre.length > 1 && [...nombre].every((c) => simples.has(c))) {
     s.push({ tipo: 'reescribir', texto: [...nombre].join('*') });
   }
   const m = /^([A-Za-z]+)(\d+)$/.exec(nombre);
-  if (m && (simples.has(m[1] as string) || ['r', 'rho', 'pi'].includes(m[1] as string) || parametros.includes(m[1] as string))) {
+  if (m && (simples.has(m[1] as string) || ['r', 'rho', 'pi', 't'].includes(m[1] as string) || parametros.includes(m[1] as string))) {
     s.push({ tipo: 'reescribir', texto: `${m[1]}*${m[2]}` });
   }
   if (nombreParametroValido(nombre)) s.push({ tipo: 'parametro', nombre });

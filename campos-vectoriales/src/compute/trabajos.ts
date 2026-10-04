@@ -6,7 +6,7 @@ import { compilarCampo, type CampoCompilado } from '../math/field';
 import { anillosRotacional, calcularFlechas } from '../geometria/flechas';
 import { contornoCero } from '../geometria/escalar';
 import { geometriaLineas } from '../geometria/lineas';
-import { clasificarCeros, crearMalla, escalaAutomatica, muestrearMalla, type Escala } from '../numerics/grid';
+import { clasificarCeros, crearMalla, enVentana, escalaAutomatica, escalaEnVentana, muestrearMalla, type Escala, type Malla } from '../numerics/grid';
 import { generarSemillas } from '../numerics/seeds';
 import { muestrearRotacional } from '../numerics/rotacional';
 import { muestrearCorte } from '../numerics/slice';
@@ -36,6 +36,28 @@ export function obtenerCampo(def: DefinicionCampo): CampoCompilado {
 const escalaDe = (e: PeticionMalla['escala'], mag: Float64Array, clase: Uint8Array): Escala =>
   e.tipo === 'fija' ? { ref: e.valor, origen: 'fija', nulo: false } : escalaAutomatica(mag, clase);
 
+/** Instante de una petición: la última ranura del vector de evaluación (D-63). */
+const instante = (p: ArrayLike<number>) => (p.length ? (p[p.length - 1] as number) : 0);
+
+/**
+ * Escalas en la ventana temporal (SPEC §3.10, D-64), con caché: no dependen del instante
+ * mostrado, así que mientras el reloj avanza se calculan una sola vez.
+ */
+const cacheVentana = new Map<string, Escala>();
+function escalaVentanaCacheada(clave: unknown[], calcular: () => Escala): Escala {
+  const k = JSON.stringify(clave);
+  const e = cacheVentana.get(k);
+  if (e) return e;
+  const nueva = calcular();
+  if (cacheVentana.size > 8) cacheVentana.clear();
+  cacheVentana.set(k, nueva);
+  return nueva;
+}
+
+/** ¿Usa esta petición la escala de la ventana? (campo temporal y ventana no vacía). */
+const ventanaDe = (campo: CampoCompilado, pet: PeticionMalla) =>
+  campo.dependeDelTiempo && pet.ventana && pet.ventana.fin > pet.ventana.inicio ? pet.ventana : null;
+
 /** Escala de longitud del paso de las derivadas numéricas (SPEC §5.4): medio lado menor de Ω. */
 const escalaLongitud = (d: PeticionMalla['dominio']) => Math.min(...[0, 1, 2].map((k) => (d.max[k] as number) - (d.min[k] as number))) / 2;
 
@@ -45,12 +67,22 @@ export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
   const p = Float64Array.from(pet.p);
   const malla = crearMalla(pet.dominio, pet.n, pet.posicion);
   const muestra = muestrearMalla(campo.F, p, malla);
-  const escala = escalaDe(pet.escala, muestra.mag, muestra.clase);
+  const ventana = ventanaDe(campo, pet);
+  const claveVentana = [pet.campo, pet.p.slice(0, -1), pet.dominio, pet.n, pet.posicion, ventana];
+  const escala =
+    ventana && pet.escala.tipo === 'auto'
+      ? escalaVentanaCacheada(['F', ...claveVentana], () => escalaEnVentana(campo.F, p, malla, ventana.inicio, ventana.fin))
+      : escalaDe(pet.escala, muestra.mag, muestra.clase);
   clasificarCeros(muestra, escala.ref);
   const lMax = 0.9 * malla.deltaRef;
   // «Glifos: rot F»: las flechas dibujan ∇×F con su propia C_ref (DESIGN §9.7).
-  const rot = pet.glifos === 'rotacional' ? muestrearRotacional(campo, p, muestra.pos, muestra.clase, escalaLongitud(pet.dominio)) : null;
-  const escalaGlifos = rot ? escalaDe(pet.escalaRot, rot.mag, rot.clase) : escala;
+  const L = escalaLongitud(pet.dominio);
+  const rot = pet.glifos === 'rotacional' ? muestrearRotacional(campo, p, muestra.pos, muestra.clase, L) : null;
+  const escalaGlifos = !rot
+    ? escala
+    : ventana && pet.escalaRot.tipo === 'auto'
+      ? escalaVentanaCacheada(['rot', ...claveVentana], () => escalaRotEnVentana(campo, p, malla, ventana, L))
+      : escalaDe(pet.escalaRot, rot.mag, rot.clase);
   if (rot) clasificarCeros(rot, escalaGlifos.ref);
   const opciones = { fRef: escalaGlifos.ref, modo: pet.flechas.modo, luminancia: pet.flechas.luminancia };
   const instancias = calcularFlechas(rot ? { total: muestra.total, pos: muestra.pos, F: rot.C, mag: rot.mag, clase: rot.clase } : muestra, { ...opciones, lMax });
@@ -72,8 +104,18 @@ export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
     lMax,
     instancias,
     corte,
+    t: instante(pet.p),
     ms: performance.now() - t0,
   };
+}
+
+/** C_ref de un campo temporal: P95 de ‖∇×F‖ en los nodos y en los instantes de la ventana. */
+function escalaRotEnVentana(campo: CampoCompilado, p: Float64Array, malla: Malla, ventana: { inicio: number; fin: number }, L: number): Escala {
+  const { mag, clase } = enVentana(p, ventana.inicio, ventana.fin, (pj) => {
+    const m = muestrearMalla(campo.F, pj, malla);
+    return muestrearRotacional(campo, pj, m.pos, m.clase, L);
+  });
+  return { ...escalaAutomatica(mag, clase), ventana: [ventana.inicio, ventana.fin] };
 }
 
 /**
@@ -130,7 +172,7 @@ export function trabajoCorte(pet: PeticionCorte): ResultadoCorte {
     e && e.tipo !== 'magnitud'
       ? contornoCero({ plano: m.plano, c: m.c, dominio: pet.dominio, lado: e.lado, valores: e.valores, estado: e.estado }).segmentos
       : null;
-  return { ...m, contorno, dominio: pet.dominio, ms: performance.now() - t0 };
+  return { ...m, contorno, dominio: pet.dominio, t: instante(pet.p), ms: performance.now() - t0 };
 }
 
 /** Lote de trabajo entre cesiones del turno (PLAN §1.6). */
@@ -217,6 +259,7 @@ export async function trabajoLineas(
     recuentoMotivos,
     limiteVertices,
     paso: o.paso,
+    t: instante(pet.p),
     ms: performance.now() - t0,
   };
 }

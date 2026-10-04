@@ -5,7 +5,17 @@
  */
 import type { DeclParametro, EspecSemillas, EvaluadorCampo, EvaluadorJacobiana, Vec3 } from '../tipos';
 
-export type IdCampo = 'uniforme' | 'radial-saliente' | 'radial-entrante' | 'rotacional' | 'helicoidal' | 'silla';
+export type IdCampo =
+  | 'uniforme'
+  | 'radial-saliente'
+  | 'radial-entrante'
+  | 'rotacional'
+  | 'helicoidal'
+  | 'silla'
+  // Campos dependientes del tiempo (1.1, SPEC §4.9).
+  | 'viento-giratorio'
+  | 'lluvia'
+  | 'silla-giratoria';
 
 export type MarcaEquilibrio =
   | { tipo: 'punto'; p: Vec3 }
@@ -22,6 +32,8 @@ export interface TextosFicha {
   potencial: string;
   interpretacion: string;
   supuestos: string;
+  /** Campos temporales: trayectorias y líneas de traza (SPEC §3.10). */
+  trayectorias?: string;
 }
 
 export interface CampoCatalogo {
@@ -38,6 +50,17 @@ export interface CampoCatalogo {
   J: EvaluadorJacobiana;
   equilibrios: (p: Float64Array) => MarcaEquilibrio[];
   ficha: TextosFicha;
+  /**
+   * Campos dependientes del tiempo (SPEC §4.9): ventana del reloj, ∂F/∂t analítica y
+   * trayectoria exacta (oráculos de V-NUM-17). En F, J y dFdt, t está en p[nParámetros] (D-63).
+   */
+  tiempo?: {
+    inicio: number;
+    fin: number;
+    dFdt: EvaluadorCampo;
+    /** Posición en t de la partícula que estaba en r0 en t0. */
+    trayectoria: (r0: Vec3, t0: number, t: number, p: Float64Array) => Vec3;
+  };
 }
 
 const param = (nombre: string, valor: number, min: number, max: number, paso: number): DeclParametro => ({
@@ -59,7 +82,8 @@ const jConstante =
 
 const EJE_Z: MarcaEquilibrio = { tipo: 'recta', punto: [0, 0, 0], dir: [0, 0, 1] };
 
-export const CATALOGO: readonly CampoCatalogo[] = [
+/** Campos estacionarios de la 1.0 (SPEC §4.1–4.6). */
+const CATALOGO_ESTACIONARIO: readonly CampoCatalogo[] = [
   {
     id: 'uniforme',
     nombre: 'Uniforme',
@@ -246,6 +270,181 @@ export const CATALOGO: readonly CampoCatalogo[] = [
     },
   },
 ];
+
+// ---------------------------------------------------------------------------------------------
+// Campos dependientes del tiempo (1.1, SPEC §4.9). t está en p[nParámetros] (D-63).
+
+const VENTANA = { inicio: 0, fin: 4 * Math.PI };
+
+/** Rotación de ángulo θ en el plano xy aplicada a (x, y). */
+const girar = (theta: number, x: number, y: number): [number, number] => [Math.cos(theta) * x - Math.sin(theta) * y, Math.sin(theta) * x + Math.cos(theta) * y];
+
+const CATALOGO_TEMPORAL: readonly CampoCatalogo[] = [
+  {
+    id: 'viento-giratorio',
+    nombre: 'Viento giratorio',
+    nombreCorto: 'Viento',
+    expresiones: { P: 'V*cos(w*t)', Q: 'V*sin(w*t)', R: '0' },
+    parametros: [param('V', 1, 0.1, 3, 0.05), param('w', 1, 0.1, 3, 0.05)],
+    semillas: { tipo: 'rejilla', plano: 'XY', c: 0, nu: 5, nv: 5 },
+    tex: '\\mathbf F = V\\,(\\cos\\omega t,\\; \\sin\\omega t,\\; 0)',
+    F: (_x, _y, _z, p, out, o) => {
+      const [V, w, t] = [p[0] as number, p[1] as number, p[2] as number];
+      out[o] = V * Math.cos(w * t);
+      out[o + 1] = V * Math.sin(w * t);
+      out[o + 2] = 0;
+    },
+    J: jConstante(() => [0, 0, 0, 0, 0, 0, 0, 0, 0]),
+    equilibrios: (p) => (p[0] === 0 ? [{ tipo: 'espacio' }] : []),
+    tiempo: {
+      ...VENTANA,
+      dFdt: (_x, _y, _z, p, out, o) => {
+        const [V, w, t] = [p[0] as number, p[1] as number, p[2] as number];
+        out[o] = -V * w * Math.sin(w * t);
+        out[o + 1] = V * w * Math.cos(w * t);
+        out[o + 2] = 0;
+      },
+      trayectoria: (r0, t0, t, p) => {
+        const [V, w] = [p[0] as number, p[1] as number];
+        const R = V / w;
+        return [r0[0] + R * (Math.sin(w * t) - Math.sin(w * t0)), r0[1] - R * (Math.cos(w * t) - Math.cos(w * t0)), r0[2]];
+      },
+    },
+    ficha: {
+      resumen: 'En cada instante, el mismo vector en todo el espacio; su dirección gira con velocidad angular $\\omega$.',
+      divergencia: '$\\nabla\\cdot\\mathbf F = 0$ en todo instante',
+      rotacional: '$\\nabla\\times\\mathbf F = \\mathbf 0$ en todo instante',
+      equilibrios: 'Ninguno si $V\\neq 0$: $\\lVert\\mathbf F\\rVert = V$ siempre.',
+      lineas: 'Instantáneas: rectas paralelas a $(\\cos\\omega t,\\,\\sin\\omega t,\\,0)$.',
+      trayectorias:
+        'Circunferencias de radio $V/\\omega$, antihorarias vistas desde $+z$; periodo $2\\pi/\\omega$. Las líneas de traza son arcos de circunferencias del mismo radio.',
+      potencial: 'En cada instante, $\\varphi = V\\,(x\\cos\\omega t + y\\sin\\omega t)$',
+      interpretacion:
+        'El contraejemplo mínimo: ninguna línea de corriente se curva nunca y, sin embargo, cada gota describe una circunferencia. $D\\mathbf F/Dt=\\partial_t\\mathbf F$ tiene módulo $V\\omega$: la aceleración centrípeta.',
+      supuestos: 'Viento horizontal uniforme que rola a ritmo constante; las gotas siguen el viento sin inercia ($\\dot{\\mathbf r}=\\mathbf F$).',
+    },
+  },
+  {
+    id: 'lluvia',
+    nombre: 'Lluvia con ráfagas',
+    nombreCorto: 'Lluvia',
+    expresiones: { P: 'A*sin(w*t - k*z)', Q: '0', R: '-v' },
+    parametros: [param('A', 0.8, 0, 2, 0.05), param('w', 1, 0.1, 3, 0.05), param('k', 1.5, 0, 3, 0.05), param('v', 1, 0.1, 3, 0.05)],
+    semillas: { tipo: 'rejilla', plano: 'XY', c: 1.9, nu: 5, nv: 5 },
+    tex: '\\mathbf F = \\big(A\\sin(\\omega t - kz),\\; 0,\\; -v\\big)',
+    F: (_x, _y, z, p, out, o) => {
+      const [A, w, k, v, t] = [p[0] as number, p[1] as number, p[2] as number, p[3] as number, p[4] as number];
+      out[o] = A * Math.sin(w * t - k * z);
+      out[o + 1] = 0;
+      out[o + 2] = -v;
+    },
+    J: (_x, _y, z, p, out, o) => {
+      const [A, w, k, t] = [p[0] as number, p[1] as number, p[2] as number, p[4] as number];
+      for (let i = 0; i < 9; i++) out[o + i] = 0;
+      out[o + 2] = -A * k * Math.cos(w * t - k * z);
+    },
+    equilibrios: (p) => (p[3] === 0 && p[0] === 0 ? [{ tipo: 'espacio' }] : []),
+    tiempo: {
+      ...VENTANA,
+      dFdt: (_x, _y, z, p, out, o) => {
+        const [A, w, k, t] = [p[0] as number, p[1] as number, p[2] as number, p[4] as number];
+        out[o] = A * w * Math.cos(w * t - k * z);
+        out[o + 1] = 0;
+        out[o + 2] = 0;
+      },
+      trayectoria: (r0, t0, t, p) => {
+        const [A, w, k, v] = [p[0] as number, p[1] as number, p[2] as number, p[3] as number];
+        // La gota siente las ráfagas con frecuencia Ω = ω + kv (efecto Doppler).
+        const W = w + k * v;
+        const fase = k * r0[2] + k * v * t0;
+        const x = W === 0 ? r0[0] + A * Math.sin(-fase) * (t - t0) : r0[0] - (A / W) * (Math.cos(W * t - fase) - Math.cos(W * t0 - fase));
+        return [x, r0[1], r0[2] - v * (t - t0)];
+      },
+    },
+    ficha: {
+      resumen: 'Gotas que caen con rapidez $v$ y un viento horizontal en ondas que suben con velocidad de fase $\\omega/k$.',
+      divergencia: '$\\nabla\\cdot\\mathbf F = 0$ en todo instante',
+      rotacional: '$\\nabla\\times\\mathbf F = \\big(0,\\,-Ak\\cos(\\omega t-kz),\\,0\\big)$',
+      equilibrios: 'Ninguno si $v\\neq 0$.',
+      lineas: 'Instantáneas: $dx/dz = -(A/v)\\sin(\\omega t - kz)$, curvas onduladas en planos $y=$ cte.',
+      trayectorias:
+        '$z = z_0 - v(t-t_0)$ y $x$ oscila con frecuencia $\\Omega=\\omega+kv$ y amplitud $A/\\Omega$. Con «Nacen en: las semillas» se ve la cortina de gotas (líneas de traza) que deja la «nube».',
+      potencial: 'No existe ($\\nabla\\times\\mathbf F\\neq\\mathbf 0$ si $Ak\\neq 0$).',
+      interpretacion:
+        'La gota cruza las ráfagas y las siente con frecuencia $\\omega+kv$, no $\\omega$ (efecto Doppler): por eso su zigzag no tiene la forma de las líneas de corriente.',
+      supuestos: 'Gotas sin inercia que caen a velocidad terminal $v$ y siguen el viento horizontal.',
+    },
+  },
+  {
+    id: 'silla-giratoria',
+    nombre: 'Silla giratoria',
+    nombreCorto: 'Silla gira',
+    expresiones: { P: 'k*(x*cos(2*w*t) + y*sin(2*w*t))', Q: 'k*(x*sin(2*w*t) - y*cos(2*w*t))', R: '0' },
+    parametros: [param('k', 1, 0.1, 3, 0.05), param('w', 1.5, 0, 3, 0.05)],
+    semillas: { tipo: 'rejilla', plano: 'XY', c: 0, nu: 7, nv: 7 },
+    tex: '\\mathbf F = k\\,\\big(x\\cos 2\\omega t + y\\sin 2\\omega t,\\; x\\sin 2\\omega t - y\\cos 2\\omega t,\\; 0\\big)',
+    F: (x, y, _z, p, out, o) => {
+      const [k, w, t] = [p[0] as number, p[1] as number, p[2] as number];
+      const [c, s] = [Math.cos(2 * w * t), Math.sin(2 * w * t)];
+      out[o] = k * (x * c + y * s);
+      out[o + 1] = k * (x * s - y * c);
+      out[o + 2] = 0;
+    },
+    J: (_x, _y, _z, p, out, o) => {
+      const [k, w, t] = [p[0] as number, p[1] as number, p[2] as number];
+      const [c, s] = [Math.cos(2 * w * t), Math.sin(2 * w * t)];
+      const j = [k * c, k * s, 0, k * s, -k * c, 0, 0, 0, 0];
+      for (let i = 0; i < 9; i++) out[o + i] = j[i] as number;
+    },
+    equilibrios: () => [EJE_Z],
+    tiempo: {
+      ...VENTANA,
+      dFdt: (x, y, _z, p, out, o) => {
+        const [k, w, t] = [p[0] as number, p[1] as number, p[2] as number];
+        const [c, s] = [Math.cos(2 * w * t), Math.sin(2 * w * t)];
+        out[o] = 2 * k * w * (-x * s + y * c);
+        out[o + 1] = 2 * k * w * (x * c + y * s);
+        out[o + 2] = 0;
+      },
+      trayectoria: (r0, t0, t, p) => {
+        // En el sistema que gira, q = R(−ωt)(x, y) cumple q' = M q, M = [[k, ω], [−ω, −k]], M² = (k² − ω²) I.
+        const [k, w] = [p[0] as number, p[1] as number];
+        const [q1, q2] = girar(-w * t0, r0[0], r0[1]);
+        const tau = t - t0;
+        const d = w * w - k * k;
+        let a: number;
+        let b: number;
+        if (d > 0) {
+          const nu = Math.sqrt(d);
+          [a, b] = [Math.cos(nu * tau), Math.sin(nu * tau) / nu];
+        } else if (d < 0) {
+          const mu = Math.sqrt(-d);
+          [a, b] = [Math.cosh(mu * tau), Math.sinh(mu * tau) / mu];
+        } else [a, b] = [1, tau];
+        const Q1 = a * q1 + b * (k * q1 + w * q2);
+        const Q2 = a * q2 + b * (-w * q1 - k * q2);
+        const [x, y] = girar(w * t, Q1, Q2);
+        return [x, y, r0[2]];
+      },
+    },
+    ficha: {
+      resumen: 'En cada instante, la silla $k\\,(x,-y,0)$ girada un ángulo $\\omega t$ alrededor de $z$.',
+      divergencia: '$\\nabla\\cdot\\mathbf F = 0$ en todo instante',
+      rotacional: '$\\nabla\\times\\mathbf F = \\mathbf 0$ en todo instante',
+      equilibrios: 'El eje $z$, en todo instante; en cada plano horizontal, un punto de silla (autovalores $\\pm k$).',
+      lineas: 'Instantáneas: las hipérbolas de la silla, giradas un ángulo $\\omega t$.',
+      trayectorias:
+        'En el sistema que gira, $\\dot{\\mathbf q} = M\\mathbf q$ con $M^2=(k^2-\\omega^2)I$. Si $\\omega>k$, elipses: las partículas quedan atrapadas. Si $\\omega<k$, escapan exponencialmente.',
+      potencial: 'En cada instante, $\\varphi = \\tfrac k2\\big((x^2-y^2)\\cos2\\omega t + 2xy\\sin2\\omega t\\big)$, armónico',
+      interpretacion:
+        'Toda fotografía del campo es una silla, inestable, irrotacional y sin divergencia, y las líneas de corriente prometen que todo escapa. Si gira deprisa ($\\omega>k$), las partículas quedan atrapadas: ningún instante lo deja adivinar.',
+      supuestos: 'Recuerda a la trampa de Paul (una silla de potencial que gira atrapa partículas), aunque aquí la ecuación es de primer orden, $\\dot{\\mathbf r}=\\mathbf F$, no la de Newton.',
+    },
+  },
+];
+
+/** Catálogo completo: los seis estacionarios y, en la tercera fila, los tres temporales (D-68). */
+export const CATALOGO: readonly CampoCatalogo[] = [...CATALOGO_ESTACIONARIO, ...CATALOGO_TEMPORAL];
 
 export function campoPorId(id: IdCampo): CampoCatalogo {
   const c = CATALOGO.find((k) => k.id === id);

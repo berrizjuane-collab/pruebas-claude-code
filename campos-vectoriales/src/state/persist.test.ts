@@ -62,14 +62,15 @@ describe('EXP-01 · ida y vuelta (igualdad profunda)', () => {
   it('el documento lleva formato y versión y sigue el orden de SPEC §7.2', () => {
     const c = aConfiguracion(EXPERIMENTO_INICIAL);
     expect(Object.keys(c).slice(0, 4)).toEqual(['formato', 'version', 'nombre', 'campo']);
-    expect(c).toMatchObject({ formato: 'campos-vectoriales', version: 1, campo: { P: '-y', Q: 'x', R: 'a', base: 'helicoidal' } });
+    expect(c).toMatchObject({ formato: 'campos-vectoriales', version: 2, campo: { P: '-y', Q: 'x', R: 'a', base: 'helicoidal' } });
   });
 
   it('el ejemplo literal de SPEC §7.2 se importa; lo que falta toma el valor por defecto con aviso', () => {
     const r = importarConfiguracion(fixture('spec-ejemplo.json'));
     expect(r.ok).toBe(true);
     if (!r.ok) return;
-    expect(r.avisos).toEqual(['Falta «cifras»: se usa el valor por defecto']);
+    // Es un documento v1: se migra a v2 (D-71) sin avisos de «falta» por las claves nuevas.
+    expect(r.avisos).toEqual(['Convertido de la versión 1 a la 2', 'Falta «cifras»: se usa el valor por defecto']);
     expect(r.estado).toMatchObject({
       nombre: 'Helicoidal',
       base: 'helicoidal',
@@ -109,8 +110,8 @@ describe('EXP-01 · casos inválidos (V-FUN-10): errores por campo', () => {
   });
 
   it('versión futura y versión no entera', () => {
-    expect(errores(fixture('version-futura.json'))[0]).toMatchObject({ ruta: 'version', mensaje: expect.stringContaining('versión 2, posterior a la que entiende esta aplicación (1)') });
-    expect(errores(fixture('version-futura.json').replace('"version": 2', '"version": 1.5'))[0]).toMatchObject({ ruta: 'version' });
+    expect(errores(fixture('version-futura.json'))[0]).toMatchObject({ ruta: 'version', mensaje: expect.stringContaining('versión 3, posterior a la que entiende esta aplicación (2)') });
+    expect(errores(fixture('version-futura.json').replace('"version": 3', '"version": 1.5'))[0]).toMatchObject({ ruta: 'version' });
   });
 
   it('rangos fuera de límites: todos los errores a la vez, cada uno con su ruta', () => {
@@ -223,5 +224,46 @@ describe('EXP-02 · autoguardado', () => {
     expect(recuperarAutoguardado(a)).toBeNull();
     a.setItem(CLAVE_AUTOGUARDADO, fixture('version-futura.json'));
     expect(recuperarAutoguardado(a)).toBeNull();
+  });
+});
+
+describe('V-FUN-23 · JSON v2 (1.1): tiempo, exploración y nacimiento', () => {
+  const v2 = (s: EstadoExperimento) => JSON.parse(serializar(s)) as Record<string, unknown>;
+  const conTiempo: EstadoExperimento = {
+    ...EXPERIMENTO_INICIAL,
+    tiempo: { t: 1.25, inicio: -1, fin: 3.5, bucle: false },
+    exploracion: { escala: 2.5, velocidad: 0.5, ilimitado: true },
+    particulas: { ...EXPERIMENTO_INICIAL.particulas, nacimiento: 'semillas' },
+  };
+
+  it('ida y vuelta exacta con las claves nuevas, sin avisos', () => {
+    expect(importarConfiguracion(serializar(conTiempo))).toEqual({ ok: true, estado: conTiempo, avisos: [] });
+    expect(v2(conTiempo)).toMatchObject({ version: 2, tiempo: conTiempo.tiempo, exploracion: conTiempo.exploracion });
+  });
+
+  it('un documento v1 se migra: valores por defecto de la 1.1 y solo el aviso de conversión', () => {
+    const doc = v2(EXPERIMENTO_INICIAL);
+    doc.version = 1;
+    delete doc.tiempo;
+    delete doc.exploracion;
+    delete (doc.particulas as Record<string, unknown>).nacimiento;
+    const r = importarConfiguracion(JSON.stringify(doc));
+    expect(r).toEqual({ ok: true, estado: EXPERIMENTO_INICIAL, avisos: ['Convertido de la versión 1 a la 2'] });
+  });
+
+  it('tiempo y exploración fuera de rango: errores por ruta y estado intacto', () => {
+    const casos: [Record<string, unknown>, string][] = [
+      [{ tiempo: { t: 0, inicio: 2, fin: 2, bucle: true } }, 'tiempo.inicio'],
+      [{ tiempo: { t: 5, inicio: 0, fin: 4, bucle: true } }, 'tiempo.t'],
+      [{ tiempo: { t: 0, inicio: 0, fin: 1e7, bucle: true } }, 'tiempo.fin'],
+      [{ exploracion: { escala: 100, velocidad: 1, ilimitado: false } }, 'exploracion.escala'],
+      [{ exploracion: { escala: 1, velocidad: 0.01, ilimitado: false } }, 'exploracion.velocidad'],
+      [{ particulas: { n: 400, tau: null, semilla: 1, nacimiento: 'nube' } }, 'particulas.nacimiento'],
+    ];
+    for (const [cambio, ruta] of casos) {
+      const r = importarConfiguracion(JSON.stringify({ ...v2(EXPERIMENTO_INICIAL), ...cambio }));
+      expect(r.ok, ruta).toBe(false);
+      if (!r.ok) expect(r.errores.map((e) => e.ruta)).toContain(ruta);
+    }
   });
 });

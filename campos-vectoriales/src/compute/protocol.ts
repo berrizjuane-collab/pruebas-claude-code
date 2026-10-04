@@ -17,11 +17,19 @@ export interface DefinicionCampo {
   parametros: string[];
 }
 
+/**
+ * Vector de evaluación de las peticiones (D-63): valores de los parámetros y, en la última
+ * ranura, el instante t con que se calcula (SPEC §3.10).
+ */
+export type VectorEvaluacion = number[];
+
 export interface PeticionMalla {
   tipo: 'malla';
   id: number;
   campo: DefinicionCampo;
-  p: number[];
+  p: VectorEvaluacion;
+  /** Ventana temporal del experimento: un campo temporal con escala automática la usa (SPEC §3.10). */
+  ventana: { inicio: number; fin: number } | null;
   dominio: Dominio;
   n: [number, number, number];
   posicion: 'nodos' | 'centros';
@@ -46,7 +54,7 @@ export interface PeticionLineas {
   tipo: 'lineas';
   id: number;
   campo: DefinicionCampo;
-  p: number[];
+  p: VectorEvaluacion;
   dominio: Dominio;
   semillas: EspecSemillas;
   paso: number | null;
@@ -60,7 +68,7 @@ export interface PeticionCorte {
   tipo: 'corte';
   id: number;
   campo: DefinicionCampo;
-  p: number[];
+  p: VectorEvaluacion;
   dominio: Dominio;
   plano: Plano;
   c: number;
@@ -95,6 +103,8 @@ export interface ResultadoMalla {
   lMax: number;
   instancias: InstanciasFlechas;
   corte: FlechasCorte | null;
+  /** Instante con que se calculó (última ranura de p). */
+  t: number;
   ms: number;
 }
 
@@ -116,11 +126,13 @@ export interface ResultadoLineas {
   paso: number;
   /** Geometría para dibujar (segmentos, cheurones, semillas y marcas finales). */
   geometria: GeometriaLineas;
+  /** Instante de las líneas de corriente instantáneas (SPEC §3.10). */
+  t: number;
   ms: number;
 }
 
 /** Muestra del corte con la curva de nivel cero de su escalar (REN-06), si tiene signo. */
-export type ResultadoCorte = MuestraCorte & { contorno: Float32Array | null; dominio: Dominio; ms: number };
+export type ResultadoCorte = MuestraCorte & { contorno: Float32Array | null; dominio: Dominio; t: number; ms: number };
 
 export type Respuesta =
   | { tipo: 'pong'; id: number }

@@ -1,6 +1,6 @@
 {
   "formato": "campos-vectoriales",
-  "version": 1,
+  "version": 2,
   "nombre": "PERF-B (máxima)",
   "campo": {
     "P": "-y",
@@ -69,7 +69,8 @@
   "particulas": {
     "n": 2000,
     "tau": null,
-    "semilla": 1
+    "semilla": 1,
+    "nacimiento": "dominio"
   },
   "corte": {
     "activo": true,
@@ -96,5 +97,16 @@
     ]
   },
   "punto": null,
-  "cifras": 4
+  "cifras": 4,
+  "tiempo": {
+    "t": 0,
+    "inicio": 0,
+    "fin": 12.566370614359172,
+    "bucle": true
+  },
+  "exploracion": {
+    "escala": 1,
+    "velocidad": 1,
+    "ilimitado": false
+  }
 }

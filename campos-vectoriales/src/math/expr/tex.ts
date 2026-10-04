@@ -73,6 +73,8 @@ export function tex(n: Nodo): string {
       return 'xyz'[n.eje] as string;
     case 'param':
       return texNombreParametro(n.nombre);
+    case 'tiempo':
+      return 't';
     case 'const':
       return n.nombre === 'pi' ? '\\pi' : 'e';
     case 'derivada':
@@ -140,6 +142,8 @@ export function unicode(n: Nodo): string {
       return 'xyz'[n.eje] as string;
     case 'param':
       return unicodeNombreParametro(n.nombre);
+    case 'tiempo':
+      return 't';
     case 'const':
       return n.nombre === 'pi' ? 'π' : 'e';
     case 'derivada':

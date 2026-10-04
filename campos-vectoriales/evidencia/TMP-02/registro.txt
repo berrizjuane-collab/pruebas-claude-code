@@ -1,0 +1,56 @@
+
+ RUN  v5.0.3 /home/user/pruebas-claude-code/campos-vectoriales
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > viento giratorio: δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22)
+MEDIDA T-22 · viento giratorio, δt = 0.01, t₀ + 2π: 1.01e-14
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > viento giratorio: orden de convergencia p ∈ [3.8, 4.2] (T-23)
+MEDIDA T-23 · orden en t, viento giratorio: 4.000 / 4.000
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > lluvia con ráfagas: δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22)
+MEDIDA T-22 · lluvia con ráfagas, δt = 0.01, t₀ + 2π: 1.40e-11
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > lluvia con ráfagas: orden de convergencia p ∈ [3.8, 4.2] (T-23)
+MEDIDA T-23 · orden en t, lluvia con ráfagas: 4.002 / 4.001
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω > k (atrapada): δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22)
+MEDIDA T-22 · silla giratoria ω > k (atrapada), δt = 0.01, t₀ + 2π: 1.84e-9
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω > k (atrapada): orden de convergencia p ∈ [3.8, 4.2] (T-23)
+MEDIDA T-23 · orden en t, silla giratoria ω > k (atrapada): 3.985 / 3.995
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω < k (escapa): δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22)
+MEDIDA T-22 · silla giratoria ω < k (escapa), δt = 0.01, t₀ + 2π: 9.21e-10
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω < k (escapa): orden de convergencia p ∈ [3.8, 4.2] (T-23)
+MEDIDA T-23 · orden en t, silla giratoria ω < k (escapa): 3.964 / 3.982
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω = k: δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22)
+MEDIDA T-22 · silla giratoria ω = k, δt = 0.01, t₀ + 2π: 7.47e-10
+
+stdout | src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω = k: orden de convergencia p ∈ [3.8, 4.2] (T-23)
+MEDIDA T-23 · orden en t, silla giratoria ω = k: 3.968 / 3.985
+
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > viento giratorio: δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22) 7ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > viento giratorio: orden de convergencia p ∈ [3.8, 4.2] (T-23) 1ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > lluvia con ráfagas: δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22) 5ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > lluvia con ráfagas: orden de convergencia p ∈ [3.8, 4.2] (T-23) 1ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω > k (atrapada): δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22) 3ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω > k (atrapada): orden de convergencia p ∈ [3.8, 4.2] (T-23) 1ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω < k (escapa): δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22) 3ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω < k (escapa): orden de convergencia p ∈ [3.8, 4.2] (T-23) 1ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω = k: δt = 0.01 hasta t₀ + 2π, error relativo ≤ 10⁻⁷ (T-22) 2ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > silla giratoria ω = k: orden de convergencia p ∈ [3.8, 4.2] (T-23) 1ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > el sistema de partículas sigue la trayectoria exacta con el reloj (viento giratorio, 4 s reales) 6ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-17 · trayectorias no autónomas frente a las soluciones exactas > un paso con t restaura la ranura del instante y sin t es el RK4 autónomo de siempre 1ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-18 · líneas de corriente instantáneas > con t = t*, iguales bit a bit a las del campo «congelado» (t sustituido por el número) 10ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-18 · líneas de corriente instantáneas > viento giratorio: rectas de dirección (cos ωt*, sin ωt*, 0) 3ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-19 · F_ref en la ventana temporal > instantes: 9 equiespaciados con el último exactamente t₁ 1ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-19 · F_ref en la ventana temporal > P95 sobre nodos e instantes, independiente del t mostrado; t·(x, y, z) conserva la escala y crece 19ms
+ ✓ src/numerics/tiempo.test.ts > V-NUM-20 · líneas de traza (emisión desde semillas) > viento giratorio: las partículas de una semilla están sobre el arco exacto (T-26) y salen escalonadas 3ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  04:50:57
+   Duration  698ms (transform 79%, tests 13%, import 7%, worker 1%)
+

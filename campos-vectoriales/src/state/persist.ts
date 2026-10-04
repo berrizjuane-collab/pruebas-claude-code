@@ -1,7 +1,9 @@
 /**
- * Configuración JSON v1 (EXP-01, SPEC §7.2) y autoguardado (EXP-02).
+ * Configuración JSON v2 (EXP-01, SPEC §7.2; v2 en la 1.1, RF-27) y autoguardado (EXP-02).
  *
- * - `aConfiguracion` convierte el estado en el documento v1 (con `formato` y `version`).
+ * - `aConfiguracion` convierte el estado en el documento v2 (con `formato` y `version`).
+ * - Un documento v1 se migra a v2 añadiendo `tiempo`, `exploracion` y
+ *   `particulas.nacimiento` con sus valores por defecto (D-71).
  * - `importarConfiguracion` valida **antes** de tocar el estado: tipos, rangos y longitudes,
  *   con los errores listados por ruta («dominio.min[2] debe ser menor que dominio.max[2]»).
  *   Las expresiones pasan por el mismo analizador que el editor. Versión posterior → error;
@@ -15,15 +17,15 @@ import { compilarCampo } from '../math/field';
 import { LIMITES_EXPRESION } from '../math/expr/errores';
 import type { DeclParametro, Dominio, EspecSemillas, Plano, Vec3 } from '../math/tipos';
 import { motivoIntervalo, motivoNombreParametro, motivoRango, motivoSemillas } from './actions';
-import { LIMITES, experimentoDesdeCatalogo, type EstadoExperimento } from './schema';
+import { EXPLORACION_POR_DEFECTO, LIMITES, TIEMPO_POR_DEFECTO, experimentoDesdeCatalogo, type EstadoExperimento } from './schema';
 
 export const FORMATO = 'campos-vectoriales';
-export const VERSION = 1;
+export const VERSION = 2;
 /** Tamaño máximo del archivo importado (SPEC §7.2). */
 export const TAMANO_MAX = 256 * 1024;
 export const LONGITUD_NOMBRE = 80;
 
-export interface ConfiguracionV1 {
+export interface ConfiguracionV2 {
   formato: typeof FORMATO;
   version: typeof VERSION;
   nombre: string;
@@ -39,10 +41,12 @@ export interface ConfiguracionV1 {
   camara: EstadoExperimento['camara'];
   punto: Vec3 | null;
   cifras: number;
+  tiempo: EstadoExperimento['tiempo'];
+  exploracion: EstadoExperimento['exploracion'];
 }
 
-/** Documento v1 del estado (el orden de las claves sigue SPEC §7.2). */
-export function aConfiguracion(s: EstadoExperimento): ConfiguracionV1 {
+/** Documento v2 del estado (el orden de las claves sigue SPEC §7.2). */
+export function aConfiguracion(s: EstadoExperimento): ConfiguracionV2 {
   return {
     formato: FORMATO,
     version: VERSION,
@@ -59,6 +63,8 @@ export function aConfiguracion(s: EstadoExperimento): ConfiguracionV1 {
     camara: s.camara,
     punto: s.punto,
     cifras: s.cifras,
+    tiempo: s.tiempo,
+    exploracion: s.exploracion,
   };
 }
 
@@ -74,9 +80,18 @@ export interface ErrorImportacion {
 
 export type ResultadoImportacion = { ok: true; estado: EstadoExperimento; avisos: string[] } | { ok: false; errores: ErrorImportacion[] };
 
-/** Migraciones de versiones anteriores: de la versión k a la k + 1. Aún no hay ninguna (v1 es la primera). */
+/** Migraciones de versiones anteriores: de la versión k a la k + 1. */
 export type Migraciones = Readonly<Record<number, (o: Record<string, unknown>) => Record<string, unknown>>>;
-export const MIGRACIONES: Migraciones = {};
+export const MIGRACIONES: Migraciones = {
+  // 1 → 2 (1.1, D-71): tiempo, exploración y nacimiento de las partículas con sus valores por
+  // defecto. No son omisiones del usuario: no generan avisos de «falta».
+  1: (o) => {
+    const doc: Record<string, unknown> = { ...o, tiempo: { ...TIEMPO_POR_DEFECTO }, exploracion: { ...EXPLORACION_POR_DEFECTO } };
+    const p = o.particulas;
+    if (typeof p === 'object' && p !== null && !Array.isArray(p) && !('nacimiento' in p)) doc.particulas = { ...p, nacimiento: 'dominio' };
+    return doc;
+  },
+};
 
 type Obj = Record<string, unknown>;
 const esObjeto = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -181,7 +196,7 @@ class Validador {
 
 const IDS_CATALOGO = CATALOGO.map((c) => c.id);
 const PLANOS: readonly Plano[] = ['XY', 'XZ', 'YZ'];
-const CLAVES_RAIZ = ['formato', 'version', 'nombre', 'campo', 'parametros', 'dominio', 'muestreo', 'capas', 'flechas', 'lineas', 'particulas', 'corte', 'camara', 'punto', 'cifras'] as const;
+const CLAVES_RAIZ = ['formato', 'version', 'nombre', 'campo', 'parametros', 'dominio', 'muestreo', 'capas', 'flechas', 'lineas', 'particulas', 'corte', 'camara', 'punto', 'cifras', 'tiempo', 'exploracion'] as const;
 
 /**
  * Valida un documento de configuración y devuelve el estado que describe, sin efectos.
@@ -269,6 +284,8 @@ function validarDocumento(d: Obj, val: Validador): EstadoExperimento | null {
   const camara = validarCamara(val.leer(d, 'camara', 'camara', null), val);
   const punto = validarPunto(val.leer(d, 'punto', 'punto', null), dominio, val);
   const cifras = val.numero(val.leer(d, 'cifras', 'cifras', def.cifras), 'cifras', { entero: true, min: 2, max: 8 });
+  const tiempo = validarTiempo(val.leer(d, 'tiempo', 'tiempo', def.tiempo), val);
+  const exploracion = validarExploracion(val.leer(d, 'exploracion', 'exploracion', def.exploracion), val);
 
   if (val.errores.length) return null;
   const catalogo = base ? campoPorId(base).expresiones : null;
@@ -289,6 +306,8 @@ function validarDocumento(d: Obj, val: Validador): EstadoExperimento | null {
     camara: camara === undefined ? null : camara,
     punto: punto === undefined ? null : punto,
     cifras: cifras!,
+    tiempo: tiempo!,
+    exploracion: exploracion!,
   };
 }
 
@@ -424,12 +443,38 @@ function validarLineas(v: unknown, val: Validador): EstadoExperimento['lineas'] 
 function validarParticulas(v: unknown, val: Validador): EstadoExperimento['particulas'] | null {
   const o = val.objeto(v, 'particulas');
   if (!o) return null;
-  val.claves(o, 'particulas', ['n', 'tau', 'semilla']);
+  val.claves(o, 'particulas', ['n', 'tau', 'semilla', 'nacimiento']);
   const n = val.numero(val.leer(o, 'n', 'particulas.n'), 'particulas.n', { entero: true, min: 1, max: LIMITES.particulasMax });
   const t = val.leer(o, 'tau', 'particulas.tau', null);
   const tau = t === null ? null : val.numero(t, 'particulas.tau', { positivo: true });
   const semilla = val.numero(val.leer(o, 'semilla', 'particulas.semilla', 1), 'particulas.semilla', { entero: true, min: 0 });
-  return n !== null && (t === null || tau !== null) && semilla !== null ? { n, tau, semilla } : null;
+  const nacimiento = val.opcion(val.leer(o, 'nacimiento', 'particulas.nacimiento', 'dominio'), 'particulas.nacimiento', ['dominio', 'semillas'] as const);
+  return n !== null && (t === null || tau !== null) && semilla !== null && nacimiento ? { n, tau, semilla, nacimiento } : null;
+}
+
+/** tiempo (v2, SPEC §7.2): inicio < fin, inicio ≤ t ≤ fin, todos con |·| ≤ 10⁶. */
+function validarTiempo(v: unknown, val: Validador): EstadoExperimento['tiempo'] | null {
+  const o = val.objeto(v, 'tiempo');
+  if (!o) return null;
+  val.claves(o, 'tiempo', ['t', 'inicio', 'fin', 'bucle']);
+  const rango = { min: -LIMITES.tiempoMax, max: LIMITES.tiempoMax };
+  const [t, inicio, fin] = (['t', 'inicio', 'fin'] as const).map((k) => val.numero(val.leer(o, k, `tiempo.${k}`), `tiempo.${k}`, rango));
+  const bucle = val.booleano(val.leer(o, 'bucle', 'tiempo.bucle', true), 'tiempo.bucle');
+  if (t == null || inicio == null || fin == null || bucle === null) return null;
+  if (!(inicio < fin)) return val.error('tiempo.inicio', `debe ser menor que tiempo.fin (${fin})`), null;
+  if (t < inicio || t > fin) return val.error('tiempo.t', `debe estar dentro de la ventana [${inicio}, ${fin}] (es ${t})`), null;
+  return { t, inicio, fin, bucle };
+}
+
+/** exploracion (v2, SPEC §7.2): λ ∈ [1/8, 64], velocidad ∈ [1/16, 16]. */
+function validarExploracion(v: unknown, val: Validador): EstadoExperimento['exploracion'] | null {
+  const o = val.objeto(v, 'exploracion');
+  if (!o) return null;
+  val.claves(o, 'exploracion', ['escala', 'velocidad', 'ilimitado']);
+  const escala = val.numero(val.leer(o, 'escala', 'exploracion.escala', 1), 'exploracion.escala', { min: LIMITES.escalaMin, max: LIMITES.escalaMax });
+  const velocidad = val.numero(val.leer(o, 'velocidad', 'exploracion.velocidad', 1), 'exploracion.velocidad', { min: LIMITES.velocidadMin, max: LIMITES.velocidadMax });
+  const ilimitado = val.booleano(val.leer(o, 'ilimitado', 'exploracion.ilimitado', false), 'exploracion.ilimitado');
+  return escala !== null && velocidad !== null && ilimitado !== null ? { escala, velocidad, ilimitado } : null;
 }
 
 function validarCorte(v: unknown, dominio: Dominio | null, val: Validador): EstadoExperimento['corte'] | null {

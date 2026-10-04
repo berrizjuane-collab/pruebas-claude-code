@@ -32,6 +32,8 @@ const VALIDOS: [string, string][] = [
   ['a', '$a'], ['sin(cos(tan(x)))', '(sin (cos (tan x)))'], ['2(x)(y)', '(* (* 2 x) y)'],
   ['asinh(x)+acosh(x)+atanh(x)', '(+ (+ (asinh x) (acosh x)) (atanh x))'], ['x/y/z', '(/ (/ x y) z)'],
   ['-2^2', '(neg (^ 2 2))'], ['x/(y*z)', '(/ x (* y z))'], ['x-(y-z)', '(- x (- y z))'], ['w', '$w'],
+  // 1.1: t es la variable temporal (V-MAT-11).
+  ['t', 't'], ['2t', '(* 2 t)'], ['sin(w*t)', '(sin (* $w t))'], ['t^2', '(^ t 2)'], ['x*t', '(* x t)'],
 ];
 
 describe('V-MAT-02 · analizador: casos válidos', () => {
@@ -52,7 +54,7 @@ const INVALIDOS: [string, string, number?][] = [
   ['x^', 'INCOMPLETA'], ['x)', 'SIMBOLO_INESPERADO', 1], ['()', 'SIMBOLO_INESPERADO'], ['x y', 'FALTA_OPERADOR', 2],
   ['2 3', 'FALTA_OPERADOR', 2], [')x', 'SIMBOLO_INESPERADO', 0], ['x$', 'CARACTER_NO_PERMITIDO', 1],
   ['x.y', 'CARACTER_NO_PERMITIDO', 1], ['1.2.3', 'NUMERO_MAL_FORMADO'], ['xy', 'IDENT_DESCONOCIDO', 0],
-  ['q*x', 'IDENT_DESCONOCIDO', 0], ['x2', 'IDENT_DESCONOCIDO'], ['t', 'T_RESERVADA'], ['sin', 'FUNCION_SIN_PARENTESIS'],
+  ['q*x', 'IDENT_DESCONOCIDO', 0], ['x2', 'IDENT_DESCONOCIDO'], ['xt', 'IDENT_DESCONOCIDO', 0], ['sin', 'FUNCION_SIN_PARENTESIS'],
   ['sin x', 'FUNCION_SIN_PARENTESIS'], ['sin^2(x)', 'FUNCION_SIN_PARENTESIS'], ['gamma(x)', 'FUNCION_NO_PERMITIDA'],
   ['x(y)', 'NO_ES_FUNCION'], ['atan2(y)', 'ARIDAD'], ['min(x)', 'ARIDAD'], ['hypot(x)', 'ARIDAD'], ['sin(x, y)', 'ARIDAD'],
   ['sin()', 'ARIDAD'], ['x'.repeat(501), 'DEMASIADO_LARGA'], ['('.repeat(70) + 'x' + ')'.repeat(70), 'DEMASIADO_PROFUNDA'],

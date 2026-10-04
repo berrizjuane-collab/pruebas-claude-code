@@ -3,11 +3,16 @@ import { CATALOGO, campoPorId, valoresParametros } from './index';
 import { AUXILIARES } from './auxiliares';
 import { autovalores3, divergencia, rotacional } from '../derivadas';
 import { mulberry32 } from '../aleatorio';
+import { vectorEvaluacion } from '../field';
 
 /** V-MAT-01: J, div y rot del catálogo frente a las tablas de SPEC §4 (T-02). */
 const T02 = (v: number) => 1e-12 * (1 + Math.abs(v));
 
-const tablas: Record<string, { div: (p: number[]) => number; rot: (p: number[]) => [number, number, number] }> = {
+/** div y rot de las tablas de SPEC §4 y §4.9, en el punto q y el instante t. */
+const tablas: Record<string, { div: (p: number[]) => number; rot: (p: number[], q: number[], t: number) => [number, number, number] }> = {
+  'viento-giratorio': { div: () => 0, rot: () => [0, 0, 0] },
+  lluvia: { div: () => 0, rot: (p, q, t) => [0, -(p[0] as number) * (p[2] as number) * Math.cos((p[1] as number) * t - (p[2] as number) * (q[2] as number)), 0] },
+  'silla-giratoria': { div: () => 0, rot: () => [0, 0, 0] },
   uniforme: { div: () => 0, rot: () => [0, 0, 0] },
   'radial-saliente': { div: (p) => 3 * (p[0] as number), rot: () => [0, 0, 0] },
   'radial-entrante': { div: (p) => -3 * (p[0] as number), rot: () => [0, 0, 0] },
@@ -23,7 +28,9 @@ describe('catálogo nativo (V-MAT-01)', () => {
       const J = new Float64Array(9);
       for (let i = 0; i < 1000; i++) {
         const p = campo.parametros.map((d) => d.min + (d.max - d.min) * azar());
-        const pv = Float64Array.from(p);
+        // t aleatorio en [−10, 10] en la ranura que sigue a los parámetros (D-63, T-20).
+        const t = azar() * 20 - 10;
+        const pv = vectorEvaluacion(p, t);
         const [x, y, z] = [azar() * 4 - 2, azar() * 4 - 2, azar() * 4 - 2];
         campo.J(x, y, z, pv, J, 0);
         const div = divergencia(J);
@@ -31,12 +38,12 @@ describe('catálogo nativo (V-MAT-01)', () => {
         const tabla = tablas[campo.id];
         if (!tabla) throw new Error(campo.id);
         expect(Math.abs(div - tabla.div(p))).toBeLessThanOrEqual(T02(tabla.div(p)));
-        tabla.rot(p).forEach((v, k) => expect(Math.abs((rot[k] as number) - v)).toBeLessThanOrEqual(T02(v)));
+        tabla.rot(p, [x, y, z], t).forEach((v, k) => expect(Math.abs((rot[k] as number) - v)).toBeLessThanOrEqual(T02(v)));
       }
     });
 
     it(`${campo.nombre}: la jacobiana nativa coincide con diferencias centradas de F`, () => {
-      const p = valoresParametros(campo.parametros);
+      const p = vectorEvaluacion(valoresParametros(campo.parametros), 0.7);
       const J = new Float64Array(9);
       const fm = new Float64Array(3);
       const fp = new Float64Array(3);
@@ -63,7 +70,7 @@ describe('catálogo nativo (V-MAT-01)', () => {
   it('los equilibrios analíticos anulan el campo', () => {
     const f = new Float64Array(3);
     for (const campo of CATALOGO) {
-      const p = valoresParametros(campo.parametros);
+      const p = vectorEvaluacion(valoresParametros(campo.parametros), 1.1);
       for (const m of campo.equilibrios(p)) {
         const puntos =
           m.tipo === 'punto' ? [m.p] : m.tipo === 'recta' ? [-2, -0.5, 0, 1.3].map((t) => m.punto.map((c, k) => c + t * (m.dir[k] as number))) : [];
@@ -138,4 +145,57 @@ describe('autovalores de J', () => {
       expect(v.im).toBeCloseTo(0, 12);
     });
   });
+});
+
+describe('catálogo temporal (SPEC §4.9): oráculos de ∂F/∂t y de las trayectorias', () => {
+  const temporales = CATALOGO.filter((c) => c.tiempo);
+
+  it('hay tres campos temporales y su ventana es [0, 4π]', () => {
+    expect(temporales.map((c) => c.id)).toEqual(['viento-giratorio', 'lluvia', 'silla-giratoria']);
+    for (const c of temporales) expect([c.tiempo?.inicio, c.tiempo?.fin]).toEqual([0, 4 * Math.PI]);
+  });
+
+  for (const campo of temporales) {
+    const tiempo = campo.tiempo!;
+    it(`${campo.nombre}: ∂F/∂t nativa frente a diferencias centradas en t`, () => {
+      const azar = mulberry32(campo.id.length * 13);
+      const a = new Float64Array(3);
+      const b = new Float64Array(3);
+      const d = new Float64Array(3);
+      for (let i = 0; i < 300; i++) {
+        const valores = campo.parametros.map((x) => x.min + (x.max - x.min) * azar());
+        const t = azar() * 20 - 10;
+        const q = [azar() * 4 - 2, azar() * 4 - 2, azar() * 4 - 2] as const;
+        const h = 1e-5;
+        campo.F(...q, vectorEvaluacion(valores, t + h), a, 0);
+        campo.F(...q, vectorEvaluacion(valores, t - h), b, 0);
+        tiempo.dFdt(...q, vectorEvaluacion(valores, t), d, 0);
+        for (let k = 0; k < 3; k++) expect(Math.abs(((a[k] as number) - (b[k] as number)) / (2 * h) - (d[k] as number))).toBeLessThan(1e-7 * (1 + Math.abs(d[k] as number)));
+      }
+    });
+
+    it(`${campo.nombre}: la trayectoria exacta cumple ṙ = F(r, t) y r(t₀) = r₀`, () => {
+      const azar = mulberry32(campo.id.length * 17);
+      const f = new Float64Array(3);
+      // ω < k, ω = k y ω > k en la silla giratoria; parámetros aleatorios en el resto.
+      for (let i = 0; i < 200; i++) {
+        const valores = campo.parametros.map((x) => x.min + (x.max - x.min) * azar());
+        if (campo.id === 'silla-giratoria' && i < 3) valores.splice(0, 2, 1, [0.5, 1, 1.5][i] as number);
+        const r0 = [azar() * 2 - 1, azar() * 2 - 1, azar() * 2 - 1] as const;
+        const t0 = azar() * 4 - 2;
+        const t = t0 + azar() * 3;
+        const p = vectorEvaluacion(valores, t);
+        expect(tiempo.trayectoria(r0, t0, t0, p).map((c, k) => Math.abs(c - (r0[k] as number)))).toEqual([0, 0, 0].map(() => expect.closeTo(0, 14)));
+        const h = 1e-5;
+        const r = tiempo.trayectoria(r0, t0, t, p);
+        const ra = tiempo.trayectoria(r0, t0, t + h, p);
+        const rb = tiempo.trayectoria(r0, t0, t - h, p);
+        campo.F(...r, p, f, 0);
+        for (let k = 0; k < 3; k++) {
+          const v = ((ra[k] as number) - (rb[k] as number)) / (2 * h);
+          expect(Math.abs(v - (f[k] as number)), `${campo.id} ṙ${k}`).toBeLessThan(1e-6 * (1 + Math.abs(f[k] as number)));
+        }
+      }
+    });
+  }
 });

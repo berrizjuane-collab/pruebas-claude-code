@@ -1033,8 +1033,8 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
   `tiempo.t` es el instante mostrado (inicio ≤ t ≤ fin, inicio < fin); `exploracion.escala`
   es $\lambda\in[1/8,64]$; `velocidad`, el multiplicador $m\in[1/16,16]$; `ilimitado`, el
   espacio sin límites al entrar en la vista libre; `nacimiento` ∈ {`dominio`, `semillas`}.
-  **Migración 1 → 2**: añade esas claves con sus valores por defecto, en silencio (no es una
-  omisión del usuario). Un archivo v2 en la 1.0 da el error de versión posterior, como prevé
+  **Migración 1 → 2**: añade esas claves con sus valores por defecto sin avisos de «falta»
+  (no son omisiones del usuario); solo queda la nota «Convertido de la versión 1 a la 2». Un archivo v2 en la 1.0 da el error de versión posterior, como prevé
   esta misma sección.
 - Tamaño máximo del archivo: 256 KB.
 - **Recuperación automática**: el estado se guarda en `localStorage` 1 s después de cada

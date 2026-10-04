@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CATALOGO } from './index';
 import { AUXILIARES } from './auxiliares';
-import { compilarCampo } from '../field';
+import { compilarCampo, vectorEvaluacion } from '../field';
 import { mulberry32 } from '../aleatorio';
 
 /**
@@ -46,7 +46,8 @@ describe('V-MAT-05 · expresiones compiladas frente a oráculos nativos', () => 
       const a = new Float64Array(3);
       const b = new Float64Array(3);
       for (let i = 0; i < 1000; i++) {
-        const p = Float64Array.from(caso.decl.map((d) => d.min + (d.max - d.min) * azar()));
+        // t aleatorio en [−10, 10] en la ranura que sigue a los parámetros (D-63, T-20).
+        const p = vectorEvaluacion(caso.decl.map((d) => d.min + (d.max - d.min) * azar()), azar() * 20 - 10);
         const [x, y, z] = [azar() * 4 - 2, azar() * 4 - 2, azar() * 4 - 2];
         r.campo.F(x, y, z, p, a, 0);
         caso.F(x, y, z, p, b, 0);
@@ -88,7 +89,7 @@ describe('V-MAT-07 · jacobiana simbólica frente a la analítica', () => {
       const js = new Float64Array(9);
       const ja = new Float64Array(9);
       for (let i = 0; i < 500; i++) {
-        const p = Float64Array.from(caso.decl.map((d) => d.min + (d.max - d.min) * azar()));
+        const p = vectorEvaluacion(caso.decl.map((d) => d.min + (d.max - d.min) * azar()), azar() * 20 - 10);
         const q = puntoSeguro(caso.id, azar);
         r.campo.J(...q, p, js, 0);
         caso.J(...q, p, ja, 0);
@@ -109,5 +110,32 @@ describe('V-MAT-07 · jacobiana simbólica frente a la analítica', () => {
     expect(js[0]).toBe(-1);
     expect(r.campo.enAngulo(0, 1, 1, new Float64Array(0))).toBe(true);
     expect(r.campo.enAngulo(0.2, 1, 1, new Float64Array(0))).toBe(false);
+  });
+});
+
+describe('V-MAT-07 (1.1) · ∂F/∂t simbólica frente a la analítica (T-21)', () => {
+  for (const c of CATALOGO.filter((x) => x.tiempo)) {
+    it(`${c.id}: 3 componentes en 500 puntos e instantes`, () => {
+      const r = compilarCampo(c.expresiones, c.parametros.map((d) => d.nombre));
+      if (!r.ok || !r.campo.dFdt) throw new Error(`${c.id} sin ∂F/∂t simbólica`);
+      expect(r.campo.dependeDelTiempo).toBe(true);
+      const azar = mulberry32(c.id.length * 41 + 3);
+      const s = new Float64Array(3);
+      const a = new Float64Array(3);
+      for (let i = 0; i < 500; i++) {
+        const p = vectorEvaluacion(c.parametros.map((d) => d.min + (d.max - d.min) * azar()), azar() * 20 - 10);
+        const q = [azar() * 4 - 2, azar() * 4 - 2, azar() * 4 - 2] as const;
+        r.campo.dFdt(...q, p, s, 0);
+        c.tiempo!.dFdt(...q, p, a, 0);
+        for (let k = 0; k < 3; k++) expect(Math.abs((s[k] as number) - (a[k] as number)), `${c.id} ∂F${k}/∂t`).toBeLessThanOrEqual(T02(a[k] as number));
+      }
+    });
+  }
+
+  it('los seis campos estacionarios no dependen del tiempo', () => {
+    for (const c of CATALOGO.filter((x) => !x.tiempo)) {
+      const r = compilarCampo(c.expresiones, c.parametros.map((d) => d.nombre));
+      expect(r.ok && r.campo.dependeDelTiempo, c.id).toBe(false);
+    }
   });
 });
