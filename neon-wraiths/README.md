@@ -200,6 +200,13 @@ en viewport móvil y ausencia total de errores de consola.
 
 ## Despliegue
 
-`.github/workflows/deploy.yml` compila y publica `dist/` en GitHub Pages en cada
-push a `main`. El workflow activa Pages por sí solo (`configure-pages` con
-`enablement: true`), así que no hace falta tocar nada a mano.
+El juego vive en la carpeta `neon-wraiths/` del repositorio. El workflow
+`.github/workflows/deploy.yml` (en la raíz) compila esta carpeta y publica su
+`dist/` en GitHub Pages en cada push a `main` que toque `neon-wraiths/` o
+`fable-5-1/`; la página de Fable 5.1 se sirve junto al juego.
+
+El workflow intenta activar Pages por sí solo (`configure-pages` con
+`enablement: true`), pero el token automático de Actions no tiene permiso de
+administración para hacerlo: hay que activarlo a mano una vez en
+*Settings → Pages → Source: GitHub Actions*. Hasta entonces la compilación pasa
+y solo falla el paso final de publicación (`deploy-pages` responde 404).
