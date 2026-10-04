@@ -90,6 +90,8 @@ export function useVistaLibre({ controlador, almacen, almacenCalculo, almacenVen
   const pantallaCompleta = useRef(false);
   const temporizadores = useRef<{ pista: ReturnType<typeof setTimeout> | null; indicador: ReturnType<typeof setTimeout> | null }>({ pista: null, indicador: null });
   const ilimitada = useRef<{ base: BaseIlimitada; m: Desplazamiento | null; baja: () => void } | null>(null);
+  /** Visibilidad de la pista para el teclado (H la alterna sin depender del último pintado). */
+  const pistaVisibleRef = useRef(false);
 
   const avisar = useCallback((texto: string) => {
     const t = temporizadores.current;
@@ -102,8 +104,13 @@ export function useVistaLibre({ controlador, almacen, almacenCalculo, almacenVen
     const t = temporizadores.current;
     if (t.pista) clearTimeout(t.pista);
     t.pista = null;
+    pistaVisibleRef.current = visible;
     setPistaVisible(visible);
-    if (visible) t.pista = setTimeout(() => setPistaVisible(false), DURACION_PISTA);
+    if (visible)
+      t.pista = setTimeout(() => {
+        pistaVisibleRef.current = false;
+        setPistaVisible(false);
+      }, DURACION_PISTA);
   }, []);
 
   /** Recoloca la ventana sin límites según la posición de la cámara (solo si cambia m). */
@@ -258,11 +265,6 @@ export function useVistaLibre({ controlador, almacen, almacenCalculo, almacenVen
       window.removeEventListener('blur', perder);
     };
   }, [activa, controlador, almacen, salir, avisar, fijarIlimitado, mostrarPista]);
-
-  const pistaVisibleRef = useRef(pistaVisible);
-  useEffect(() => {
-    pistaVisibleRef.current = pistaVisible;
-  }, [pistaVisible]);
 
   // Confirmación de la pausa (Espacio) dentro de la vista libre.
   const animandoPrevio = useRef(animando);
