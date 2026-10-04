@@ -113,6 +113,7 @@ export class Animacion {
   configurar(c: ConfigAnimacion | null): void {
     const campoNuevo = c?.claveCampo !== this.config?.claveCampo;
     const temporalAntes = !!this.config?.ventana;
+    const dominioAntes = this.config?.dominio;
     const recrear =
       !c ||
       c.clave !== this.config?.clave ||
@@ -126,20 +127,13 @@ export class Animacion {
       this.pEval = vectorEvaluacion(c.p, this.tiempo);
     }
     if (recrear) this.recrearParticulas();
+    else if (c && this.sistema && dominioAntes && JSON.stringify(dominioAntes) !== JSON.stringify(c.dominio)) {
+      // Ventana del espacio sin límites (SPEC §3.11): solo renacen las que quedan fuera.
+      this.sistema.fijarDominio(c.dominio, this.sistema.emision ? c.semillas : undefined);
+    }
     if (!c || c.omegaRueda === null) this.anguloRueda = 0;
     this.emitir();
     this.programar();
-  }
-
-  /**
-   * Cambia el dominio y las semillas de emisión sin recrear las partículas (espacio sin
-   * límites, SPEC §3.11): solo renacen las que quedan fuera.
-   */
-  moverDominio(d: Dominio, semillas: Float64Array | null): void {
-    if (!this.config) return;
-    this.config = { ...this.config, dominio: d, semillas };
-    this.sistema?.fijarDominio(d, this.sistema.emision ? semillas : undefined);
-    this.emitir();
   }
 
   /** Fija el instante del reloj (deslizador, archivo, deshacer); las partículas renacen (D-69). */

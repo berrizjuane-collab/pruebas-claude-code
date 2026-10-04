@@ -23,6 +23,8 @@ import {
   fijarParametro,
   fijarRangoParametro,
   fijarTiempo,
+  escalarDominio,
+  fijarExploracion,
   restablecerExperimento,
   restablecerParametro,
   restablecerParametros,
@@ -126,6 +128,8 @@ export function useEdicion(almacen: Almacen<EstadoExperimento>, controlador: Con
       alParticulas: (cambios) => almacen.fijar((s) => fijarParticulas(s, cambios)),
       alCifras: (cifras) => almacen.fijar((s) => fijarCifras(s, cifras)),
       alTiempo: (cambios) => almacen.fijar((s) => fijarTiempo(s, cambios)),
+      alAlcance: (factor) => almacen.fijar((s) => escalarDominio(s, factor)),
+      alExploracion: (cambios) => almacen.fijar((s) => fijarExploracion(s, cambios)),
     }),
     [almacen, conDeshacer],
   );

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Box, Cone, Crosshair, Pause, Play, Scan, Square } from 'lucide-react';
+import { Box, Cone, Crosshair, Expand, Pause, Play, Scan, Square } from 'lucide-react';
 import type { Vista } from '../../render/camara';
 import { T } from '../../i18n/es';
 import { BotonIcono } from '../controls/Boton';
@@ -16,10 +16,12 @@ interface Props {
   alAnimar: () => void;
   /** Inspeccionar un punto por coordenadas (tecla I, F7.1). */
   alInspeccionar: () => void;
+  /** Vista libre inmersiva (tecla V, PLAN F11). */
+  alVistaLibre: () => void;
 }
 
 /** Barra de la escena (DESIGN §5.2): encuadre, vistas predefinidas y pausa, con atajos. */
-function BarraEscenaBase({ alEncuadrar, alVista, ortografica, alProyeccion, animando, hayAnimacion, alAnimar, alInspeccionar }: Props) {
+function BarraEscenaBase({ alEncuadrar, alVista, ortografica, alProyeccion, animando, hayAnimacion, alAnimar, alInspeccionar, alVistaLibre }: Props) {
   return (
     <div className="barra-escena flotante" data-flotante="barra-escena" role="toolbar" aria-label="Vistas y animación">
       <BotonIcono etiqueta={T.vistas.encuadrar} icono={Scan} tamanoIcono={18} atajo="R" onClick={alEncuadrar} />
@@ -51,6 +53,8 @@ function BarraEscenaBase({ alEncuadrar, alVista, ortografica, alProyeccion, anim
         onClick={alAnimar}
         data-prueba="boton-animacion"
       />
+      <span className="barra-escena-separador" aria-hidden="true" />
+      <BotonIcono etiqueta={T.vistas.vistaLibre} icono={Expand} tamanoIcono={18} atajo="V" onClick={alVistaLibre} data-prueba="boton-vista-libre" />
     </div>
   );
 }

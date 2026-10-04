@@ -1658,8 +1658,9 @@
   column-gap: var(--e-2);
 }
 
-.tiempo-etiqueta-fin {
-  width: auto;
+/* Segunda etiqueta de una fila (Fin, Velocidad): no es el borde izquierdo de la retícula (VV-04). */
+.etiqueta-intermedia {
+  color: var(--texto-2);
   margin-left: var(--e-2);
 }
 
@@ -1677,4 +1678,91 @@
   color: var(--texto-1);
   font-size: var(--t-control);
   font-variant-numeric: tabular-nums;
+}
+
+/* Alcance (1.1, ALC-01): el resumen ocupa su propia línea. */
+.alcance-resultado {
+  flex-basis: 100%;
+  margin: 0;
+  min-height: 0;
+}
+
+.alcance-resultado:empty {
+  display: none;
+}
+
+/* ---------- Vista libre (1.1, DESIGN §5.5) ---------- */
+
+/* Solo la escena, a toda la ventana: ninguna otra región es visible ni enfocable. */
+.app.vista-libre {
+  display: block;
+}
+
+.app.vista-libre > :not(.escena) {
+  display: none !important;
+}
+
+.app.vista-libre .escena {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.app.vista-libre .escena > :not(.escena-lienzo):not(.solo-lector):not(.vl-pista):not(.vl-indicador) {
+  display: none !important;
+}
+
+/* El foco del lienzo no dibuja un marco alrededor de la pantalla entera. */
+.app.vista-libre .escena-lienzo:focus-visible {
+  outline: none;
+}
+
+.vl-pista,
+.vl-indicador {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: var(--e-2) var(--e-3);
+  background: var(--fondo-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-3);
+  color: var(--texto-1);
+  font-size: var(--t-pie);
+  line-height: var(--l-pie);
+  white-space: nowrap;
+  max-width: calc(100% - 2 * var(--e-4));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms var(--curva);
+  z-index: 6;
+}
+
+.vl-pista {
+  bottom: var(--e-6, 24px);
+}
+
+.vl-indicador {
+  top: var(--e-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.vl-pista[data-visible='true'],
+.vl-indicador[data-visible='true'] {
+  opacity: 1;
+}
+
+/* Fuera de la vista libre no ocupan sitio. */
+.app:not(.vista-libre) .vl-pista,
+.app:not(.vista-libre) .vl-indicador {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vl-pista,
+  .vl-indicador {
+    transition: none;
+  }
 }

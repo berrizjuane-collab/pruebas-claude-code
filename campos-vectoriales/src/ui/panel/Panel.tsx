@@ -20,6 +20,7 @@ import { Corte } from './Corte';
 import { Derivadas } from './Derivadas';
 import { Lineas, type DetallesLineas } from './Lineas';
 import { Tiempo } from './Tiempo';
+import { Exploracion } from './Exploracion';
 
 /** Acciones del panel (las ejecuta App sobre el almacén). */
 export interface AccionesPanel {
@@ -41,6 +42,8 @@ export interface AccionesPanel {
   alParticulas: (cambios: Partial<EstadoExperimento['particulas']>) => void;
   alCifras: (cifras: number) => void;
   alTiempo: (cambios: Partial<EstadoExperimento['tiempo']>) => void;
+  alAlcance: (factor: number) => void;
+  alExploracion: (cambios: Partial<EstadoExperimento['exploracion']>) => void;
 }
 
 interface Props {
@@ -66,9 +69,11 @@ interface Props {
   reloj: Almacen<number>;
   animando: boolean;
   alAnimar: () => void;
+  /** Entrar en la vista libre (sección «Vista libre», 1.1). */
+  alVistaLibre: () => void;
 }
 
-function PanelBase({ estado, campo, acciones: a, edicionInvalida, escalaActual, detallesLineas, atajos, alAtajos, modo, abierto, alConmutar, reloj, animando, alAnimar }: Props) {
+function PanelBase({ estado, campo, acciones: a, edicionInvalida, escalaActual, detallesLineas, atajos, alAtajos, modo, abierto, alConmutar, reloj, animando, alAnimar, alVistaLibre }: Props) {
   const verEnCorte = useCallback((escalar: 'divergencia' | 'rotacional') => a.alCorte({ activo: true, escalar }), [a]);
   // Los nombres solo cambian al añadir o quitar parámetros (no con sus valores).
   const claveNombres = estado.parametros.map((p) => p.nombre).join('\u0000');
@@ -128,7 +133,8 @@ function PanelBase({ estado, campo, acciones: a, edicionInvalida, escalaActual, 
         <Lineas lineas={estado.lineas} dominio={estado.dominio} hayPunto={estado.punto !== null} detalles={detallesLineas} alLineas={a.alLineas} />
         <Corte corte={estado.corte} dominio={estado.dominio} alCorte={a.alCorte} />
         <Derivadas campo={campo} glifos={estado.capas.glifos} alVerEnCorte={verEnCorte} alGlifos={a.alGlifos} />
-        <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} />
+        <Dominio dominio={estado.dominio} muestreo={estado.muestreo} alDominio={a.alDominio} alMuestreo={a.alMuestreo} alAlcance={a.alAlcance} />
+        <Exploracion exploracion={estado.exploracion} alExploracion={a.alExploracion} alEntrar={alVistaLibre} />
         <Avanzado
           flechas={estado.flechas}
           particulas={estado.particulas}

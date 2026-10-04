@@ -153,7 +153,10 @@ export function useVistaLibre({ controlador, almacen, almacenCalculo, almacenVen
     pantallaCompleta.current = false;
     const o = origen.current;
     origen.current = null;
-    if (o?.isConnected) o.focus();
+    // El control de origen aún está oculto (display: none) hasta que se pinte la interfaz.
+    requestAnimationFrame(() => {
+      if (o?.isConnected) o.focus();
+    });
   }, [controlador, fijarIlimitado, mostrarPista]);
 
   const entrar = useCallback(() => {

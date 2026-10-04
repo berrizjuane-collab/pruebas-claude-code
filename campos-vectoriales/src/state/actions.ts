@@ -142,6 +142,45 @@ export function fijarMuestreo(s: EstadoExperimento, cambios: Partial<EstadoExper
   return { ...s, muestreo: nuevo };
 }
 
+/** Resultado de ampliar o estrechar Ω (RF-21, SPEC §3.11). */
+export type Alcance =
+  | { ok: true; dominio: Dominio; n: [number, number, number]; delta: number; conservaDelta: boolean }
+  | { ok: false; motivo: string };
+
+/**
+ * Ampliar (f = 2) o estrechar (f = ½) Ω alrededor de su centro (SPEC §3.11). Para ver más
+ * espacio y no el mismo con flechas más grandes, N_k pasa a round((N_k − 1)·f) + 1 («en
+ * nodos») o round(N_k·f) («centros»), acotado a [3, 21]: Δ se conserva mientras se puede.
+ */
+export function alcance(d: Dominio, m: EstadoExperimento['muestreo'], f: number): Alcance {
+  const min = [0, 0, 0] as [number, number, number];
+  const max = [0, 0, 0] as [number, number, number];
+  for (let k = 0; k < 3; k++) {
+    const c = ((d.min[k] as number) + (d.max[k] as number)) / 2;
+    const semilado = (((d.max[k] as number) - (d.min[k] as number)) / 2) * f;
+    [min[k], max[k]] = [c - semilado, c + semilado];
+    const motivo = motivoIntervalo(min[k], max[k]);
+    if (motivo) return { ok: false, motivo };
+  }
+  const nodos = m.posicion === 'nodos';
+  let conservaDelta = true;
+  const n = m.n.map((N) => {
+    const ideal = nodos ? Math.round((N - 1) * f) + 1 : Math.round(N * f);
+    const acotado = Math.min(LIMITES.nMax, Math.max(LIMITES.nMin, ideal));
+    if (acotado !== ideal) conservaDelta = false;
+    return acotado;
+  }) as [number, number, number];
+  const delta = Math.min(...[0, 1, 2].map((k) => (max[k]! - min[k]!) / (nodos ? (n[k] as number) - 1 : (n[k] as number))));
+  return { ok: true, dominio: { min, max }, n, delta, conservaDelta };
+}
+
+/** Aplica `alcance` (si es posible): dominio y N a la vez; el corte y P se recolocan como en F4. */
+export function escalarDominio(s: EstadoExperimento, f: number): EstadoExperimento {
+  const a = alcance(s.dominio, s.muestreo, f);
+  if (!a.ok) return s;
+  return fijarMuestreo(fijarDominio(s, a.dominio), { n: a.n });
+}
+
 export type Capa = 'flechas' | 'lineas' | 'particulas';
 
 /** Activa o desactiva una capa (F5). */

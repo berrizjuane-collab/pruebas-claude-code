@@ -241,12 +241,21 @@ export class ControladorEscena {
     this.fijarProyeccion(l.previa.proyeccion);
   }
 
-  /** Tecla de vuelo pulsada o soltada (código físico); devuelve true si es del vuelo. */
+  /**
+   * Tecla de vuelo pulsada o soltada (código físico); devuelve true si es del vuelo. Antes de
+   * cambiar el mando se integra hasta este instante: el recorrido corresponde al tiempo que la
+   * tecla estuvo pulsada, sea cual sea la frecuencia de fotogramas.
+   */
   teclaVuelo(codigo: string, pulsada: boolean): boolean {
     const l = this.libre;
     if (!l || !TECLAS_VUELO.has(codigo)) return false;
+    if (pulsada === l.teclas.has(codigo)) return true; // repetición automática del teclado
+    const ahora = performance.now();
+    if (l.ultimo > 0) this.integrarVuelo(ahora);
+    else l.ultimo = ahora;
     if (pulsada) l.teclas.add(codigo);
     else l.teclas.delete(codigo);
+    if (l.ultimo === 0) l.ultimo = ahora;
     this.pedirFotograma();
     return true;
   }
@@ -346,12 +355,28 @@ export class ControladorEscena {
     };
   }
 
-  /** Un paso del vuelo (SPEC §5.11); devuelve true si hay que seguir dibujando. */
+  /**
+   * Avanza el vuelo hasta `ahora` (SPEC §5.11) en subpasos de 1/60 s (como mucho 0.25 s en
+   * total: tras una pausa larga no hay saltos); devuelve true si hay que seguir dibujando.
+   */
   private integrarVuelo(ahora: number): boolean {
     const l = this.libre;
     if (!l) return false;
-    const dt = l.ultimo > 0 ? Math.min(0.05, (ahora - l.ultimo) / 1000) : 0;
+    let resto = l.ultimo > 0 ? Math.min(0.25, Math.max(0, (ahora - l.ultimo) / 1000)) : 0;
     l.ultimo = ahora;
+    let seguir: boolean;
+    do {
+      const dt = Math.min(resto, 1 / 60);
+      resto -= dt;
+      seguir = this.pasoVuelo(l, dt);
+    } while (resto > 1e-9);
+    if (!seguir) l.ultimo = 0;
+    this.aplicarPoseLibre();
+    return seguir;
+  }
+
+  /** Un subpaso del vuelo; devuelve false si la cámara queda quieta y sin teclas. */
+  private pasoVuelo(l: EstadoLibre, dt: number): boolean {
     const k = l.teclas;
     const eje = (a: string, b: string) => (k.has(a) ? 1 : 0) - (k.has(b) ? 1 : 0);
     const giroAz = eje('ArrowLeft', 'ArrowRight');
@@ -366,8 +391,6 @@ export class ControladorEscena {
     const quieta = k.size === 0 && rapidez < (1e-4 * l.rapidez) / l.lambda;
     if (quieta) l.velocidad = [0, 0, 0];
     else l.posicion = [l.posicion[0] + l.velocidad[0] * dt, l.posicion[1] + l.velocidad[1] * dt, l.posicion[2] + l.velocidad[2] * dt];
-    if (dt > 0) this.aplicarPoseLibre();
-    if (quieta) l.ultimo = 0;
     return !quieta;
   }
 

@@ -47,6 +47,8 @@ import { useEdicion } from './edicion';
 import { PanelRendimiento } from './PanelRendimiento';
 import { escenaPerf, type ContextoMedicion, type EscenaPerf } from './rendimiento';
 import { crearEntradaCalculo, type Ventana } from './entradaCalculo';
+import { useVistaLibre } from './vistaLibre';
+import { CapaVistaLibre } from '../ui/scene/VistaLibre';
 
 /** La interfaz (inspector, rueda, lectura de t) sigue al reloj como mucho 10 veces por segundo (SPEC §5.11). */
 const INTERVALO_RELOJ_MS = 100;
@@ -198,19 +200,27 @@ export function App({ fuentes }: Props) {
     controlador?.fijarMovimientoReducido(movimientoReducido);
   }, [controlador, movimientoReducido]);
 
+  // Espacio sin límites (SPEC §3.11): la ventana sustituye a Ω en la escena y en el cálculo.
+  const ventana = useAlmacen(almacenVentana, (v) => v);
+  useEffect(() => {
+    if (!controlador) return;
+    controlador.fijarDominio(ventana?.dominio ?? almacen.obtener().dominio, false, !!ventana);
+  }, [controlador, ventana, almacen]);
+
   // «Flechas: solo corte» sustituye las flechas del volumen por las del plano (DESIGN §9.5).
   const soloCorte = estado.corte.activo && estado.corte.flechas === 'corte';
   useEffect(() => {
     controlador?.fijarFlechas(estado.capas.flechas && malla && !soloCorte ? malla.instancias : null);
   }, [controlador, malla, estado.capas.flechas, soloCorte]);
 
-  const corte = estado.corte;
+  const corte = ventana?.corte ?? estado.corte;
   const dominio = estado.dominio;
+  const dominioEscena = ventana?.dominio ?? dominio;
   useEffect(() => {
     if (!controlador) return;
-    const d = corte.activo ? { plano: corte.plano, c: corte.c, dominio } : null;
+    const d = corte.activo ? { plano: corte.plano, c: corte.c, dominio: dominioEscena } : null;
     controlador.fijarCorte(d, d && soloCorte && estado.capas.flechas ? (malla?.corte?.instancias ?? null) : null);
-  }, [controlador, corte, dominio, soloCorte, malla, estado.capas.flechas]);
+  }, [controlador, corte, dominioEscena, soloCorte, malla, estado.capas.flechas]);
 
   const lineas = calculo.lineas;
   useEffect(() => {
@@ -286,32 +296,33 @@ export function App({ fuentes }: Props) {
   const deltaMalla = malla?.deltaRef ?? null;
   const ventanaTiempo = estado.tiempo;
   // Emisión desde semillas (líneas de traza, RF-25): las semillas de las líneas, en el hilo principal.
-  const especSemillas = estado.lineas.semillas;
+  const especSemillas = ventana?.lineas.semillas ?? estado.lineas.semillas;
   const semillasEmision = useMemo(() => {
     if (opcionesParticulas.nacimiento !== 'semillas' || !campo || fRefMalla === null || deltaMalla === null) return null;
-    const r = generarSemillas(especSemillas, dominio, campo.F, vectorEvaluacion(valoresParametros, tEstado), fRefMalla, { delta: deltaMalla, punto });
+    const r = generarSemillas(especSemillas, dominioEscena, campo.F, vectorEvaluacion(valoresParametros, tEstado), fRefMalla, { delta: deltaMalla, punto });
     return r.n > 0 ? r.puntos.slice(0, 3 * r.n) : null;
-  }, [opcionesParticulas.nacimiento, campo, fRefMalla, deltaMalla, especSemillas, dominio, valoresParametros, tEstado, punto]);
+  }, [opcionesParticulas.nacimiento, campo, fRefMalla, deltaMalla, especSemillas, dominioEscena, valoresParametros, tEstado, punto]);
   useEffect(() => {
     // Con una edición inválida se conserva la última animación válida.
     if (!campo || fRefMalla === null || deltaMalla === null) return;
     animacion.configurar({
       campo,
       p: valoresParametros,
-      dominio,
+      // Con la ventana sin límites, las partículas viven en ella; moverla no las recrea (la clave usa Ω).
+      dominio: dominioEscena,
       n: capaParticulas ? opcionesParticulas.n : 0,
       semilla: opcionesParticulas.semilla,
       tau: opcionesParticulas.tau ?? deltaMalla / fRefMalla,
       fRef: fRefMalla,
       delta: deltaMalla,
       omegaRueda: rueda?.omega ?? null,
-      clave: JSON.stringify([dominio, opcionesParticulas.n, opcionesParticulas.semilla, semillasEmision ? Array.from(semillasEmision) : null]),
+      clave: JSON.stringify([dominio, opcionesParticulas.n, opcionesParticulas.semilla, ventana ? 'ventana' : semillasEmision ? Array.from(semillasEmision) : null]),
       claveCampo: JSON.stringify([definicion, Array.from(valoresParametros)]),
       t: ventanaTiempo.t,
       ventana: campo.dependeDelTiempo ? { inicio: ventanaTiempo.inicio, fin: ventanaTiempo.fin, bucle: ventanaTiempo.bucle } : null,
       semillas: semillasEmision,
     });
-  }, [animacion, campo, fRefMalla, deltaMalla, valoresParametros, dominio, capaParticulas, opcionesParticulas, rueda, definicion, ventanaTiempo, semillasEmision]);
+  }, [animacion, campo, fRefMalla, deltaMalla, valoresParametros, dominio, dominioEscena, ventana, capaParticulas, opcionesParticulas, rueda, definicion, ventanaTiempo, semillasEmision]);
   useEffect(() => {
     controlador?.fijarRueda(rueda && punto && malla ? { centro: punto, eje: rueda.eje, radio: 0.45 * malla.deltaRef, omega: rueda.omega } : null);
   }, [controlador, rueda, punto, malla]);
@@ -346,6 +357,8 @@ export function App({ fuentes }: Props) {
   useEffect(() => {
     if (!controlador) return;
     const quitarClic = controlador.alClic((x, y) => {
+      // En la vista libre, arrastrar mira y un clic no elige nada.
+      if (controlador.enVistaLibre) return;
       const sel = controlador.elegir(x, y);
       const m = almacenCalculo.obtener().malla;
       let P: Vec3 | null = null;
@@ -358,6 +371,7 @@ export function App({ fuentes }: Props) {
       }
     });
     const quitarTecla = controlador.alTecla((e) => {
+      if (controlador.enVistaLibre) return;
       const delta = almacenCalculo.obtener().malla?.deltaRef;
       if (!e.altKey && !e.ctrlKey && !e.metaKey) {
         // Escena enfocada (PLAN §3.1): flechas = orbitar 5°; Mayús + flechas = desplazar; + − = acercar.
@@ -458,6 +472,8 @@ export function App({ fuentes }: Props) {
     if (!animando) comprometerTiempo();
   }, [animacion, animando, controlador, comprometerTiempo]);
   const conmutarAnimacion = useCallback(() => setAnimando((a) => !a), []);
+  // Vista libre inmersiva (VL-02, PLAN F11).
+  const vistaLibre = useVistaLibre({ controlador, almacen, almacenCalculo, almacenVentana, animando });
   // Proyección (RF-13, tecla 5): vive en el controlador, como la pose de la cámara.
   const [ortografica, setOrtografica] = useState(false);
   useEffect(() => {
@@ -544,8 +560,9 @@ export function App({ fuentes }: Props) {
       '?': () => abrirAyuda(),
       F1: () => abrirAyuda(),
       '5': conmutarProyeccion,
+      v: vistaLibre.conmutar,
     }),
-    [almacen, conmutarAnimacion, abrirInspector, abrirAyuda, conmutarProyeccion],
+    [almacen, conmutarAnimacion, abrirInspector, abrirAyuda, conmutarProyeccion, vistaLibre.conmutar],
   );
   // Preferencia de teclado (WCAG 2.1.4), fuera del experimento: se recuerda en el navegador si se puede.
   const [atajosUnaTecla, setAtajosUnaTecla] = useState(() => leerPreferencia(CLAVE_ATAJOS) !== 'no');
@@ -608,6 +625,8 @@ export function App({ fuentes }: Props) {
       /** Reloj determinista de la animación: avanza `segundos` en pasos de 1/60 s. */
       avanzarAnimacion: (segundos: number) => animacion.avanzarFijo(segundos),
       animacion: () => ({ enMarcha: animacion.enMarcha, tau: animacion.tau, tiempo: animacion.tiempo, anguloRueda: animacion.anguloRueda, temporal: animacion.temporal }),
+      /** Vista libre: activa, pose de vuelo y ventana sin límites (null fuera de ella). */
+      vistaLibre: () => ({ activa: controlador.enVistaLibre, vuelo: controlador.estadoVuelo, ventana: almacenVentana.obtener()?.dominio ?? null }),
       /** Instante que ve el cálculo (reloj en vivo con un campo temporal, SPEC §3.10). */
       reloj: () => almacenEntrada.obtener().tiempo.t,
       /** Posición y edad de cada partícula (para seguirlas entre pasos del reloj). */
@@ -710,7 +729,7 @@ export function App({ fuentes }: Props) {
         };
       },
     });
-  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador, animacion, almacenEntrada]);
+  }, [controlador, fuentesListas, cliente, orquestador, hayMalla, almacen, almacenCalculo, notificador, animacion, almacenEntrada, almacenVentana]);
 
   const modoFlechas = estado.flechas.modo;
   const luminancia = estado.flechas.luminancia;
@@ -849,7 +868,12 @@ export function App({ fuentes }: Props) {
 
   return (
     <ContextoAyuda.Provider value={abrirAyuda}>
-      <div className={ayuda ? 'app con-ayuda' : 'app'} data-nivel={nivel} data-panel={modoPanel === 'lateral' || panelAbierto ? 'abierto' : 'cerrado'}>
+      <div
+        className={`app${ayuda ? ' con-ayuda' : ''}${vistaLibre.activa ? ' vista-libre' : ''}`}
+        data-nivel={nivel}
+        data-panel={modoPanel === 'lateral' || panelAbierto ? 'abierto' : 'cerrado'}
+        data-vista-libre={vistaLibre.activa}
+      >
         <a className="saltar" href="#escena">
           {T.saltarEscena}
         </a>
@@ -908,6 +932,7 @@ export function App({ fuentes }: Props) {
           reloj={almacenReloj}
           animando={animando}
           alAnimar={conmutarAnimacion}
+          alVistaLibre={vistaLibre.entrar}
         />
         <VistaEscena
           fuentes={fuentes}
@@ -942,6 +967,7 @@ export function App({ fuentes }: Props) {
             />
           ) : null}
           <Notificaciones notificador={notificador} />
+          <CapaVistaLibre pistaVisible={vistaLibre.activa && vistaLibre.pistaVisible} indicador={vistaLibre.activa ? vistaLibre.indicador : null} anuncio={vistaLibre.anuncio} />
           {hayAnimacion ? (
             <p className="solo-lector" aria-live="polite" data-prueba="anuncio-animacion">
               {animando ? T.vistas.enMarcha : T.vistas.enPausa}
@@ -969,7 +995,17 @@ export function App({ fuentes }: Props) {
                 {T.tiempo.lectura(formatearCorto(tReloj))}
               </p>
             ) : null}
-            <BarraEscena alEncuadrar={restablecer.camara} alVista={vista} ortografica={ortografica} alProyeccion={conmutarProyeccion} animando={animando} hayAnimacion={hayAnimacion} alAnimar={conmutarAnimacion} alInspeccionar={abrirInspector} />
+            <BarraEscena
+              alEncuadrar={restablecer.camara}
+              alVista={vista}
+              ortografica={ortografica}
+              alProyeccion={conmutarProyeccion}
+              animando={animando}
+              hayAnimacion={hayAnimacion}
+              alAnimar={conmutarAnimacion}
+              alInspeccionar={abrirInspector}
+              alVistaLibre={vistaLibre.entrar}
+            />
             <Triedro controlador={controlador} />
           </div>
         </VistaEscena>

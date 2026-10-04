@@ -1,5 +1,5 @@
 /**
- * REV-04 · Capturas de referencia (VALIDATION §7.5): C1–C12 a 1280 × 720 (V3, DPR 1) con las
+ * REV-04 y REV-05 · Capturas de referencia (VALIDATION §7.5): C1–C15 a 1280 × 720 (V3, DPR 1) con las
  * mismas escenas que `scripts/capturas.mjs`, en modo captura (reloj determinista) y con
  * movimiento reducido. Tolerancias: 0.1 por píxel y 0.5 % de píxeles distintos con escena
  * (antialiasing por software); 0.1 % para la galería, que es solo interfaz.
@@ -13,7 +13,7 @@ import { PAGINA, PREPARAR, TAMANOS } from '../../scripts/lib/escenas.mjs';
 import { urlApp } from '../util/app';
 
 const TAMANO = 'V3';
-const CAPTURAS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11', 'C12'];
+const CAPTURAS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15'];
 
 test.use({
   viewport: { width: TAMANOS[TAMANO].width, height: TAMANOS[TAMANO].height },

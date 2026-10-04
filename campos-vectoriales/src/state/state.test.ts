@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { crearAlmacen } from './store';
 import { EXPERIMENTO_INICIAL } from './schema';
 import {
+  alcance,
   anadirParametro,
   aplicarEcuaciones,
   eliminarParametro,
+  escalarDominio,
   fijarCifras,
   fijarDominio,
   fijarLineas,
@@ -150,5 +152,30 @@ describe('UI-08 · líneas, partículas y cifras', () => {
     expect(fijarParticulas(hel, { semilla: 7 }).particulas.semilla).toBe(7);
     expect(fijarCifras(hel, 6).cifras).toBe(6);
     expect(fijarCifras(hel, 9)).toBe(hel);
+  });
+});
+
+describe('V-FUN-21 · ampliar y estrechar Ω (RF-21)', () => {
+  it('[−2, 2]³, N = 9 → ×2 → [−4, 4]³, N = 17, Δ = 0.5 → ×2 → [−8, 8]³, N = 21, Δ = 0.8 (límite de N)', () => {
+    const s0 = EXPERIMENTO_INICIAL;
+    const a = alcance(s0.dominio, s0.muestreo, 2);
+    expect(a).toEqual({ ok: true, dominio: { min: [-4, -4, -4], max: [4, 4, 4] }, n: [17, 17, 17], delta: 0.5, conservaDelta: true });
+    const s1 = escalarDominio(s0, 2);
+    expect(s1.dominio).toEqual({ min: [-4, -4, -4], max: [4, 4, 4] });
+    expect(s1.muestreo.n).toEqual([17, 17, 17]);
+    const b = alcance(s1.dominio, s1.muestreo, 2);
+    expect(b).toMatchObject({ ok: true, n: [21, 21, 21], conservaDelta: false });
+    if (b.ok) expect(b.delta).toBeCloseTo(0.8, 14);
+    // Estrechar deshace (mientras N no se ha acotado).
+    const s2 = escalarDominio(s1, 0.5);
+    expect(s2.dominio).toEqual(s0.dominio);
+    expect(s2.muestreo.n).toEqual([9, 9, 9]);
+  });
+
+  it('cajas no cúbicas y «centros»; límites de lado con motivo', () => {
+    const a = alcance({ min: [0, -1, -0.5], max: [2, 1, 0.5] }, { n: [5, 9, 3], posicion: 'centros', corteResolucion: 21 }, 2);
+    expect(a).toMatchObject({ ok: true, dominio: { min: [-1, -2, -1], max: [3, 2, 1] }, n: [10, 18, 6] });
+    expect(alcance({ min: [-0.06, -2, -2], max: [0.06, 2, 2] }, EXPERIMENTO_INICIAL.muestreo, 0.5)).toMatchObject({ ok: false, motivo: expect.stringMatching(/al menos 0.1/) });
+    expect(alcance({ min: [-400, -2, -2], max: [400, 2, 2] }, EXPERIMENTO_INICIAL.muestreo, 2)).toMatchObject({ ok: false, motivo: expect.stringMatching(/1000/) });
   });
 });

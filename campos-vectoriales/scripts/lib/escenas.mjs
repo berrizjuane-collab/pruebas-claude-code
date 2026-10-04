@@ -130,7 +130,46 @@ export const PREPARAR = {
     await page.keyboard.press('ArrowRight');
     await page.keyboard.press('ArrowLeft');
   },
+  // 1.1 · Lluvia con ráfagas en t = 2: flechas, líneas instantáneas y partículas (reloj fijo).
+  C13: async (page) => {
+    await elegirCampo(page, 'lluvia');
+    await fijarInstante(page, 2);
+    await esperarCalculo(page);
+  },
+  // 1.1 · Vista libre dentro del helicoidal: solo la escena (DESIGN §5.5).
+  C14: async (page) => {
+    await esperarCalculo(page);
+    await page.locator('[data-prueba="boton-vista-libre"]').click();
+    await page.waitForFunction(() => window.__campos.vistaLibre().activa === true);
+    await page.keyboard.down('KeyW');
+    await page.waitForTimeout(1200);
+    await page.keyboard.up('KeyW');
+    await page.waitForFunction(() => {
+      const v = window.__campos.vistaLibre().vuelo;
+      return v.velocidad.every((c) => c === 0);
+    });
+  },
+  // 1.1 · Viento giratorio en t = 1.5 con la sección «Tiempo» a la vista: líneas rectas, partículas en circunferencias.
+  C15: async (page) => {
+    await elegirCampo(page, 'viento-giratorio');
+    await fijarInstante(page, 1.5);
+    await page.locator('[data-prueba="seccion-tiempo"]').scrollIntoViewIfNeeded();
+    await esperarCalculo(page);
+  },
 };
+async function elegirCampo(page, id) {
+  const hoja = page.locator('.panel-hoja [data-prueba="boton-panel"]');
+  const enHoja = (await hoja.count()) > 0;
+  if (enHoja) await hoja.click();
+  await page.locator(`[data-campo="${id}"]`).click();
+  if (enHoja) await hoja.click();
+  await esperarCalculo(page);
+}
+/** Fija el instante del reloj (las partículas renacen en ese instante, D-69) y espera el cálculo de ese t. */
+async function fijarInstante(page, t) {
+  await page.evaluate((v) => window.__campos.fijarEstado((s) => ({ ...s, tiempo: { ...s.tiempo, t: v } })), t);
+  await page.waitForFunction((v) => window.__campos.reloj() === v && window.__campos.resultados().malla?.t === v, t);
+}
 async function escribirCampo(page, campo) {
   for (const [c, v] of Object.entries(campo)) {
     await page.locator(`[data-prueba="expr-${c}"]`).fill(v);

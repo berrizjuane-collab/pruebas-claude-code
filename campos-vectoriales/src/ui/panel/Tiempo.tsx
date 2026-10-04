@@ -76,15 +76,17 @@ function TiempoBase({ tiempo, temporal, reloj, animando, alAnimar, tau, alTiempo
               etiqueta={T.tiempo.inicioLargo}
               valor={tiempo.inicio}
               paso={1}
+              ancho="ancho"
               validar={(v) => motivoVentana(v, tiempo.fin)}
               alCambiar={(inicio) => alTiempo({ inicio })}
               datosPrueba="tiempo-inicio"
             />
-            <span className="fila-etiqueta tiempo-etiqueta-fin">{T.tiempo.fin}</span>
+            <span className="etiqueta-intermedia">{T.tiempo.fin}</span>
             <CampoNumerico
               etiqueta={T.tiempo.finLargo}
               valor={tiempo.fin}
               paso={1}
+              ancho="ancho"
               validar={(v) => motivoVentana(tiempo.inicio, v)}
               alCambiar={(fin) => alTiempo({ fin })}
               datosPrueba="tiempo-fin"
