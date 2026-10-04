@@ -1,4 +1,4 @@
-import { memo, useCallback, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { ChevronRight, ChevronUp } from 'lucide-react';
 import { CATALOGO, campoPorId, type IdCampo } from '../../math/catalog';
 import { texCampo, type CampoCompilado } from '../../math/field';
@@ -179,9 +179,7 @@ function SeccionCampo({ estado, campo }: { estado: EstadoExperimento; campo: Cam
           </button>
         ) : null}
       </div>
-      <div className="formula-campo" data-prueba="formula-campo">
-        {campo ? <TeX tex={texCampo(campo)} bloque /> : null}
-      </div>
+      <FormulaCampo tex={campo ? texCampo(campo) : null} />
       {estado.parametros.length ? (
         <p className="valores-parametros num">
           {estado.parametros.map((p, i) => (
@@ -194,6 +192,36 @@ function SeccionCampo({ estado, campo }: { estado: EstadoExperimento; campo: Cam
       ) : null}
       {ficha ? <FichaCampo id={ficha.id} idCuerpo={idFicha} abierta={fichaAbierta} /> : null}
     </section>
+  );
+}
+
+/**
+ * Fórmula de F. Si no cabe (silla giratoria, ecuaciones largas) se desplaza en horizontal y
+ * entra en el orden de tabulación, para poder desplazarla con las flechas (WCAG 2.1.1; regla
+ * `scrollable-region-focusable` de axe). Si cabe, no añade una parada de tabulación vacía.
+ */
+function FormulaCampo({ tex }: { tex: string | null }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [desborda, setDesborda] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const medir = () => setDesborda(el.scrollWidth > el.clientWidth + 1);
+    medir();
+    const observador = new ResizeObserver(medir);
+    observador.observe(el);
+    if (el.firstElementChild) observador.observe(el.firstElementChild);
+    return () => observador.disconnect();
+  }, [tex]);
+  return (
+    <div
+      ref={ref}
+      className="formula-campo"
+      data-prueba="formula-campo"
+      {...(desborda ? { tabIndex: 0, role: 'region', 'aria-label': T.panel.formulaDesplazable } : {})}
+    >
+      {tex ? <TeX tex={tex} bloque /> : null}
+    </div>
   );
 }
 

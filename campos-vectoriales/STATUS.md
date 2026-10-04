@@ -9,10 +9,10 @@
 
 | | |
 | --- | --- |
-| **Fase** | **H10 (versión 1.1) en curso**: vista libre inmersiva, alcance y dilatación del espacio, campos dependientes del tiempo (SPEC §2.5). Estado de la 1.0: H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9: VAL-01, REV-04, ENT-01 y DOC-01 verificadas; VAL-02 (101/101 e2e) y VAL-03 (objetivos de cálculo cumplidos en C0) a falta de las comprobaciones del usuario (Q-05, Q-06). HTML final en `entrega/` (sha256 `c091c977…`) |
-| **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | Ejecutar H10 (PLAN §5.3). Siguen pendientes las tres comprobaciones del usuario de la 1.0 (§7): Q-04, Q-05 y Q-06 |
-| **Bloqueos** | Ninguno para seguir. Necesitan el equipo del usuario: la sesión con lector de pantalla (Q-04, A11Y-02; si obliga a cambiar la interfaz, se repiten las capturas de REV-04), la prueba de humo en Firefox y Safari (Q-05, VAL-02) y la medición en R1 (Q-06, VAL-03) |
+| **Fase** | **Versión 1.1 completada y verificada en este entorno (H10: 15 de 15)**: vista libre inmersiva, alcance de Ω, espacio sin límites, dilatación uniforme y campos dependientes del tiempo con líneas de traza y JSON v2 (SPEC §2.5). Versión 1.0: H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9: 4 de 6 (VAL-02 y VAL-03 esperan Q-05 y Q-06). HTML 1.1 en `entrega/` (sha256 `47b8f541…`, ENT-02) |
+| **Situación** | Plan de la 1.0 aprobado el 2026-10-02 (D-15, D-20, S-01). La 1.1 la pidió el usuario el 2026-10-04 con dos respuestas: alcance «caja + espacio sin límites» y dilatación «solo uniforme» (D-62); el tiempo se incorporó tras juzgarlo riguroso (§6, punto 25) |
+| **Siguiente paso** | Las tres comprobaciones del usuario (§7), ahora con el HTML 1.1: Q-04, Q-05 y Q-06, añadiendo a esta última un campo temporal en reproducción y la vista libre (R-15) |
+| **Bloqueos** | Ninguno en este entorno. Necesitan el equipo del usuario: la sesión con lector de pantalla (Q-04, A11Y-02; si obliga a cambiar la interfaz, se repiten las capturas de REV-05), la prueba de humo en Firefox y Safari (Q-05, VAL-02) y la medición en R1 (Q-06, VAL-03) |
 
 ### 1.1 Estado por hito
 
@@ -85,7 +85,7 @@
 - REV-04 · 2026-10-03 · `72f6c36` · [evidencia/REV-04/](evidencia/REV-04/)
 - ENT-01 · 2026-10-03 · `24e634b` · [evidencia/ENT-01/](evidencia/ENT-01/)
 - DOC-01 · 2026-10-03 · `ac45b2e` · [evidencia/DOC-01/](evidencia/DOC-01/)
-- PLN-02 · 2026-10-04 · este commit · [evidencia/PLN-02/](evidencia/PLN-02/)
+- PLN-02 · 2026-10-04 · `0f4fa0a` · [evidencia/PLN-02/](evidencia/PLN-02/)
 
 ---
 
@@ -184,6 +184,9 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-74 | Los campos temporales usan el parámetro `omega` (se muestra ω), como el rotacional | `w` | `w` se mostraba como «w»; SPEC §4.9 corregida | Sí |
 | D-75 | La interfaz (inspector, rueda, lectura de t, deslizador) sigue al reloj como mucho 10 veces por segundo; la escena y el cálculo, en cada fotograma | Repintar React en cada fotograma | El reloj cambia ~60 veces por segundo; repintar el panel y la aplicación con esa frecuencia no aporta lectura y cuesta tiempo del hilo principal (RNF-04) | Sí |
 | D-76 | Segunda etiqueta de una fila del panel («Velocidad») con clase propia; «Inicio» y «Fin» de la ventana de $t$ en filas propias con campos de 112 px | `.fila-etiqueta`; ambos extremos en una fila | La auditoría de alineación (VV-04) exige que las `.fila-etiqueta` empiecen en el margen de 16 px; con los dos extremos en una fila «Fin» saltaba de línea y 4π = 12.56637061 se recortaba (revisión de C15) | Sí |
+| D-77 | La fórmula de F, si no cabe en el panel, se desplaza en horizontal y entra en el orden de tabulación como región con nombre; si cabe, no añade parada | Fórmula siempre enfocable; reducir la letra | Hallazgo de la auditoría axe de TMP-05 con la silla giratoria (`scrollable-region-focusable`, WCAG 2.1.1). Afecta también a ecuaciones largas de la 1.0; una parada de tabulación vacía cuando cabe estorbaría al teclado | Sí |
+| D-78 | VV-06 en la 1.1: a 1280×720, secciones 1–3 enteras y el título de «Parámetros» visible (la 1.0 tenía 1–4); a 1440×900, secciones 1–4 y «Tiempo» enteras | Tarjetas de 32–40 px de alto (miniatura a la izquierda); pestañas «Estacionarios · Con tiempo»; quitar la miniatura o la marca ✓ | Las tres tarjetas temporales (RF-26) añaden 64 px y «Parámetros» acaba en y = 780 de 720 (REV-05). Con 32–40 px no caben la miniatura y «Rotacional» en 90 px; las pestañas ahorran 24 px y esconden los campos temporales; sin ✓ empeora VV-07. El usuario pidió conservar el aspecto del laboratorio; en V1 y V2 todo cabe | Sí |
+| D-79 | V-FUN-16 (robustez, con su medida «responde en < 1 s») pasa al proyecto «rendimiento»: en serie, al final y sin otras pruebas en paralelo | Subir el umbral; repetir la prueba si falla | Hallazgo de VAL-04: en la batería completa midió 1003 ms con otra prueba en paralelo; sola, 220–520 ms, y el código de la 1.0 en las mismas condiciones da 246–562 ms (no hay regresión). Con WebGL por software el fotograma que lanza la malla depende del proceso GPU, que otra prueba satura. Es la misma regla que ya seguían las medidas @rendimiento | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
@@ -221,6 +224,9 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | R-12 | Criterios WCAG y documentación de MDN citados sin acceso a w3.org ni a MDN (bloqueados por la red) | Media | Bajo | Contrastarlos con las fuentes oficiales al implementar VIS-01 y A11Y-01 |
 | R-13 | Muestreo insuficiente engañoso (*aliasing*) en campos oscilantes | Media | Medio | Ejemplo en la ayuda (SPEC §5.10); aviso automático como AMP-11 |
 | R-14 | Evaluación compilada entre 3.4× y 8× más lenta que la nativa (V-PERF-05, medido en MAT-03; objetivo orientativo ≤ 3×). Peor caso estimado de PERF-B ≈ 1.6 s si todas las líneas agotan sus pasos | Media | Medio | Hecho en CMP-02: cálculo en el worker, troceado también dentro de cada línea (D-30), cancelable en ≈ 10 ms y con progreso a partir de 300 ms. Falta medir en R1 (VAL-03). Si no basta: evaluación vectorizada por lotes o reducir semillas por defecto |
+| R-15 | Con un campo temporal en reproducción, malla, corte y líneas se recalculan a cada instante: la frecuencia de fotogramas en R1 (y con N = 21 o 2000 partículas) no está medida | Media | Medio | Una petición en curso por tipo, sin cancelar en cada fotograma (D-70); la interfaz se refresca a 10 Hz (D-75); en C0, 0 tareas largas en 6 s de reproducción con los tres campos temporales. Medir en R1 con Q-06 (añadiendo un campo temporal y la vista libre) |
+| R-16 | Pantalla completa no disponible o denegada (Safari en iPad, iframes, políticas del navegador) | Media | Bajo | La vista libre funciona igual en la ventana: la pantalla completa es una mejora, no un requisito (SPEC RF-20); salir siempre restaura la interfaz |
+| R-17 | Confundir líneas de corriente, trayectorias y trazas cuando el campo depende del tiempo | Media | Alto | Leyenda con el $t$ de cada capa («instantáneas en t = …», «trayectorias: ṙ = F(r, t)»), ayuda «Corriente, trayectoria y traza» y ficha con las trayectorias exactas de cada campo temporal (SPEC §3.10) |
 
 ---
 
@@ -281,6 +287,21 @@ Hallazgos de la revisión del encargo y de los propios documentos, y su resoluci
     un `div` genérico y deslizador sin nombre (el nombre KaTeX es MathML). → Corregidos; axe sin
     infracciones en la galería y en la aplicación.
 
+Versión 1.1 (H10):
+
+25. **¿Es riguroso un campo que cambia con el tiempo?** (duda del usuario). → Sí: los campos
+    $\mathbf F(\mathbf r,t)$ son el objeto de las ecuaciones de Maxwell, de la mecánica de
+    fluidos y de los sistemas no autónomos $\dot{\mathbf r}=\mathbf F(\mathbf r,t)$. El rigor
+    exige no confundir líneas de corriente (instantáneas), trayectorias y trazas, que solo
+    coinciden si el campo es estacionario: SPEC §2.5 y §3.10, leyenda con el $t$ de cada capa
+    y R-17.
+26. **Vuelo con fotogramas lentos** (hallazgo de V-FUN-18): una pulsación corta no movía la
+    cámara con WebGL por software. → Integración hasta cada evento de teclado (D-72).
+27. **Fórmula desplazable sin teclado** (hallazgo de axe en TMP-05, también en la 1.0 con
+    ecuaciones largas). → Región enfocable solo si desborda (D-77).
+28. **Densidad de V3 con nueve tarjetas** (REV-05). → Criterio revisado con motivo (D-78).
+29. **«Fin» recortado** en la ventana de $t$ (REV-05). → Filas propias para Inicio y Fin (D-76).
+
 ---
 
 ## 7. Siguiente paso: las tres comprobaciones del usuario
@@ -293,6 +314,11 @@ que necesitan tu equipo, todas con `entrega/campos-vectoriales.html` y un guion:
 | Q-04 · sesión con lector de pantalla | A11Y-02 (y confirma REV-04) | [evidencia/A11Y-02/guion-lector.md](evidencia/A11Y-02/guion-lector.md) | ~15 min |
 | Q-05 · prueba de humo en Firefox y Safari | VAL-02 | [evidencia/VAL-02/guion-humo.md](evidencia/VAL-02/guion-humo.md) | ~10 min por navegador |
 | Q-06 · medición en R1 (i9 + RTX 4060 + 144 Hz) | VAL-03 | [evidencia/VAL-03/guion-R1.md](evidencia/VAL-03/guion-R1.md) | ~15 min |
+
+Con la 1.1, haz las tres con el HTML nuevo y añade en cada guion un paso de la 1.1: en Q-04,
+entrar y salir de la vista libre con V y leer la sección «Tiempo»; en Q-05, elegir «Viento»,
+reproducir y entrar en la vista libre; en Q-06, unos segundos de reproducción de «Lluvia» y de
+vuelo en la vista libre, mirando la fluidez (R-15).
 
 Con tus notas (o los 9 informes JSON de Q-06) se marcan las tres tareas; si alguna obliga a
 cambiar la aplicación, se corrige, se repiten las pruebas y las capturas afectadas y se
@@ -332,6 +358,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-03 | H9: REV-04 verificada. Matriz completa de 42 capturas sobre el HTML autocontenido y capturas de referencia en `tests/visual`; destapó el foco invisible en la escena (D-60, corregido) y aclaró el recuento de VV-06 (D-61) |
 | 2026-10-04 | **Versión 1.1 (H10)**: petición del usuario (vista libre inmersiva, alcance y dilatación, dimensión temporal si es rigurosa). Juicio: los campos dependientes del tiempo son rigurosos (SPEC §2.5) y se incorporan (AMP-01). Plan escrito en SPEC §2.5, §3.10, §3.11, §4.9, §5.11, §7.2; DESIGN §5.5, §6.3, §9.13; PLAN F11–F13, §3.2 y §5.3; VALIDATION T-20 … T-26 y pruebas nuevas; decisiones D-62 … D-71 |
 | 2026-10-03 | H9: ENT-01 verificada (HTML final reproducible, 103/103 e2e sobre file://) y DOC-01 (README nuevo ejecutado desde un clon limpio, ayuda revisada frente al código, enlaces e identificadores comprobados con `scripts/revisar-docs.mjs`). Quedan Q-04, Q-05 y Q-06 |
+| 2026-10-04 | **H10 completado y verificado** (1.1): TMP-01 … TMP-06, ALC-01, ALC-02, VL-01, VL-02, VAL-04 (cobertura math 93.2 %, numerics 95.3 %; e2e completas en verde), REV-05 (45 capturas C1–C15 × V1–V3; tres incidencias resueltas), ENT-02 (HTML 1.1 reproducible, `47b8f541…`, e2e sobre file://) y DOC-02; decisiones D-72 … D-79; riesgos R-15 … R-17 |
 
 ---
 

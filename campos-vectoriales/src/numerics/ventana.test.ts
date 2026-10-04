@@ -16,16 +16,20 @@ describe('V-NUM-21 · ventana anclada a la red', () => {
   });
 
   it('los nodos de cualquier ventana están sobre la red de Ω (T-25)', () => {
+    let peor = 0;
     for (const m of [[3, -2, 15], [-40, 7, 1], [1000, -1000, 3]] as const) {
       const v = ventanaDesplazada(OMEGA, delta, m);
       const nodos = crearMalla(v, [9, 9, 9]);
       for (let k = 0; k < 3; k++) {
         for (const x of nodos.ejes[k]!) {
           const i = Math.round((x - OMEGA.min[k]!) / delta[k]!);
-          expect(Math.abs(x - (OMEGA.min[k]! + i * delta[k]!))).toBeLessThanOrEqual(1e-12 * 4 * Math.max(1, Math.abs(x)));
+          const e = Math.abs(x - (OMEGA.min[k]! + i * delta[k]!));
+          peor = Math.max(peor, e / (4 * Math.max(1, Math.abs(x))));
+          expect(e).toBeLessThanOrEqual(1e-12 * 4 * Math.max(1, Math.abs(x)));
         }
       }
     }
+    console.log(`MEDIDA T-25 · nodos de ventanas desplazadas hasta 1000 Δ: ${peor.toExponential(2)} L`);
   });
 
   it('dos ventanas desplazadas comparten exactamente las semillas de su intersección', () => {

@@ -1,0 +1,64 @@
+# TMP-04 · Estado v2, reloj y orquestación con t · 2026-10-04
+
+Aceptación (PLAN §5.3): V-FUN-23; V-FUN-10 y V-FUN-11 siguen pasando
+Código verificado sobre el commit c2d95c8 (más las pruebas de esta evidencia).
+
+## Vitest: npx vitest run src/state/persist.test.ts src/state/state.test.ts --reporter=verbose
+
+ ✓ src/state/state.test.ts > estado del experimento > el experimento inicial es el helicoidal con a = 0.25 (D-14)
+ ✓ src/state/state.test.ts > estado del experimento > elegir un campo conserva dominio, capas y cámara, y no comparte parámetros con el catálogo
+ ✓ src/state/state.test.ts > estado del experimento > el almacén notifica solo cambios reales
+ ✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > aplicar ecuaciones marca «modificado» y renombra «Personalizado (desde …)»; sin cambios devuelve el mismo estado
+ ✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > nombres de parámetro: válidos, duplicados, reservados y límite de 8
+ ✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > añadir, cambiar rango (recorta el valor), restablecer y eliminar un parámetro
+ ✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > restablecer parámetros y experimento
+ ✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > dominio: validación, corte recolocado y punto descartado si queda fuera
+ ✓ src/state/state.test.ts > acciones de edición (UI-02 … UI-05) > muestreo: N y resolución del corte acotados a SPEC §5.9
+ ✓ src/state/state.test.ts > UI-08 · líneas, partículas y cifras > semillas: rejilla hasta 256 puntos, aleatorias 1–256 con semilla entera; paso y longitud positivos o automáticos
+ ✓ src/state/state.test.ts > UI-08 · líneas, partículas y cifras > partículas: 1–2000, τ positiva o automática, semilla entera; cifras 2–8
+ ✓ src/state/state.test.ts > V-FUN-21 · ampliar y estrechar Ω (RF-21) > [−2, 2]³, N = 9 → ×2 → [−4, 4]³, N = 17, Δ = 0.5 → ×2 → [−8, 8]³, N = 21, Δ = 0.8 (límite de N)
+ ✓ src/state/state.test.ts > V-FUN-21 · ampliar y estrechar Ω (RF-21) > cajas no cúbicas y «centros»; límites de lado con motivo
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > uniforme tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > radial-saliente tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > radial-entrante tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > rotacional tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > helicoidal tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > silla tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > viento-giratorio tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > lluvia tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > silla-giratoria tal cual
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > un experimento con todas las opciones cambiadas, semillas aleatorias y semilla única
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > el documento lleva formato y versión y sigue el orden de SPEC §7.2
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > el ejemplo literal de SPEC §7.2 se importa; lo que falta toma el valor por defecto con aviso
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > «modificado» se deduce si falta: ecuaciones distintas de las del ejemplo base
+ ✓ src/state/persist.test.ts > EXP-01 · ida y vuelta (igualdad profunda) > claves desconocidas: se ignoran con aviso
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > JSON malformado
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > formato ajeno y documento que no es un objeto
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > versión futura y versión no entera
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > rangos fuera de límites: todos los errores a la vez, cada uno con su ruta
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > expresión de 501 caracteres
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > archivo de 300 KB
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > expresiones: mismo analizador que el editor (sintaxis e identificadores sin declarar)
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > tipos, opciones, parámetros, corte, punto y cámara
+ ✓ src/state/persist.test.ts > EXP-01 · casos inválidos (V-FUN-10): errores por campo > obligatorios: sin «campo» no hay experimento
+ ✓ src/state/persist.test.ts > EXP-01 · migraciones > aplica una conversión por versión, en orden, y avisa
+ ✓ src/state/persist.test.ts > EXP-02 · autoguardado > guarda y recupera el mismo estado
+ ✓ src/state/persist.test.ts > EXP-02 · autoguardado > con el almacenamiento bloqueado o lleno no lanza: no guarda y no recupera nada
+ ✓ src/state/persist.test.ts > EXP-02 · autoguardado > un guardado dañado o de otra versión se ignora
+ ✓ src/state/persist.test.ts > V-FUN-23 · JSON v2 (1.1): tiempo, exploración y nacimiento > ida y vuelta exacta con las claves nuevas, sin avisos
+ ✓ src/state/persist.test.ts > V-FUN-23 · JSON v2 (1.1): tiempo, exploración y nacimiento > un documento v1 se migra: valores por defecto de la 1.1 y solo el aviso de conversión
+ ✓ src/state/persist.test.ts > V-FUN-23 · JSON v2 (1.1): tiempo, exploración y nacimiento > tiempo y exploración fuera de rango: errores por ruta y estado intacto
+ Test Files  2 passed (2)
+      Tests  43 passed (43)
+
+## Playwright (de evidencia/VAL-04/salida-e2e.txt: `npm run test:e2e`, 129 de 129)
+
+✓   17 [chromium] › tests/e2e/h10-tiempo.spec.ts:19:3 › V-FUN-22 · campos dependientes del tiempo › viento giratorio: las flechas giran con t, las líneas instantáneas son rectas y las partículas recorren circunferencias
+✓   18 [chromium] › tests/e2e/h10-tiempo.spec.ts:62:3 › V-FUN-22 · campos dependientes del tiempo › F_ref común a la ventana: no cambia al avanzar el reloj (D-64)
+✓   76 [chromium] › tests/e2e/h7.spec.ts:53:3 › EXP-01 · configuración JSON (v2 desde la 1.1) › V-FUN-10: exportar → importar da el mismo estado (igualdad profunda), la misma cámara y la misma escena píxel a píxel; «Deshacer» vuelve atrás
+✓   80 [chromium] › tests/e2e/h7.spec.ts:122:3 › EXP-01 · configuración JSON (v2 desde la 1.1) › casos inválidos: los errores se listan por dato y el estado queda intacto; Esc cierra y el foco vuelve a «Abrir»
+✓   81 [chromium] › tests/e2e/h7.spec.ts:160:3 › EXP-01 · configuración JSON (v2 desde la 1.1) › arrastrar un .json a la ventana lo abre; claves desconocidas y datos ausentes se avisan
+✓   82 [chromium] › tests/e2e/h7.spec.ts:190:3 › EXP-02 · autoguardado y recuperación › V-FUN-11: recargar recupera el experimento y la cámara con un aviso; «Empezar de cero» lo descarta
+✓   83 [chromium] › tests/e2e/h7.spec.ts:224:3 › EXP-02 · autoguardado y recuperación › con localStorage bloqueado la aplicación funciona y no muestra errores técnicos
+✓   84 [chromium] › tests/e2e/h7.spec.ts:247:3 › EXP-02 · autoguardado y recuperación › un autoguardado dañado se ignora sin errores
+

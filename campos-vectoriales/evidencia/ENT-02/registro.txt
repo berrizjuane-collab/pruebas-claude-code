@@ -1,0 +1,46 @@
+# ENT-02 · HTML autocontenido 1.1 · 2026-10-04
+
+Archivo entregado: entrega/campos-vectoriales.html
+Tamaño: 2 005 709 bytes (1.91 MB; límite 3 MB). La 1.0 pesaba 1 953 648 (+52 KB).
+SHA-256: 47b8f541a114a6778339607fcf1d17f1d00756203b85c527c8a7f8c400cbcd7f
+
+## Compilación reproducible
+
+`rm -rf dist && npm run build` dos veces seguidas con el mismo código: las dos dan
+47b8f541a114a6778339607fcf1d17f1d00756203b85c527c8a7f8c400cbcd7f, idéntico al archivo de
+entrega/ (sha256sum de dist/ y de entrega/). Para comprobarlo en el commit de esta evidencia:
+`npm ci && npm run build && sha256sum dist/campos-vectoriales.html`.
+
+## Contenido y aislamiento
+
+- Igual que en ENT-01: script de entrada y estilos incrustados, fuentes en base64 y worker de
+  cálculo como Blob (scripts/autocontenido.mjs).
+- CSP (csp.txt): `default-src 'none'`, script solo con su huella SHA-256, `worker-src blob:
+  data:`, `connect-src 'none'`, `base-uri 'none'`, `form-action 'none'`, `object-src 'none'`.
+- Las cadenas con «http(s)://» son espacios de nombres XML (SVG, MathML, xlink, xml), los
+  mensajes de error de React y una cita bibliográfica en un comentario de un shader de three.js
+  (jcgt.org): nada se carga de ellas (connect-src 'none' y 0 peticiones en la sonda).
+- La pantalla completa de la vista libre usa la API del navegador sobre el propio documento;
+  no necesita permisos ni red.
+
+## V-FUN-17 y recorrido de los flujos sobre file://
+
+- sonda-file.json (`node scripts/sonda-file.mjs`, red cortada): cálculo en «worker», 729
+  flechas, fuente Inter Variable, 0 mensajes de error y 0 peticiones externas.
+- salida-e2e-archivo.txt: `OBJETIVO=archivo npx playwright test --project=chromium
+  --project=rendimiento` contra este HTML abierto con file://: **114 de 114 superadas** (109 del proyecto chromium y 5
+  de rendimiento). La primera pasada dio 112 de 113: la prueba CMP-02 de rendimiento esperaba el
+  vector de evaluación `[a]` y desde D-63 es `[a, t]` (prueba actualizada, ver VAL-04). Después
+  de esta pasada, V-FUN-16 pasó del proyecto chromium al de rendimiento (D-79), sin cambiar
+  el HTML. Incluye las de
+  la 1.0 (V-FUN-17 con la red cortada, catálogo, editor, capas, cortes, inspector,
+  exportar/abrir, autoguardado, ayuda, teclado, pantallas, axe, medición) y las de la 1.1:
+  tiempo (V-FUN-22, también axe con un campo temporal), vista libre (V-FUN-18), dilatación
+  (V-FUN-19), espacio sin límites (V-FUN-20), alcance (V-FUN-21) y JSON v2 (V-FUN-23 en h7).
+- Revisión visual sobre este mismo archivo: REV-05 (45 capturas C1–C15 × V1–V3).
+
+## Pendiente del usuario
+
+Las comprobaciones de la 1.0 (Q-04, Q-05, Q-06) siguen abiertas y conviene hacerlas ya con
+este archivo: en la de rendimiento (Q-06), añadir un campo temporal en reproducción y unos
+segundos de vuelo en la vista libre (R-15).

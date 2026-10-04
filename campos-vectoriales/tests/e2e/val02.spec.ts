@@ -123,7 +123,10 @@ test.describe('VAL-02 · V-FUN-04 · equilibrios', () => {
 });
 
 test.describe('VAL-02 · V-FUN-16 · robustez', () => {
-  test('200 ediciones aleatorias rápidas (expresiones, parámetros y dominio): 0 errores en consola, 0 excepciones y la interfaz responde al final (< 1 s)', async ({ page }) => {
+  // Lleva una medida de tiempo (< 1 s): va en el proyecto «rendimiento», en serie y sin otros
+  // navegadores en paralelo (D-79). Con WebGL por software, otra prueba en paralelo retrasaba el
+  // fotograma que lanza la malla (medido: 1003 ms; sola, 220–520 ms, igual que el código de la 1.0).
+  test('200 ediciones aleatorias rápidas (expresiones, parámetros y dominio): 0 errores en consola, 0 excepciones y la interfaz responde al final (< 1 s)', { tag: '@rendimiento' }, async ({ page }) => {
     test.setTimeout(240_000);
     const reg = registrar(page);
     await abrir(page, 'prueba=1');

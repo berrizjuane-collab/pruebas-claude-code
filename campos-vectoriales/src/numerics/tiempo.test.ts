@@ -169,13 +169,16 @@ describe('V-NUM-20 · líneas de traza (emisión desde semillas)', () => {
     // La línea de traza en t: arco de la circunferencia de radio V/ω centrada en p + (V/ω)(sin ωt, −cos ωt, 0).
     const centro = [semilla[0] + Math.sin(t), semilla[1] - Math.cos(t)];
     let enVuelo = 0;
+    let peor = 0;
     for (let i = 0; i < sis.n; i++) {
       if (!sis.enVuelo(i)) continue;
       enVuelo++;
       const d = Math.hypot((sis.pos[3 * i] as number) - (centro[0] as number), (sis.pos[3 * i + 1] as number) - (centro[1] as number));
+      peor = Math.max(peor, Math.abs(d - 1));
       expect(Math.abs(d - 1), `partícula ${i}`).toBeLessThan(1e-6);
       expect(sis.pos[3 * i + 2]).toBe(semilla[2]);
     }
+    medida('T-26', 'distancia a la línea de traza exacta, 6 partículas', peor.toExponential(2));
     // 155 fotogramas ≈ 2.58 s: han salido las de espera 0, 0.5, 1, 1.5, 2 y 2.5 (6 de 8).
     expect(enVuelo).toBe(6);
   });

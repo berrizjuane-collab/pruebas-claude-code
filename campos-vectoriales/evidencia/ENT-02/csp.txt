@@ -1,0 +1,1 @@
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-pNg5XUO8FH01Xb9/6RELOw1LWzMhEtsbLCKu+8AddpU='; worker-src blob: data:; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'" />

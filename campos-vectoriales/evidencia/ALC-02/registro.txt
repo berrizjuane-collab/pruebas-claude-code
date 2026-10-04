@@ -1,0 +1,19 @@
+# ALC-02 · Espacio sin límites · 2026-10-04
+
+Aceptación (PLAN §5.3): V-NUM-21 (T-25), V-FUN-20
+Código verificado sobre el commit c2d95c8 (más las pruebas de esta evidencia).
+
+## Vitest: npx vitest run src/numerics/ventana.test.ts --reporter=verbose
+
+MEDIDA T-25 · nodos de ventanas desplazadas hasta 1000 Δ: 0.00e+0 L
+ ✓ src/numerics/ventana.test.ts > V-NUM-21 · ventana anclada a la red > m = redondeo de (c_cám − c)/Δ por eje; sin −0
+ ✓ src/numerics/ventana.test.ts > V-NUM-21 · ventana anclada a la red > los nodos de cualquier ventana están sobre la red de Ω (T-25)
+ ✓ src/numerics/ventana.test.ts > V-NUM-21 · ventana anclada a la red > dos ventanas desplazadas comparten exactamente las semillas de su intersección
+ ✓ src/numerics/ventana.test.ts > V-NUM-21 · ventana anclada a la red > otra semilla visible da otras posiciones; la misma, las mismas (bit a bit)
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+
+## Playwright (de evidencia/VAL-04/salida-e2e.txt: `npm run test:e2e`, 129 de 129)
+
+✓   28 [chromium] › tests/e2e/h10-vista-libre.spec.ts:141:3 › V-FUN-20 · espacio sin límites › U: la ventana se mueve por múltiplos de Δ con la cámara; F_ref no cambia; la flecha de un nodo común es la misma; sin caja
+

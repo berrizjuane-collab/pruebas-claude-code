@@ -148,7 +148,9 @@ test.describe('CMP-02 · orquestación, cancelación y presupuestos', () => {
     informe['CMP-02 ráfaga'] = r;
     expect(r.tCambios).toBeLessThan(3600);
     expect(r.aplicadas).toHaveLength(1);
-    expect(r.aplicadas[0].p).toEqual([r.ultimo]);
+    // Vector de evaluación: los parámetros y, en la última ranura, el instante t (D-63); el
+    // helicoidal no depende del tiempo y el reloj está en t = 0.
+    expect(r.aplicadas[0].p).toEqual([r.ultimo, 0]);
     expect(r.aplicadas[0].t).toBeGreaterThan(r.tCambios);
     expect(r.largas).toEqual([]);
     // Agrupamiento por fotograma: nunca más mallas aplicadas que cambios ni que fotogramas.

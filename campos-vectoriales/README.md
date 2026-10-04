@@ -92,13 +92,14 @@ sistema, ejecuta `npm run test:e2e -- --project=chromium` o regenéralas con
 ```
 src/
   math/        expresiones (léxico, análisis, compilación, derivada simbólica), catálogo
-  numerics/    rejilla, RK4 (líneas y partículas), semillas, cortes, diferencias finitas, formato
+  numerics/    rejilla, RK4 (líneas y partículas, también con t), semillas, ventana anclada,
+               cortes, diferencias finitas, formato
   geometria/   geometría de flechas, líneas y mapa escalar como datos puros
   compute/     worker de cálculo, protocolo y cliente con cancelación
-  state/       esquema del experimento, acciones, almacén y persistencia (JSON v1)
-  render/      escena three.js: capas, cámara, texto, selección
+  state/       esquema del experimento, acciones, almacén y persistencia (JSON v2; abre v1)
+  render/      escena three.js: capas, cámara (órbita y vuelo con dilatación), texto, selección
   ui/          componentes React: panel, barra superior, leyenda, inspector, ayuda
-  app/         composición: orquestador, atajos, archivo, imagen, medición de rendimiento
+  app/         composición: orquestador, reloj, vista libre, atajos, archivo, imagen, medición
   export/      JSON y PNG sin React
 tests/         e2e (Playwright), visual (referencias), fixtures
 scripts/       HTML autocontenido, capturas, medición de rendimiento, utilidades
@@ -111,9 +112,10 @@ son puras; `render/` no conoce React ni el almacén.
 ## Estado
 
 Ver **[STATUS.md](STATUS.md)** (fase, decisiones D-xx, riesgos, preguntas y registro). En
-resumen: hitos H0–H8 completados (salvo la sesión con lector de pantalla de A11Y-02) y H9
-casi cerrado. Quedan tres comprobaciones que necesitan el equipo del usuario, cada una con
-su guion:
+resumen: la versión 1.0 (H0–H9) y la 1.1 (H10: tiempo, alcance y vista libre) están
+completadas y verificadas en este entorno, salvo tres comprobaciones que necesitan el equipo
+del usuario, cada una con su guion (en la 1.1 conviene repetirlas con la vista libre y un
+campo temporal):
 
 | Pregunta | Qué | Guion |
 | --- | --- | --- |

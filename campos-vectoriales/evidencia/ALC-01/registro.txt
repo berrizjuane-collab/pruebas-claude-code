@@ -1,0 +1,17 @@
+# ALC-01 · Ampliar y estrechar Ω · 2026-10-04
+
+Aceptación (PLAN §5.3): V-FUN-21; V-FUN-14 sin cambios
+Código verificado sobre el commit c2d95c8 (más las pruebas de esta evidencia).
+
+## Vitest: npx vitest run src/state/state.test.ts -t "V-FUN-21" --reporter=verbose
+
+ ✓ src/state/state.test.ts > V-FUN-21 · ampliar y estrechar Ω (RF-21) > [−2, 2]³, N = 9 → ×2 → [−4, 4]³, N = 17, Δ = 0.5 → ×2 → [−8, 8]³, N = 21, Δ = 0.8 (límite de N)
+ ✓ src/state/state.test.ts > V-FUN-21 · ampliar y estrechar Ω (RF-21) > cajas no cúbicas y «centros»; límites de lado con motivo
+ Test Files  1 passed (1)
+      Tests  2 passed | 11 skipped (13)
+
+## Playwright (de evidencia/VAL-04/salida-e2e.txt: `npm run test:e2e`, 129 de 129)
+
+✓   31 [chromium] › tests/e2e/h10-vista-libre.spec.ts:185:3 › V-FUN-21 · ampliar y estrechar Ω › «Ampliar ×2» conserva Δ (N = 17) y lo anuncia; otra vez, N = 21 y Δ cambia; «Estrechar» deshace
+✓   58 [chromium] › tests/e2e/h4.spec.ts:408:3 › UI-04 · dominio y muestreo (V-FUN-14) › N = 21 → 9261 instancias; límites inválidos rechazados; la caja y la cámara se adaptan
+

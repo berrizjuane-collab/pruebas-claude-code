@@ -301,6 +301,7 @@ export const T = {
     campo: 'Campo',
     ejemplos: 'Ejemplos',
     sobreCampo: 'Sobre este campo',
+    formulaDesplazable: 'Fórmula del campo (desplazable con las flechas)',
     ficha: {
       divergencia: 'Divergencia',
       rotacional: 'Rotacional',

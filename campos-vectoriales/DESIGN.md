@@ -297,6 +297,10 @@ inicial (un parámetro), las secciones 1–4 (Campo, Ejemplos, Ecuaciones y Par�
 enteras **sin desplazamiento**; a 1440×900, también con ≤ 3 parámetros. El resto del panel se
 desplaza; la escena, nunca. El objetivo original (secciones 1–5 a 1280×720) era imposible con
 las medidas de §4.2 y §6.1: medido, las secciones 1–4 ocupaban 816 px de 672 disponibles.
+En la 1.1 (D-78) la tercera fila de tarjetas (64 px) deja «Parámetros» 60 px por debajo del
+borde a 1280×720: ahí caben enteras las secciones 1–3 y se ve el título de «Parámetros»; a
+1440×900 caben enteras las secciones 1–4 y «Tiempo». Se conservan las tarjetas de 88 × 56 px:
+a 32–40 px de alto la miniatura y «Rotacional» o «Helicoidal» no caben juntas en 90 px.
 
 ### 5.4 Puntos de ruptura
 

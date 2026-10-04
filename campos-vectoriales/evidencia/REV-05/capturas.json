@@ -1,0 +1,2266 @@
+{
+  "tarea": "REV-05",
+  "objetivo": "archivo",
+  "fecha": "2026-10-04T06:34:43.402Z",
+  "resultados": [
+    {
+      "captura": "C1",
+      "tamano": "V1",
+      "archivo": "capturas/C1-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C2",
+      "tamano": "V1",
+      "archivo": "capturas/C2-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C3",
+      "tamano": "V1",
+      "archivo": "capturas/C3-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 26
+      },
+      "densidad": {
+        "scrollHeight": 1572,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Parámetros",
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 55,
+        "interactivosPanel": 38
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C4",
+      "tamano": "V1",
+      "archivo": "capturas/C4-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización"
+        ],
+        "interactivos": 53,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C5",
+      "tamano": "V1",
+      "archivo": "capturas/C5-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1351,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C6",
+      "tamano": "V1",
+      "archivo": "capturas/C6-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 58,
+        "interactivosPanel": 36
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C7",
+      "tamano": "V1",
+      "archivo": "capturas/C7-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 27
+      },
+      "densidad": {
+        "scrollHeight": 1688,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Parámetros",
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional"
+        ],
+        "interactivos": 51,
+        "interactivosPanel": 35
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C8",
+      "tamano": "V1",
+      "archivo": "capturas/C8-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 2468,
+        "pixeles": 4738560,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 0
+      },
+      "densidad": null,
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14,
+          16
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C9",
+      "tamano": "V1",
+      "archivo": "capturas/C9-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización"
+        ],
+        "interactivos": 54,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C10",
+      "tamano": "V1",
+      "archivo": "capturas/C10-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1357,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14,
+          16
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C11",
+      "tamano": "V1",
+      "archivo": "capturas/C11-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 26
+      },
+      "densidad": {
+        "scrollHeight": 1572,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Parámetros",
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 55,
+        "interactivosPanel": 38
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C12",
+      "tamano": "V1",
+      "archivo": "capturas/C12-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo",
+          "Visualización"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C13",
+      "tamano": "V1",
+      "archivo": "capturas/C13-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 27
+      },
+      "densidad": {
+        "scrollHeight": 1752,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros"
+        ],
+        "interactivos": 51,
+        "interactivosPanel": 35
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C14",
+      "tamano": "V1",
+      "archivo": "capturas/C14-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 0
+      },
+      "densidad": {
+        "scrollHeight": 0,
+        "clientHeight": 0,
+        "seccionesEnteras": [],
+        "interactivos": 1,
+        "interactivosPanel": 0
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C15",
+      "tamano": "V1",
+      "archivo": "capturas/C15-V1.png",
+      "paleta": {
+        "ancho": 1920,
+        "alto": 1080,
+        "pixeles": 2073600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 25
+      },
+      "densidad": {
+        "scrollHeight": 1680,
+        "clientHeight": 1032,
+        "seccionesEnteras": [
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 46,
+        "interactivosPanel": 30
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C1",
+      "tamano": "V2",
+      "archivo": "capturas/C1-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 39,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C2",
+      "tamano": "V2",
+      "archivo": "capturas/C2-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 39,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C3",
+      "tamano": "V2",
+      "archivo": "capturas/C3-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 26
+      },
+      "densidad": {
+        "scrollHeight": 1572,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 52,
+        "interactivosPanel": 35
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C4",
+      "tamano": "V2",
+      "archivo": "capturas/C4-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 47,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C5",
+      "tamano": "V2",
+      "archivo": "capturas/C5-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1351,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 39,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C6",
+      "tamano": "V2",
+      "archivo": "capturas/C6-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Parámetros",
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 51,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C7",
+      "tamano": "V2",
+      "archivo": "capturas/C7-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 27
+      },
+      "densidad": {
+        "scrollHeight": 1688,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Parámetros",
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C8",
+      "tamano": "V2",
+      "archivo": "capturas/C8-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 5416,
+        "pixeles": 15598080,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 0
+      },
+      "densidad": null,
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14,
+          16
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C9",
+      "tamano": "V2",
+      "archivo": "capturas/C9-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 48,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C10",
+      "tamano": "V2",
+      "archivo": "capturas/C10-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1357,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 39,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14,
+          16
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C11",
+      "tamano": "V2",
+      "archivo": "capturas/C11-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 26
+      },
+      "densidad": {
+        "scrollHeight": 1572,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 52,
+        "interactivosPanel": 35
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C12",
+      "tamano": "V2",
+      "archivo": "capturas/C12-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 39,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C13",
+      "tamano": "V2",
+      "archivo": "capturas/C13-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 27
+      },
+      "densidad": {
+        "scrollHeight": 1752,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones",
+          "Parámetros"
+        ],
+        "interactivos": 44,
+        "interactivosPanel": 28
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C14",
+      "tamano": "V2",
+      "archivo": "capturas/C14-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 0
+      },
+      "densidad": {
+        "scrollHeight": 0,
+        "clientHeight": 0,
+        "seccionesEnteras": [],
+        "interactivos": 1,
+        "interactivosPanel": 0
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C15",
+      "tamano": "V2",
+      "archivo": "capturas/C15-V2.png",
+      "paleta": {
+        "ancho": 2880,
+        "alto": 1800,
+        "pixeles": 5184000,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 25
+      },
+      "densidad": {
+        "scrollHeight": 1680,
+        "clientHeight": 852,
+        "seccionesEnteras": [
+          "Ecuaciones",
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 29
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C1",
+      "tamano": "V3",
+      "archivo": "capturas/C1-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 34,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C2",
+      "tamano": "V3",
+      "archivo": "capturas/C2-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 34,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C3",
+      "tamano": "V3",
+      "archivo": "capturas/C3-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 26
+      },
+      "densidad": {
+        "scrollHeight": 1572,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 28
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C4",
+      "tamano": "V3",
+      "archivo": "capturas/C4-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 42,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C5",
+      "tamano": "V3",
+      "archivo": "capturas/C5-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1351,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 34,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C6",
+      "tamano": "V3",
+      "archivo": "capturas/C6-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Tiempo",
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 48,
+        "interactivosPanel": 26
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C7",
+      "tamano": "V3",
+      "archivo": "capturas/C7-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 27
+      },
+      "densidad": {
+        "scrollHeight": 1688,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Visualización",
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional"
+        ],
+        "interactivos": 40,
+        "interactivosPanel": 24
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C8",
+      "tamano": "V3",
+      "archivo": "capturas/C8-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 3065,
+        "pixeles": 3923200,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 0
+      },
+      "densidad": null,
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14,
+          16
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C9",
+      "tamano": "V3",
+      "archivo": "capturas/C9-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 43,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C10",
+      "tamano": "V3",
+      "archivo": "capturas/C10-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1357,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 34,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14,
+          16
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C11",
+      "tamano": "V3",
+      "archivo": "capturas/C11-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 26
+      },
+      "densidad": {
+        "scrollHeight": 1572,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Líneas de corriente",
+          "Corte",
+          "Divergencia y rotacional",
+          "Dominio y muestreo",
+          "Vista libre",
+          "Avanzado"
+        ],
+        "interactivos": 45,
+        "interactivosPanel": 28
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C12",
+      "tamano": "V3",
+      "archivo": "capturas/C12-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 21
+      },
+      "densidad": {
+        "scrollHeight": 1352,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 34,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C13",
+      "tamano": "V3",
+      "archivo": "capturas/C13-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 27
+      },
+      "densidad": {
+        "scrollHeight": 1752,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Campo",
+          "Ejemplos",
+          "Ecuaciones"
+        ],
+        "interactivos": 34,
+        "interactivosPanel": 18
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C14",
+      "tamano": "V3",
+      "archivo": "capturas/C14-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 0
+      },
+      "densidad": {
+        "scrollHeight": 0,
+        "clientHeight": 0,
+        "seccionesEnteras": [],
+        "interactivos": 1,
+        "interactivosPanel": 0
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    },
+    {
+      "captura": "C15",
+      "tamano": "V3",
+      "archivo": "capturas/C15-V3.png",
+      "paleta": {
+        "ancho": 1280,
+        "alto": 720,
+        "pixeles": 921600,
+        "fuera": 0,
+        "maxDiff": 0,
+        "tolerancia": 3,
+        "ejemplos": [],
+        "superada": true
+      },
+      "maquetacion": [],
+      "alineacion": {
+        "incidencias": [],
+        "anclajes": 25
+      },
+      "densidad": {
+        "scrollHeight": 1680,
+        "clientHeight": 672,
+        "seccionesEnteras": [
+          "Parámetros",
+          "Tiempo"
+        ],
+        "interactivos": 39,
+        "interactivosPanel": 23
+      },
+      "tipografia": {
+        "tamanos": [
+          11,
+          12,
+          13,
+          14
+        ],
+        "pesos": [
+          400,
+          500,
+          600
+        ],
+        "familias": [
+          "Inter Variable",
+          "JetBrains Mono"
+        ]
+      },
+      "errores": []
+    }
+  ]
+}

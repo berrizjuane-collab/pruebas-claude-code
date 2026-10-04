@@ -72,6 +72,7 @@ describe('V-NUM-22 · vuelo y dilatación', () => {
       max = Math.max(max, Math.abs(x1 - x0), Math.abs(y1 - y0));
     }
     // En píxeles de una pantalla de 2000 px de semiancho: ≤ 10⁻⁹ px.
+    console.log(`MEDIDA T-24 · 1000 puntos, λ ∈ [1/8, 64]: ${(max * 2000).toExponential(2)} px`);
     expect(max * 2000).toBeLessThan(1e-9);
   });
 

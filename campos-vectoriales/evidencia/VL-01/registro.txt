@@ -1,0 +1,32 @@
+# VL-01 · Vuelo y dilatación en la escena · 2026-10-04
+
+Aceptación (PLAN §5.3): V-NUM-22 (T-24); la órbita sigue igual (V-FUN-09)
+Código verificado sobre el commit c2d95c8 (más las pruebas de esta evidencia).
+
+## Vitest: npx vitest run src/render/vuelo.test.ts --reporter=verbose
+
+MEDIDA T-24 · 1000 puntos, λ ∈ [1/8, 64]: 6.66e-13 px
+ ✓ src/render/vuelo.test.ts > V-NUM-22 · vuelo y dilatación > dirección ↔ ángulos (ida y vuelta) y elevación acotada a ±89°
+ ✓ src/render/vuelo.test.ts > V-NUM-22 · vuelo y dilatación > la derecha es horizontal, unitaria y perpendicular a la vista
+ ✓ src/render/vuelo.test.ts > V-NUM-22 · vuelo y dilatación > W avanza según la vista, A/D por la derecha, E/Q por z; diagonales normalizadas; Mayús ×4; v/λ
+ ✓ src/render/vuelo.test.ts > V-NUM-22 · vuelo y dilatación > la velocidad se acerca a la objetivo (constante 0.12 s); con movimiento reducido, de golpe
+ ✓ src/render/vuelo.test.ts > V-NUM-22 · vuelo y dilatación > dilatar alrededor del ojo no cambia la imagen (invariancia proyectiva, T-24)
+ ✓ src/render/vuelo.test.ts > V-NUM-22 · vuelo y dilatación > dilatar alrededor de c: la posición en la escena (c + λ(r − c)) no cambia y el mundo crece hacia el explorador
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+
+## Playwright (de evidencia/VAL-04/salida-e2e.txt: `npm run test:e2e`, 129 de 129)
+
+✓    1 [chromium] › tests/e2e/h1.spec.ts:18:3 › REN-01 · escena base › dibujo bajo demanda: 0 fotogramas en 2 s de reposo; la órbita con el ratón dibuja y mueve la cámara
+✓    4 [chromium] › tests/e2e/h1.spec.ts:40:3 › REN-01 · escena base › sin WebGL2 se muestra un estado vacío explicativo (V-FUN-15)
+✓   28 [chromium] › tests/e2e/h10-vista-libre.spec.ts:141:3 › V-FUN-20 · espacio sin límites › U: la ventana se mueve por múltiplos de Δ con la cámara; F_ref no cambia; la flecha de un nodo común es la misma; sin caja
+✓   53 [chromium] › tests/e2e/h5.spec.ts:546:3 › REN-07 · glifos de rotacional › rotacional con ω = ±1: glifos hacia ±z, anillo antihorario (ω = 1) u horario (ω = −1) visto desde arriba; puntas del lado de la cámara
+✓   58 [chromium] › tests/e2e/h4.spec.ts:408:3 › UI-04 · dominio y muestreo (V-FUN-14) › N = 21 → 9261 instancias; límites inválidos rechazados; la caja y la cámara se adaptan
+✓   61 [chromium] › tests/e2e/h4.spec.ts:462:3 › UI-05 · restablecer y deshacer (V-FUN-09) › cámara: restablecer y deshacer (también con Ctrl+Z), sin que la inercia de la órbita mueva la pose restaurada
+✓   66 [chromium] › tests/e2e/h4.spec.ts:514:3 › UI-05 · restablecer y deshacer (V-FUN-09) › parámetros y experimento: cada acción da su estado y «Deshacer» restaura el anterior exactamente
+✓   68 [chromium] › tests/e2e/h4.spec.ts:538:3 › UI-05 · restablecer y deshacer (V-FUN-09) › elegir otro ejemplo con el campo editado ofrece «Deshacer» (F1.3)
+✓   74 [chromium] › tests/e2e/h5.spec.ts:903:3 › REV-03 · movimiento reducido (VV-10) › sin animaciones CSS tras interactuar, partículas en pausa al inicio y la cámara salta
+✓   76 [chromium] › tests/e2e/h7.spec.ts:53:3 › EXP-01 · configuración JSON (v2 desde la 1.1) › V-FUN-10: exportar → importar da el mismo estado (igualdad profunda), la misma cámara y la misma escena píxel a píxel; «Deshacer» vuelve atrás
+✓   82 [chromium] › tests/e2e/h7.spec.ts:190:3 › EXP-02 · autoguardado y recuperación › V-FUN-11: recargar recupera el experimento y la cámara con un aviso; «Empezar de cero» lo descarta
+✓  102 [chromium] › tests/e2e/val02.spec.ts:39:3 › VAL-02 · V-FUN-01 · elegir campo › las 6 tarjetas: fórmula, flechas, leyenda y semillas del campo; marcada con borde, ✓ y aria-checked; la cámara no cambia
+

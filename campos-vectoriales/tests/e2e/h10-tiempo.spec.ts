@@ -1,6 +1,8 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { abrir, registrar, sinErrores } from '../util/app';
 
+type PaginaAxe = ConstructorParameters<typeof AxeBuilder>[0]['page'];
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const gancho = (page: Page, expr: string) => page.evaluate(`(${expr})(window.__campos)`) as Promise<any>;
 /** Espera a que el cálculo esté al día con el instante del reloj (malla y líneas del t vigente). */
@@ -99,6 +101,22 @@ test.describe('V-FUN-22 · interfaz del tiempo', () => {
     await expect(seccion.locator('[data-prueba="tiempo-estacionario"]')).toBeAttached();
     await expect(page.locator('[data-prueba="lectura-t"]')).toHaveCount(0);
     sinErrores(reg);
+  });
+
+  test('axe sin infracciones graves con un campo temporal: «Tiempo», «Vista libre», «Avanzado» e inspector temporal (TMP-05)', async ({ page }) => {
+    await abrir(page, 'captura=1&campo=silla-giratoria');
+    await alDia(page);
+    await gancho(page, '(c) => c.fijarEstado((s) => ({ ...s, punto: [1, 0, 0] }))');
+    await expect(page.locator('[data-prueba="inspector-temporal"]')).toBeVisible();
+    const plegadas = page.locator('.seccion-boton[aria-expanded="false"]');
+    for (let k = 0; k < 20 && (await plegadas.count()) > 0; k++) await plegadas.first().click();
+    await expect(page.locator('[data-prueba="seccion-tiempo"] [role="slider"]')).toBeVisible();
+    // La fórmula de la silla giratoria no cabe: se desplaza y es enfocable (scrollable-region-focusable).
+    const formula = page.locator('[data-prueba="formula-campo"]');
+    expect(await formula.evaluate((e) => e.scrollWidth > e.clientWidth + 1)).toBe(true);
+    await expect(formula).toHaveAttribute('tabindex', '0');
+    const axe =await new AxeBuilder({ page: page as unknown as PaginaAxe }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([]);
   });
 
   test('escribir t en una ecuación hace temporal el campo: P = t*x crece con t a escala fija de la ventana', async ({ page }) => {

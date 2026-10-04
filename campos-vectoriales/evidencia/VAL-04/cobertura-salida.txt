@@ -1,0 +1,62 @@
+
+> campos-vectoriales@0.1.0 test:cobertura
+> vitest run --coverage
+
+
+ RUN  v5.0.3 /home/user/pruebas-claude-code/campos-vectoriales
+      Coverage enabled with v8
+
+
+ Test Files  25 passed | 1 skipped (26)
+      Tests  502 passed | 3 skipped (505)
+   Start at  06:22:17
+   Duration  5.13s (tests 54%, transform 24%, import 13%, worker 9%)
+
+    Isolate  26 workers spawned · ~165ms startup each (spawn + environment, per file)
+             at least ~1.26s faster with isolate: false — reuses workers across files instead of one per file
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-----------------|---------|----------|---------|---------|---------------------
+File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s   
+-----------------|---------|----------|---------|---------|---------------------
+All files        |   90.83 |    84.03 |   92.11 |   94.12 |                     
+ geometria       |   97.76 |     92.3 |     100 |   98.88 |                     
+  escalar.ts     |   96.57 |    92.59 |     100 |    97.5 | 112-114             
+  flechas.ts     |   99.14 |     92.3 |     100 |     100 | 83,214              
+  lineas.ts      |      98 |       90 |     100 |     100 | 68                  
+ math            |   96.22 |       92 |   86.36 |   98.86 |                     
+  derivadas.ts   |   94.87 |     90.9 |   88.88 |     100 | 66                  
+  field.ts       |   96.55 |    92.85 |   81.81 |   97.91 | 126                 
+ math/catalog    |    99.4 |    62.96 |     100 |     100 |                     
+  index.ts       |   99.19 |       60 |     100 |     100 | 101-197,258-360,451 
+ math/expr       |   90.26 |    88.28 |   93.85 |   90.73 |                     
+  ast.ts         |    92.5 |    94.73 |   85.71 |   94.73 | 86,135              
+  compile.ts     |   83.78 |       85 |   80.76 |      86 | ...4,98,112-116,122 
+  diff.ts        |   83.41 |    82.42 |   96.66 |   82.06 | ...,182,186-200,208 
+  parser.ts      |   95.36 |    90.08 |     100 |    95.1 | ...,237,268,273-276 
+  resolver.ts    |   98.03 |    88.57 |     100 |   97.67 | 47                  
+  simplificar.ts |   92.42 |    91.66 |     100 |   91.22 | 17,23-29            
+  tex.ts         |   85.05 |    85.82 |     100 |   86.41 | ...,129,140,174,179 
+ numerics        |   92.58 |    82.98 |      95 |    95.3 |                     
+  finiteDiff.ts  |   93.97 |       90 |     100 |   97.14 | 83-84               
+  format.ts      |   91.42 |    88.23 |     100 |     100 | 28,56-60            
+  grid.ts        |   98.23 |    89.36 |     100 |     100 | 34,45,121,134       
+  inspeccion.ts  |   96.42 |    78.57 |     100 |     100 | 85,103-116          
+  particles.ts   |   82.75 |    76.31 |      60 |    86.2 | 113,200-215         
+  rotacional.ts  |   90.62 |       75 |     100 |   96.29 | 55                  
+  seeds.ts       |   98.71 |    88.37 |     100 |    98.5 | 41                  
+  slice.ts       |   82.66 |    53.12 |     100 |   84.37 | 73-76,102-106,114   
+  stats.ts       |    87.5 |     87.5 |     100 |    92.3 | 28                  
+  streamlines.ts |      96 |    89.47 |     100 |   98.71 | 254-255             
+ state           |   82.87 |    79.14 |   84.37 |   91.49 |                     
+  actions.ts     |   72.88 |    70.81 |   80.35 |   81.94 | ...,257-283,304-313 
+  persist.ts     |    89.1 |    83.87 |   94.91 |    96.8 | 133-134,567-587     
+  store.ts       |    61.9 |      100 |   45.45 |   66.66 | 35-43               
+-----------------|---------|----------|---------|---------|---------------------
+
+=============================== Coverage summary ===============================
+Statements   : 90.83% ( 2586/2847 )
+Branches     : 84.03% ( 1574/1873 )
+Functions    : 92.11% ( 397/431 )
+Lines        : 94.12% ( 2195/2332 )
+================================================================================

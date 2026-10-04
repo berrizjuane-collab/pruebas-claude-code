@@ -1,0 +1,38 @@
+
+Running 6 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/h10-tiempo.spec.ts:19:3 › V-FUN-22 · campos dependientes del tiempo › viento giratorio: las flechas giran con t, las líneas instantáneas son rectas y las partículas recorren circunferencias (3.0s)
+  ✓  2 [chromium] › tests/e2e/h10-tiempo.spec.ts:62:3 › V-FUN-22 · campos dependientes del tiempo › F_ref común a la ventana: no cambia al avanzar el reloj (D-64) (5.0s)
+  ✓  3 [chromium] › tests/e2e/h10-tiempo.spec.ts:73:3 › V-FUN-22 · interfaz del tiempo › inspector en la silla giratoria: t, ∂F/∂t y DF/Dt = ∂F/∂t + J·F correctos en (1, 0, 0), t = 0 (4.4s)
+  ✓  4 [chromium] › tests/e2e/h10-tiempo.spec.ts:85:3 › V-FUN-22 · interfaz del tiempo › la sección «Tiempo»: el deslizador fija t (lectura de la escena y cálculo); con un campo estacionario solo explica (3.9s)
+  ✘  5 [chromium] › tests/e2e/h10-tiempo.spec.ts:106:3 › V-FUN-22 · interfaz del tiempo › axe sin infracciones graves con un campo temporal: «Tiempo», «Vista libre», «Avanzado» e inspector temporal (TMP-05) (8.5s)
+  ✓  6 [chromium] › tests/e2e/h10-tiempo.spec.ts:118:3 › V-FUN-22 · interfaz del tiempo › escribir t en una ecuación hace temporal el campo: P = t*x crece con t a escala fija de la ventana (2.2s)
+
+
+  1) [chromium] › tests/e2e/h10-tiempo.spec.ts:106:3 › V-FUN-22 · interfaz del tiempo › axe sin infracciones graves con un campo temporal: «Tiempo», «Vista libre», «Avanzado» e inspector temporal (TMP-05) 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 3[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   "scrollable-region-focusable",[39m
+    [31m+ ][39m
+
+      113 |     await expect(page.locator('[data-prueba="seccion-tiempo"] [role="slider"]')).toBeVisible();
+      114 |     const axe = await new AxeBuilder({ page: page as unknown as PaginaAxe }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    > 115 |     expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([]);
+          |                                                                                                              ^
+      116 |   });
+      117 |
+      118 |   test('escribir t en una ecuación hace temporal el campo: P = t*x crece con t a escala fija de la ventana', async ({ page }) => {
+        at /home/user/pruebas-claude-code/campos-vectoriales/tests/e2e/h10-tiempo.spec.ts:115:110
+
+    Error Context: test-results/h10-tiempo-V-FUN-22-·-inte-10a07--inspector-temporal-TMP-05--chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/e2e/h10-tiempo.spec.ts:106:3 › V-FUN-22 · interfaz del tiempo › axe sin infracciones graves con un campo temporal: «Tiempo», «Vista libre», «Avanzado» e inspector temporal (TMP-05) 
+  5 passed (33.3s)
+EXIT=1

@@ -1,0 +1,27 @@
+# TMP-05 · Interfaz del tiempo · 2026-10-04
+
+Aceptación (PLAN §5.3): V-FUN-22; axe sin infracciones; capturas C13 y C15 (REV-05)
+Código verificado sobre el commit c2d95c8 (más las pruebas de esta evidencia).
+
+## Vitest: npx vitest run src/numerics/inspeccion.test.ts -t "TMP-05" --reporter=verbose
+
+ ✓ src/numerics/inspeccion.test.ts > TMP-05 · ∂F/∂t y DF/Dt en el inspector (SPEC §3.10) > un campo estacionario no lleva datos temporales
+ ✓ src/numerics/inspeccion.test.ts > TMP-05 · ∂F/∂t y DF/Dt en el inspector (SPEC §3.10) > viento giratorio: J = 0, así que DF/Dt = ∂F/∂t = Vω(−sin ωt, cos ωt, 0)
+ ✓ src/numerics/inspeccion.test.ts > TMP-05 · ∂F/∂t y DF/Dt en el inspector (SPEC §3.10) > silla giratoria: DF/Dt = 2kω(−x s + y c, x c + y s, 0) + k²(x, y, 0), con c = cos 2ωt y s = sin 2ωt
+ ✓ src/numerics/inspeccion.test.ts > TMP-05 · ∂F/∂t y DF/Dt en el inspector (SPEC §3.10) > sin ∂F/∂t simbólica, diferencias centradas en t (T-03: 10⁻⁷(1 + |v|))
+ ✓ src/numerics/inspeccion.test.ts > TMP-05 · ∂F/∂t y DF/Dt en el inspector (SPEC §3.10) > sin derivadas espaciales en P, ∂F/∂t sí y DF/Dt no
+ Test Files  1 passed (1)
+      Tests  5 passed | 5 skipped (10)
+
+## Playwright (de evidencia/VAL-04/salida-e2e.txt: `npm run test:e2e`, 129 de 129)
+
+✓   17 [chromium] › tests/e2e/h10-tiempo.spec.ts:19:3 › V-FUN-22 · campos dependientes del tiempo › viento giratorio: las flechas giran con t, las líneas instantáneas son rectas y las partículas recorren circunferencias
+✓   18 [chromium] › tests/e2e/h10-tiempo.spec.ts:62:3 › V-FUN-22 · campos dependientes del tiempo › F_ref común a la ventana: no cambia al avanzar el reloj (D-64)
+✓   20 [chromium] › tests/e2e/h10-tiempo.spec.ts:73:3 › V-FUN-22 · interfaz del tiempo › inspector en la silla giratoria: t, ∂F/∂t y DF/Dt = ∂F/∂t + J·F correctos en (1, 0, 0), t = 0
+✓   22 [chromium] › tests/e2e/h10-tiempo.spec.ts:85:3 › V-FUN-22 · interfaz del tiempo › la sección «Tiempo»: el deslizador fija t (lectura de la escena y cálculo); con un campo estacionario solo explica
+✓   23 [chromium] › tests/e2e/h10-tiempo.spec.ts:106:3 › V-FUN-22 · interfaz del tiempo › axe sin infracciones graves con un campo temporal: «Tiempo», «Vista libre», «Avanzado» e inspector temporal (TMP-05)
+✓   25 [chromium] › tests/e2e/h10-tiempo.spec.ts:122:3 › V-FUN-22 · interfaz del tiempo › escribir t en una ecuación hace temporal el campo: P = t*x crece con t a escala fija de la ventana
+
+
+Capturas C13 (lluvia, t = 2) y C15 (viento giratorio con la sección «Tiempo») en V1–V3:
+evidencia/REV-05/capturas/.

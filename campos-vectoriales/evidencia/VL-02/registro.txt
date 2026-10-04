@@ -1,0 +1,19 @@
+# VL-02 · Vista libre inmersiva en la interfaz · 2026-10-04
+
+Aceptación (PLAN §5.3): V-FUN-18, V-FUN-19; V-A11Y-02 ampliado con F11; captura C14 (REV-05)
+Código verificado sobre el commit c2d95c8 (más las pruebas de esta evidencia).
+
+## Playwright (de evidencia/VAL-04/salida-e2e.txt: `npm run test:e2e`, 129 de 129)
+
+✓   21 [chromium] › tests/e2e/h10-vista-libre.spec.ts:32:3 › V-FUN-18 · vista libre inmersiva › entra con el botón: solo la escena, a toda la ventana; vuela con el teclado; Esc restaura pose, proyección, interfaz y foco
+✓   24 [chromium] › tests/e2e/h10-vista-libre.spec.ts:98:3 › V-FUN-18 · vista libre inmersiva › V y la tecla R: entrar y salir con V; R vuelve a la pose de entrada
+✓   27 [chromium] › tests/e2e/h10-vista-libre.spec.ts:118:3 › V-FUN-19 · dilatación λ › + y − cambian λ ×1.25 con indicador; con la caja, el explorador se acerca al centro de Ω en coordenadas del campo; la velocidad se divide por λ
+✓   79 [chromium] › tests/e2e/h8-a11y.spec.ts:41:3 › A11Y-02 · V-A11Y-01 con axe-core › C1, C4, C6, C8, panel desplegado, diálogos abiertos y modo consulta: 0 infracciones serious o critical
+✓   86 [chromium] › tests/e2e/h8-a11y.spec.ts:109:3 › A11Y-02 · nombres, regiones vivas y resumen de la escena › la escena es una aplicación con nombre de rol y un resumen vivo que cambia con el campo
+✓   87 [chromium] › tests/e2e/h8-a11y.spec.ts:126:3 › A11Y-02 · nombres, regiones vivas y resumen de la escena › el estado del cálculo se anuncia (status) y un error, como alerta; las notificaciones son status
+✓   88 [chromium] › tests/e2e/h8-a11y.spec.ts:143:3 › A11Y-02 · nombres, regiones vivas y resumen de la escena › VV-10 con la ayuda: con movimiento reducido no hay animaciones al abrir el cajón ni los diálogos
+✓  105 [chromium] › tests/e2e/h8.spec.ts:229:3 › A11Y-01 · teclado, foco y atajos › V-A11Y-02 · guion de teclado: cada requisito se completa sin ratón
+
+
+Captura C14 (vista libre dentro del helicoidal) en V1–V3: evidencia/REV-05/capturas/; referencia
+de tests/visual estable en tres ejecuciones (pose fijada con fijarPoseVuelo).

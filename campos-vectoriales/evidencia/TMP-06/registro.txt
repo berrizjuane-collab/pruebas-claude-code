@@ -1,0 +1,12 @@
+# TMP-06 · Líneas de traza · 2026-10-04
+
+Aceptación (PLAN §5.3): V-NUM-20 (T-26)
+Código verificado sobre el commit c2d95c8 (más las pruebas de esta evidencia).
+
+## Vitest: npx vitest run src/numerics/tiempo.test.ts -t "V-NUM-20" --reporter=verbose
+
+MEDIDA T-26 · distancia a la línea de traza exacta, 6 partículas: 4.95e-11
+ ✓ src/numerics/tiempo.test.ts > V-NUM-20 · líneas de traza (emisión desde semillas) > viento giratorio: las partículas de una semilla están sobre el arco exacto (T-26) y salen escalonadas
+ Test Files  1 passed (1)
+      Tests  1 passed | 16 skipped (17)
+

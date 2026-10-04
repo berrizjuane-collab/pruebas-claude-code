@@ -1,0 +1,58 @@
+# VAL-04 · Baterías de la 1.1 · 2026-10-04
+
+Aceptación (PLAN §5.3): `npm run check`, cobertura de math/ y numerics/ ≥ 90 %, e2e completas
+(las de la 1.0 y las nuevas) en verde.
+
+## npm run check
+
+Lint y tipos sin errores; Vitest: 502 pruebas superadas y 3 omitidas (la medida informativa
+V-PERF-05, que solo corre con MEDIR=1). En la 1.0 eran 419.
+
+## Cobertura (npm run test:cobertura; cobertura-salida.txt, coverage-summary.json)
+
+| Capa | Líneas cubiertas | 1.0 (VAL-01) |
+| --- | --- | --- |
+| math/ | 93.2 % (817/877) | 91.7 % |
+| numerics/ | 95.3 % (670/703) | 97.2 % |
+| geometria/ | 98.9 % (267/270) | 98.9 % |
+| state/ | 91.5 % (441/482) | 95.2 % |
+
+Superado. La primera medida dio numerics/ 91.6 %: `numerics/inspeccion.ts` tenía sin probar
+la parte temporal (∂F/∂t y DF/Dt, 39.5 %). Se añadieron cinco pruebas (inspeccion.test.ts,
+«TMP-05»): viento giratorio (J = 0, DF/Dt = ∂F/∂t), silla giratoria contra la fórmula cerrada
+DF/Dt = 2kω(−x s + y c, x c + y s, 0) + k²(x, y, 0), diferencias centradas en t frente a la
+derivada simbólica en los tres campos, y un punto sin derivadas espaciales. Ahora 100 % de
+líneas en ese archivo.
+
+## Errores medidos (VALIDATION §2.2)
+
+T-22 y T-23 en TMP-02. Nuevos en esta tarea (salida MEDIDA de Vitest):
+
+    MEDIDA T-24 · 1000 puntos, λ ∈ [1/8, 64]: 6.66e-13 px                       (tolerancia 1e-9 px)
+    MEDIDA T-25 · nodos de ventanas desplazadas hasta 1000 Δ: 0.00e+0 L          (tolerancia 1e-12 L)
+    MEDIDA T-26 · distancia a la línea de traza exacta, 6 partículas: 4.95e-11  (tolerancia 1e-6)
+
+## e2e completas: npm run test:e2e (salida-e2e.txt)
+
+**129 de 129 superadas** en 10.3 min: 108 del proyecto chromium, 6 de rendimiento (en serie,
+al final) y 15 referencias visuales. En la 1.0 (VAL-02) eran 101.
+
+Proyectos: chromium (funcionales y accesibilidad de la 1.0 y de la 1.1), rendimiento (en
+serie, al final) y visual (referencias C1–C15).
+
+## Hallazgos de esta tarea
+
+1. axe con un campo temporal (prueba nueva en h10-tiempo): la fórmula de la silla giratoria
+   desborda el panel y no se podía desplazar con el teclado (`scrollable-region-focusable`).
+   Corregido (D-77) y comprobado en la misma prueba.
+2. CMP-02 (proyecto rendimiento, que no corre con `--project=chromium`): esperaba el vector de
+   evaluación `[a]`; desde D-63 lleva el instante en la última ranura, `[a, t]`. No es un fallo
+   de la aplicación: la prueba se actualizó a `[a, 0]` (helicoidal, reloj en t = 0) con el
+   motivo en un comentario.
+3. V-FUN-16 (robustez) falló una vez en la batería completa: «la interfaz responde al final»
+   midió 1003 ms (umbral 1000). No es una regresión: aislada da 220–520 ms y el código de la 1.0
+   (24e634b), en las mismas condiciones, 246–562 ms (en VAL-02 había medido 423). La malla tarda
+   0.2 ms en el worker; el resto es la espera del fotograma que la lanza, que con WebGL por
+   software depende del proceso GPU, saturado por otra prueba en paralelo. La prueba pasa al
+   proyecto «rendimiento», en serie y al final, como el resto de medidas de tiempo (D-79): 3 de
+   3 seguidas ahí.

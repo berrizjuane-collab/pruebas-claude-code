@@ -93,10 +93,10 @@ Ninguna medida se aparta más de un orden de magnitud de la calibración.
 | T-15 | Alineación radial | — | $4.2\times10^{-16}$ | Redondeo |
 | T-16 | Recorte al borde | $h/2^{30}\approx6\times10^{-11}$ | ≤ $4.7\times10^{-11}$ | — |
 
-### 2.2 Errores medidos de la 1.1 (TMP-02, 2026-10-04)
+### 2.2 Errores medidos de la 1.1 (TMP-02, VAL-04, 2026-10-04)
 
-Salida `MEDIDA` de `npx vitest run src/numerics/tiempo.test.ts` (registro en
-`evidencia/TMP-02/`). Partida $\mathbf r_0=(0.6,-0.4,0.3)$, $t_0=0.3$, parámetros por defecto
+Salida `MEDIDA` de `npx vitest run --silent=false` (registros en `evidencia/TMP-02/` y
+`evidencia/VAL-04/`). Partida $\mathbf r_0=(0.6,-0.4,0.3)$, $t_0=0.3$, parámetros por defecto
 salvo en la silla giratoria ($k=1$ y ω indicada).
 
 | # | Caso | Tolerancia | Medido | Comentario |
@@ -107,6 +107,9 @@ salvo en la silla giratoria ($k=1$ y ω indicada).
 | T-22 | Silla giratoria, ω = 0.6 < k (escapa) | $10^{-7}$ | $9.2\times10^{-10}$ | Error relativo a la posición, que crece como $e^{\mu t}$ |
 | T-22 | Silla giratoria, ω = k | $10^{-7}$ | $7.5\times10^{-10}$ | Caso degenerado $\mathbf q=(I+\tau M)\mathbf q_0$ |
 | T-23 | Orden de RK4 no autónomo, $\delta t=0.1\to0.025$ | $p\in[3.8,4.2]$ | 3.96 – 4.00 en los cinco casos | Teoría: $p=4$ |
+| T-24 | Dilatación alrededor del ojo, 1000 puntos, $\lambda\in[1/8,64]$ (`src/render/vuelo.test.ts`) | $10^{-9}$ px | $6.7\times10^{-13}$ px | Solo redondeo: la proyección no cambia (VL-01) |
+| T-25 | Nodos de ventanas desplazadas hasta $10^3\,\Delta$ (`src/numerics/ventana.test.ts`) | $10^{-12}\,L$ | 0 | Exacto: los extremos se desplazan por múltiplos enteros de $\Delta$ (ALC-02) |
+| T-26 | Línea de traza del viento giratorio, 6 partículas en vuelo (`src/numerics/tiempo.test.ts`) | $10^{-6}$ | $5.0\times10^{-11}$ | Cada partícula es una trayectoria (TMP-06) |
 
 ---
 
@@ -172,7 +175,7 @@ salvo en la silla giratoria ($k=1$ y ω indicada).
 | V-FUN-13 | **Capas** con interruptores y atajos | Capa visible ↔ entrada de la leyenda; atajos inactivos dentro de campos de texto |
 | V-FUN-14 | **Dominio y densidad** | N = 21 → 9261 instancias; límites inválidos rechazados con mensaje; la caja, los ejes y el corte se adaptan; la cámara se reencuadra |
 | V-FUN-15 | **Estados de pantalla** | Sin WebGL2 → estado vacío explicativo; todo indefinido → estado vacío con sugerencias; campo nulo → aviso; cálculo de > 300 ms → progreso y «Cancelar» que funciona |
-| V-FUN-16 | **Robustez**: 200 ediciones aleatorias rápidas (expresiones, parámetros, dominio) | 0 errores en consola; 0 excepciones no capturadas; la interfaz responde al final (< 1 s) |
+| V-FUN-16 | **Robustez**: 200 ediciones aleatorias rápidas (expresiones, parámetros, dominio); en el proyecto «rendimiento» por su medida de tiempo (D-79) | 0 errores en consola; 0 excepciones no capturadas; la interfaz responde al final (< 1 s) |
 | V-FUN-18 | **Vista libre**: entrar con el botón y con V | Barra superior, panel, leyenda, inspector, barra de la escena, triedro, notificaciones y mensajes **no visibles** (ni enfocables); el lienzo ocupa toda la ventana; W/S/A/D/E/Q, flechas y arrastre mueven la cámara en el sentido esperado; F/L/P/C/G y Espacio funcionan; Esc y V salen y restauran exactamente la pose, la proyección (también si era ortográfica) y la interfaz, con el foco en el botón de origen; axe sin infracciones al salir |
 | V-FUN-19 | **Dilatación**: + y − en la vista libre | λ ×1.25 / ÷1.25 dentro de [1/8, 64]; con la caja, la imagen crece alrededor del centro de Ω; sin límites, la imagen no cambia y la velocidad en unidades del campo se divide por λ; indicador transitorio con λ |
 | V-FUN-20 | **Espacio sin límites**: U en la vista libre y avanzar 10 Δ | La ventana cambia por múltiplos de Δ; $F_{\text{ref}}$ no cambia; la flecha de un nodo común es idéntica antes y después; sin caja; partículas sin recrear (las que siguen dentro conservan su posición) |
@@ -282,7 +285,7 @@ Matriz obligatoria: **C1–C15 × V1–V3**. Además, V4: C1, C2, C4, C6. V5: C1
 | VV-03 | **Contraste y legibilidad** | axe `color-contrast`; *script* de tokens; píxel central de la flecha más débil frente a su halo | Lectura a 60 cm en V3 | 0 violaciones; ≥ 3:1 en la escena |
 | VV-04 | **Alineación y espaciado** | Bordes izquierdos de las etiquetas del panel a 16 px (±0.5); separaciones verticales múltiplos de 4 | Retícula de 4 px superpuesta (`?reticula=1`) | Sin desviaciones |
 | VV-05 | **Claridad de la escena** | Longitud proyectada del cono ≥ 6 px en ≥ 95 % de las flechas de la mitad delantera legibles por su geometría: ‖F‖ ≥ 20 % F_ref y a más de 30° del rayo de vista (C1, V2; revisado, D-37) | Muestra de 20 flechas en C1: sentido identificable en ≥ 19; líneas distinguibles de flechas; corte y P identificables tras leer la leyenda una vez; en C7, puntas identificables en la mitad delantera | Todos los puntos superados |
-| VV-06 | **Densidad de los paneles** (revisado en REV-02, D-33) | Con el experimento inicial: secciones 1–4 enteras sin desplazar en V3; con ≤ 3 parámetros, también en V2 (`auditarDensidad`) | ≤ 25 elementos interactivos visibles en reposo en el panel, en V2 y V3 (D-61); cada uno con una función clara | Ambos superados |
+| VV-06 | **Densidad de los paneles** (revisado en REV-02, D-33, y en REV-05, D-78) | Con el experimento inicial: secciones 1–4 enteras sin desplazar en V2 (con ≤ 3 parámetros; desde la 1.1 también «Tiempo»); en V3, secciones 1–3 enteras y el título de «Parámetros» visible (en la 1.0, 1–4 enteras) (`auditarDensidad`) | ≤ 25 elementos interactivos visibles en reposo en el panel, en V2 y V3 (D-61); cada uno con una función clara | Ambos superados |
 | VV-07 | **Estados de interacción** | En C8: anillo de foco ≥ 2 px y ≥ 3:1; deshabilitados con motivo en la descripción emergente | Cada estado se distingue por una señal no tonal (DESIGN §7) | Todos superados |
 | VV-08 | **Sin recortes, solapamientos ni desplazamientos innecesarios** | `scrollWidth ≤ innerWidth`; cajas de leyenda, inspector, barra de escena, triedro, avisos y notificaciones sin intersección; ningún texto desbordado sin descripción emergente; solo el panel y la ayuda pueden desplazarse | Revisión de los bordes de cada región | 0 incidencias |
 | VV-09 | **Codificación científica** | Entradas de la leyenda = capas visibles | Matriz de VIS-05 (cada fila de DESIGN §9.1) | 100 % de filas superadas |
