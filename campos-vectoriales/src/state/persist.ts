@@ -385,12 +385,14 @@ function validarCapas(v: unknown, val: Validador): EstadoExperimento['capas'] | 
 function validarFlechas(v: unknown, val: Validador): EstadoExperimento['flechas'] | null {
   const o = val.objeto(v, 'flechas');
   if (!o) return null;
-  val.claves(o, 'flechas', ['modo', 'escala', 'escalaRot', 'luminancia']);
+  val.claves(o, 'flechas', ['modo', 'escala', 'escalaRot', 'luminancia', 'grosor']);
   const modo = val.opcion(val.leer(o, 'modo', 'flechas.modo'), 'flechas.modo', ['proporcional', 'normalizado'] as const);
   const escala = val.escala(val.leer(o, 'escala', 'flechas.escala', { tipo: 'auto' }), 'flechas.escala', true);
   const escalaRot = val.escala(val.leer(o, 'escalaRot', 'flechas.escalaRot', { tipo: 'auto' }), 'flechas.escalaRot', true);
   const luminancia = val.opcion(val.leer(o, 'luminancia', 'flechas.luminancia', 'lineal'), 'flechas.luminancia', ['lineal', 'log'] as const);
-  return modo && escala && escalaRot && luminancia ? { modo, escala, escalaRot, luminancia } : null;
+  // El grosor es solo apariencia y llegó después del formato v2: si falta, «finas» sin aviso (D-80).
+  const grosor = val.opcion('grosor' in o ? o.grosor : 'finas', 'flechas.grosor', ['finas', 'gruesas'] as const);
+  return modo && escala && escalaRot && luminancia && grosor ? { modo, escala, escalaRot, luminancia, grosor } : null;
 }
 
 function validarSemillas(v: unknown, val: Validador): EspecSemillas | null {

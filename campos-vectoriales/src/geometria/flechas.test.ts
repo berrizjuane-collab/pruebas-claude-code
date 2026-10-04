@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calcularFlechas, fraccionMagnitud, grisRampaMagnitud, PROPORCION, puntasHaciaCamara, type AnillosRotacional } from './flechas';
+import { calcularFlechas, fraccionMagnitud, grisRampaMagnitud, PROPORCION, puntasHaciaCamara, RADIOS, type AnillosRotacional } from './flechas';
 import { crearMalla, escalaAutomatica, muestrearMalla, clasificarCeros } from '../numerics/grid';
 import { campoPorId, valoresParametros } from '../math/catalog';
 import { lstarDeGris } from '../design/color';
@@ -15,7 +15,7 @@ function preparar(id: Parameters<typeof campoPorId>[0], modo: 'proporcional' | '
   const esc = escalaAutomatica(m.mag, m.clase);
   clasificarCeros(m, esc.ref);
   const lMax = 0.9 * malla.deltaRef;
-  return { m, esc, lMax, inst: calcularFlechas(m, { fRef: esc.ref, lMax, modo, luminancia: 'lineal' }) };
+  return { m, esc, lMax, inst: calcularFlechas(m, { fRef: esc.ref, lMax, modo, luminancia: 'lineal', grosor: 'gruesas' }) };
 }
 
 describe('geometría de flechas', () => {
@@ -72,16 +72,31 @@ describe('geometría de flechas', () => {
   it('flechas cortas conservan la forma (el cono escala con la flecha)', () => {
     const inst = calcularFlechas(
       { total: 1, pos: [0, 0, 0], F: [0.1, 0, 0], mag: [0.1], clase: [0] },
-      { fRef: 1, lMax: 1, modo: 'proporcional', luminancia: 'lineal' },
+      { fRef: 1, lMax: 1, modo: 'proporcional', luminancia: 'lineal', grosor: 'gruesas' },
     );
     expect(inst.largo[0]).toBeCloseTo(0.1, 6);
     expect((inst.cono[0] as number) / (inst.largo[0] as number)).toBeCloseTo(1 / 1.5, 6);
   });
 
+  it('grosor (D-80): «finas» solo adelgaza cilindro y cono; largo, cono, dirección y gris no cambian', () => {
+    const e = { total: 2, pos: [0, 0, 0, 1, 1, 1], F: [2, 0, 0, 0, 0.3, 0], mag: [2, 0.3], clase: [0, 0] };
+    const o = { fRef: 1, lMax: 1, modo: 'proporcional', luminancia: 'lineal' } as const;
+    const finas = calcularFlechas(e, { ...o, grosor: 'finas' });
+    const gruesas = calcularFlechas(e, { ...o, grosor: 'gruesas' });
+    for (const k of ['cola', 'dir', 'largo', 'cono', 'gris', 'saturada'] as const) expect(Array.from(finas[k])).toEqual(Array.from(gruesas[k]));
+    // Flecha saturada (s = 1): radios exactos; la corta (s < 1) los escala igual que el cono.
+    expect(finas.radio[0]).toBeCloseTo(RADIOS.finas.radio, 7);
+    expect(finas.radioCono[0]).toBeCloseTo(RADIOS.finas.radioCono, 7);
+    expect(gruesas.radio[0]).toBeCloseTo(PROPORCION.radio, 7);
+    expect((finas.radio[1] as number) / (gruesas.radio[1] as number)).toBeCloseTo(RADIOS.finas.radio / RADIOS.gruesas.radio, 6);
+    // Varilla y punta de aguja: el cono es al menos 3.5 veces más largo que ancho.
+    expect(PROPORCION.cono / (2 * RADIOS.finas.radioCono)).toBeGreaterThanOrEqual(3.5);
+  });
+
   it('nodos no definidos → aspa', () => {
     const inst = calcularFlechas(
       { total: 2, pos: [0, 0, 0, 1, 1, 1], F: [NaN, 0, 0, 1, 0, 0], mag: [NaN, 1], clase: [2, 0] },
-      { fRef: 1, lMax: 1, modo: 'proporcional', luminancia: 'lineal' },
+      { fRef: 1, lMax: 1, modo: 'proporcional', luminancia: 'lineal', grosor: 'gruesas' },
     );
     expect(inst.n).toBe(1);
     expect(Array.from(inst.indefinidos)).toEqual([0, 0, 0]);

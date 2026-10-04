@@ -23,11 +23,15 @@ export interface EntradaFlechas {
   clase: ArrayLike<number>;
 }
 
+export type GrosorFlechas = 'finas' | 'gruesas';
+
 export interface OpcionesFlechas {
   fRef: number;
   lMax: number;
   modo: ModoLongitud;
   luminancia: ModoLuminancia;
+  /** Grosor de cilindro y cono (D-80). */
+  grosor: GrosorFlechas;
 }
 
 export interface InstanciasFlechas {
@@ -77,6 +81,16 @@ export interface AnillosRotacional {
 /** Fracciones de ℓmax de la geometría (DESIGN §9.2). */
 export const PROPORCION = { cono: 0.3, radioCono: 0.09, radio: 0.025, normalizada: 0.75, anillo: 0.2, puntaAnillo: 0.15, radioPuntaAnillo: 0.065 } as const;
 
+/**
+ * Radios del cono y del cilindro (fracciones de ℓmax) según el grosor (D-80). El largo del cono
+ * es el mismo en los dos (30 % de ℓmax): el sentido se lee igual (VV-05). «Finas»: varilla y
+ * punta de aguja, como gotas que caen; «gruesas»: las de la 1.0.
+ */
+export const RADIOS: Record<GrosorFlechas, { radioCono: number; radio: number }> = {
+  finas: { radioCono: 0.04, radio: 0.01 },
+  gruesas: { radioCono: PROPORCION.radioCono, radio: PROPORCION.radio },
+};
+
 /** u ∈ [0, 1] de la rampa a partir de ‖F‖/F_ref. */
 export function fraccionMagnitud(m: number, fRef: number, luminancia: ModoLuminancia): number {
   const r = m / fRef;
@@ -105,6 +119,7 @@ export function calcularFlechas(e: EntradaFlechas, o: OpcionesFlechas): Instanci
   const indefinidos: number[] = [];
   const umbralCero = CERO_VISUAL * o.fRef;
   const conoMax = PROPORCION.cono * o.lMax;
+  const radios = RADIOS[o.grosor];
   let n = 0;
   let nSaturadas = 0;
   for (let i = 0; i < total; i++) {
@@ -135,8 +150,8 @@ export function calcularFlechas(e: EntradaFlechas, o: OpcionesFlechas): Instanci
     dir[3 * n + 2] = dz;
     largo[n] = l;
     cono[n] = conoMax * s;
-    radioCono[n] = PROPORCION.radioCono * o.lMax * s;
-    radio[n] = PROPORCION.radio * o.lMax * s;
+    radioCono[n] = radios.radioCono * o.lMax * s;
+    radio[n] = radios.radio * o.lMax * s;
     gris[n] = grisRampaMagnitud(fraccionMagnitud(m, o.fRef, o.luminancia));
     const sat = o.modo === 'proporcional' && m >= o.fRef ? 1 : 0;
     saturada[n] = sat;

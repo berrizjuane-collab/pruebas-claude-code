@@ -1005,7 +1005,7 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
   "dominio": { "min": [-2, -2, -2], "max": [2, 2, 2] },
   "muestreo": { "n": [9, 9, 9], "posicion": "nodos", "corteResolucion": 21 },
   "capas": { "flechas": true, "lineas": true, "particulas": false, "glifos": "campo" },
-  "flechas": { "modo": "proporcional", "escala": { "tipo": "auto" }, "escalaRot": { "tipo": "auto" }, "luminancia": "lineal" },
+  "flechas": { "modo": "proporcional", "escala": { "tipo": "auto" }, "escalaRot": { "tipo": "auto" }, "luminancia": "lineal", "grosor": "finas" },
   "lineas": { "semillas": { "tipo": "rejilla", "plano": "XZ", "c": 0, "u": [0.5, 2], "v": [0, 0], "nu": 4, "nv": 1 }, "paso": 0.0625, "longitudMax": 27.7 },
   "particulas": { "n": 400, "tau": null, "semilla": 1 },
   "corte": { "activo": false, "plano": "XY", "c": 0, "flechas": "todas", "vector": "completo", "escalar": "ninguno", "escala": { "tipo": "auto" } },
@@ -1036,6 +1036,8 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
   **Migración 1 → 2**: añade esas claves con sus valores por defecto sin avisos de «falta»
   (no son omisiones del usuario); solo queda la nota «Convertido de la versión 1 a la 2». Un archivo v2 en la 1.0 da el error de versión posterior, como prevé
   esta misma sección.
+  `flechas.grosor` ∈ {`finas`, `gruesas`} (D-80) es solo apariencia: si falta, vale `finas`
+  sin aviso.
 - Tamaño máximo del archivo: 256 KB.
 - **Recuperación automática**: el estado se guarda en `localStorage` 1 s después de cada
   cambio, siempre dentro de `try/catch`. Al abrir, se restaura con un aviso «Se ha recuperado

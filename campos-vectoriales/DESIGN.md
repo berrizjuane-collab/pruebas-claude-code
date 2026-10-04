@@ -290,7 +290,7 @@ caja de 32 px.
 | 8 | Divergencia y rotacional | Plegada | Expresiones simbólicas de div F y rot F; accesos «Ver div en el corte», «Ver rot · n en el corte», «Glifos de rot F» |
 | 9 | Dominio y muestreo | Plegada | Límites de la caja (cubo enlazado), «Ampliar ×2» / «Estrechar ÷2» (1.1), N, nodos/centros, resolución del corte |
 | 9b | Vista libre (1.1) | Plegada | Botón «Entrar en la vista libre», λ, velocidad, «Espacio sin límites», resumen de las teclas |
-| 10 | Avanzado | Plegada | Flechas: proporcional/normalizada, escala auto/fija, luminancia lineal/log. Partículas: número, τ, semilla, «Nacen en: todo Ω · las semillas» (1.1). Cifras significativas |
+| 10 | Avanzado | Plegada | Flechas: grosor finas/gruesas (1.1, D-80), proporcional/normalizada, escala auto/fija, luminancia lineal/log. Partículas: número, τ, semilla, «Nacen en: todo Ω · las semillas» (1.1). Cifras significativas |
 
 Objetivo de densidad (VV-06, revisado en REV-02, D-33): a 1280×720 y con el experimento
 inicial (un parámetro), las secciones 1–4 (Campo, Ejemplos, Ecuaciones y Parámetros) caben
@@ -485,6 +485,11 @@ oclusión, halo y paralaje al orbitar.
 - Flecha = cilindro + **cono** en el extremo de llegada, **centrada en su nodo**. El cono mide
   el 30 % de $\ell_{\max}$ y su radio, el 9 %. Si la flecha es más corta que 1.5 conos, se
   escala entera para conservar la forma de flecha.
+- **Grosor** (1.1, D-80; «Avanzado → Grosor»): por defecto **finas**, una varilla de radio
+  1 % de $\ell_{\max}$ con una punta de aguja de radio 4 % (el cono es 3.75 veces más largo
+  que ancho), como gotas que caen; **gruesas** son las de la 1.0 (radios 2.5 % y 9 %). El largo
+  del cono es el mismo en las dos, así que el sentido se lee igual (VV-05); el halo y las pistas
+  de forma no cambian.
 - **Pistas de forma sin iluminación** (añadidas en REV-01): (1) la **base del cono**, que solo
   se ve cuando la flecha se aleja de la cámara, se dibuja más oscura (≈ 55 %); (2) el cono
   lleva un **degradado fijo** del vértice (gris exacto de la rampa) al borde de la base (80 %).

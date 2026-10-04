@@ -60,7 +60,7 @@ export const peticionMalla = (e: EstadoExperimento): SinId<PeticionMalla> => ({
   escala: e.flechas.escala,
   glifos: e.capas.glifos,
   escalaRot: e.flechas.escalaRot,
-  flechas: { modo: e.flechas.modo, luminancia: e.flechas.luminancia },
+  flechas: { modo: e.flechas.modo, luminancia: e.flechas.luminancia, grosor: e.flechas.grosor },
   corte: corteDeFlechas(e),
 });
 

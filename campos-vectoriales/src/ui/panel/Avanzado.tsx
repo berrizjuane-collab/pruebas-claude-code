@@ -38,6 +38,18 @@ function AvanzadoBase({ flechas, particulas, cifras, tauActual, fRefActual, delt
     <Seccion titulo={T.avanzado.titulo} ayuda="supuestos-derivadas" datosPrueba="seccion-avanzado">
       <p className="subtitulo">{T.avanzado.flechas}</p>
       <div className="fila-control">
+        <span className="fila-etiqueta">{T.avanzado.grosor}</span>
+        <Segmentado
+          etiqueta={T.avanzado.grosorLargo}
+          valor={flechas.grosor}
+          opciones={[
+            { valor: 'finas', texto: T.avanzado.finas },
+            { valor: 'gruesas', texto: T.avanzado.gruesas },
+          ]}
+          alCambiar={(grosor) => alFlechas({ grosor })}
+        />
+      </div>
+      <div className="fila-control">
         <span className="fila-etiqueta">{T.avanzado.longitud}</span>
         <Segmentado
           etiqueta={T.avanzado.longitudLargo}

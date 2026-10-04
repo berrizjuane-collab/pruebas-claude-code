@@ -28,6 +28,8 @@ export interface EstadoExperimento {
     /** C_ref de los glifos de rot F (DESIGN §9.7 y §9.10): independiente de F_ref. */
     escalaRot: { tipo: 'auto' } | { tipo: 'fija'; valor: number; delta?: number };
     luminancia: 'lineal' | 'log';
+    /** Grosor de las flechas (1.1, D-80): varillas finas con punta de aguja, o las de la 1.0. */
+    grosor: 'finas' | 'gruesas';
   };
   lineas: {
     semillas: EspecSemillas;
@@ -103,7 +105,7 @@ export function experimentoDesdeCatalogo(id: IdCampo, previo?: EstadoExperimento
     dominio: DOMINIO_POR_DEFECTO,
     muestreo: { n: [9, 9, 9], posicion: 'nodos', corteResolucion: 21 },
     capas: { flechas: true, lineas: true, particulas: false, glifos: 'campo' },
-    flechas: { modo: 'proporcional', escala: { tipo: 'auto' }, escalaRot: { tipo: 'auto' }, luminancia: 'lineal' },
+    flechas: { modo: 'proporcional', escala: { tipo: 'auto' }, escalaRot: { tipo: 'auto' }, luminancia: 'lineal', grosor: 'finas' },
     lineas: { semillas: c.semillas, paso: null, longitudMax: null },
     particulas: { n: 400, tau: null, semilla: 1, nacimiento: 'dominio' },
     corte: { activo: false, plano: 'XY', c: 0, flechas: 'todas', vector: 'completo', escalar: 'ninguno', escala: { tipo: 'auto' } },

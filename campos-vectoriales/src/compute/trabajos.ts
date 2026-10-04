@@ -84,7 +84,7 @@ export function trabajoMalla(pet: PeticionMalla): ResultadoMalla {
       ? escalaVentanaCacheada(['rot', ...claveVentana], () => escalaRotEnVentana(campo, p, malla, ventana, L))
       : escalaDe(pet.escalaRot, rot.mag, rot.clase);
   if (rot) clasificarCeros(rot, escalaGlifos.ref);
-  const opciones = { fRef: escalaGlifos.ref, modo: pet.flechas.modo, luminancia: pet.flechas.luminancia };
+  const opciones = { fRef: escalaGlifos.ref, modo: pet.flechas.modo, luminancia: pet.flechas.luminancia, grosor: pet.flechas.grosor };
   const instancias = calcularFlechas(rot ? { total: muestra.total, pos: muestra.pos, F: rot.C, mag: rot.mag, clase: rot.clase } : muestra, { ...opciones, lMax });
   if (rot) instancias.anillos = anillosRotacional(instancias, lMax);
   const corte = pet.corte ? flechasCorte(campo, p, pet, opciones, !!rot) : null;
@@ -126,7 +126,7 @@ function flechasCorte(
   campo: CampoCompilado,
   p: Float64Array,
   pet: PeticionMalla,
-  opciones: { fRef: number; modo: PeticionMalla['flechas']['modo']; luminancia: PeticionMalla['flechas']['luminancia'] },
+  opciones: { fRef: number; modo: PeticionMalla['flechas']['modo']; luminancia: PeticionMalla['flechas']['luminancia']; grosor: PeticionMalla['flechas']['grosor'] },
   conRot: boolean,
 ): FlechasCorte {
   const esp = pet.corte!;

@@ -44,3 +44,20 @@ entrega/ (sha256sum de dist/ y de entrega/). Para comprobarlo en el commit de es
 Las comprobaciones de la 1.0 (Q-04, Q-05, Q-06) siguen abiertas y conviene hacerlas ya con
 este archivo: en la de rendimiento (Q-06), añadir un campo temporal en reproducción y unos
 segundos de vuelo en la vista libre (R-15).
+
+## Actualización · flechas finas (D-80) · 2026-10-04
+
+Petición del usuario después de la entrega: flechas «como finas varillas con una puntilla o
+gotas de lluvia». Por defecto, varilla de radio 1 % de ℓmax y punta de aguja de radio 4 %, con
+el mismo largo de cono; «Avanzado → Grosor → Gruesas» vuelve a las de la 1.0.
+
+Archivo entregado: entrega/campos-vectoriales.html · 2 006 514 bytes (1.91 MB)
+SHA-256: 69ed1443e8da502a6e1e6c16b3116480b21a0d2190195ac9cf68e742d0512c5a
+(dos compilaciones seguidas, misma huella; sustituye a 47b8f541…)
+
+- sonda-file (red cortada): worker, 729 flechas, Inter Variable, 0 errores, 0 peticiones.
+- salida-e2e-archivo-d80.txt: OBJETIVO=archivo, chromium + rendimiento: 114 de 114.
+- evidencia/VAL-04/salida-e2e-d80.txt: `npm run test:e2e` (con las 15 referencias visuales
+  regeneradas y revisadas): 129 de 129. Incluye VV-05 (largo proyectado del cono ≥ 6 px, sin
+  cambios porque el largo del cono es el mismo) y la selección de una flecha con un clic.
+- Vitest: 504 pruebas (dos nuevas: geometría del grosor y JSON sin `flechas.grosor`).

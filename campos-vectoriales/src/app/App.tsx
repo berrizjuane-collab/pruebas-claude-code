@@ -332,6 +332,7 @@ export function App({ fuentes }: Props) {
   const modoGlifosP = estado.capas.glifos;
   const modoLongitud = estado.flechas.modo;
   const modoLuminancia = estado.flechas.luminancia;
+  const grosorFlechas = estado.flechas.grosor;
   useEffect(() => {
     if (!controlador) return;
     if (!inspeccion || !malla) {
@@ -345,12 +346,12 @@ export function App({ fuentes }: Props) {
       const m = Math.hypot(v[0], v[1], v[2]);
       flecha = calcularFlechas(
         { total: 1, pos: inspeccion.punto, F: v, mag: [m], clase: [CLASE.VALIDO] },
-        { fRef: malla.escalaGlifos.ref, modo: modoLongitud, luminancia: modoLuminancia, lMax: malla.lMax },
+        { fRef: malla.escalaGlifos.ref, modo: modoLongitud, luminancia: modoLuminancia, grosor: grosorFlechas, lMax: malla.lMax },
       );
       if (rot) flecha.anillos = anillosRotacional(flecha, malla.lMax);
     }
     controlador.fijarSeleccion({ punto: inspeccion.punto, dominio, flecha });
-  }, [controlador, inspeccion, malla, dominio, modoGlifosP, modoLongitud, modoLuminancia]);
+  }, [controlador, inspeccion, malla, dominio, modoGlifosP, modoLongitud, modoLuminancia, grosorFlechas]);
 
   // Elegir P con un clic (flecha → su nodo exacto; plano de corte → punto del plano) y moverlo
   // con Alt + flechas / Alt + RePág / AvPág en pasos de Δ (F7).

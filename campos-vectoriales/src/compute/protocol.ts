@@ -4,7 +4,7 @@
  * en caché); las respuestas devuelven arrays tipados transferibles.
  */
 import type { Dominio, EspecSemillas, Plano, Vec3 } from '../math/tipos';
-import type { InstanciasFlechas, ModoLongitud, ModoLuminancia } from '../geometria/flechas';
+import type { GrosorFlechas, InstanciasFlechas, ModoLongitud, ModoLuminancia } from '../geometria/flechas';
 import type { GeometriaLineas } from '../geometria/lineas';
 import type { Escala } from '../numerics/grid';
 import type { MotivoParada } from '../numerics/streamlines';
@@ -38,7 +38,7 @@ export interface PeticionMalla {
   glifos: 'campo' | 'rotacional';
   /** C_ref de los glifos de rot F. */
   escalaRot: { tipo: 'auto' } | { tipo: 'fija'; valor: number; delta?: number };
-  flechas: { modo: ModoLongitud; luminancia: ModoLuminancia };
+  flechas: { modo: ModoLongitud; luminancia: ModoLuminancia; grosor: GrosorFlechas };
   /** Flechas «solo en el corte» (DESIGN §9.5): rejilla N×N del plano con la F_ref del volumen. */
   corte: { plano: Plano; c: number; vector: 'completo' | 'tangencial' } | null;
 }

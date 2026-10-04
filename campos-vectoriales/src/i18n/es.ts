@@ -88,6 +88,10 @@ export const T = {
   avanzado: {
     titulo: 'Avanzado',
     flechas: 'Flechas',
+    grosor: 'Grosor',
+    grosorLargo: 'Grosor de las flechas',
+    finas: 'Finas',
+    gruesas: 'Gruesas',
     longitud: 'Longitud',
     longitudLargo: 'Longitud de las flechas',
     proporcional: 'Proporcional',

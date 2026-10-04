@@ -267,3 +267,17 @@ describe('V-FUN-23 · JSON v2 (1.1): tiempo, exploración y nacimiento', () => {
     }
   });
 });
+
+describe('D-80 · grosor de las flechas', () => {
+  it('ida y vuelta con «gruesas»; si falta, «finas» sin aviso; un valor ajeno es un error con su ruta', () => {
+    const gruesas = fijarOpcionesFlechas(EXPERIMENTO_INICIAL, { grosor: 'gruesas' });
+    expect(importarConfiguracion(serializar(gruesas))).toEqual({ ok: true, estado: gruesas, avisos: [] });
+    const doc = JSON.parse(serializar(gruesas));
+    delete doc.flechas.grosor;
+    expect(importarConfiguracion(JSON.stringify(doc))).toEqual({ ok: true, estado: EXPERIMENTO_INICIAL, avisos: [] });
+    doc.flechas.grosor = 'medianas';
+    const r = importarConfiguracion(JSON.stringify(doc));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errores.map((e) => e.ruta)).toEqual(['flechas.grosor']);
+  });
+});
