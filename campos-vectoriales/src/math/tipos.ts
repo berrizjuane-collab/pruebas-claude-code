@@ -26,7 +26,12 @@ export type EspecSemillas =
       nv: number;
     }
   | { tipo: 'aleatoria'; n: number; semilla: number }
-  | { tipo: 'punto' };
+  | { tipo: 'punto' }
+  /**
+   * Ancladas a una red gruesa de lado D alineada con `ancla` (espacio sin límites, SPEC §3.11 y
+   * §5.11). Solo existe en el estado que ve el cálculo: nunca se guarda ni se exporta.
+   */
+  | { tipo: 'red'; D: number; ancla: Vec3; semilla: number };
 
 export interface DeclParametro {
   nombre: string;

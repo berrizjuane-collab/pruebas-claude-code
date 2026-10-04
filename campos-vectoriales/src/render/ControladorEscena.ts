@@ -32,6 +32,17 @@ import { CapaParticulas, type DatosParticulas } from './layers/particulas';
 import { CapaRueda, type DatosRueda } from './layers/rueda';
 import { CapaSeleccion, type DatosSeleccion } from './layers/seleccion';
 import { factorEscalaSprites } from './text/etiquetas';
+import {
+  acotarElevacion,
+  angulosDesdeDireccion,
+  dilatar,
+  direccion,
+  GIRO_PIXEL,
+  GIRO_TECLADO,
+  suavizarVelocidad,
+  velocidadObjetivo,
+  type Angulos,
+} from './vuelo';
 
 export interface OpcionesControlador {
   movimientoReducido: boolean;
@@ -55,6 +66,25 @@ export type Seleccion =
 
 const FOV = 35;
 const DURACION_TRANSICION = 400;
+
+/** Teclas físicas del vuelo (PLAN §3.2): también en distribuciones como AZERTY. */
+const TECLAS_VUELO = new Set(['KeyW', 'KeyS', 'KeyA', 'KeyD', 'KeyE', 'KeyQ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'ShiftLeft', 'ShiftRight']);
+
+/** Estado de la vista libre (VL-01): pose de vuelo y la pose orbital a la que se vuelve. */
+interface EstadoLibre {
+  previa: EstadoCamara & { proyeccion: Proyeccion };
+  entrada: { posicion: Vec3; angulos: Angulos };
+  posicion: Vec3;
+  angulos: Angulos;
+  velocidad: Vec3;
+  teclas: Set<string>;
+  /** Rapidez de vuelo en unidades de escena por segundo. */
+  rapidez: number;
+  /** Dilatación λ (SPEC §3.11) y su centro: un punto fijo (centro de Ω) o el explorador. */
+  lambda: number;
+  centro: Vec3 | 'camara';
+  ultimo: number;
+}
 
 export class ControladorEscena {
   readonly renderer: THREE.WebGLRenderer;
@@ -86,6 +116,9 @@ export class ControladorEscena {
   private altoCss = 1;
   private pixelRatio = 1;
   private destruido = false;
+  private libre: EstadoLibre | null = null;
+  private quitarVuelo: (() => void) | null = null;
+  private readonly escuchasRueda = new Set<(signo: 1 | -1) => void>();
   movimientoReducido: boolean;
 
   constructor(
@@ -138,17 +171,204 @@ export class ControladorEscena {
   }
 
   /** Cambia el dominio: caja, ejes, planos de recorte y, si se pide, el encuadre. */
-  fijarDominio(d: Dominio, reencuadrar: boolean): void {
+  fijarDominio(d: Dominio, reencuadrar: boolean, ventana = false): void {
     this.dominio = d;
-    this.ejes.fijarDominio(d);
+    // Con la ventana del espacio sin límites, ejes por el origen y sin caja (SPEC §3.11).
+    this.ejes.fijarDominio(d, ventana);
     const r = radioDominio(d);
-    this.camara.near = r / 200;
-    this.camara.far = r * 60;
-    this.camara.updateProjectionMatrix();
+    this.aplicarPlanos();
     this.controles.minDistance = r * 0.3;
     this.controles.maxDistance = r * 12;
-    if (reencuadrar) this.irAVista('iso', false);
+    if (reencuadrar && !this.libre) this.irAVista('iso', false);
     this.pedirFotograma();
+  }
+
+  /**
+   * Planos de recorte: cercano r/200 y lejano 60 r; en la vista libre, el cercano entre λ (la
+   * escala del explorador, SPEC §3.11) y el lejano por max(1, 1/λ).
+   */
+  private aplicarPlanos(): void {
+    const r = radioDominio(this.dominio);
+    const lambda = this.libre?.lambda ?? 1;
+    this.camara.near = r / 200 / lambda;
+    this.camara.far = r * 60 * Math.max(1, 1 / lambda);
+    this.camara.updateProjectionMatrix();
+  }
+
+  // ------------------------------------------------------------------ vista libre (VL-01)
+
+  get enVistaLibre(): boolean {
+    return this.libre !== null;
+  }
+
+  /** Pose de vuelo (pruebas): posición, ángulos, λ y rapidez. */
+  get estadoVuelo(): { posicion: Vec3; angulos: Angulos; lambda: number; rapidez: number; velocidad: Vec3 } | null {
+    const l = this.libre;
+    return l ? { posicion: l.posicion, angulos: l.angulos, lambda: l.lambda, rapidez: l.rapidez, velocidad: l.velocidad } : null;
+  }
+
+  /**
+   * Entra en la vuelo: guarda la pose orbital y la proyección, desactiva la órbita y vuela
+   * desde la pose actual mirando al objetivo.
+   */
+  entrarVistaLibre(o: { rapidez: number; lambda: number; centro: Vec3 | 'camara' }): void {
+    if (this.libre) return;
+    this.transicion = null;
+    this.anularInercia();
+    const previa = { ...this.obtenerCamara(), proyeccion: this.proyeccionActual };
+    const p = this.camara.position;
+    const t = this.controles.target;
+    const posicion: Vec3 = [p.x, p.y, p.z];
+    const angulos = angulosDesdeDireccion([t.x - p.x, t.y - p.y, t.z - p.z]);
+    this.libre = { previa, entrada: { posicion, angulos }, posicion, angulos, velocidad: [0, 0, 0], teclas: new Set(), rapidez: o.rapidez, lambda: o.lambda, centro: o.centro, ultimo: 0 };
+    this.controles.enabled = false;
+    this.fijarProyeccion('perspectiva');
+    this.aplicarPlanos();
+    this.aplicarPoseLibre();
+    this.quitarVuelo = this.escucharVuelo();
+  }
+
+  /** Sale de la vista libre y restaura exactamente la pose orbital y la proyección de antes (D-65). */
+  salirVistaLibre(): void {
+    const l = this.libre;
+    if (!l) return;
+    this.libre = null;
+    this.quitarVuelo?.();
+    this.quitarVuelo = null;
+    this.controles.enabled = true;
+    this.aplicarPlanos();
+    this.fijarCamara(l.previa);
+    this.fijarProyeccion(l.previa.proyeccion);
+  }
+
+  /** Tecla de vuelo pulsada o soltada (código físico); devuelve true si es del vuelo. */
+  teclaVuelo(codigo: string, pulsada: boolean): boolean {
+    const l = this.libre;
+    if (!l || !TECLAS_VUELO.has(codigo)) return false;
+    if (pulsada) l.teclas.add(codigo);
+    else l.teclas.delete(codigo);
+    this.pedirFotograma();
+    return true;
+  }
+
+  /** Suelta todas las teclas (la ventana pierde el foco). */
+  soltarTeclasVuelo(): void {
+    this.libre?.teclas.clear();
+  }
+
+  fijarRapidezVuelo(rapidez: number): void {
+    if (this.libre) this.libre.rapidez = rapidez;
+  }
+
+  /** Centro de las dilataciones: el centro de Ω (con la caja) o el explorador (sin límites). */
+  fijarCentroDilatacion(centro: Vec3 | 'camara'): void {
+    if (this.libre) this.libre.centro = centro;
+  }
+
+  /**
+   * Dilatación λ (SPEC §3.11): la posición se transforma como la imagen del mundo dilatado
+   * alrededor del centro; la velocidad en coordenadas del campo, por λ_antes/λ_después.
+   */
+  fijarLambda(lambda: number): void {
+    const l = this.libre;
+    if (!l || lambda === l.lambda) return;
+    const f = l.lambda / lambda;
+    if (l.centro !== 'camara') l.posicion = dilatar(l.posicion, l.centro, l.lambda, lambda);
+    l.velocidad = [l.velocidad[0] * f, l.velocidad[1] * f, l.velocidad[2] * f];
+    l.lambda = lambda;
+    this.aplicarPlanos();
+    this.aplicarPoseLibre();
+  }
+
+  volverAPoseEntrada(): void {
+    const l = this.libre;
+    if (!l) return;
+    l.posicion = l.entrada.posicion;
+    l.angulos = l.entrada.angulos;
+    l.velocidad = [0, 0, 0];
+    this.aplicarPoseLibre();
+  }
+
+  /** Pasos de la rueda en la vista libre (+1 más rápido, −1 más lento). */
+  alRuedaVuelo(fn: (signo: 1 | -1) => void): () => void {
+    this.escuchasRueda.add(fn);
+    return () => this.escuchasRueda.delete(fn);
+  }
+
+  private aplicarPoseLibre(): void {
+    const l = this.libre;
+    if (!l) return;
+    const d = direccion(l.angulos);
+    this.camara.position.set(l.posicion[0], l.posicion[1], l.posicion[2]);
+    // El objetivo, una unidad por delante: la orientación sale de él (y OrbitControls no actúa).
+    this.controles.target.set(l.posicion[0] + d[0], l.posicion[1] + d[1], l.posicion[2] + d[2]);
+    this.camara.lookAt(this.controles.target);
+    this.pedirFotograma();
+    this.notificarCamara();
+  }
+
+  /** Arrastre para mirar y rueda para la velocidad, solo en la vista libre. */
+  private escucharVuelo(): () => void {
+    let previo: { x: number; y: number } | null = null;
+    const abajo = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      previo = { x: e.clientX, y: e.clientY };
+      this.lienzo.setPointerCapture?.(e.pointerId);
+    };
+    const mover = (e: PointerEvent) => {
+      const l = this.libre;
+      if (!previo || !l) return;
+      const [dx, dy] = [e.clientX - previo.x, e.clientY - previo.y];
+      previo = { x: e.clientX, y: e.clientY };
+      // Arrastrar a la derecha gira la vista a la derecha (azimut decreciente con z hacia arriba).
+      l.angulos = { azimut: l.angulos.azimut - dx * GIRO_PIXEL, elevacion: acotarElevacion(l.angulos.elevacion - dy * GIRO_PIXEL) };
+      this.aplicarPoseLibre();
+    };
+    const arriba = () => {
+      previo = null;
+    };
+    const rueda = (e: WheelEvent) => {
+      e.preventDefault();
+      if (e.deltaY === 0) return;
+      for (const fn of this.escuchasRueda) fn(e.deltaY < 0 ? 1 : -1);
+    };
+    this.lienzo.addEventListener('pointerdown', abajo);
+    this.lienzo.addEventListener('pointermove', mover);
+    this.lienzo.addEventListener('pointerup', arriba);
+    this.lienzo.addEventListener('pointercancel', arriba);
+    this.lienzo.addEventListener('wheel', rueda, { passive: false });
+    return () => {
+      this.lienzo.removeEventListener('pointerdown', abajo);
+      this.lienzo.removeEventListener('pointermove', mover);
+      this.lienzo.removeEventListener('pointerup', arriba);
+      this.lienzo.removeEventListener('pointercancel', arriba);
+      this.lienzo.removeEventListener('wheel', rueda);
+    };
+  }
+
+  /** Un paso del vuelo (SPEC §5.11); devuelve true si hay que seguir dibujando. */
+  private integrarVuelo(ahora: number): boolean {
+    const l = this.libre;
+    if (!l) return false;
+    const dt = l.ultimo > 0 ? Math.min(0.05, (ahora - l.ultimo) / 1000) : 0;
+    l.ultimo = ahora;
+    const k = l.teclas;
+    const eje = (a: string, b: string) => (k.has(a) ? 1 : 0) - (k.has(b) ? 1 : 0);
+    const giroAz = eje('ArrowLeft', 'ArrowRight');
+    const giroEl = eje('ArrowUp', 'ArrowDown');
+    if (giroAz || giroEl) {
+      l.angulos = { azimut: l.angulos.azimut + giroAz * GIRO_TECLADO * dt, elevacion: acotarElevacion(l.angulos.elevacion + giroEl * GIRO_TECLADO * dt) };
+    }
+    const mando = { adelante: eje('KeyW', 'KeyS'), lado: eje('KeyD', 'KeyA'), vertical: eje('KeyE', 'KeyQ'), rapido: k.has('ShiftLeft') || k.has('ShiftRight') };
+    const objetivo = velocidadObjetivo(mando, l.angulos, l.rapidez, l.lambda);
+    l.velocidad = suavizarVelocidad(l.velocidad, objetivo, dt, this.movimientoReducido);
+    const rapidez = Math.hypot(l.velocidad[0], l.velocidad[1], l.velocidad[2]);
+    const quieta = k.size === 0 && rapidez < (1e-4 * l.rapidez) / l.lambda;
+    if (quieta) l.velocidad = [0, 0, 0];
+    else l.posicion = [l.posicion[0] + l.velocidad[0] * dt, l.posicion[1] + l.velocidad[1] * dt, l.posicion[2] + l.velocidad[2] * dt];
+    if (dt > 0) this.aplicarPoseLibre();
+    if (quieta) l.ultimo = 0;
+    return !quieta;
   }
 
   fijarFlechas(inst: InstanciasFlechas | null): void {
@@ -205,6 +425,7 @@ export class ControladorEscena {
 
   /** Vista predefinida, a la distancia de encuadre, con transición si procede. */
   irAVista(vista: Vista, animar = true): void {
+    if (this.libre) return;
     const objetivo = centroDominio(this.dominio);
     const radio = distanciaEncuadre(this.dominio, FOV, this.camara.aspect || 1);
     this.transicionA({ radio, ...VISTAS[vista] }, objetivo, animar);
@@ -215,6 +436,7 @@ export class ControladorEscena {
    * ángulo de vista, objetivo en el centro de Ω y distancia de encuadre.
    */
   reencuadrar(animar = true): void {
+    if (this.libre) return;
     const t = this.controles.target;
     const actual = esfericaDesdePosicion([t.x, t.y, t.z], [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
     const radio = distanciaEncuadre(this.dominio, FOV, this.camara.aspect || 1);
@@ -226,6 +448,7 @@ export class ControladorEscena {
    * sin transición (cada pulsación es un paso). El ángulo polar se mantiene lejos de los polos.
    */
   orbitar(dAzimut: number, dPolar: number): void {
+    if (this.libre) return;
     const t = this.controles.target;
     const objetivo: Vec3 = [t.x, t.y, t.z];
     const e = esfericaDesdePosicion(objetivo, [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
@@ -237,6 +460,7 @@ export class ControladorEscena {
 
   /** Desplaza objetivo y cámara una fracción de la altura visible, en los ejes de la pantalla. */
   desplazar(fx: number, fy: number): void {
+    if (this.libre) return;
     this.camara.updateMatrixWorld();
     const d = this.camara.position.distanceTo(this.controles.target);
     const alto = 2 * d * Math.tan(((FOV / 2) * Math.PI) / 180);
@@ -251,6 +475,7 @@ export class ControladorEscena {
 
   /** Acerca (factor < 1) o aleja (factor > 1) la cámara del objetivo, dentro de los límites de la órbita. */
   acercar(factor: number): void {
+    if (this.libre) return;
     const t = this.controles.target;
     const objetivo: Vec3 = [t.x, t.y, t.z];
     const e = esfericaDesdePosicion(objetivo, [this.camara.position.x, this.camara.position.y, this.camara.position.z]);
@@ -546,7 +771,10 @@ export class ControladorEscena {
       if (u >= 1) this.transicion = null;
       else seguir = true;
     }
-    if (this.controles.update()) seguir = true;
+    // En la vista libre no actúa OrbitControls: su distancia mínima movería la cámara.
+    if (this.libre) {
+      if (this.integrarVuelo(t)) seguir = true;
+    } else if (this.controles.update()) seguir = true;
     this.dibujar();
     if (seguir) this.pedirFotograma();
   }
@@ -640,6 +868,7 @@ export class ControladorEscena {
     this.destruido = true;
     if (this.raf) cancelAnimationFrame(this.raf);
     this.observador.disconnect();
+    this.quitarVuelo?.();
     this.controles.dispose();
     this.flechas.dispose();
     this.lineas.dispose();

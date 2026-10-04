@@ -2,6 +2,9 @@
  * Ejes coordenados y caja del dominio (DESIGN §9.9): ejes por el origen si está dentro de
  * Ω (si no, por la esquina mínima), con punta en el extremo positivo, letra y estilo de
  * línea propio (x continuo, y discontinuo, z punteado); marcas numéricas como sprites.
+ *
+ * Con la ventana del espacio sin límites (SPEC §3.11) no hay caja y cada eje es la recta
+ * coordenada por el origen, solo en la parte que cruza la ventana (si la cruza).
  */
 import * as THREE from 'three';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
@@ -64,9 +67,12 @@ export class CapaEjes {
     return [...this.letras, this.cero, ...this.marcas];
   }
 
-  fijarDominio(d: Dominio): void {
+  fijarDominio(d: Dominio, ventana = false): void {
     const L = radioDominio(d) * 2;
     const origen = [0, 1, 2].map((k) => (d.min[k]! <= 0 && 0 <= d.max[k]! ? 0 : d.min[k]!)) as [number, number, number];
+    this.caja.visible = !ventana;
+    // Con la ventana, el eje k solo existe si la recta coordenada (las otras dos coordenadas a 0) la cruza.
+    const cruza = (k: number) => !ventana || [0, 1, 2].every((j) => j === k || (d.min[j]! <= 0 && 0 <= d.max[j]!));
 
     // Caja del dominio (12 aristas, 1 px, decorativa).
     this.caja.geometry.dispose();
@@ -90,6 +96,11 @@ export class CapaEjes {
       { dash: 0.008 * L, gap: 0.016 * L },
     ];
     for (let k = 0; k < 3; k++) {
+      const visible = cruza(k);
+      this.lineas[k]!.visible = visible;
+      this.puntas[k]!.visible = visible;
+      this.letras[k]!.sprite.visible = visible;
+      if (!visible) continue;
       const a = [...origen];
       const b = [...origen];
       a[k] = d.min[k]!;

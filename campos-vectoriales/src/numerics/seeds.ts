@@ -6,6 +6,7 @@
 import { mulberry32 } from '../math/aleatorio';
 import { EJES_PLANO, type Dominio, type EspecSemillas, type EvaluadorCampo, type Vec3 } from '../math/tipos';
 import { F_MAX } from './grid';
+import { semillasAncladas } from './ventana';
 
 export const SEMILLAS_MAX = 256;
 
@@ -36,12 +37,14 @@ export function candidatas(esp: EspecSemillas, dominio: Dominio, punto: Vec3 | n
         res.push(q[0] as number, q[1] as number, q[2] as number);
       }
     }
+  } else if (esp.tipo === 'red') {
+    res.push(...semillasAncladas(dominio, esp.ancla, esp.D, esp.semilla));
   } else if (esp.tipo === 'aleatoria') {
     const azar = mulberry32(esp.semilla);
     for (let i = 0; i < esp.n; i++) {
       for (let k = 0; k < 3; k++) res.push((dominio.min[k] as number) + ((dominio.max[k] as number) - (dominio.min[k] as number)) * azar());
     }
-  } else if (punto) {
+  } else if (esp.tipo === 'punto' && punto) {
     res.push(...punto);
     // Anillo de 6 semillas a Δ/4 en el plano normal a F(P) (o al eje z si F(P) ≈ 0).
     let nrm: Vec3 = [0, 0, 1];
