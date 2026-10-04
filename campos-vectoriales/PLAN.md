@@ -3,7 +3,8 @@
 > Cómo se construye lo especificado en [SPEC.md](SPEC.md) y [DESIGN.md](DESIGN.md), y cómo
 > se demuestra con [VALIDATION.md](VALIDATION.md). El estado vivo está en [STATUS.md](STATUS.md).
 >
-> Estado del documento: **borrador para aprobación** · Fecha: 2026-10-02.
+> Estado del documento: **aprobado** (1.0, 2026-10-02) · **H10 en curso** (1.1, 2026-10-04):
+> flujos F11–F13, teclado de la vista libre (§3.2), hito H10 y sus tareas (§4, §5.3).
 
 ---
 
@@ -281,6 +282,34 @@ Cada flujo indica pasos, estados intermedios y teclado.
 - «Ayuda» (o ?) abre el cajón en «Conceptos». Los «?» contextuales abren el apartado
   correspondiente (p. ej. «Divergencia»). Esc lo cierra y el foco vuelve al origen.
 
+**F11 · Vista libre** (RF-20, RF-22, RF-23)
+1. Botón «Vista libre» de la barra de la escena o tecla V. Desaparece toda la interfaz; si el
+   navegador lo permite, pantalla completa. Una pista de controles (abajo, centrada) se
+   desvanece a los 5 s; H la vuelve a mostrar. El lector de pantalla anuncia la entrada.
+2. Mirar: arrastrar con el botón principal, o flechas del teclado (90°/s mientras se
+   mantienen). Moverse: W A S D en el plano de la vista, E y Q según ±z; Mayús ×4; la rueda
+   cambia la velocidad (×1.25 por paso). + y − dilatan y contraen el espacio (λ). U activa o
+   desactiva el espacio sin límites. Cada cambio de velocidad, λ o modo se confirma con un
+   indicador transitorio de 1.5 s.
+3. Siguen activos F, L, P, C, G y Espacio; R vuelve a la pose de entrada; 1–5 e I no actúan.
+4. Esc o V salen (también salir de la pantalla completa con el navegador): cámara, proyección
+   e interfaz vuelven a su estado previo y el foco vuelve al control que abrió la vista.
+
+**F12 · Tiempo** (RF-24, RF-25)
+1. Escribir `t` en una ecuación (o elegir un campo temporal) habilita la sección «Tiempo»:
+   deslizador de $t$ en $[t_0,t_1]$, valor exacto, reproducir/pausar (Espacio), inicio, fin,
+   bucle y «1 s ≙ τ».
+2. En marcha, $t$ avanza; flechas, corte e inspector siguen el reloj; las líneas de corriente
+   se rehacen para el $t$ más reciente; la lectura «t = …» de la escena lo muestra.
+3. Mover el deslizador fija $t$ y hace renacer las partículas (§3.10).
+4. Sin `t` en las ecuaciones, la sección explica que el campo es estacionario y las
+   partículas usan su reloj como en la 1.0.
+
+**F13 · Alcance** (RF-21)
+1. En «Dominio y muestreo», «Ampliar ×2» o «Estrechar ÷2». Ω cambia alrededor de su centro,
+   N se ajusta para conservar Δ y un aviso lo resume («Ω = [−4, 4]³ · N = 17 · Δ = 0.5»).
+2. La cámara se reencuadra como en F4.
+
 ### 3.1 Teclado
 
 | Contexto | Tecla | Acción |
@@ -308,6 +337,26 @@ Cada flujo indica pasos, estados intermedios y teclado.
 - Los atajos de una letra no se activan dentro de campos de texto y pueden desactivarse en
   Avanzado (WCAG 2.1.4).
 
+### 3.2 Teclado de la vista libre (1.1)
+
+| Tecla | Acción |
+| --- | --- |
+| `V` (global) | Entrar en la vista libre / salir |
+| `Esc` | Salir |
+| Arrastrar · `←` `→` `↑` `↓` | Mirar |
+| `W` `S` · `A` `D` | Avanzar, retroceder · desplazarse a los lados (teclas físicas: también en AZERTY) |
+| `E` · `Q` | Subir · bajar según $z$ |
+| `Mayús` | ×4 mientras se mantiene |
+| Rueda | Velocidad ×1.25 / ÷1.25 |
+| `+` · `−` | Dilatar · contraer el espacio (λ ×1.25 / ÷1.25) |
+| `U` | Espacio sin límites |
+| `R` | Volver a la pose de entrada |
+| `H` | Mostrar u ocultar la pista de controles |
+| `F` `L` `P` `C` `G` · `Espacio` | Capas · pausa, como fuera |
+
+Con los atajos de una tecla desactivados (WCAG 2.1.4), la vista libre sigue funcionando:
+sus teclas solo actúan dentro de ella, que se abre y se cierra con el botón.
+
 ---
 
 ## 4. Hitos
@@ -332,6 +381,7 @@ H0 Fundaciones ─┬─▶ H1 Primera entrega ───────────
 | **H7** Exportación | JSON, autoguardado, PNG | EXP-01 … EXP-03 |
 | **H8** Transversal | Teclado, accesibilidad, ayuda, adaptación a pantallas | A11Y-01, A11Y-02, UI-06, VIS-06 |
 | **H9** Validación y entrega | Baterías completas, rendimiento medido, revisión visual final, HTML autocontenido, documentación | VAL-01 … VAL-03, REV-04, ENT-01, DOC-01 |
+| **H10** Exploración y tiempo (1.1) | Vista libre inmersiva, alcance, espacio sin límites, dilatación, campos dependientes del tiempo, líneas de traza, JSON v2 | PLN-02, TMP-01 … TMP-06, ALC-01, ALC-02, VL-01, VL-02, VAL-04, REV-05, ENT-02, DOC-02 |
 
 H2 puede avanzar en paralelo a H1, porque solo depende de FND-01.
 
@@ -406,6 +456,21 @@ aceptación con la evidencia indicada.
 | REV-04 | Revisión visual final | H9 | VIS-06, A11Y-02, EXP-03 | Completada y verificada |
 | ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Completada y verificada |
 | DOC-01 | Documentación final | H9 | VAL-01 … REV-04 | Completada y verificada |
+| PLN-02 | Plan de la 1.1 | H10 | — | Completada y verificada |
+| TMP-01 | Variable `t` en el lenguaje | H10 | PLN-02 | Pendiente |
+| TMP-02 | Integración no autónoma y escala en la ventana | H10 | TMP-01 | Pendiente |
+| TMP-03 | Catálogo temporal con oráculos y soluciones exactas | H10 | TMP-02 | Pendiente |
+| TMP-04 | Estado v2, reloj y orquestación con $t$ | H10 | TMP-02 | Pendiente |
+| TMP-05 | Interfaz del tiempo | H10 | TMP-03, TMP-04 | Pendiente |
+| TMP-06 | Líneas de traza | H10 | TMP-05 | Pendiente |
+| ALC-01 | Ampliar y estrechar Ω | H10 | PLN-02 | Pendiente |
+| VL-01 | Vuelo y dilatación en la escena | H10 | PLN-02 | Pendiente |
+| VL-02 | Vista libre inmersiva en la interfaz | H10 | VL-01, TMP-04 | Pendiente |
+| ALC-02 | Espacio sin límites | H10 | VL-02 | Pendiente |
+| VAL-04 | Baterías de la 1.1 | H10 | TMP-06, ALC-02 | Pendiente |
+| REV-05 | Revisión visual de la 1.1 | H10 | VAL-04 | Pendiente |
+| ENT-02 | HTML autocontenido 1.1 | H10 | REV-05 | Pendiente |
+| DOC-02 | Documentación 1.1 | H10 | ENT-02 | Pendiente |
 
 ### 5.2 Detalle de las tareas
 
@@ -1009,3 +1074,89 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
   estado real con enlaces a la evidencia.
 - **Verificación**: lectura guiada.
 - **Evidencia**: lista de comprobación firmada en STATUS.
+
+### 5.3 Tareas de H10 (1.1)
+
+#### PLN-02 · Plan de la 1.1 — Completada y verificada
+- **Objetivo**: SPEC §2.5, §3.10, §3.11, §4.9, §5.11 y §7.2; DESIGN §5.5, §6.3 y §9.13;
+  VALIDATION (T-20 … T-26, V-MAT-11, V-NUM-17 … V-NUM-22, V-FUN-18 … V-FUN-23, C13–C15);
+  STATUS (D-62 en adelante).
+- **Aceptación**: los cinco documentos coherentes entre sí; `node scripts/revisar-docs.mjs`
+  sin problemas.
+- **Evidencia**: `evidencia/PLN-02/`.
+
+#### TMP-01 · Variable `t` en el lenguaje — Pendiente
+- **Objetivo**: `t` como variable (SPEC §5.2), evaluada en la ranura `p[nParámetros]`.
+- **Componentes**: `math/expr/ast.ts`, `resolver.ts`, `compile.ts`, `diff.ts`, `tex.ts`,
+  `simplificar.ts`, `math/field.ts` (`dependeDelTiempo`, $\partial\mathbf F/\partial t$).
+- **Aceptación**: V-MAT-11; V-MAT-02 … V-MAT-09 siguen pasando.
+- **Verificación**: Vitest.
+
+#### TMP-02 · Integración no autónoma y escala en la ventana — Pendiente
+- **Objetivo**: RK4 con $t$ en las etapas; partículas con reloj; $F_{	ext{ref}}$ y
+  $C_{	ext{ref}}$ en 9 instantes de la ventana (SPEC §5.11).
+- **Componentes**: `numerics/particles.ts`, `numerics/grid.ts`, `compute/trabajos.ts`.
+- **Aceptación**: V-NUM-17 (T-22, T-23), V-NUM-18, V-NUM-19; V-NUM-13 sin cambios.
+
+#### TMP-03 · Catálogo temporal — Pendiente
+- **Objetivo**: los tres campos de SPEC §4.9 con expresiones, oráculo nativo (F y J),
+  $\partial_t\mathbf F$ analítica, trayectoria exacta, ficha y miniatura; cuadrícula de 3×3.
+- **Aceptación**: V-MAT-05 y V-MAT-07 extendidos (con $t$ aleatorio); V-NUM-17.
+
+#### TMP-04 · Estado v2, reloj y orquestación con $t$ — Pendiente
+- **Objetivo**: `tiempo`, `exploracion` y `particulas.nacimiento` en el estado; JSON v2 con
+  migración; reloj único; orquestador con una petición en curso por tipo cuando solo cambia $t$.
+- **Componentes**: `state/schema.ts`, `actions.ts`, `persist.ts`, `app/animacion.ts`,
+  `app/orquestador.ts`, `compute/peticiones.ts`.
+- **Aceptación**: V-FUN-23; V-FUN-10 y V-FUN-11 siguen pasando.
+
+#### TMP-05 · Interfaz del tiempo — Pendiente
+- **Objetivo**: sección «Tiempo», lectura «t = …» en la escena, inspector con
+  $\partial\mathbf F/\partial t$ y $D\mathbf F/Dt$, leyenda con el $t$ de cada capa, ayuda
+  («Campos dependientes del tiempo», «Corriente, trayectoria y traza»).
+- **Aceptación**: V-FUN-22; axe sin infracciones; capturas C13 y C15.
+
+#### TMP-06 · Líneas de traza — Pendiente
+- **Objetivo**: «Nacen en: todo Ω · las semillas» (SPEC §5.11).
+- **Aceptación**: V-NUM-20.
+
+#### ALC-01 · Ampliar y estrechar Ω — Pendiente
+- **Objetivo**: acción `escalarDominio` y botones en «Dominio y muestreo» (SPEC §3.11).
+- **Aceptación**: V-FUN-21; V-FUN-14 sin cambios.
+
+#### VL-01 · Vuelo y dilatación en la escena — Pendiente
+- **Objetivo**: modo de vuelo del controlador de la escena (sin React): ángulos, movimiento,
+  velocidad, dilatación exacta, entrada y salida con la pose guardada.
+- **Componentes**: `render/vuelo.ts` (puro), `render/ControladorEscena.ts`.
+- **Aceptación**: V-NUM-22 (T-24); la órbita sigue igual (V-FUN-09).
+
+#### VL-02 · Vista libre inmersiva en la interfaz — Pendiente
+- **Objetivo**: F11 completo: ocultar toda la interfaz, pantalla completa, teclado de §3.2,
+  pista e indicadores transitorios, anuncios, salida con restauración y foco.
+- **Componentes**: `app/vistaLibre.ts`, `ui/scene/VistaLibre.tsx`, `ui/scene/BarraEscena.tsx`,
+  sección «Vista libre» del panel, `ui.css`.
+- **Aceptación**: V-FUN-18, V-FUN-19; V-A11Y-02 ampliado con F11; captura C14.
+
+#### ALC-02 · Espacio sin límites — Pendiente
+- **Objetivo**: ventana anclada que sigue a la cámara, escalas congeladas, semillas
+  ancladas, partículas sin recrear, ejes sin caja (SPEC §3.11).
+- **Componentes**: `numerics/ventana.ts`, `numerics/seeds.ts`, `render/layers/ejes.ts`,
+  `numerics/particles.ts`, `app/`.
+- **Aceptación**: V-NUM-21, V-FUN-20.
+
+#### VAL-04 · Baterías de la 1.1 — Pendiente
+- **Objetivo**: `npm run check`, cobertura de `math/` y `numerics/` ≥ 90 %, e2e completas
+  (las de la 1.0 y las nuevas) en verde.
+- **Evidencia**: registros con el commit.
+
+#### REV-05 · Revisión visual de la 1.1 — Pendiente
+- **Objetivo**: capturas C1–C15 en V1–V3 (las de la 1.0 cambian por el botón nuevo de la
+  barra y las tarjetas nuevas), auditoría de paleta y VV-01 … VV-10; referencias de
+  `tests/visual` regeneradas y revisadas una a una.
+
+#### ENT-02 · HTML autocontenido 1.1 — Pendiente
+- **Objetivo**: `entrega/campos-vectoriales.html` recompilado con su huella; V-FUN-17 sobre
+  `file://`.
+
+#### DOC-02 · Documentación 1.1 — Pendiente
+- **Objetivo**: README, ayuda y STATUS al día; `revisar-docs.mjs` sin problemas.

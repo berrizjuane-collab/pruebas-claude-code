@@ -5,7 +5,9 @@
 > (arquitectura, hitos y checklist) · [VALIDATION.md](VALIDATION.md) (pruebas) ·
 > [STATUS.md](STATUS.md) (estado, decisiones y riesgos).
 >
-> Estado del documento: **borrador para aprobación** · Fecha: 2026-10-02.
+> Estado del documento: **aprobado** (1.0, 2026-10-02) · **versión 1.1 en curso** (H10,
+> 2026-10-04): vista libre inmersiva, alcance y dilatación del espacio y campos dependientes
+> del tiempo (§2.5, §3.10, §3.11, §4.9, §5.11, §7.2).
 
 ---
 
@@ -119,7 +121,7 @@ Se posponen para que la 1.0 sea completa y sólida. Cada una indica qué deja pr
 
 | ID | Ampliación | Por qué se pospone | Qué deja preparado la 1.0 |
 | --- | --- | --- | --- |
-| AMP-01 | **Campos dependientes del tiempo** $\mathbf F(x,y,z,t)$ | Duplica la semántica: líneas de corriente (instantáneas), trayectorias y líneas de traza dejan de coincidir; exige controles de tiempo y otra pedagogía. | `t` es identificador reservado; el integrador de partículas ya recibe $t$; el esquema JSON tiene campo de versión. |
+| AMP-01 | **Campos dependientes del tiempo** $\mathbf F(x,y,z,t)$ | Duplica la semántica: líneas de corriente (instantáneas), trayectorias y líneas de traza dejan de coincidir; exige controles de tiempo y otra pedagogía. | **Incorporada en la 1.1** (RF-24 … RF-26, §3.10, §4.9, §5.11). |
 | AMP-02 | **Flujo a través de superficies** $\iint_S \mathbf F\cdot d\mathbf S$ | Requiere superficies parametrizadas, orientación, cuadratura y su propia interfaz; verificación con el teorema de Gauss. | Evaluador vectorizado, derivadas, mapa $\mathbf F\cdot\mathbf n$ sobre planos (caso particular). |
 | AMP-03 | **Circulación por curvas** $\oint_C \mathbf F\cdot d\mathbf r$ | Requiere curvas parametrizadas e integración de línea; verificación con Stokes. | Mapa $(\nabla\times\mathbf F)\cdot\mathbf n$ y rueda de paletas (versión local). |
 | AMP-04 | Detección numérica y clasificación de **equilibrios** (Newton + autovalores de $J$) | Robustez delicada (equilibrios no aislados, como el eje $z$ del campo rotacional). | Jacobiana en el inspector; marcas $\mathbf F\approx\mathbf 0$ en la malla. |
@@ -162,6 +164,37 @@ Se posponen para que la 1.0 sea completa y sólida. Cada una indica qué deja pr
 | Exportación | Medio: informes y apuntes | Bajo | Etiquetas fuera del lienzo WebGL → composición propia | v1 P0 |
 | Partículas | Medio-alto: distingue *velocidad* de *dirección* | Bajo (reutiliza RK4) | Animación y movimiento reducido | v1 **P1** |
 | Dependencia temporal, flujo, circulación | Alto, pero de un segundo nivel | Alto | Alto | **Ampliación** |
+
+### 2.5 Versión 1.1: exploración inmersiva y campos dependientes del tiempo
+
+Petición del usuario del 2026-10-04: (1) un **modo de vista libre** sin botones, paneles ni
+herramientas, para explorar el espacio de forma inmersiva; (2) poder **estrechar y ampliar
+el alcance** del espacio, que no sea un único cubo compacto, y **dilatar las unidades** para
+agrandarlo o empequeñecerlo; (3) si es matemáticamente riguroso, una **dimensión de tiempo**
+en la que se vea cómo cambian los vectores y cómo se desplaza lo que el campo arrastra,
+«como gotas de lluvia». Respuestas del usuario a las dos preguntas abiertas: alcance con caja
+ampliable **y** espacio sin límites en la vista libre; dilatación **uniforme** (STATUS D-62).
+
+**Juicio sobre el rigor del tiempo**: los campos vectoriales dependientes del tiempo son
+objetos matemáticos estándar (sistemas dinámicos no autónomos, flujos no estacionarios,
+campos electromagnéticos $\mathbf E(\mathbf r,t)$ con $\nabla\times\mathbf E=-\partial\mathbf B/\partial t$,
+ecuación de continuidad $\partial_t\rho+\nabla\cdot(\rho\mathbf v)=0$). El cálculo vectorial
+trata cada instante con los mismos operadores espaciales; el tiempo añade la derivada local
+$\partial\mathbf F/\partial t$ y separa tres familias de curvas que en los campos
+estacionarios coinciden. Se incorpora (AMP-01), con las distinciones de §3.10. Lo que la
+aplicación **no** hace es mover las flechas: una flecha está anclada a su punto y lo que
+cambia es el vector en ese punto; lo que se desplaza son las partículas (las «gotas»).
+
+| ID | Requisito | Prior. |
+| --- | --- | --- |
+| RF-20 | **Vista libre inmersiva**: botón en la barra de la escena y tecla V. Oculta **toda** la interfaz (barra superior, panel, leyenda, inspector, barra de la escena, triedro, notificaciones y mensajes) y pide pantalla completa si el navegador lo permite. Vuelo en primera persona: mirar arrastrando o con las flechas; W A S D avanzar, retroceder y desplazarse; E y Q subir y bajar según $+z$; Mayús ×4; rueda = velocidad. Siguen activos los atajos de capas (F L P C G) y la pausa (Espacio). Una pista de controles aparece 5 s al entrar y con H. Esc o V salen y restauran cámara, proyección, interfaz y foco. | P0 |
+| RF-21 | **Alcance**: «Ampliar ×2» y «Estrechar ÷2» escalan Ω alrededor de su centro conservando $\Delta$ mientras $N$ lo permita (3–21); las cajas no cúbicas por eje siguen disponibles. | P0 |
+| RF-22 | **Espacio sin límites** (vista libre, tecla U): la ventana de muestreo acompaña a la cámara anclada a la red de Ω; $F_{\text{ref}}$ y $C_{\text{ref}}$ se congelan al activarlo; semillas ancladas a la red; ejes por el origen sin caja (§3.11). | P0 |
+| RF-23 | **Dilatación uniforme** $\lambda\in[1/8,\,64]$ del espacio en la vista libre (teclas + y −, y en el panel), alrededor del centro de Ω o, sin límites, del explorador (§3.11). | P0 |
+| RF-24 | **Campos dependientes del tiempo**: variable `t` en P, Q y R; reloj del experimento con $t$, ventana $[t_0,t_1]$, bucle y velocidad; flechas, corte, mapas, div y rot **en el instante $t$**; líneas de corriente instantáneas; partículas como trayectorias de $\dot{\mathbf r}=\mathbf F(\mathbf r,t)$; $F_{\text{ref}}$ común a toda la ventana; $\partial\mathbf F/\partial t$ y $D\mathbf F/Dt$ en el inspector. | P0 |
+| RF-25 | **Líneas de traza**: partículas emitidas de forma continua desde las semillas («Nacen en: todo Ω · las semillas»). | P1 |
+| RF-26 | **Catálogo temporal**: viento giratorio, lluvia con ráfagas y silla giratoria (§4.9), con oráculo nativo, solución exacta de las trayectorias y ficha. | P0 |
+| RF-27 | **Configuración JSON v2** (`tiempo`, `exploracion`, `particulas.nacimiento`) con migración automática desde v1 (§7.2). | P0 |
 
 ---
 
@@ -278,7 +311,7 @@ $$\frac{d\mathbf r}{dt} = \mathbf F(\mathbf r(t)),\qquad \mathbf r(t_0)=\mathbf 
 - **Campos estacionarios**: las trayectorias recorren las mismas curvas que las líneas de
   corriente; difieren solo en el ritmo. Las partículas hacen visible la *magnitud como
   rapidez*: en el campo radial saliente aceleran al alejarse. En campos dependientes del
-  tiempo (AMP-01) dejarían de coincidir.
+  tiempo dejan de coincidir (§3.10).
 - **No es dinámica de Newton**: si $\mathbf F$ se interpreta como **fuerza**, el movimiento
   físico obedece $m\ddot{\mathbf r}=\mathbf F$ y es distinto. La aplicación interpreta $\mathbf F$
   como **campo de velocidades** y la ayuda lo advierte.
@@ -353,6 +386,112 @@ Reglas:
    fichas del catálogo los declaran. Ejemplo: $\mathbf F=(x,y,z)$ **no** es el campo de una
    carga puntual, que es $\propto \mathbf r/\lVert\mathbf r\rVert^3$ y tiene divergencia nula
    fuera del origen.
+
+### 3.10 Campos dependientes del tiempo (1.1)
+
+Un campo **no estacionario** es una función $\mathbf F: D\times I\to\mathbb R^3$,
+$(\mathbf r,t)\mapsto\mathbf F(\mathbf r,t)$, con $I\subseteq\mathbb R$ un intervalo de tiempo
+adimensional (§3.9). Si $\mathbf F$ no depende de $t$ es **estacionario** y todo lo anterior
+se aplica sin cambios.
+
+**Operadores en un instante.** $J$, div y rot son operadores **espaciales**: se calculan con
+$t$ fijo, $J(\mathbf r,t)=D_{\mathbf r}\mathbf F$, $\nabla\cdot\mathbf F(\mathbf r,t)=\operatorname{tr}J$,
+etc. Las derivadas parciales respecto de $x,y,z$ tratan $t$ como constante. Sus lecturas
+geométricas (§3.4) valen instante a instante.
+
+**Derivadas temporales.**
+
+- **Derivada local** $\partial\mathbf F/\partial t$: cómo cambia el vector **en un punto fijo**.
+- **Derivada material** (aceleración de la partícula que pasa por $\mathbf r$ en $t$):
+  $$\frac{D\mathbf F}{Dt}=\frac{\partial\mathbf F}{\partial t}+J\,\mathbf F .$$
+  Se obtiene derivando $\dot{\mathbf r}(t)=\mathbf F(\mathbf r(t),t)$ con la regla de la
+  cadena. En un campo estacionario $D\mathbf F/Dt=J\mathbf F$, que en general **no** es nula:
+  en la silla las partículas aceleran aunque el campo no cambie.
+
+**Tres familias de curvas** (en los campos estacionarios coinciden como conjuntos; en los no
+estacionarios, en general, no):
+
+| Curva | Definición | Imagen |
+| --- | --- | --- |
+| **Línea de corriente instantánea** en $t^*$ | $\dfrac{d\mathbf r}{ds}=\mathbf F(\mathbf r(s),t^*)$, con $t^*$ **fijo** | Fotografía de las direcciones en un instante |
+| **Trayectoria** desde $(\mathbf r_0,t_0)$ | $\dfrac{d\mathbf r}{dt}=\mathbf F(\mathbf r(t),t)$, $\mathbf r(t_0)=\mathbf r_0$ | Película de una gota |
+| **Línea de traza** desde $\mathbf p$ en el instante $t$ | $\{\varphi_{\tau\to t}(\mathbf p):\ \tau\in[t-T,\,t]\}$, posiciones en $t$ de las partículas que pasaron por $\mathbf p$ | El humo de una chimenea; la cortina de gotas que deja una nube |
+
+Aquí $\varphi_{\tau\to t}$ es el flujo de $\dot{\mathbf r}=\mathbf F(\mathbf r,t)$: lleva la
+posición en el instante $\tau$ a la posición en $t$.
+
+- **Coincidencia en el caso estacionario.** Si $\mathbf F$ no depende de $t$, el flujo solo
+  depende del tiempo transcurrido, $\varphi_{\tau\to t}=\varphi_{t-\tau}$, y las tres curvas
+  que pasan por un punto son la misma órbita (unicidad de las soluciones). Por eso la 1.0 no
+  necesitaba distinguirlas (§3.9, punto 3).
+- **Contraejemplo mínimo** (viento giratorio, §4.9): $\mathbf F=V(\cos\omega t,\sin\omega t,0)$.
+  En cada instante las líneas de corriente son **rectas** paralelas; las trayectorias son
+  **circunferencias** de radio $V/\omega$; las líneas de traza, **arcos** de esas
+  circunferencias.
+- **Qué se dibuja.** Las flechas, el corte, los mapas escalares, los glifos de rot F y el
+  inspector muestran el campo en el instante $t$ del reloj. Las líneas de corriente son las
+  **instantáneas** en el $t$ con que se calcularon, que la leyenda indica. Las partículas
+  siguen **trayectorias** con el mismo reloj; emitidas desde las semillas (RF-25) dibujan
+  **líneas de traza**.
+- **Escala común en la ventana.** Con $F_{\text{ref}}$ automática calculada en cada instante,
+  un campo que crece se vería siempre igual. Con un campo dependiente del tiempo,
+  $F_{\text{ref}}$ (y $C_{\text{ref}}$) es el P95 de las magnitudes en los nodos en **9
+  instantes equiespaciados** de la ventana $[t_0,t_1]$, redondeado como en §5.1. Así el
+  crecimiento, el decrecimiento y la oscilación se leen en la longitud y la luminancia.
+- **Ventana y bucle.** Al llegar a $t_1$, con bucle, el reloj vuelve a $t_0$ y las partículas
+  **renacen** (su historia no es continua a través del salto); sin bucle, se detiene. Mover
+  $t$ a mano también hace renacer las partículas: una trayectoria integrada hasta otro
+  instante no es una trayectoria del instante elegido.
+- **Lo que no cambia**: la interpretación cinemática (§3.6). Las partículas siguen
+  $\dot{\mathbf r}=\mathbf F(\mathbf r,t)$, no $m\ddot{\mathbf r}=\mathbf F$.
+
+### 3.11 Escala del espacio: alcance, espacio sin límites y dilatación (1.1)
+
+**Alcance.** Es la caja Ω, la región de $\mathbb R^3$ que se muestrea. «Ampliar ×2»
+transforma $[a_k,b_k]$ en $[c_k-(b_k-a_k),\,c_k+(b_k-a_k)]$ con $c_k$ el centro; «Estrechar
+÷2», en $[c_k-\tfrac14(b_k-a_k),\,c_k+\tfrac14(b_k-a_k)]$. Para que se vea **más espacio** y no
+el mismo con flechas más grandes, $N_k$ pasa a $\operatorname{round}((N_k-1)f)+1$ («en
+nodos») o $\operatorname{round}(N_kf)$ («centros»), acotado a $[3,21]$, lo que conserva
+$\Delta$ mientras el límite lo permite; si no, $\Delta$ cambia y el aviso lo dice.
+
+**Espacio sin límites (vista libre).** Sea la red infinita de Ω,
+$\mathcal L=\{(a_x+i\Delta_x,\ a_y+j\Delta_y,\ a_z+k\Delta_z):\ i,j,k\in\mathbb Z\}$. La ventana
+que se muestrea es $\Omega_{\mathbf m}=\Omega+(m_x\Delta_x,\,m_y\Delta_y,\,m_z\Delta_z)$, con
+$m_k=\operatorname{round}\big((c^{\text{cám}}_k-c_k)/\Delta_k\big)$. Propiedades:
+
+1. Los nodos de cualquier ventana pertenecen a $\mathcal L$: al moverse, la flecha de un punto
+   **no cambia** (solo aparecen y desaparecen flechas en los bordes). Nada «nada».
+2. $F_{\text{ref}}$ y $C_{\text{ref}}$ se **congelan** al activar el modo: con la escala
+   automática, el P95 de cada ventana reescalaría las flechas al moverse y sugeriría un
+   cambio del campo que no existe.
+3. Semillas **ancladas a la red** (§5.11): una por celda de una red gruesa, en una posición
+   pseudoaleatoria que solo depende de la celda; el conjunto de semillas de dos ventanas
+   coincide en su intersección.
+4. Las partículas que quedan fuera de la ventana nueva renacen en la parte nueva (muestreo
+   por rechazo), de modo que la densidad sigue siendo uniforme.
+5. Los ejes se dibujan como **las rectas coordenadas por el origen** en la parte que cruza la
+   ventana, sin caja: la caja de una ventana móvil no tiene significado.
+
+**Dilatación uniforme $\lambda$.** Es un cambio de la escala de **presentación**, no del
+campo: un punto $\mathbf r$ se presenta en $\mathbf u=\mathbf c+\lambda(\mathbf r-\mathbf c)$.
+Hecho geométrico que la gobierna: **una proyección central es invariante bajo las homotecias
+centradas en el ojo** (el rayo de $\mathbf e$ a $\mathbf e+\lambda(\mathbf r-\mathbf e)$ es el
+mismo que el de $\mathbf e$ a $\mathbf r$). Consecuencias:
+
+- Dilatar alrededor del **explorador** no cambia la imagen en ese instante; cambia el
+  **recorrido**: a la misma velocidad de vuelo (en unidades de la escena), cruzar una unidad
+  del campo cuesta $\lambda$ veces más. Con $\lambda$ grande uno es pequeño entre flechas
+  enormes. Es el centro en el espacio sin límites.
+- Dilatar alrededor del **centro de Ω** sí cambia la imagen: el espacio crece hacia el
+  explorador, que puede quedar dentro de él. Es el centro con la caja.
+- **Implementación exacta sin escalar la escena**: posición de la cámara en coordenadas del
+  campo $\mathbf r_{\text{cám}}\leftarrow\mathbf c+(\mathbf r_{\text{cám}}-\mathbf c)\,\lambda_{\text{antes}}/\lambda_{\text{después}}$,
+  velocidad de vuelo $v/\lambda$ y plano cercano $n/\lambda$. Los elementos de tamaño fijo en
+  píxeles (rótulos, grosores, puntos) son invariantes en las dos descripciones. Ángulos,
+  magnitudes, luminancias y valores del inspector no cambian: $\lambda$ es la escala del
+  observador, no una transformación del campo.
+- Por la misma invariancia, en la vista orbital la dilatación equivaldría a acercarse y no
+  aporta nada: solo actúa en la vista libre.
 
 ---
 
@@ -496,6 +635,59 @@ las pruebas (§4.8). Los parámetros tienen espacio de nombres propio en cada ca
    → $\mathbf F=(0,1,0)$, $\lVert\mathbf F\rVert=1$, div = 0, rot = $(0,0,2)$ (V-FUN-06).
 7. **Rueda frente a partículas** en el campo rotacional: misma velocidad angular ω (V-FUN-08).
 
+### 4.9 Catálogo temporal (1.1)
+
+Tres campos elegidos porque cada uno separa líneas de corriente, trayectorias y líneas de
+traza de una manera distinta y tiene **solución exacta** de las trayectorias: son los
+oráculos de las pruebas del integrador no autónomo (V-NUM-17). Al elegir uno se activan las
+partículas, porque las trayectorias son su razón de ser (D-68). Dominio $[-2,2]^3$; ventana
+$[0,4\pi]$ con bucle.
+
+#### 4.9.1 Viento giratorio — $\mathbf F=V\,(\cos\omega t,\ \sin\omega t,\ 0)$
+
+| Aspecto | Contenido |
+| --- | --- |
+| Expresiones | `P = V*cos(w*t)`, `Q = V*sin(w*t)`, `R = 0` |
+| Parámetros | V ∈ [0.1, 3], paso 0.05, por defecto 1; ω ∈ [0.1, 3], paso 0.05, por defecto 1 |
+| Geometría | Uniforme en el espacio en cada instante; la dirección gira con velocidad angular ω. $\lVert\mathbf F\rVert=V$ siempre |
+| $J$, div, rot | $J=0$, div $=0$, rot $=\mathbf 0$ en todo instante |
+| $\partial_t\mathbf F$, $D\mathbf F/Dt$ | $V\omega(-\sin\omega t,\cos\omega t,0)$; como $J=0$, $D\mathbf F/Dt=\partial_t\mathbf F$, de módulo $V\omega=V^2/(V/\omega)$: la aceleración centrípeta de una circunferencia de radio $V/\omega$ |
+| Líneas de corriente en $t^*$ | Rectas paralelas a $(\cos\omega t^*,\sin\omega t^*,0)$ |
+| Trayectorias | $x=x_0+\tfrac V\omega(\sin\omega t-\sin\omega t_0)$, $y=y_0-\tfrac V\omega(\cos\omega t-\cos\omega t_0)$, $z=z_0$: **circunferencias** de radio $V/\omega$, antihorarias vistas desde $+z$ si ω > 0, periodo $2\pi/\omega$ |
+| Líneas de traza desde $\mathbf p$ | Arcos de la circunferencia de radio $V/\omega$ centrada en $\mathbf p+\tfrac V\omega(\sin\omega t,-\cos\omega t,0)$ |
+| Semillas | Rejilla 5×5 en el plano XY, $z=0$ |
+| Interpretación | En ningún instante una línea de corriente se curva y, sin embargo, cada gota describe una circunferencia: **el contraejemplo mínimo** de §3.10 |
+| Supuestos | Viento horizontal uniforme que rola a ritmo constante; las gotas siguen el viento sin inercia |
+
+#### 4.9.2 Lluvia con ráfagas — $\mathbf F=\big(A\sin(\omega t-kz),\ 0,\ -v\big)$
+
+| Aspecto | Contenido |
+| --- | --- |
+| Expresiones | `P = A*sin(w*t - k*z)`, `Q = 0`, `R = -v` |
+| Parámetros | A ∈ [0, 2], paso 0.05, por defecto 0.8; ω ∈ [0.1, 3], paso 0.05, por defecto 1; k ∈ [0, 3], paso 0.05, por defecto 1.5; v ∈ [0.1, 3], paso 0.05, por defecto 1 |
+| Geometría | Caída uniforme con rapidez $v$ y viento horizontal en ondas que suben con velocidad de fase $\omega/k$ |
+| $J$, div, rot | $J_{13}=-Ak\cos(\omega t-kz)$ y el resto 0; div $=0$; rot $=(0,\,-Ak\cos(\omega t-kz),\,0)$ |
+| $\partial_t\mathbf F$, $D\mathbf F/Dt$ | $(A\omega\cos(\omega t-kz),0,0)$; $D\mathbf F/Dt=\big(A(\omega+kv)\cos(\omega t-kz),\,0,\,0\big)$ |
+| Líneas de corriente en $t^*$ | $\dfrac{dx}{dz}=-\dfrac Av\sin(\omega t^*-kz)$: curvas onduladas en planos $y=$ cte |
+| Trayectorias | $z=z_0-v(t-t_0)$; $x=x_0-\dfrac A\Omega\big[\cos(\Omega t-\phi_0)-\cos(\Omega t_0-\phi_0)\big]$ con $\Omega=\omega+kv$ y $\phi_0=kz_0+kvt_0$ |
+| Semillas | Rejilla 5×5 en el plano XY, $z=1.9$ (la «nube») |
+| Interpretación | La gota cruza las ráfagas y las siente con frecuencia $\omega+kv$, no $\omega$ (efecto Doppler): por eso su zigzag no tiene la forma de las líneas de corriente. Con «Nacen en: las semillas» se ve la cortina de gotas (líneas de traza) |
+| Supuestos | Gotas sin inercia que caen a velocidad terminal $v$ y siguen el viento horizontal |
+
+#### 4.9.3 Silla giratoria — $\mathbf F=k\,\big(x\cos2\omega t+y\sin2\omega t,\ x\sin2\omega t-y\cos2\omega t,\ 0\big)$
+
+| Aspecto | Contenido |
+| --- | --- |
+| Expresiones | `P = k*(x*cos(2*w*t) + y*sin(2*w*t))`, `Q = k*(x*sin(2*w*t) - y*cos(2*w*t))`, `R = 0` |
+| Parámetros | k ∈ [0.1, 3], paso 0.05, por defecto 1; ω ∈ [0, 3], paso 0.05, por defecto 1.5 |
+| Geometría | En cada instante es la silla de §4.6 girada un ángulo $\omega t$: $\mathbf F=R(\omega t)\,\mathrm{diag}(k,-k,0)\,R(\omega t)^{\top}\mathbf r$ |
+| $J$, div, rot | $J$ simétrica sin traza, autovalores $\pm k$ y 0 en todo instante: div $=0$, rot $=\mathbf 0$ |
+| Equilibrios | El eje $z$, en todo instante |
+| Trayectorias | En el sistema que gira, $\mathbf q=R(-\omega t)(x,y)$ cumple $\dot{\mathbf q}=M\mathbf q$ con $M=\begin{pmatrix}k&\omega\\-\omega&-k\end{pmatrix}$ y $M^2=(k^2-\omega^2)I$. Si $\omega>k$: $\mathbf q(t)=\big[\cos\nu\tau\,I+\tfrac{\sin\nu\tau}{\nu}M\big]\mathbf q_0$, $\nu=\sqrt{\omega^2-k^2}$, $\tau=t-t_0$: **acotadas** (elipses en el sistema que gira). Si $\omega<k$: lo mismo con $\cosh$ y $\sinh$ de $\mu=\sqrt{k^2-\omega^2}$: **escapan**. Si $\omega=k$: $\mathbf q=(I+\tau M)\mathbf q_0$ |
+| Semillas | Rejilla 7×7 en el plano XY, $z=0$ |
+| Interpretación | En cada instante es un punto de silla, irrotacional y sin divergencia: las líneas de corriente prometen que todo escapa. Si gira deprisa ($\omega>k$), las partículas quedan **atrapadas**. Ninguna fotografía instantánea del campo lo deja adivinar |
+| Supuestos | Recuerda a la trampa de Paul (una silla de potencial que gira atrapa partículas), pero aquí la ecuación es de primer orden, $\dot{\mathbf r}=\mathbf F$, no la de Newton |
+
 ---
 
 ## 5. Métodos computacionales
@@ -552,8 +744,10 @@ numero      = digitos , [ "." , digitos ] , [ ("e" | "E") , [ "+" | "-" ] , digi
 - **Variables derivadas** (se expanden en el árbol, así que se derivan correctamente):
   `r` = $\sqrt{x^2+y^2+z^2}$, `rho` o `ρ` = $\sqrt{x^2+y^2}$.
 - **Constantes**: `pi` / `π`, `e`.
-- **Reservado**: `t` → error «Los campos dependientes del tiempo aún no están disponibles»
-  (AMP-01).
+- **Tiempo** (1.1): `t` es la variable temporal (§3.10). Las derivadas respecto de $x,y,z$
+  la tratan como constante; $\partial/\partial t$ se deriva con las mismas reglas. Se evalúa
+  en una ranura más del vector de parámetros (D-63). Sigue siendo un nombre reservado: no
+  puede ser un parámetro.
 - **Parámetros**: cualquier otro identificador debe estar **declarado**. Si no lo está, el
   mensaje ofrece «Añadir “k” como parámetro». Un parámetro no puede llamarse como una
   variable, constante o función. Los nombres griegos ASCII (`alpha`…`omega`, `w` en el
@@ -735,6 +929,53 @@ precisión.
 
 ---
 
+### 5.11 Métodos de la versión 1.1
+
+**Integración no autónoma (partículas).** RK4 clásico con el tiempo en las etapas:
+
+```
+k1 = F(r,            t)
+k2 = F(r + h/2·k1,   t + h/2)
+k3 = F(r + h/2·k2,   t + h/2)
+k4 = F(r + h·k3,     t + h)
+r' = r + h/6·(k1 + 2k2 + 2k3 + k4)
+```
+
+Error global $O(h^4)$ también en el caso no autónomo; se verifica el orden frente a las
+soluciones exactas de §4.9 (V-NUM-17). Subpasos como en §5.8.
+
+**Reloj.** Un único reloj avanza $t$ a razón de $\tau$ unidades por segundo real
+($\tau=\Delta/F_{\text{ref}}$ por defecto, §3.6), mueve las partículas y fija el instante de
+todo lo demás. En marcha, la malla, el corte y las líneas se recalculan para el $t$ vigente
+con **una petición en curso por tipo**: si $t$ avanza mientras se calcula, al terminar se pide
+el $t$ más reciente (sin el retardo de 120 ms de las líneas). Cada resultado guarda el $t$
+con que se calculó y la leyenda lo muestra cuando difiere del reloj.
+
+**Escala en la ventana.** $F_{\text{ref}}=$ P95 de $\{\lVert\mathbf F(\mathbf r_i,t_j)\rVert\}$
+con $t_j=t_0+j\,(t_1-t_0)/8$, $j=0,\dots,8$ (§3.10), con el mismo redondeo legible; el
+*worker* la guarda en caché mientras no cambien campo, parámetros, malla ni ventana.
+
+**Líneas de traza (RF-25).** Con «Nacen en: las semillas», las $n$ partículas se reparten por
+turnos entre las $S$ semillas. La partícula $j$ de una semilla espera
+$j\cdot T_v/\lceil n/S\rceil$ segundos reales antes de salir ($T_v$: vida) y, al morir, renace
+en su semilla. En cada instante las partículas de una semilla son, por construcción, una
+muestra de la línea de traza de esa semilla (§3.10). Las que esperan no se dibujan.
+
+**Semillas ancladas a la red** (espacio sin límites). Celdas de lado
+$D=(\operatorname{vol}\Omega/n)^{1/3}$ alineadas con el origen de Ω; en la celda $(i,j,k)$, la
+semilla $\mathbf a+D\big((i,j,k)+\mathbf h(i,j,k)\big)$ con $\mathbf h\in[0,1)^3$ un *hash*
+entero de la celda y de la semilla visible. Solo se usan las celdas cuya semilla cae en la
+ventana. Dos ventanas comparten exactamente las semillas de su intersección (V-NUM-21).
+
+**Vuelo (vista libre).** La cámara se describe por su posición y dos ángulos: azimut $\psi$
+(alrededor de $+z$) y elevación $\theta\in[-89°,89°]$, con dirección
+$(\cos\theta\cos\psi,\ \cos\theta\sin\psi,\ \sin\theta)$; nunca se alcanza el polo, así que
+«arriba» ($+z$) siempre está definido. La velocidad objetivo es
+$v=v_0\cdot m\cdot(4\text{ con Mayús})/\lambda$ con $v_0=0.4\,r_\Omega$ por segundo
+($r_\Omega$: radio de Ω) y $m$ el multiplicador de la rueda ($\times1.25$ por paso, entre
+$1/16$ y 16). La velocidad real se acerca a la objetivo con una constante de tiempo de
+0.12 s (sin inercia con movimiento reducido).
+
 ## 6. Experiencia de uso
 
 Los flujos detallados, estados y navegación por teclado están en PLAN.md §4. Los
@@ -781,6 +1022,20 @@ componentes y sus estados visuales están en DESIGN.md §6–7.
   si la importación falla.
 - **Versiones**: `version` superior a la soportada → error claro. Versión inferior → función
   de migración. Claves desconocidas → se ignoran con aviso.
+- **Versión 2 (1.1)**: añade tres claves y la aplicación escribe siempre `"version": 2`.
+
+  ```json
+  "tiempo": { "t": 0, "inicio": 0, "fin": 12.566370614359172, "bucle": true },
+  "exploracion": { "escala": 1, "velocidad": 1, "ilimitado": false },
+  "particulas": { "n": 400, "tau": null, "semilla": 1, "nacimiento": "dominio" }
+  ```
+
+  `tiempo.t` es el instante mostrado (inicio ≤ t ≤ fin, inicio < fin); `exploracion.escala`
+  es $\lambda\in[1/8,64]$; `velocidad`, el multiplicador $m\in[1/16,16]$; `ilimitado`, el
+  espacio sin límites al entrar en la vista libre; `nacimiento` ∈ {`dominio`, `semillas`}.
+  **Migración 1 → 2**: añade esas claves con sus valores por defecto, en silencio (no es una
+  omisión del usuario). Un archivo v2 en la 1.0 da el error de versión posterior, como prevé
+  esta misma sección.
 - Tamaño máximo del archivo: 256 KB.
 - **Recuperación automática**: el estado se guarda en `localStorage` 1 s después de cada
   cambio, siempre dentro de `try/catch`. Al abrir, se restaura con un aviso «Se ha recuperado

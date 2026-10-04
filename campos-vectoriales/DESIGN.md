@@ -4,7 +4,8 @@
 > verificación están en [VALIDATION.md](VALIDATION.md) §7; las tareas, en [PLAN.md](PLAN.md)
 > (prefijos `VIS-` y `REV-`).
 >
-> Estado del documento: **borrador para aprobación** · Fecha: 2026-10-02.
+> Estado del documento: **aprobado** (1.0, 2026-10-02) · **ampliado para la 1.1** (H10,
+> 2026-10-04): §5.5 vista libre, §6.3 componentes nuevos, §9.13 tiempo en la escena.
 
 ---
 
@@ -279,15 +280,17 @@ caja de 32 px.
 | # | Sección | Estado inicial | Contenido |
 | --- | --- | --- | --- |
 | 1 | Campo | Fija | Fórmula KaTeX y valores de los parámetros; «Sobre este campo ›» (ficha desplegable) a la derecha del título, en la misma fila (REV-02) |
-| 2 | Ejemplos | Fija | Rejilla 3 × 2 de tarjetas compactas (miniatura monocroma de 24 px + nombre corto de una línea). La activa lleva borde de 2 px `--texto-1` y marca ✓; si se ha editado, «•» (modificado) |
+| 2 | Ejemplos | Fija | Rejilla 3 × 3 (1.1: tres campos temporales en la tercera fila) de tarjetas compactas (miniatura monocroma de 24 px + nombre corto de una línea). La activa lleva borde de 2 px `--texto-1` y marca ✓; si se ha editado, «•» (modificado) |
 | 3 | Ecuaciones | Fija | P, Q, R con vista previa y validación |
 | 4 | Parámetros | Fija si hay alguno | Deslizador + número + menú ⋯ (rango, paso, restablecer, eliminar); «+ Añadir parámetro» |
+| 4b | Tiempo (1.1) | Abierta si el campo depende de $t$; si no, plegada con la nota «El campo no depende de t» | Deslizador de $t$ y valor exacto; reproducir/pausar; inicio, fin, bucle; «1 s ≙ τ» |
 | 5 | Visualización | Abierta | Interruptores: Flechas, Líneas de corriente, Partículas. Segmentado «Glifos: F · rot F» |
 | 6 | Líneas de corriente | Plegada | Estrategia de semillas, plano, número, paso $h$, longitud máxima, «Detalles del cálculo» |
 | 7 | Corte | Plegada (interruptor en la cabecera) | Plano XY/XZ/YZ, posición, flechas todas/solo corte, vector completo/tangencial, escalar |
 | 8 | Divergencia y rotacional | Plegada | Expresiones simbólicas de div F y rot F; accesos «Ver div en el corte», «Ver rot · n en el corte», «Glifos de rot F» |
-| 9 | Dominio y muestreo | Plegada | Límites de la caja (cubo enlazado), N, nodos/centros, resolución del corte |
-| 10 | Avanzado | Plegada | Flechas: proporcional/normalizada, escala auto/fija, luminancia lineal/log. Partículas: número, τ, semilla. Cifras significativas |
+| 9 | Dominio y muestreo | Plegada | Límites de la caja (cubo enlazado), «Ampliar ×2» / «Estrechar ÷2» (1.1), N, nodos/centros, resolución del corte |
+| 9b | Vista libre (1.1) | Plegada | Botón «Entrar en la vista libre», λ, velocidad, «Espacio sin límites», resumen de las teclas |
+| 10 | Avanzado | Plegada | Flechas: proporcional/normalizada, escala auto/fija, luminancia lineal/log. Partículas: número, τ, semilla, «Nacen en: todo Ω · las semillas» (1.1). Cifras significativas |
 
 Objetivo de densidad (VV-06, revisado en REV-02, D-33): a 1280×720 y con el experimento
 inicial (un parámetro), las secciones 1–4 (Campo, Ejemplos, Ecuaciones y Parámetros) caben
@@ -304,6 +307,23 @@ las medidas de §4.2 y §6.1: medido, las secciones 1–4 ocupaban 816 px de 672
 | 1024–1279 | Acciones de la barra solo con icono; panel como **cajón** superpuesto de 320 px (abierto por defecto, botón «Panel») |
 | 768–1023 | Ídem; inspector compacto de 256 px; leyenda plegada por defecto |
 | < 768 | Modo consulta: barra con menú; panel como **hoja inferior** (cabecera de 64 px con la fórmula, desplegable al 60 % de la altura); inspector en hoja inferior; leyenda como botón |
+
+### 5.5 Vista libre (1.1)
+
+La vista libre es la escena **sola**: ninguna región de §5.2 es visible ni enfocable; el
+lienzo ocupa toda la ventana (y toda la pantalla si el navegador concede la pantalla
+completa). Es la única excepción al principio «la leyenda no se oculta sola» (§9.12), y es
+deliberada y reversible con una tecla. Lo único que puede aparecer, siempre por iniciativa
+del usuario y sin capturar el puntero ni el foco:
+
+| Elemento | Posición | Contenido | Comportamiento |
+| --- | --- | --- | --- |
+| **Pista de controles** | Abajo al centro, 24 px del borde | Una línea con `kbd`: «Arrastrar · flechas mirar · W A S D Q E moverse · Mayús rápido · rueda velocidad · + − escala · U sin límites · H pista · Esc salir» | Aparece 5 s al entrar y luego se desvanece (200 ms); H la muestra u oculta. Tarjeta de nivel 1, texto 12 px |
+| **Indicador transitorio** | Arriba al centro | Una palabra y un valor: «Velocidad ×2», «Escala λ = 1.95», «Sin límites», «Con límites», «Pausa» | 1.5 s y se desvanece; `role="status"` |
+
+Con movimiento reducido, sin desvanecimientos (aparecen y desaparecen de golpe) y sin
+inercia del vuelo. La lectura «t = …» no se muestra en la vista libre; T la muestra en el
+indicador transitorio.
 
 ---
 
@@ -345,6 +365,15 @@ las medidas de §4.2 y §6.1: medido, las secciones 1–4 ocupaban 816 px de 672
 | **Expresión con error** | Icono `octagon-alert` + «Error: …» + subrayado en la posición; borde del campo a 2 px; aviso en la escena «Mostrando el último campo válido» |
 | **Sin datos** | Todo indefinido o campo nulo: estado vacío con causa y sugerencias («Prueba con un dominio con x > 0», «Restablecer ejemplo») |
 | **Éxito** | Notificación breve («Configuración exportada: campo-helicoidal-20261002-1530.json») |
+
+### 6.3 Componentes de la 1.1
+
+| Componente | Especificación |
+| --- | --- |
+| **Lectura de tiempo** | Chip flotante de 32 px junto a la barra de la escena: «t = 1.234» en cifras tabulares 13 px; solo si el campo depende de $t$; `aria-live="off"` (el valor cambia en cada fotograma; el lector lo lee al enfocar la sección «Tiempo») |
+| **Sección Tiempo** | Deslizador de $t$ con la ventana como rango; entrada numérica; botón reproducir/pausar (el mismo estado que la barra de la escena); inicio y fin; interruptor «Bucle»; pista «1 s ≙ τ = …» |
+| **Botón «Vista libre»** | Botón icono de la barra de la escena (icono de expansión), atajo V |
+| **Ampliar / Estrechar** | Dos botones secundarios de 32 px en «Dominio y muestreo»; el resultado se anuncia en la pista de la fila |
 
 ---
 
@@ -574,6 +603,17 @@ textos de física para vectores perpendiculares al papel.
 - Cada entrada combina muestra gráfica y texto (≥ 11 px). Ninguna entrada depende solo del
   gris.
 - Se incluye en la exportación PNG cuando se elige «con leyenda».
+
+### 9.13 Tiempo en la escena (1.1)
+
+- Las flechas están **ancladas a sus nodos**: con $t$ cambia el vector de cada nodo (dirección,
+  longitud y luminancia), nunca su posición. Lo que se desplaza son las partículas.
+- La escala es común a toda la ventana temporal (SPEC §3.10): la leyenda dice
+  «F_ref = … (P95 en t ∈ [t₀, t₁])».
+- Las líneas de corriente llevan en la leyenda «instantáneas en t = …» con el $t$ con que se
+  calcularon; si el reloj va por delante, ese valor lo dice.
+- Partículas: «trayectorias ṙ = F(r, t)» o, emitidas desde las semillas, «líneas de traza».
+- Sin $t$ en las ecuaciones nada de esto aparece: la leyenda es la de la 1.0.
 
 ---
 

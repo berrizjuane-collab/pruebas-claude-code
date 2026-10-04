@@ -1,0 +1,5 @@
+PLN-02 · 2026-10-04 · plan de la 1.1
+
+$ node scripts/revisar-docs.mjs
+7 documentos · 83 enlaces relativos · 1172 citas de identificadores · 294 identificadores definidos
+Sin problemas

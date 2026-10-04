@@ -1,7 +1,7 @@
 # STATUS — Estado, decisiones y riesgos
 
 > Documento vivo. Se actualiza al cerrar cada tarea con su evidencia.
-> Última actualización: **2026-10-02**.
+> Última actualización: **2026-10-04**.
 
 ---
 
@@ -9,9 +9,9 @@
 
 | | |
 | --- | --- |
-| **Fase** | Entrega — H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9: VAL-01, REV-04, ENT-01 y DOC-01 verificadas; VAL-02 (101/101 e2e) y VAL-03 (objetivos de cálculo cumplidos en C0) a falta de las comprobaciones del usuario (Q-05, Q-06). HTML final en `entrega/` (sha256 `c091c977…`) |
+| **Fase** | **H10 (versión 1.1) en curso**: vista libre inmersiva, alcance y dilatación del espacio, campos dependientes del tiempo (SPEC §2.5). Estado de la 1.0: H0 a H7 completados; H8: 3 de 4 (A11Y-02 espera la sesión con lector de pantalla, Q-04); H9: VAL-01, REV-04, ENT-01 y DOC-01 verificadas; VAL-02 (101/101 e2e) y VAL-03 (objetivos de cálculo cumplidos en C0) a falta de las comprobaciones del usuario (Q-05, Q-06). HTML final en `entrega/` (sha256 `c091c977…`) |
 | **Situación** | Plan aprobado por el usuario el 2026-10-02, con tres respuestas que se incorporan como D-15, D-20 y S-01 |
-| **Siguiente paso** | Las tres comprobaciones del usuario (§7): Q-04, Q-05 y Q-06 |
+| **Siguiente paso** | Ejecutar H10 (PLAN §5.3). Siguen pendientes las tres comprobaciones del usuario de la 1.0 (§7): Q-04, Q-05 y Q-06 |
 | **Bloqueos** | Ninguno para seguir. Necesitan el equipo del usuario: la sesión con lector de pantalla (Q-04, A11Y-02; si obliga a cambiar la interfaz, se repiten las capturas de REV-04), la prueba de humo en Firefox y Safari (Q-05, VAL-02) y la medición en R1 (Q-06, VAL-03) |
 
 ### 1.1 Estado por hito
@@ -29,6 +29,7 @@
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
 | H9 Validación | 6 | 4/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
+| H10 Exploración y tiempo (1.1) | 15 | 1/15 | En curso (PLAN §5.3) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -84,6 +85,7 @@
 - REV-04 · 2026-10-03 · `72f6c36` · [evidencia/REV-04/](evidencia/REV-04/)
 - ENT-01 · 2026-10-03 · `24e634b` · [evidencia/ENT-01/](evidencia/ENT-01/)
 - DOC-01 · 2026-10-03 · `ac45b2e` · [evidencia/DOC-01/](evidencia/DOC-01/)
+- PLN-02 · 2026-10-04 · este commit · [evidencia/PLN-02/](evidencia/PLN-02/)
 
 ---
 
@@ -167,6 +169,16 @@ Playwright. Ubicación: `campos-vectoriales/` dentro de este repositorio multipr
 | D-59 | En C0, `npm run perf` mide 60 fotogramas (no 600) y no juzga la latencia de PERF-C; ambas cuentan en R1 | Medir y juzgar igual en C0 | En C0 cada fotograma lo dibuja la CPU (2.6 s en PERF-A, 7 s en PERF-B) y la latencia de PERF-C termina en un fotograma; VALIDATION §6.1 ya dice que en C0 solo cuentan los tiempos de cálculo y las tareas largas | Sí |
 | D-60 | El anillo de foco de la escena es un `outline` de 2 px con desplazamiento −2 px | Sombra interior (`box-shadow: inset`) | La sombra interior de un elemento reemplazado se pinta debajo de su contenido: el dibujo WebGL, opaco, la tapaba y el foco de la escena no se veía. La auditoría de foco de A11Y-01 leía estilos calculados y la daba por buena; ahora descarta las sombras interiores en canvas, img y video (falla con el estilo anterior). Lo destapó la captura de referencia C12 de REV-04, idéntica a C1 salvo 4 píxeles | Sí |
 | D-61 | El recuento manual de VV-06 («≤ 25 interactivos visibles en reposo») se juzga dentro del panel, en V2 (referencia de composición) y V3; el de toda la página y el de V1 se anotan | Contar toda la página, como en REV-02 | VV-06 trata de la densidad del panel. En REV-02 la página tenía 22–24, pero desde H5 suma la barra de la escena (8 botones), la leyenda y la propia escena (31 en V3), y VIS-06 lo anotó sin juzgarlo. En el panel: 22 (V2), 16 (V3); en V1, 29 porque la altura extra enseña cuatro secciones plegadas más | Sí, revisable por el usuario |
+| D-62 | **Alcance**: caja ampliable («Ampliar ×2», «Estrechar ÷2») **y** espacio sin límites en la vista libre. **Dilatación**: uniforme | Solo caja; dilatación por eje con candado | Respuestas del usuario (2026-10-04) a las dos preguntas del plan de la 1.1 | Sí |
+| D-63 | `t` se evalúa en una ranura más del vector de parámetros, `p[nParámetros]` | Nueva firma `F(x, y, z, t, p)` | Los evaluadores, el *worker*, la caché del campo compilado y el protocolo no cambian; un campo sin `t` ignora la ranura | Sí |
+| D-64 | $F_{\text{ref}}$ y $C_{\text{ref}}$ automáticas de un campo temporal: P95 en 9 instantes equiespaciados de la ventana | P95 en el instante mostrado | Con la escala por instante, un campo que crece se vería siempre igual (SPEC §3.10) | Sí |
+| D-65 | Vista libre sin captura del puntero (arrastrar para mirar) y con pantalla completa solo si el navegador la concede; salir restaura la pose de entrada | *Pointer lock*; conservar la pose del vuelo | El arrastre funciona igual con ratón, panel táctil y pruebas automáticas, y Esc no compite con la liberación del puntero; volver al laboratorio exactamente donde se dejó es predecible | Sí |
+| D-66 | Dilatación como transformación de la cámara (posición, velocidad y plano cercano), alrededor del centro de Ω o, sin límites, del explorador; solo en la vista libre | Escalar el grupo raíz de la escena | Exacta por invariancia proyectiva (SPEC §3.11) y sin tocar capas, selección ni exportación | Sí |
+| D-67 | Espacio sin límites: ventana anclada a la red de Ω, escalas congeladas al activarlo, semillas ancladas a una red gruesa, ejes por el origen sin caja | Ventana centrada exactamente en la cámara; escala automática por ventana | Sin anclaje las flechas «nadarían» al moverse; con escala por ventana el campo parecería cambiar (SPEC §3.11) | Sí |
+| D-68 | Catálogo de 9 campos en 3 × 3; al elegir uno temporal se activan las partículas | 8 campos; no tocar las capas | La rejilla queda completa; las trayectorias son la razón de ser de esos campos | Sí |
+| D-69 | Un único reloj para $t$ y las partículas; mover $t$ a mano o cerrar el bucle hace renacer las partículas | Conservarlas | Una trayectoria integrada hasta otro instante no es una trayectoria del instante elegido (SPEC §3.10) | Sí |
+| D-70 | Con el reloj en marcha y un campo temporal: una petición en curso por tipo (malla, corte, líneas), sin el retardo de 120 ms de las líneas; cada resultado guarda su $t$ | Cancelar y relanzar en cada fotograma | Cancelar en cada fotograma dejaría sin terminar los cálculos de más de un fotograma | Sí |
+| D-71 | JSON v2 con migración 1 → 2 silenciosa | Seguir en v1 con claves opcionales | D-49 avisaría de la «falta» de las claves nuevas al abrir un v1; SPEC §7.2 ya preveía migraciones | Sí |
 | D-25 | La tabla de contrastes de VIS-01 es una prueba de Vitest (`src/design/tokens.test.ts`) en lugar de un *script* aparte | `scripts/contraste.ts` | Importa los tokens reales sin duplicarlos y se ejecuta en cada `npm test` | Sí |
 
 ---
@@ -313,6 +325,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-03 | H9: VAL-01 verificada (cobertura math 91.7 %, numerics 97.2 %; errores frente a tolerancias); VAL-02 con 101/101 e2e y trazabilidad V-FUN completa, pendiente la prueba de humo del usuario (Q-05). V-FUN-16 destapó la recompilación de shaders al cambiar el dominio (D-57); decisiones D-57 y D-58; dos fallos intermitentes del arnés corregidos (proyecto «rendimiento» en serie; selectores de archivo) |
 | 2026-10-03 | H9: VAL-03 en C0. Modo de medición `?perf=` con informe JSON, `npm run perf` con comprobación de objetivos y de regresión, escenas PERF-A/B/C; en C0, malla 15³ 1.2 ms, corte 41² 4.5 ms, líneas 33.9 ms (PERF-A) y 77.1 ms (PERF-B), 0 tareas largas en PERF-C; falta R1 (Q-06); decisión D-59 |
 | 2026-10-03 | H9: REV-04 verificada. Matriz completa de 42 capturas sobre el HTML autocontenido y capturas de referencia en `tests/visual`; destapó el foco invisible en la escena (D-60, corregido) y aclaró el recuento de VV-06 (D-61) |
+| 2026-10-04 | **Versión 1.1 (H10)**: petición del usuario (vista libre inmersiva, alcance y dilatación, dimensión temporal si es rigurosa). Juicio: los campos dependientes del tiempo son rigurosos (SPEC §2.5) y se incorporan (AMP-01). Plan escrito en SPEC §2.5, §3.10, §3.11, §4.9, §5.11, §7.2; DESIGN §5.5, §6.3, §9.13; PLAN F11–F13, §3.2 y §5.3; VALIDATION T-20 … T-26 y pruebas nuevas; decisiones D-62 … D-71 |
 | 2026-10-03 | H9: ENT-01 verificada (HTML final reproducible, 103/103 e2e sobre file://) y DOC-01 (README nuevo ejecutado desde un clon limpio, ayuda revisada frente al código, enlaces e identificadores comprobados con `scripts/revisar-docs.mjs`). Quedan Q-04, Q-05 y Q-06 |
 
 ---

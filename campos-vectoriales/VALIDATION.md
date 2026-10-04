@@ -3,7 +3,8 @@
 > Cómo se demuestra que la aplicación cumple [SPEC.md](SPEC.md) y [DESIGN.md](DESIGN.md).
 > Cada tarea de [PLAN.md](PLAN.md) cita aquí sus criterios por identificador.
 >
-> Estado del documento: **borrador para aprobación** · Fecha: 2026-10-02.
+> Estado del documento: **aprobado** (1.0, 2026-10-02) · **ampliado para la 1.1** (H10,
+> 2026-10-04): T-20 … T-26, V-MAT-11, V-NUM-17 … V-NUM-22, V-FUN-18 … V-FUN-23, C13–C15.
 
 ---
 
@@ -58,6 +59,13 @@ debajo de un píxel (≈ 5 × 10⁻³ unidades en Ω = [−2,2]³ a 1440×900).
 | T-17 | Coherencia de flechas en la GPU (float32): dirección, longitud, color | $10^{-6}$ rad · $10^{-6}$ relativo · ±1/255 | — | $\varepsilon_{32}\approx1.2\times10^{-7}$; redondeo a 8 bits |
 | T-18 | Rueda de paletas frente a partículas, rotacional ω = 1, 2 s simulados | $\lvert\Delta\theta\rvert\le10^{-3}$ rad | — | La rueda es analítica; las partículas, RK4 con $\delta t$ de fotograma |
 | T-19 | Proyección tangencial, $\mathbf F_\parallel\cdot\mathbf n$ | $=0$ exacto | — | La normal es un eje coordenado: basta anular una componente |
+| T-20 | Evaluación con `t` frente al oráculo (catálogo temporal, $t$ aleatorio en $[-10,10]$) | T-01 | — | Mismas operaciones; `t` se lee de una ranura |
+| T-21 | $\partial\mathbf F/\partial t$ simbólica frente a la analítica | T-02 | — | Como T-02 |
+| T-22 | Trayectorias no autónomas frente a la solución exacta (viento giratorio, lluvia, silla giratoria con ω > k, ω < k y ω = k), $\delta t=0.01$, $t\in[0,2\pi]$ | relativo $\le10^{-7}$ | medido en TMP-02 (§2.2) | Error global de RK4 $\propto\delta t^4$; margen ≥ 10× sobre lo medido |
+| T-23 | Orden de RK4 no autónomo, $\delta t=0.1\to0.025$ | $p\in[3.8,\,4.2]$ | medido en TMP-02 | Teoría: $p=4$ |
+| T-24 | Dilatación alrededor del ojo: posición en pantalla de 1000 puntos antes y después | $\le10^{-9}$ px | — | Invariancia proyectiva exacta (SPEC §3.11); solo redondeo |
+| T-25 | Nodos de una ventana sin límites sobre la red de Ω | $\lvert x-(a+i\Delta)\rvert\le10^{-12}\,L$ | — | Desplazamientos por múltiplos enteros de $\Delta$ |
+| T-26 | Línea de traza: partículas de una semilla sobre la línea de traza exacta (viento giratorio) | distancia $\le10^{-6}$ | — | Cada partícula es una trayectoria (T-22) |
 
 > Los valores observados vienen del prototipo, no de la implementación. Al completar NUM-02,
 > NUM-03 y NUM-05 se registran los errores **medidos en TypeScript** junto a estos. Una
@@ -85,6 +93,10 @@ Ninguna medida se aparta más de un orden de magnitud de la calibración.
 | T-15 | Alineación radial | — | $4.2\times10^{-16}$ | Redondeo |
 | T-16 | Recorte al borde | $h/2^{30}\approx6\times10^{-11}$ | ≤ $4.7\times10^{-11}$ | — |
 
+### 2.2 Errores medidos de la 1.1 (TMP-02)
+
+Se completa al cerrar TMP-02 con la salida `MEDIDA` de `npm test`.
+
 ---
 
 ## 3. Pruebas matemáticas (V-MAT)
@@ -93,7 +105,7 @@ Ninguna medida se aparta más de un orden de magnitud de la calibración.
 | --- | --- | --- |
 | V-MAT-01 | Catálogo nativo: J, div y rot analíticos; div = tr J; rot coherente con la parte antisimétrica de J; 1000 puntos por campo | T-02 |
 | V-MAT-02 | Analizador, casos válidos (≥ 60): precedencia (`-x^2`, `2^3^2`), multiplicación implícita (`2x`, `3(x+1)`, `)(`), Unicode (`−`, `·`, `π`, griegas), `**`, decimales `.5`, exponentes `1e-3`, `r`, `rho` | Árbol igual al esperado (comparación estructural) |
-| V-MAT-03 | Analizador, casos inválidos (≥ 40): sintaxis, desconocidos, aridad, función no permitida, `t` reservada, `xy`, vacío, incompletos (`x*(`, `sin(`, `2^`) | Código de error, posición y mensaje en español esperados; los incompletos se clasifican como `INCOMPLETA` |
+| V-MAT-03 | Analizador, casos inválidos (≥ 40): sintaxis, desconocidos, aridad, función no permitida, `t` como nombre de parámetro, `xy`, vacío, incompletos (`x*(`, `sin(`, `2^`) | Código de error, posición y mensaje en español esperados; los incompletos se clasifican como `INCOMPLETA` |
 | V-MAT-04 | Seguridad y límites: `constructor`, `__proto__`, `toString`, cadenas, corchetes, punto y coma, 501 caracteres, profundidad 65; *fuzzing* de 10 000 entradas aleatorias | Errores controlados; ninguna excepción no capturada; < 5 ms por entrada; ningún acceso a propiedades de objetos JS |
 | V-MAT-05 | Evaluación compilada frente al oráculo: 6 campos del catálogo + T1–T6, 1000 puntos en Ω (y parámetros aleatorios en su rango) | T-01; mismo patrón de no finitos (NaN/±∞) en T2, T3 y T4 |
 | V-MAT-06 | Ida y vuelta: `analizar(unicode(árbol)) ≡ árbol`; el TeX de todos los casos válidos se renderiza con KaTeX sin error | 100 % |
@@ -101,6 +113,7 @@ Ninguna medida se aparta más de un orden de magnitud de la calibración.
 | V-MAT-08 | Derivadas simbólicas frente a diferencias finitas en 500 expresiones aleatorias × 20 puntos (solo donde ambas son finitas y lejos de puntos angulosos) | T-03 |
 | V-MAT-09 | Puntos no diferenciables: `abs(x)` en 0, `min(x,y)` con x = y, `atan2(y,x)` y `hypot(x,y)` en el origen | La derivada se declara «no definida»; nunca un valor de rama |
 | V-MAT-10 | Formato numérico: cifras significativas, notación científica, «−», `0`, `≈ 0` | Tabla de casos con salida exacta |
+| V-MAT-11 | **Tiempo en el lenguaje**: `t` se analiza como variable (también en `sin(w*t)`, `2t`, `t^2`); no puede declararse como parámetro; $\partial/\partial x_j$ de `t` es 0; $\partial/\partial t$ simbólica frente a diferencias finitas en $t$ en 300 expresiones aleatorias con `t` × 10 puntos; `x^t` (exponente temporal) se deriva con la regla general; TeX y Unicode escriben `t`; un campo sin `t` no depende del tiempo | Árbol esperado; T-02/T-03; `dependeDelTiempo` correcto |
 
 ## 4. Pruebas numéricas (V-NUM)
 
@@ -121,6 +134,12 @@ Ninguna medida se aparta más de un orden de magnitud de la calibración.
 | V-NUM-13 | Partículas: frente a la solución exacta en la silla; rapidez $=\lVert\mathbf F\rVert$ (relativo $\le10^{-12}$ en la primera etapa); renacen al salir, al llegar a ≈ 0 o a un punto no definido | T-13, T-14 |
 | V-NUM-14 | Corte: $\mathbf F_\parallel\cdot\mathbf n=0$; $F_n$, div, rot·n y \|F\| en el plano iguales a la evaluación directa; $V_{\text{ref}}$ simétrico | T-19, T-01 |
 | V-NUM-15 | Singularidades: T2 con un nodo en el origen → no definido y excluido de $F_{\text{ref}}$; líneas que se acercan al origen se detienen con `NO_DEFINIDO`; `tan` cerca de $\pi/2$ → singular por magnitud > $F_{\max}$ | Clasificación correcta |
+| V-NUM-17 | **Trayectorias no autónomas** frente a las soluciones exactas de SPEC §4.9 y orden de convergencia | T-22, T-23 |
+| V-NUM-18 | **Líneas de corriente instantáneas**: con $t=t^*$, iguales bit a bit a las del campo «congelado» (las expresiones con `t` sustituido por el número $t^*$); en el viento giratorio, rectas de dirección $(\cos\omega t^*,\sin\omega t^*,0)$ | Igualdad exacta; T-06 |
+| V-NUM-19 | **$F_{\text{ref}}$ en la ventana**: P95 de los 9 instantes; independiente del $t$ mostrado; un campo $t\,(x,y,z)$ en $[0,2]$ conserva su escala y sus flechas crecen con $t$ | Igualdad exacta |
+| V-NUM-20 | **Líneas de traza**: partículas emitidas desde una semilla del viento giratorio sobre el arco exacto; espera escalonada; las que esperan no se dibujan | T-26 |
+| V-NUM-21 | **Semillas ancladas** y ventanas: dos ventanas desplazadas por $\mathbf m\Delta$ comparten exactamente las semillas de su intersección; nodos sobre la red; `m` = redondeo de $(c^{\text{cám}}-c)/\Delta$ | Igualdad exacta; T-25 |
+| V-NUM-22 | **Vuelo y dilatación**: dirección desde azimut y elevación (y vuelta); elevación acotada a ±89°; W avanza según la dirección horizontal y vertical de la vista; dilatación alrededor del ojo invariante en pantalla; alrededor de $\mathbf c$, homotecia exacta; velocidad $v/\lambda$ | T-24; igualdad a $10^{-12}$ |
 | V-NUM-16 | Derivadas no finitas: `sqrt(x)` en $x=0$ → «no acotada (∞)»; `sqrt(x)^2` en $x=0$ (forma $0\cdot\infty$) → diferencia unilateral = 1 (±10⁻⁶) con método «numérica»; sin lado válido → «no definida» | Valor y método informados correctos |
 
 ## 5. Pruebas funcionales y de coherencia (V-FUN)
@@ -143,6 +162,12 @@ Ninguna medida se aparta más de un orden de magnitud de la calibración.
 | V-FUN-14 | **Dominio y densidad** | N = 21 → 9261 instancias; límites inválidos rechazados con mensaje; la caja, los ejes y el corte se adaptan; la cámara se reencuadra |
 | V-FUN-15 | **Estados de pantalla** | Sin WebGL2 → estado vacío explicativo; todo indefinido → estado vacío con sugerencias; campo nulo → aviso; cálculo de > 300 ms → progreso y «Cancelar» que funciona |
 | V-FUN-16 | **Robustez**: 200 ediciones aleatorias rápidas (expresiones, parámetros, dominio) | 0 errores en consola; 0 excepciones no capturadas; la interfaz responde al final (< 1 s) |
+| V-FUN-18 | **Vista libre**: entrar con el botón y con V | Barra superior, panel, leyenda, inspector, barra de la escena, triedro, notificaciones y mensajes **no visibles** (ni enfocables); el lienzo ocupa toda la ventana; W/S/A/D/E/Q, flechas y arrastre mueven la cámara en el sentido esperado; F/L/P/C/G y Espacio funcionan; Esc y V salen y restauran exactamente la pose, la proyección (también si era ortográfica) y la interfaz, con el foco en el botón de origen; axe sin infracciones al salir |
+| V-FUN-19 | **Dilatación**: + y − en la vista libre | λ ×1.25 / ÷1.25 dentro de [1/8, 64]; con la caja, la imagen crece alrededor del centro de Ω; sin límites, la imagen no cambia y la velocidad en unidades del campo se divide por λ; indicador transitorio con λ |
+| V-FUN-20 | **Espacio sin límites**: U en la vista libre y avanzar 10 Δ | La ventana cambia por múltiplos de Δ; $F_{\text{ref}}$ no cambia; la flecha de un nodo común es idéntica antes y después; sin caja; partículas sin recrear (las que siguen dentro conservan su posición) |
+| V-FUN-21 | **Ampliar y estrechar** Ω | [−2, 2]³, N = 9 → «Ampliar» → [−4, 4]³, N = 17, Δ = 0.5; otra vez → [−8, 8]³, N = 21, Δ = 0.8 con aviso; «Estrechar» deshace; límites de lado (0.1–1000) respetados con motivo |
+| V-FUN-22 | **Tiempo**: viento giratorio y `P = t*x` | Sección «Tiempo» habilitada; mover $t$ cambia las flechas y la lectura; Espacio avanza $t$ con el reloj determinista; una partícula recorre una circunferencia de radio $V/\omega$ (±10⁻³ con el reloj de fotogramas) mientras las líneas de corriente son rectas; inspector con $t$, $\partial\mathbf F/\partial t$ y $D\mathbf F/Dt$ correctos; leyenda con el $t$ de las líneas; campo sin `t` → sección informativa |
+| V-FUN-23 | **JSON v2**: exportar → importar; abrir un v1 | Igualdad profunda; un v1 se abre sin avisos con los valores por defecto de la 1.1; `tiempo.inicio ≥ fin` o `exploracion.escala` fuera de rango → errores listados y estado intacto |
 | V-FUN-17 | **HTML autocontenido** abierto con `file://` en Chromium con la red cortada | 0 peticiones de red; 0 errores en consola; *worker* activo (o respaldo anunciado); escena, edición, inspector y exportaciones operativos; tamaño ≤ 3 MB |
 
 ---
@@ -231,8 +256,11 @@ después.
 | C10 | Estado vacío: `P = sqrt(-1-x^2)` |
 | C11 | Rotacional con «Glifos: rot F» y corte con «rot F · n» |
 | C12 | Movimiento reducido + foco visible en la escena |
+| C13 | Lluvia con ráfagas: flechas, líneas instantáneas y partículas (reloj fijo, t = 2) |
+| C14 | Vista libre dentro del helicoidal (sin interfaz) |
+| C15 | Viento giratorio con la sección «Tiempo» abierta, líneas rectas y partículas en circunferencias |
 
-Matriz obligatoria: **C1–C12 × V1–V3**. Además, V4: C1, C2, C4, C6. V5: C1, C4.
+Matriz obligatoria: **C1–C15 × V1–V3**. Además, V4: C1, C2, C4, C6. V5: C1, C4.
 
 ### 7.3 Comprobaciones (VV)
 
@@ -327,3 +355,11 @@ Superada / no superada, y motivo.
 | RNF-10 Robustez | V-FUN-16, V-MAT-04 | VAL-02 |
 | RNF-12 Mantenibilidad | Lint de fronteras, cobertura | FND-01, VAL-01 |
 | RNF-13 Pantallas | VV-06, VV-08 (V1–V5) | VIS-06 |
+| RF-20 Vista libre | V-FUN-18, V-NUM-22, C14 | VL-01, VL-02 |
+| RF-21 Alcance | V-FUN-21 | ALC-01 |
+| RF-22 Espacio sin límites | V-NUM-21, V-FUN-20 | ALC-02 |
+| RF-23 Dilatación | V-NUM-22, V-FUN-19 | VL-01, VL-02 |
+| RF-24 Tiempo | V-MAT-11, V-NUM-17 … V-NUM-19, V-FUN-22, C13, C15 | TMP-01 … TMP-05 |
+| RF-25 Líneas de traza | V-NUM-20 | TMP-06 |
+| RF-26 Catálogo temporal | V-MAT-05, V-MAT-07, V-NUM-17 | TMP-03 |
+| RF-27 JSON v2 | V-FUN-23 | TMP-04 |
