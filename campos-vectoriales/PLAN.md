@@ -470,7 +470,7 @@ aceptación con la evidencia indicada.
 | VAL-04 | Baterías de la 1.1 | H10 | TMP-06, ALC-02 | Completada y verificada |
 | REV-05 | Revisión visual de la 1.1 | H10 | VAL-04 | Completada y verificada |
 | ENT-02 | HTML autocontenido 1.1 | H10 | REV-05 | Completada y verificada |
-| DOC-02 | Documentación 1.1 | H10 | ENT-02 | Pendiente |
+| DOC-02 | Documentación 1.1 | H10 | ENT-02 | Completada y verificada |
 
 ### 5.2 Detalle de las tareas
 
@@ -1158,5 +1158,5 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
 - **Objetivo**: `entrega/campos-vectoriales.html` recompilado con su huella; V-FUN-17 sobre
   `file://`.
 
-#### DOC-02 · Documentación 1.1 — Pendiente
+#### DOC-02 · Documentación 1.1 — Completada y verificada
 - **Objetivo**: README, ayuda y STATUS al día; `revisar-docs.mjs` sin problemas.
