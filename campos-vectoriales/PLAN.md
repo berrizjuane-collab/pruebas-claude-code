@@ -457,19 +457,19 @@ aceptación con la evidencia indicada.
 | ENT-01 | HTML autocontenido final | H9 | VAL-02, REV-04 | Completada y verificada |
 | DOC-01 | Documentación final | H9 | VAL-01 … REV-04 | Completada y verificada |
 | PLN-02 | Plan de la 1.1 | H10 | — | Completada y verificada |
-| TMP-01 | Variable `t` en el lenguaje | H10 | PLN-02 | Pendiente |
-| TMP-02 | Integración no autónoma y escala en la ventana | H10 | TMP-01 | Pendiente |
-| TMP-03 | Catálogo temporal con oráculos y soluciones exactas | H10 | TMP-02 | Pendiente |
-| TMP-04 | Estado v2, reloj y orquestación con $t$ | H10 | TMP-02 | Pendiente |
-| TMP-05 | Interfaz del tiempo | H10 | TMP-03, TMP-04 | Pendiente |
-| TMP-06 | Líneas de traza | H10 | TMP-05 | Pendiente |
-| ALC-01 | Ampliar y estrechar Ω | H10 | PLN-02 | Pendiente |
-| VL-01 | Vuelo y dilatación en la escena | H10 | PLN-02 | Pendiente |
-| VL-02 | Vista libre inmersiva en la interfaz | H10 | VL-01, TMP-04 | Pendiente |
-| ALC-02 | Espacio sin límites | H10 | VL-02 | Pendiente |
-| VAL-04 | Baterías de la 1.1 | H10 | TMP-06, ALC-02 | Pendiente |
-| REV-05 | Revisión visual de la 1.1 | H10 | VAL-04 | Pendiente |
-| ENT-02 | HTML autocontenido 1.1 | H10 | REV-05 | Pendiente |
+| TMP-01 | Variable `t` en el lenguaje | H10 | PLN-02 | Completada y verificada |
+| TMP-02 | Integración no autónoma y escala en la ventana | H10 | TMP-01 | Completada y verificada |
+| TMP-03 | Catálogo temporal con oráculos y soluciones exactas | H10 | TMP-02 | Completada y verificada |
+| TMP-04 | Estado v2, reloj y orquestación con $t$ | H10 | TMP-02 | Completada y verificada |
+| TMP-05 | Interfaz del tiempo | H10 | TMP-03, TMP-04 | Completada y verificada |
+| TMP-06 | Líneas de traza | H10 | TMP-05 | Completada y verificada |
+| ALC-01 | Ampliar y estrechar Ω | H10 | PLN-02 | Completada y verificada |
+| VL-01 | Vuelo y dilatación en la escena | H10 | PLN-02 | Completada y verificada |
+| VL-02 | Vista libre inmersiva en la interfaz | H10 | VL-01, TMP-04 | Completada y verificada |
+| ALC-02 | Espacio sin límites | H10 | VL-02 | Completada y verificada |
+| VAL-04 | Baterías de la 1.1 | H10 | TMP-06, ALC-02 | Completada y verificada |
+| REV-05 | Revisión visual de la 1.1 | H10 | VAL-04 | Completada y verificada |
+| ENT-02 | HTML autocontenido 1.1 | H10 | REV-05 | Completada y verificada |
 | DOC-02 | Documentación 1.1 | H10 | ENT-02 | Pendiente |
 
 ### 5.2 Detalle de las tareas
@@ -1085,76 +1085,76 @@ Formato: **Objetivo** · **Dependencias** · **Componentes** · **Procedimiento*
   sin problemas.
 - **Evidencia**: `evidencia/PLN-02/`.
 
-#### TMP-01 · Variable `t` en el lenguaje — Pendiente
+#### TMP-01 · Variable `t` en el lenguaje — Completada y verificada
 - **Objetivo**: `t` como variable (SPEC §5.2), evaluada en la ranura `p[nParámetros]`.
 - **Componentes**: `math/expr/ast.ts`, `resolver.ts`, `compile.ts`, `diff.ts`, `tex.ts`,
   `simplificar.ts`, `math/field.ts` (`dependeDelTiempo`, $\partial\mathbf F/\partial t$).
 - **Aceptación**: V-MAT-11; V-MAT-02 … V-MAT-09 siguen pasando.
 - **Verificación**: Vitest.
 
-#### TMP-02 · Integración no autónoma y escala en la ventana — Pendiente
+#### TMP-02 · Integración no autónoma y escala en la ventana — Completada y verificada
 - **Objetivo**: RK4 con $t$ en las etapas; partículas con reloj; $F_{	ext{ref}}$ y
   $C_{	ext{ref}}$ en 9 instantes de la ventana (SPEC §5.11).
 - **Componentes**: `numerics/particles.ts`, `numerics/grid.ts`, `compute/trabajos.ts`.
 - **Aceptación**: V-NUM-17 (T-22, T-23), V-NUM-18, V-NUM-19; V-NUM-13 sin cambios.
 
-#### TMP-03 · Catálogo temporal — Pendiente
+#### TMP-03 · Catálogo temporal — Completada y verificada
 - **Objetivo**: los tres campos de SPEC §4.9 con expresiones, oráculo nativo (F y J),
   $\partial_t\mathbf F$ analítica, trayectoria exacta, ficha y miniatura; cuadrícula de 3×3.
 - **Aceptación**: V-MAT-05 y V-MAT-07 extendidos (con $t$ aleatorio); V-NUM-17.
 
-#### TMP-04 · Estado v2, reloj y orquestación con $t$ — Pendiente
+#### TMP-04 · Estado v2, reloj y orquestación con $t$ — Completada y verificada
 - **Objetivo**: `tiempo`, `exploracion` y `particulas.nacimiento` en el estado; JSON v2 con
   migración; reloj único; orquestador con una petición en curso por tipo cuando solo cambia $t$.
 - **Componentes**: `state/schema.ts`, `actions.ts`, `persist.ts`, `app/animacion.ts`,
   `app/orquestador.ts`, `compute/peticiones.ts`.
 - **Aceptación**: V-FUN-23; V-FUN-10 y V-FUN-11 siguen pasando.
 
-#### TMP-05 · Interfaz del tiempo — Pendiente
+#### TMP-05 · Interfaz del tiempo — Completada y verificada
 - **Objetivo**: sección «Tiempo», lectura «t = …» en la escena, inspector con
   $\partial\mathbf F/\partial t$ y $D\mathbf F/Dt$, leyenda con el $t$ de cada capa, ayuda
   («Campos dependientes del tiempo», «Corriente, trayectoria y traza»).
 - **Aceptación**: V-FUN-22; axe sin infracciones; capturas C13 y C15.
 
-#### TMP-06 · Líneas de traza — Pendiente
+#### TMP-06 · Líneas de traza — Completada y verificada
 - **Objetivo**: «Nacen en: todo Ω · las semillas» (SPEC §5.11).
 - **Aceptación**: V-NUM-20.
 
-#### ALC-01 · Ampliar y estrechar Ω — Pendiente
+#### ALC-01 · Ampliar y estrechar Ω — Completada y verificada
 - **Objetivo**: acción `escalarDominio` y botones en «Dominio y muestreo» (SPEC §3.11).
 - **Aceptación**: V-FUN-21; V-FUN-14 sin cambios.
 
-#### VL-01 · Vuelo y dilatación en la escena — Pendiente
+#### VL-01 · Vuelo y dilatación en la escena — Completada y verificada
 - **Objetivo**: modo de vuelo del controlador de la escena (sin React): ángulos, movimiento,
   velocidad, dilatación exacta, entrada y salida con la pose guardada.
 - **Componentes**: `render/vuelo.ts` (puro), `render/ControladorEscena.ts`.
 - **Aceptación**: V-NUM-22 (T-24); la órbita sigue igual (V-FUN-09).
 
-#### VL-02 · Vista libre inmersiva en la interfaz — Pendiente
+#### VL-02 · Vista libre inmersiva en la interfaz — Completada y verificada
 - **Objetivo**: F11 completo: ocultar toda la interfaz, pantalla completa, teclado de §3.2,
   pista e indicadores transitorios, anuncios, salida con restauración y foco.
 - **Componentes**: `app/vistaLibre.ts`, `ui/scene/VistaLibre.tsx`, `ui/scene/BarraEscena.tsx`,
   sección «Vista libre» del panel, `ui.css`.
 - **Aceptación**: V-FUN-18, V-FUN-19; V-A11Y-02 ampliado con F11; captura C14.
 
-#### ALC-02 · Espacio sin límites — Pendiente
+#### ALC-02 · Espacio sin límites — Completada y verificada
 - **Objetivo**: ventana anclada que sigue a la cámara, escalas congeladas, semillas
   ancladas, partículas sin recrear, ejes sin caja (SPEC §3.11).
 - **Componentes**: `numerics/ventana.ts`, `numerics/seeds.ts`, `render/layers/ejes.ts`,
   `numerics/particles.ts`, `app/`.
 - **Aceptación**: V-NUM-21, V-FUN-20.
 
-#### VAL-04 · Baterías de la 1.1 — Pendiente
+#### VAL-04 · Baterías de la 1.1 — Completada y verificada
 - **Objetivo**: `npm run check`, cobertura de `math/` y `numerics/` ≥ 90 %, e2e completas
   (las de la 1.0 y las nuevas) en verde.
 - **Evidencia**: registros con el commit.
 
-#### REV-05 · Revisión visual de la 1.1 — Pendiente
+#### REV-05 · Revisión visual de la 1.1 — Completada y verificada
 - **Objetivo**: capturas C1–C15 en V1–V3 (las de la 1.0 cambian por el botón nuevo de la
   barra y las tarjetas nuevas), auditoría de paleta y VV-01 … VV-10; referencias de
   `tests/visual` regeneradas y revisadas una a una.
 
-#### ENT-02 · HTML autocontenido 1.1 — Pendiente
+#### ENT-02 · HTML autocontenido 1.1 — Completada y verificada
 - **Objetivo**: `entrega/campos-vectoriales.html` recompilado con su huella; V-FUN-17 sobre
   `file://`.
 

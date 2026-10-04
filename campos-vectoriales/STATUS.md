@@ -29,7 +29,7 @@
 | H7 Exportación | 3 | 3/3 | — |
 | H8 Transversal | 4 | 3/4 | A11Y-02: falta la sesión con lector (Q-04) |
 | H9 Validación | 6 | 4/6 | VAL-02: falta la prueba de humo manual (Q-05); VAL-03: falta la medición en R1 (Q-06). Incluye ENT-01 (HTML autocontenido) |
-| H10 Exploración y tiempo (1.1) | 15 | 1/15 | En curso (PLAN §5.3) |
+| H10 Exploración y tiempo (1.1) | 15 | 14/15 | En curso (PLAN §5.3) |
 
 ### 1.2 Tareas completadas y verificadas
 
@@ -86,6 +86,19 @@
 - ENT-01 · 2026-10-03 · `24e634b` · [evidencia/ENT-01/](evidencia/ENT-01/)
 - DOC-01 · 2026-10-03 · `ac45b2e` · [evidencia/DOC-01/](evidencia/DOC-01/)
 - PLN-02 · 2026-10-04 · `0f4fa0a` · [evidencia/PLN-02/](evidencia/PLN-02/)
+- TMP-01 · 2026-10-04 · `50b9068` · [evidencia/TMP-01/](evidencia/TMP-01/)
+- TMP-02 · 2026-10-04 · `50b9068` · [evidencia/TMP-02/](evidencia/TMP-02/)
+- TMP-03 · 2026-10-04 · `50b9068` · [evidencia/TMP-03/](evidencia/TMP-03/)
+- TMP-04 · 2026-10-04 · `e62621b` · [evidencia/TMP-04/](evidencia/TMP-04/)
+- TMP-05 · 2026-10-04 · `e62621b` · [evidencia/TMP-05/](evidencia/TMP-05/)
+- TMP-06 · 2026-10-04 · `e62621b` · [evidencia/TMP-06/](evidencia/TMP-06/)
+- ALC-01 · 2026-10-04 · `e62621b` · [evidencia/ALC-01/](evidencia/ALC-01/)
+- ALC-02 · 2026-10-04 · `e62621b` · [evidencia/ALC-02/](evidencia/ALC-02/)
+- VL-01 · 2026-10-04 · `e62621b` · [evidencia/VL-01/](evidencia/VL-01/)
+- VL-02 · 2026-10-04 · `e62621b` · [evidencia/VL-02/](evidencia/VL-02/)
+- VAL-04 · 2026-10-04 · `e62621b` · [evidencia/VAL-04/](evidencia/VAL-04/)
+- REV-05 · 2026-10-04 · `e62621b` · [evidencia/REV-05/](evidencia/REV-05/)
+- ENT-02 · 2026-10-04 · `e62621b` · [evidencia/ENT-02/](evidencia/ENT-02/)
 
 ---
 
