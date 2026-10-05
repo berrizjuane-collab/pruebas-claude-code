@@ -375,6 +375,7 @@ Ninguna bloquea H0 ni H1. Cada una tiene un valor por defecto:
 | 2026-10-03 | H9: ENT-01 verificada (HTML final reproducible, 103/103 e2e sobre file://) y DOC-01 (README nuevo ejecutado desde un clon limpio, ayuda revisada frente al código, enlaces e identificadores comprobados con `scripts/revisar-docs.mjs`). Quedan Q-04, Q-05 y Q-06 |
 | 2026-10-04 | **H10 completado y verificado** (1.1): TMP-01 … TMP-06, ALC-01, ALC-02, VL-01, VL-02, VAL-04 (cobertura math 93.2 %, numerics 95.3 %; e2e completas en verde), REV-05 (45 capturas C1–C15 × V1–V3; tres incidencias resueltas), ENT-02 (HTML 1.1 reproducible, `47b8f541…`, e2e sobre file://) y DOC-02; decisiones D-72 … D-79; riesgos R-15 … R-17 |
 | 2026-10-04 | Flechas finas por defecto (D-80, petición del usuario): varilla y punta de aguja con el mismo largo de cono; «Grosor» en Avanzado; `flechas.grosor` en el JSON v2. Referencias visuales regeneradas; 129/129 e2e, 114/114 sobre file://; HTML `69ed1443…` |
+| 2026-10-05 | Vídeo promocional de 20 s en [`promo/`](promo/README.md) (petición del usuario): metraje real del laboratorio grabado fotograma a fotograma con los ganchos de prueba, motion graphics deterministas y música original sintetizada a 120 BPM; scripts para regenerarlo |
 
 ---
 
