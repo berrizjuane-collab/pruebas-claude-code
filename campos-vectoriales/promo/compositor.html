@@ -86,8 +86,9 @@
       #vineta {
         background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.62) 100%);
       }
-      #flash {
-        background: #fff;
+      /* Fundidos a negro de las transiciones (sin destellos blancos). */
+      #negro {
+        background: #050505;
         opacity: 0;
       }
       .t {
@@ -159,8 +160,8 @@
       <div id="banda" class="capa"></div>
       <div id="textos" class="capa"></div>
       <div id="vineta" class="capa"></div>
+      <div id="negro" class="capa"></div>
       <canvas id="grano" width="960" height="540"></canvas>
-      <div id="flash" class="capa"></div>
     </div>
     <script src="compositor.js"></script>
   </body>

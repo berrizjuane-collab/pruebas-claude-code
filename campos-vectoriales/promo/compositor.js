@@ -364,7 +364,8 @@
     ctxFondo.clearRect(0, 0, W, H);
     for (const el of Object.values(T)) ocultar(el);
     $('banda').style.opacity = '0';
-    let flash = 0;
+    // Transiciones por movimiento y oscuridad: `negro` es la opacidad del fundido a negro.
+    let negro = 0;
 
     // ---------------- 0–4: intro procedural
     if (t < 4.05) {
@@ -393,7 +394,7 @@
         revelar(T.intro1, t, 0.55);
         revelar(T.intro2, t, 1.55, 0.16);
       }
-      flash = Math.max(flash, entrada(rango(t, 3.9, 4.0)));
+      negro = Math.max(negro, entrada(rango(t, 3.82, 4.0)));
     }
 
     // ---------------- 4–8: laboratorio real (helicoidal)
@@ -403,6 +404,7 @@
       if (t < 6) {
         const e = salida(rango(t, 4, 4.55));
         pintarToma(img, { s: mezcla(1.22, 1.0, e) + 0.03 * rango(t, 4.55, 6), radial: 1.2 * (1 - e) });
+        negro = Math.max(negro, 1 - salida(rango(t, 4, 4.22)));
         const a = rango(t, 4.15, 4.4) * (1 - rango(t, 5.78, 5.95));
         $('banda').style.opacity = String(a);
         fijar(T['ui-etiqueta'], { o: a, x: -20 * (1 - salida(rango(t, 4.15, 4.6))) });
@@ -428,7 +430,6 @@
         fijar(T[`golpe${k}`], { o: ent * (1 - sal), y: 70 * (1 - ent), blur: 12 * (1 - ent) + 8 * sal, s: 1 + 0.04 * rango(t, t0, t0 + 0.5) });
         const fo = rango(t, 6.2, 6.5) * (1 - rango(t, 7.8, 7.92));
         fijar(T['formula-helice'], { o: fo, x: -16 * (1 - salida(rango(t, 6.2, 6.6))) });
-        flash = Math.max(flash, 0.32 * (1 - rango(t, 6, 6.12)));
       }
     }
 
@@ -438,8 +439,9 @@
       const img = await imagen('lluvia', i);
       const entra = salida(rango(t, 8, 8.16));
       const textoOscuro = rango(t, 8.05, 8.3) * (1 - rango(t, 11.7, 11.9));
-      pintarToma(img, { s: 1.0 + 0.07 * rango(t, 8, 12), dx: 1150 * (1 - entra), barrido: 260 * (1 - entra), brillo: 1 - 0.18 * textoOscuro });
-      flash = Math.max(flash, 0.28 * (1 - rango(t, 8, 8.1)));
+      // Al final, la lluvia se precipita hacia la cámara y se apaga.
+      const empuje = entrada(rango(t, 11.7, 12));
+      pintarToma(img, { s: 1.0 + 0.07 * rango(t, 8, 12) + 0.35 * empuje, dx: 1150 * (1 - entra), barrido: 260 * (1 - entra), radial: 1.6 * empuje, brillo: 1 - 0.18 * textoOscuro });
       $('banda').style.opacity = String(0.85 * textoOscuro);
       // F(x, y, z) y, en el tiempo siguiente, «, t».
       if (t < 10) {
@@ -451,7 +453,6 @@
         coma.style.opacity = String(c);
         coma.style.display = 'inline-block';
         coma.style.transform = `translateY(${(-40 * (1 - c)).toFixed(1)}px) scale(${(1.6 - 0.6 * c).toFixed(3)})`;
-        flash = Math.max(flash, 0.18 * (1 - rango(t, 8.5, 8.62)));
       } else {
         const a = expo(rango(t, 10, 10.35));
         const b = expo(rango(t, 10.4, 10.75));
@@ -462,7 +463,7 @@
       const tReloj = META.lluvia.t[Math.max(0, Math.min(META.lluvia.t.length - 1, Math.round(i)))];
       $('reloj-valor').textContent = `t = ${tReloj.toFixed(3)}`;
       fijar(T.reloj, { o: rango(t, 8.3, 8.6) * (1 - rango(t, 11.75, 11.95)) });
-      flash = Math.max(flash, 0.85 * entrada(rango(t, 11.9, 12)));
+      negro = Math.max(negro, entrada(rango(t, 11.8, 12)));
     }
 
     // ---------------- 12–14: vuelo
@@ -470,8 +471,9 @@
       const u = rango(t, 12, 14);
       const i = 79 * (0.45 * u + 0.55 * u * u);
       const img = await imagen('vuelo', i);
-      pintarToma(img, { s: 1.04 + 0.1 * u, radial: 0.15 + 1.4 * entrada(rango(t, 13.4, 14)) });
-      flash = Math.max(flash, 0.85 * (1 - salida(rango(t, 12, 12.3))));
+      const nace = salida(rango(t, 12, 12.35));
+      pintarToma(img, { s: 1.04 + 0.1 * u + 0.18 * (1 - nace), radial: 0.15 + 1.2 * (1 - nace) + 1.4 * entrada(rango(t, 13.4, 14)) });
+      negro = Math.max(negro, 1 - nace);
       const a = expo(rango(t, 12.12, 12.5));
       const vuela = entrada(rango(t, 13.2, 13.95));
       fijar(T.vuelo, { o: a * (1 - vuela), s: mezcla(0.86, 1, a) + 2.4 * vuela, blur: 10 * (1 - a) + 18 * vuela });
@@ -487,8 +489,10 @@
       const img = await imagen(toma, 3 + (t - t0) * FPS);
       const punch = salida(rango(t, t0, t0 + 0.18));
       const encuadre = toma === 'rotacional-ui' ? { s: 1.3 - 0.1 * punch + 0.05 * rango(t, t0, t0 + 0.5), cx: 1330, cy: 470 } : { s: 1.12 - 0.1 * punch + 0.04 * rango(t, t0, t0 + 0.5) };
-      pintarToma(img, { ...encuadre, radial: 0.8 * (1 - punch), brillo: 0.95 });
-      flash = Math.max(flash, 0.5 * (1 - rango(t, t0, t0 + 0.1)));
+      // Corte seco en el tiempo: golpe óptico y una sacudida mínima que se amortigua.
+      const amort = Math.exp(-(t - t0) / 0.08);
+      const sacudida = { dx: 9 * amort * Math.sin((t - t0) * 95 + k), dy: 6 * amort * Math.cos((t - t0) * 83 + 2 * k) };
+      pintarToma(img, { ...encuadre, ...sacudida, radial: 0.9 * (1 - punch), brillo: 0.95 });
       $('banda').style.opacity = '0.8';
       const ent = expo(rango(t, t0 + 0.02, t0 + 0.2));
       fijar(T[`corte${k}`], { o: ent, x: -50 * (1 - ent), blur: 8 * (1 - ent) });
@@ -540,7 +544,17 @@
       ctxFondo.fillStyle = halo;
       ctxFondo.fillRect(0, 0, W, H);
 
-      flash = Math.max(flash, 1 - salida(rango(x, 0, 0.45)));
+      // Impacto: luz que nace de la fuente (resplandor radial que se expande y se apaga).
+      const luz = 1 - salida(rango(x, 0, 0.5));
+      if (luz > 0.003) {
+        const radio = 120 + 900 * salida(rango(x, 0, 0.5));
+        const g = ctxFondo.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, radio);
+        g.addColorStop(0, `rgba(255,255,255,${(0.85 * luz).toFixed(3)})`);
+        g.addColorStop(0.18, `rgba(255,255,255,${(0.35 * luz).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctxFondo.fillStyle = g;
+        ctxFondo.fillRect(0, 0, W, H);
+      }
       const fin = rango(t, 19.3, 19.92);
       // Logo: marco y flecha que se dibujan.
       fijar(T.logo, { o: rango(x, 0.15, 0.3) * (1 - fin), s: mezcla(0.85, 1, expo(rango(x, 0.15, 0.6))) });
@@ -560,7 +574,7 @@
       ctxFondo.fillRect(0, 0, W, H);
     }
 
-    $('flash').style.opacity = String(Math.min(1, flash));
+    $('negro').style.opacity = String(Math.min(1, negro));
     pintarGrano(f);
   }
 
