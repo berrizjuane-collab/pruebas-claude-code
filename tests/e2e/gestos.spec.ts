@@ -15,6 +15,12 @@ test.describe('móvil 390×844 · gestos táctiles', () => {
     const t0 = Date.now();
     const fase = (n: string) => console.log(`TACTIL ${n} ${((Date.now() - t0) / 1000).toFixed(0)} s`);
     await openAtlas(page);
+    // sin inercia: cada gesto se aplica en uno o dos fotogramas en vez de ~50 (minutos sin GPU). Las
+    // restricciones se aplican tras cada actualización de los controles igual que con inercia, y sin
+    // ella los saltos por fotograma son mayores: la prueba es más exigente, no menos
+    await page.evaluate(() => {
+      window.__k2!.app!.cam.controls.enableDamping = false;
+    });
     await jumpTo(page, 'bottleneck');
     await idle(page);
     const box = (await page.locator('#scene').boundingBox())!;
