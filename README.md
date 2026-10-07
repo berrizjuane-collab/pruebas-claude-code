@@ -27,7 +27,7 @@ relativas (`base: './'`), así que `dist/` funciona desde cualquier subruta.
 | --- | --- |
 | `npm run check` | ESLint + `tsc` + tests unitarios (Vitest) |
 | `npm test` | 68 tests unitarios: proyección frente a pyproj, alturas, PNG, LOD (incluido el intercambio exacto de los grupos 2×2), cámara, transiciones, etiquetas, datos, vistas contra el DEM real |
-| `npm run test:e2e` | 16 pruebas Playwright en Chromium (carga, capas, cámara, presupuesto de draw calls, 40 ciclos de recursos, calidad, móvil, accesibilidad, sin WebGL, fallo de red y pérdida del contexto WebGL) |
+| `npm run test:e2e` | 17 pruebas Playwright en Chromium (carga, capas, cámara con ratón y con gestos táctiles, presupuesto de draw calls, 40 ciclos de recursos, calidad, móvil, accesibilidad, sin WebGL, fallo de red y pérdida del contexto WebGL) |
 | `npm run perf` | 3 escenarios × 30 s por perfil de calidad → `docs/rendimiento.json` (`PERF_GPU=1` para usar la GPU) |
 | `npm run capturas` | Regenera `docs/capturas/` |
 | `bash pipeline/run_all.sh` | Regenera todos los datos desde las fuentes (Python, ver `pipeline/README.md`) |
@@ -69,7 +69,8 @@ diagnóstico y `?lod=1` colorea los bloques por nivel de detalle.
 | Procedencia por píxel + cielo visible (PNG) | máscara FLM del DEM | 0,2 MB |
 | Rutas, puntos, serac, manifiesto (JSON) | pipeline + datos curados | 0,1 MB |
 
-Descarga total para la escena interactiva: **≈ 2,3 MB** (presupuesto: ≤ 20 MB).
+Descarga total para la escena interactiva: **≈ 2,5 MB** (2,3 MB de datos + 174 kB
+de código comprimido; presupuesto: ≤ 20 MB).
 Detalles, licencias y límites en [`docs/FUENTES.md`](docs/FUENTES.md); medición y
 verificación en [`docs/VERIFICACION.md`](docs/VERIFICACION.md).
 

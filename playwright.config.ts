@@ -11,6 +11,12 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
+  // las pruebas de gestos táctiles van después y con un navegador propio (cada proyecto arranca
+  // su worker): sin GPU, horas acumuladas de render por software saturan el proceso de GPU emulada
+  projects: [
+    { name: 'atlas', testMatch: /atlas\.spec\.ts/ },
+    { name: 'gestos', testMatch: /gestos\.spec\.ts/, dependencies: ['atlas'] },
+  ],
   use: {
     baseURL: 'http://localhost:5174/',
     launchOptions: {
