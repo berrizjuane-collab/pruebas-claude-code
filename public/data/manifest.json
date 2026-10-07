@@ -1,0 +1,417 @@
+{
+  "version": 1,
+  "sistema": {
+    "crs": "+proj=tmerc +lat_0=35.8825 +lon_0=76.5133 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+    "descripcion": "Transversa de Mercator local (k=1) centrada en la coordenada publicada de la cumbre. Ejes de la escena: x = este, y = altura, z = sur (norte = −z).",
+    "origen": {
+      "lat": 35.8825,
+      "lon": 76.5133
+    },
+    "elipsoide": "WGS84",
+    "referenciaVertical": "EGM2008 (alturas ortométricas del Copernicus DEM)",
+    "h0": 6000.0,
+    "nota": "La altura de renderizado es y = altitud − h0. Se ignora la curvatura terrestre (≤ 4 m en el núcleo, ≤ 100 m en el borde del horizonte a 36 km)."
+  },
+  "alturas": {
+    "codificacion": "png16-gris",
+    "offset": 3000.0,
+    "escala": 0.1
+  },
+  "rejillas": {
+    "core": {
+      "archivo": "heights_core.png",
+      "espaciado": 25.0,
+      "semilado": 7200.0,
+      "muestras": 577,
+      "filaCero": "norte",
+      "remuestreo": "cúbico",
+      "rango": [
+        4860.55078125,
+        8611.0
+      ]
+    },
+    "context": {
+      "archivo": "heights_context.png",
+      "espaciado": 100.0,
+      "semilado": 21600.0,
+      "muestras": 433,
+      "filaCero": "norte",
+      "remuestreo": "promedio",
+      "rango": [
+        3872.335205078125,
+        8558.361328125
+      ]
+    },
+    "far": {
+      "archivo": "heights_far.png",
+      "espaciado": 400.0,
+      "semilado": 36000.0,
+      "muestras": 181,
+      "filaCero": "norte",
+      "remuestreo": "promedio",
+      "rango": [
+        3353.478759765625,
+        8459.3759765625
+      ]
+    }
+  },
+  "aux": {
+    "archivo": "aux_core.png",
+    "rejilla": "core",
+    "canales": {
+      "r": "clase FLM de Copernicus (procedencia del dato)",
+      "g": "peso de la corrección de cumbre ×255",
+      "b": "factor de cielo visible ×255 (16 direcciones, 2 km)"
+    },
+    "clasesFLM": {
+      "0": "Vacío",
+      "1": "Editado (sin relleno)",
+      "2": "TanDEM-X sin editar",
+      "3": "Relleno ASTER",
+      "4": "Relleno SRTM90",
+      "5": "Relleno SRTM30",
+      "6": "Relleno GMTED2010",
+      "7": "Relleno SRTM30plus",
+      "8": "Relleno TerraSAR-X radargramétrico",
+      "9": "Relleno AW3D30"
+    }
+  },
+  "cumbre": {
+    "altitudReferencia": 8611.0,
+    "coordenadaPublicada": {
+      "lat": 35.8825,
+      "lon": 76.5133
+    },
+    "modelo": {
+      "x": -75.0,
+      "y": -200.0,
+      "lat": 35.880697,
+      "lon": 76.512469,
+      "alturaDEMRemuestreada": 8571.6
+    },
+    "pixelMaximoDEM": {
+      "lat": 35.880833,
+      "lon": 76.5125,
+      "altura": 8570.6
+    },
+    "distanciaACoordenadaPublicada": 213.6,
+    "correccion": {
+      "tipo": "reconstrucción local",
+      "incrementoMaximo": 39.4,
+      "radio": 250.0,
+      "perfil": "(1 − (r/R)²)²",
+      "motivo": "El DEM (relleno AW3D30/SRTM90 en la pirámide cimera) culmina en 8570.6 m; se eleva localmente el ápice hasta la altitud convencional sin reescalar el resto del relieve."
+    }
+  },
+  "procedencia": {
+    "nucleo": {
+      "Editado (sin relleno)": 1.2,
+      "TanDEM-X sin editar": 41.2,
+      "Relleno ASTER": 8.2,
+      "Relleno SRTM90": 2.2,
+      "Relleno SRTM30": 10.6,
+      "Relleno SRTM30plus": 0.0,
+      "Relleno AW3D30": 36.7
+    },
+    "nucleoSobre7000m": {
+      "Editado (sin relleno)": 8.3,
+      "Relleno ASTER": 14.1,
+      "Relleno SRTM90": 7.1,
+      "Relleno SRTM30": 9.7,
+      "Relleno AW3D30": 60.8
+    }
+  },
+  "celdasRellenadas": {
+    "core": 0,
+    "analysis": 0,
+    "context": 0,
+    "far": 0
+  },
+  "fuentesTerreno": [
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E076_00_DEM/Copernicus_DSM_COG_10_N35_00_E076_00_DEM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N35_00_E076_00_DEM.tif",
+      "bytes": 40237865,
+      "sha256": "362c08afd374afb88ac380a34b3ac3536e750f2d339d259075f01e659073473f"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N35_00_E076_00_FLM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N35_00_E076_00_FLM.tif",
+      "bytes": 1460458,
+      "sha256": "5eec9749da7ecd20d32e660b3d8e6f85e486148ca8cf36d458d98f26c41103d5"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N35_00_E076_00_EDM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N35_00_E076_00_EDM.tif",
+      "bytes": 1364074,
+      "sha256": "9287cfd13bf8de46f92453e92566ae8abb4e01d79e1b92b4840744affeb364f0"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N35_00_E076_00_HEM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N35_00_E076_00_HEM.tif",
+      "bytes": 33010898,
+      "sha256": "76f141580fa4a32515f3dabcb1e0f7243e90cded55b9530cb9129e3cc83ae94f"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N35_00_E076_00_WBM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N35_00_E076_00_WBM.tif",
+      "bytes": 24845,
+      "sha256": "84ea44787d3b94a2a3bec961b2aabeb723da81abe9a66918ed27d6c4e8d19b42"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E076_00_DEM/Copernicus_DSM_COG_10_N36_00_E076_00_DEM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N36_00_E076_00_DEM.tif",
+      "bytes": 40081029,
+      "sha256": "d2cfd2365e204911439af6004e44d8ce5eb11d7b56fd696104efa63674f29d0e"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N36_00_E076_00_FLM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N36_00_E076_00_FLM.tif",
+      "bytes": 1878027,
+      "sha256": "43d0c0e0b42bc79f9d017a40e883e3433357324d95ababe5d2f5ea1d973898d4"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N36_00_E076_00_EDM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N36_00_E076_00_EDM.tif",
+      "bytes": 1533377,
+      "sha256": "932349206e4fa33c0a58ff5f350de06df974ad09564cd577199c3d45177a8fb2"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N36_00_E076_00_HEM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N36_00_E076_00_HEM.tif",
+      "bytes": 39414147,
+      "sha256": "420d6889d73be1bd31b35e3be6957033f255569aba0fe8f5e7e49d6460d98076"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N36_00_E076_00_DEM/AUXFILES/Copernicus_DSM_COG_10_N36_00_E076_00_WBM.tif",
+      "archivo": "pipeline/.cache/cop30/Copernicus_DSM_COG_10_N36_00_E076_00_WBM.tif",
+      "bytes": 28076,
+      "sha256": "f1f39200250a09910b1315440b915706e008d3a46c7d0c35a27774243991e5ed"
+    }
+  ],
+  "imagen": {
+    "escena": "S2A_MSIL2A_20240814T053641_N0511_R005_T43SFV_20240814T112150.SAFE",
+    "fecha": "2024-08-14T05:49:07.776000Z",
+    "solAzimut": 139.956641776941,
+    "solElevacion": 63.5930846548291,
+    "nubosidadTesela": 1.088444,
+    "atribucion": "Contiene datos Copernicus Sentinel modificados (2024).",
+    "metodo": "Reflectancia L2A (B4/B3/B2) ya corregida topográficamente por ESA; se rellenan píxeles con cos(i) < 0,3, sombra proyectada o nube con la media local de su clase (nieve/no nieve por NDSI). Máscara de nieve = smoothstep(0,2; 0,5; NDSI).",
+    "niveles": {
+      "core": {
+        "albedo": "albedo_core.webp",
+        "mascaras": "masks_core.png",
+        "resolucion": 10.0,
+        "resolucionMascaras": 20.0,
+        "semilado": 7200.0,
+        "pixeles": 1440,
+        "nubesPct": 0.38,
+        "baja_fiabilidadPct": 2.2,
+        "nievePct": 80.7
+      },
+      "context": {
+        "albedo": "albedo_context.webp",
+        "mascaras": "masks_context.png",
+        "resolucion": 40.0,
+        "resolucionMascaras": 80.0,
+        "semilado": 21600.0,
+        "pixeles": 1080,
+        "nubesPct": 0.11,
+        "baja_fiabilidadPct": 0.9,
+        "nievePct": 45.1
+      },
+      "far": {
+        "albedo": "albedo_far.webp",
+        "mascaras": "masks_far.png",
+        "resolucion": 160.0,
+        "resolucionMascaras": 160.0,
+        "semilado": 36000.0,
+        "pixeles": 450,
+        "nubesPct": 0.06,
+        "baja_fiabilidadPct": 0.1,
+        "nievePct": 46.5
+      }
+    },
+    "fuentes": [
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B02.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_core_B02.tif",
+        "resolucion_m": 10.0,
+        "sha256": "dcc5f58c08bc8b4e9520518c530e975e4decc4104f8841206bee5917bd97b69e"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B03.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_core_B03.tif",
+        "resolucion_m": 10.0,
+        "sha256": "ad1fa6bcf570c732f5e80ca06cb60dd71f6c80809684bdfee4419550da111c92"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B04.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_core_B04.tif",
+        "resolucion_m": 10.0,
+        "sha256": "4c583e3b3d0422ac1b6ce2b91f0a768bdfd7abcfa030debd63d52916335b6273"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B11.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_core_B11.tif",
+        "resolucion_m": 20.0,
+        "sha256": "1b3b6529eb2073b2e55cc3ca5914088a5b64ef1c951ef3db03c938dd1d0426e3"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/SCL.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_core_SCL.tif",
+        "resolucion_m": 20.0,
+        "sha256": "4ba046f30d1710f8f104f8468d9bf6a19427a4127067661e279080912112313b"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B02.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_context_B02.tif",
+        "resolucion_m": 40.0,
+        "sha256": "c34222e17b61da32a9fe23ed1ce21cbff0a2acfac1d6adbac644cadf304d9e0a"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B03.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_context_B03.tif",
+        "resolucion_m": 40.0,
+        "sha256": "fa3e02c2cb6d81669e4b1f6be0aa22ee10440a4fbb6fe72c1cb6f54085ef0c3d"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B04.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_context_B04.tif",
+        "resolucion_m": 40.0,
+        "sha256": "d4dc1bef34a65d22902ca880d59a7e4815ae8d979e42c2b019781c8ea830efd4"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B11.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_context_B11.tif",
+        "resolucion_m": 40.0,
+        "sha256": "8d3991457d91657059801a5767d153fdd5192e541671bc808d85c8014ef977cf"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/SCL.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_context_SCL.tif",
+        "resolucion_m": 40.0,
+        "sha256": "2aef2f6498c7bca4d0f162bcce9554e682212e73ed6b8d589700f69332622d8a"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B02.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_far_B02.tif",
+        "resolucion_m": 160.0,
+        "sha256": "e482dba441360d335d37e068f89206995c8343d996c491c0662e7b0ff686d0a6"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B03.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_far_B03.tif",
+        "resolucion_m": 160.0,
+        "sha256": "0365fefe6ff9c54652f61cae109d036e0b4cebe5928e08cbf39251d482f5c6f3"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B04.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_far_B04.tif",
+        "resolucion_m": 160.0,
+        "sha256": "94693f3a07e648f9b859a307109ac646f55cc9c5d03f39e398545dbccd09816e"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/B11.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_far_B11.tif",
+        "resolucion_m": 160.0,
+        "sha256": "3bd56cadb698622b4549f4bec792bd0ff19a35a92992da0126b3c279db48b0e1"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/SCL.tif",
+        "archivo": "pipeline/.cache/s2/43SFV_far_SCL.tif",
+        "resolucion_m": 160.0,
+        "sha256": "514e7c4fb1298de5b6ddc34ccd12de4a56bf44b9946502b1dec90028cfd544f7"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FA/2024/8/S2A_43SFA_20240814_0_L2A/B02.tif",
+        "archivo": "pipeline/.cache/s2/43SFA_far_B02.tif",
+        "resolucion_m": 160.0,
+        "sha256": "539cdf06aa643b060545db08b7d5f6946e9a2182b594a91b030320c4bac6dc7d"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FA/2024/8/S2A_43SFA_20240814_0_L2A/B03.tif",
+        "archivo": "pipeline/.cache/s2/43SFA_far_B03.tif",
+        "resolucion_m": 160.0,
+        "sha256": "81d110cbc2b6f714313a2af7edb2622410ffce5026fd0b1486075f3b8cede68e"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FA/2024/8/S2A_43SFA_20240814_0_L2A/B04.tif",
+        "archivo": "pipeline/.cache/s2/43SFA_far_B04.tif",
+        "resolucion_m": 160.0,
+        "sha256": "8625e7448ee2af3350e711bfa5679743ad6e6db06693cce9e41246d10d9343f2"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FA/2024/8/S2A_43SFA_20240814_0_L2A/B11.tif",
+        "archivo": "pipeline/.cache/s2/43SFA_far_B11.tif",
+        "resolucion_m": 160.0,
+        "sha256": "1ba175c2b492dedcdf56d66718890f89a2a30e2e5ec287e1b2b8f0e3356cd6c8"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FA/2024/8/S2A_43SFA_20240814_0_L2A/SCL.tif",
+        "archivo": "pipeline/.cache/s2/43SFA_far_SCL.tif",
+        "resolucion_m": 160.0,
+        "sha256": "5431f8b6f651d6a9e697b0c8b18ae6881eec71bbc6d09fbe1f0a152b7d6d52ba"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FV/2024/8/S2A_43SFV_20240814_0_L2A/S2A_43SFV_20240814_0_L2A.json",
+        "archivo": "pipeline/.cache/s2/S2A_43SFV_20240814_0_L2A.json",
+        "bytes": 22847,
+        "sha256": "85302717c8aabecafe9dab2f859ed04d3e65159c4954e73799561b14f90937eb"
+      },
+      {
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/43/S/FA/2024/8/S2A_43SFA_20240814_0_L2A/S2A_43SFA_20240814_0_L2A.json",
+        "archivo": "pipeline/.cache/s2/S2A_43SFA_20240814_0_L2A.json",
+        "bytes": 22852,
+        "sha256": "6386e3dcc1c485abb94843ce8e69c79dadc2a1a11406669fc90f4eef2bd662ac"
+      }
+    ]
+  },
+  "rutas": {
+    "archivo": "routes.json",
+    "validacion": {
+      "aproximacion": {
+        "longitud_m": 1219,
+        "altMin": 5007,
+        "altMax": 5078,
+        "inclinacionMax": 29.7,
+        "dentroDelNucleo": true
+      },
+      "abruzzi-glaciar": {
+        "longitud_m": 3932,
+        "altMin": 5045,
+        "altMax": 5471,
+        "inclinacionMax": 48.1,
+        "dentroDelNucleo": true
+      },
+      "abruzzi-espolon": {
+        "longitud_m": 2551,
+        "altMin": 5471,
+        "altMax": 7759,
+        "inclinacionMax": 62.5,
+        "dentroDelNucleo": true
+      },
+      "cesen-espolon": {
+        "longitud_m": 4405,
+        "altMin": 5078,
+        "altMax": 7759,
+        "inclinacionMax": 61.7,
+        "dentroDelNucleo": true
+      },
+      "comun-hombro-cumbre": {
+        "longitud_m": 1215,
+        "altMin": 7759,
+        "altMax": 8611,
+        "inclinacionMax": 54.1,
+        "dentroDelNucleo": true
+      }
+    }
+  },
+  "poi": {
+    "archivo": "pois.json",
+    "total": 19
+  },
+  "serac": {
+    "archivo": "serac.json"
+  }
+}

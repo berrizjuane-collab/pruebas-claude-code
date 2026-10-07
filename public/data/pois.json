@@ -1,0 +1,683 @@
+{
+  "referencias": [
+    {
+      "id": "cop-dem",
+      "titulo": "Copernicus DEM GLO-30 (COG) y Product Handbook (clases FLM)",
+      "editor": "ESA / Airbus Defence and Space, AWS Open Data",
+      "url": "https://registry.opendata.aws/copernicus-dem/",
+      "uso": "Relieve; procedencia del dato por píxel (máscara FLM)."
+    },
+    {
+      "id": "cop-doc",
+      "titulo": "Copernicus DEM — descripción de la colección (referencia vertical EGM2008)",
+      "editor": "Copernicus Data Space Ecosystem",
+      "url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "uso": "Referencia vertical y licencia."
+    },
+    {
+      "id": "s2-l2a",
+      "titulo": "Sentinel-2 L2A COG, escena S2A_MSIL2A_20240814T053641 (teselas 43SFV y 43SFA)",
+      "editor": "ESA Copernicus; Element 84 / AWS Open Data",
+      "url": "https://registry.opendata.aws/sentinel-2-l2a-cogs/",
+      "uso": "Color de superficie y máscara de nieve (NDSI)."
+    },
+    {
+      "id": "wiki-k2",
+      "titulo": "K2 — coordenadas 35°52′57″N 76°30′48″E y altitud 8 611 m",
+      "editor": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/K2",
+      "uso": "Coordenada publicada de la cumbre (origen del sistema local)."
+    },
+    {
+      "id": "gnss-2014",
+      "titulo": "Medición GNSS ítalo-pakistaní de 2014: 8 609,02 m",
+      "editor": "Ev-K2-CNR / GPS World (resumen)",
+      "url": "https://www.gpsworld.com/steep-questions-how-tall-is-k2/",
+      "uso": "Contraste de la altitud convencional."
+    },
+    {
+      "id": "aaj-1987",
+      "titulo": "Asia, Pakistan, Broad Peak and K2 (AAJ 1987): Diemberger y Tullis alcanzan el Bottleneck a 8 200 m",
+      "editor": "American Alpine Journal",
+      "url": "https://publications.americanalpineclub.org/articles/12198727400",
+      "uso": "Altitud del Bottleneck."
+    },
+    {
+      "id": "aaj-1995",
+      "titulo": "Asia, Pakistan, K2, Attempt from the West and Ascent from the South (AAJ 1995)",
+      "editor": "American Alpine Journal",
+      "url": "https://publications.americanalpineclub.org/articles/12199528100/Asia-Pakistan-K2-Attempt-from-the-West-and-Ascent-from-the-South",
+      "uso": "La vía Česen se une al espolón de los Abruzzos bajo el Hombro; campo en el Hombro a 7 800 m."
+    },
+    {
+      "id": "aaj-2005",
+      "titulo": "K2, Various Ascents and Records in the Anniversary Year (AAJ 2005)",
+      "editor": "American Alpine Journal",
+      "url": "https://publications.americanalpineclub.org/articles/12200535103/",
+      "uso": "Bottleneck como rampa de nieve/hielo inclinada a la izquierda entre la barrera de seracs y las rocas de la cara sur; serac hacia 8 300 m."
+    },
+    {
+      "id": "wiki-bottleneck",
+      "titulo": "Bottleneck (K2)",
+      "editor": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Bottleneck_(K2)",
+      "uso": "Corredor bajo seracs del campo de hielo al este de la cumbre; travesía de ~100 m hacia la izquierda; ~400 m bajo la cumbre."
+    },
+    {
+      "id": "madison-2019",
+      "titulo": "Despachos K2 2019 (Abruzzi y Česen)",
+      "editor": "Madison Mountaineering",
+      "url": "https://madisonmountaineering.com/tag/cesen/",
+      "uso": "Campo base 4 990 m; C1 Abruzzi 6 065 m; C2 Česen 6 311–6 327 m; C3 Česen ~7 013 m; C4 Česen ~7 600 m."
+    },
+    {
+      "id": "madison-2023",
+      "titulo": "K2 summit push called off (2023)",
+      "editor": "Madison Mountaineering",
+      "url": "https://madisonmountaineering.com/summit-push-called-off/",
+      "uso": "C2 6 700 m, C3 7 250 m, C4 7 681 m (Abruzzi)."
+    },
+    {
+      "id": "madison-exp",
+      "titulo": "Expedición K2 — distribución de campos",
+      "editor": "Madison Mountaineering",
+      "url": "https://madisonmountaineering.com/expedition/k2/",
+      "uso": "Esquema de campos de la vía normal."
+    },
+    {
+      "id": "arnette-2020",
+      "titulo": "K2 Winter on the Abruzzi (2020)",
+      "editor": "Alan Arnette",
+      "url": "https://www.alanarnette.com/2020/12/23/k2-winter-on-the-abruzzi/",
+      "uso": "C1 6 050, C2 6 700, C3 7 200, C4 7 600 m."
+    },
+    {
+      "id": "gatta",
+      "titulo": "K2 Expedition (8 611 m)",
+      "editor": "Philippe Gatta",
+      "url": "https://www.philippegatta.fr/k2-8611-m-pakistan",
+      "uso": "CB ~5 000 m sobre el Godwin-Austen; CBA 5 300 m a 4,5 km; C1 6 050 m en una pequeña arista rocosa; House's Chimney 6 600 m; Black Pyramid de 400 m; C3 7 400 m; Hombro desde 7 700 m; C4 mejor hacia 7 950 m."
+    }
+  ],
+  "poi": [
+    {
+      "id": "campo-base",
+      "nombre": "Campo base",
+      "categoria": "campamento",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 5000,
+        "min": 4990,
+        "max": 5150
+      },
+      "certeza": "aproximado",
+      "prioridad": 1,
+      "descripcion": "Sobre la morrena occidental del glaciar Godwin-Austen, cerca de la confluencia con el Savoia y del memorial Gilkey. Su posición exacta cambia cada temporada.",
+      "refs": [
+        "madison-2019",
+        "gatta"
+      ],
+      "posicion": {
+        "x": 150,
+        "y": -4750,
+        "altModelo": 5007.6
+      },
+      "geo": {
+        "lat": 35.83969,
+        "lon": 76.51496
+      },
+      "metodoColocacion": "local",
+      "diferenciaModeloRef": 7.6
+    },
+    {
+      "id": "campo-base-avanzado",
+      "nombre": "Campo base avanzado (Abruzzi)",
+      "categoria": "campamento",
+      "rutas": [
+        "abruzzi"
+      ],
+      "altitudRef": {
+        "valor": 5350,
+        "min": 5300,
+        "max": 5400
+      },
+      "certeza": "aproximado",
+      "prioridad": 4,
+      "descripcion": "Depósito al pie del espolón, a unos 4,5 km del campo base remontando el glaciar. Algunas fuentes dan cifras más altas (hasta 5 650 m).",
+      "refs": [
+        "gatta",
+        "arnette-2020"
+      ],
+      "posicion": {
+        "x": 3080,
+        "y": -2000,
+        "altModelo": 5371.4
+      },
+      "geo": {
+        "lat": 35.86447,
+        "lon": 76.5474
+      },
+      "metodoColocacion": "local",
+      "diferenciaModeloRef": 21.4
+    },
+    {
+      "id": "c1-abruzzi",
+      "nombre": "Campo I (Abruzzi)",
+      "nombreCorto": "C1",
+      "categoria": "campamento",
+      "rutas": [
+        "abruzzi"
+      ],
+      "altitudRef": {
+        "valor": 6050,
+        "min": 6050,
+        "max": 6100
+      },
+      "certeza": "aproximado",
+      "prioridad": 3,
+      "descripcion": "En una pequeña arista rocosa expuesta a caída de piedras. Situado sobre el trazado reconstruido a la altitud documentada.",
+      "refs": [
+        "gatta",
+        "arnette-2020",
+        "madison-2019"
+      ],
+      "posicion": {
+        "x": 2537.4,
+        "y": -1225.0,
+        "altModelo": 6050.0
+      },
+      "geo": {
+        "lat": 35.87146,
+        "lon": 76.5414
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "house-chimney",
+      "nombre": "Chimenea House",
+      "nombreIngles": "House's Chimney",
+      "categoria": "hito",
+      "rutas": [
+        "abruzzi"
+      ],
+      "altitudRef": {
+        "valor": 6600,
+        "min": 6550,
+        "max": 6650
+      },
+      "certeza": "reconstruido",
+      "prioridad": 5,
+      "descripcion": "Grieta-chimenea de unos 30 m, el paso más difícil entre C1 y C2. Su posición se deriva de su altitud documentada sobre el trazado; el DEM de 25 m no la resuelve.",
+      "refs": [
+        "gatta"
+      ],
+      "posicion": {
+        "x": 2167.1,
+        "y": -925.5,
+        "altModelo": 6600.0
+      },
+      "geo": {
+        "lat": 35.87416,
+        "lon": 76.5373
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "c2-abruzzi",
+      "nombre": "Campo II (Abruzzi)",
+      "nombreCorto": "C2",
+      "categoria": "campamento",
+      "rutas": [
+        "abruzzi"
+      ],
+      "altitudRef": {
+        "valor": 6700,
+        "min": 6650,
+        "max": 6750
+      },
+      "certeza": "aproximado",
+      "prioridad": 3,
+      "descripcion": "Justo por encima de la Chimenea House, bajo la Pirámide Negra.",
+      "refs": [
+        "madison-2023",
+        "arnette-2020"
+      ],
+      "posicion": {
+        "x": 2052.7,
+        "y": -925.8,
+        "altModelo": 6700.0
+      },
+      "geo": {
+        "lat": 35.87415,
+        "lon": 76.53603
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "black-pyramid",
+      "nombre": "Pirámide Negra",
+      "nombreIngles": "Black Pyramid",
+      "categoria": "hito",
+      "rutas": [
+        "abruzzi"
+      ],
+      "altitudRef": {
+        "valor": 6950,
+        "min": 6750,
+        "max": 7200
+      },
+      "certeza": "reconstruido",
+      "prioridad": 4,
+      "descripcion": "Unos 400 m de roca oscura y mixto entre C2 y C3, la sección técnica clave del espolón. Marcador en el centro de su rango altitudinal.",
+      "refs": [
+        "gatta"
+      ],
+      "posicion": {
+        "x": 1869.4,
+        "y": -950.6,
+        "altModelo": 6950.0
+      },
+      "geo": {
+        "lat": 35.87393,
+        "lon": 76.534
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "c3-abruzzi",
+      "nombre": "Campo III (Abruzzi)",
+      "nombreCorto": "C3",
+      "categoria": "campamento",
+      "rutas": [
+        "abruzzi"
+      ],
+      "altitudRef": {
+        "valor": 7250,
+        "min": 7200,
+        "max": 7400
+      },
+      "certeza": "aproximado",
+      "prioridad": 3,
+      "descripcion": "Sobre la Pirámide Negra, al pie de las palas de nieve que llevan al Hombro. Varía entre 7 200 y 7 400 m según la expedición.",
+      "refs": [
+        "madison-2023",
+        "arnette-2020",
+        "gatta"
+      ],
+      "posicion": {
+        "x": 1492.1,
+        "y": -916.9,
+        "altModelo": 7250.0
+      },
+      "geo": {
+        "lat": 35.87423,
+        "lon": 76.52982
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "c2-cesen",
+      "nombre": "Campo II (Česen)",
+      "nombreCorto": "C2",
+      "categoria": "campamento",
+      "rutas": [
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 6325,
+        "min": 6311,
+        "max": 6327
+      },
+      "certeza": "aproximado",
+      "prioridad": 3,
+      "descripcion": "Altitud de la expedición de Madison Mountaineering de 2019. No equivale al C2 del Abruzzi.",
+      "refs": [
+        "madison-2019"
+      ],
+      "posicion": {
+        "x": 453.0,
+        "y": -2144.2,
+        "altModelo": 6325.0
+      },
+      "geo": {
+        "lat": 35.86318,
+        "lon": 76.51832
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "c3-cesen",
+      "nombre": "Campo III (Česen)",
+      "nombreCorto": "C3",
+      "categoria": "campamento",
+      "rutas": [
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 7013,
+        "min": 7000,
+        "max": 7013
+      },
+      "certeza": "aproximado",
+      "prioridad": 3,
+      "descripcion": "Altitud de la expedición de Madison Mountaineering de 2019.",
+      "refs": [
+        "madison-2019"
+      ],
+      "posicion": {
+        "x": 832.1,
+        "y": -1400.1,
+        "altModelo": 7013.0
+      },
+      "geo": {
+        "lat": 35.86988,
+        "lon": 76.52251
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "hombro",
+      "nombre": "Hombro",
+      "nombreIngles": "Shoulder",
+      "categoria": "sector",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 7850,
+        "min": 7700,
+        "max": 8000
+      },
+      "certeza": "aproximado",
+      "prioridad": 2,
+      "descripcion": "Tramo de menor pendiente de la arista sureste (≈27° en el DEM entre 7 760 y 7 960 m). Aquí confluyen el Abruzzi y el Česen.",
+      "refs": [
+        "gatta",
+        "aaj-1995"
+      ],
+      "posicion": {
+        "x": 790,
+        "y": -500,
+        "altModelo": 7890.6
+      },
+      "geo": {
+        "lat": 35.87799,
+        "lon": 76.52205
+      },
+      "metodoColocacion": "local",
+      "diferenciaModeloRef": 40.6
+    },
+    {
+      "id": "c4",
+      "nombre": "Campo IV (Hombro)",
+      "nombreCorto": "C4",
+      "categoria": "campamento",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 7800,
+        "min": 7600,
+        "max": 8000
+      },
+      "certeza": "aproximado",
+      "prioridad": 3,
+      "descripcion": "Se monta en el Hombro entre ~7 600 y ~8 000 m según el año (7 681 m Madison 2023; ~7 950 m Gatta). Se muestra una variante hacia 7 800 m, compartida por ambas rutas.",
+      "refs": [
+        "madison-2023",
+        "gatta",
+        "aaj-1995",
+        "arnette-2020"
+      ],
+      "posicion": {
+        "x": 890.7,
+        "y": -552.0,
+        "altModelo": 7800.0
+      },
+      "geo": {
+        "lat": 35.87752,
+        "lon": 76.52316
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "zona-muerte",
+      "nombre": "Zona de la muerte",
+      "categoria": "umbral",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 8000
+      },
+      "certeza": "documentado",
+      "prioridad": 3,
+      "descripcion": "Umbral convencional de 8 000 m asociado a la altitud extrema. No es una frontera física y no implica que por debajo no haya riesgo.",
+      "refs": [],
+      "posicion": {
+        "x": 546.9,
+        "y": -441.6,
+        "altModelo": 8000.0
+      },
+      "geo": {
+        "lat": 35.87852,
+        "lon": 76.51936
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "bottleneck",
+      "nombre": "Bottleneck",
+      "nombreIngles": "Bottleneck",
+      "categoria": "sector",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 8200,
+        "min": 8150,
+        "max": 8300
+      },
+      "certeza": "reconstruido",
+      "prioridad": 2,
+      "descripcion": "Corredor de nieve y hielo de hasta ~60° que nace en la cara sur y se inclina a la izquierda bajo el serac. Reconstrucción: el DEM no resuelve su forma.",
+      "refs": [
+        "aaj-1987",
+        "aaj-2005",
+        "wiki-bottleneck"
+      ],
+      "posicion": {
+        "x": 347.9,
+        "y": -414.0,
+        "altModelo": 8200.0
+      },
+      "geo": {
+        "lat": 35.87877,
+        "lon": 76.51715
+      },
+      "metodoColocacion": "ruta-altitud",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "travesia",
+      "nombre": "Travesía bajo el serac",
+      "categoria": "sector",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 8300,
+        "min": 8250,
+        "max": 8400
+      },
+      "certeza": "reconstruido",
+      "prioridad": 3,
+      "descripcion": "Desde la salida del Bottleneck se atraviesa ~100 m hacia la izquierda en la base del campo de hielo, expuesto al serac.",
+      "refs": [
+        "wiki-bottleneck",
+        "aaj-2005"
+      ],
+      "posicion": {
+        "x": 184.5,
+        "y": -406.7,
+        "altModelo": 8289.3
+      },
+      "geo": {
+        "lat": 35.87883,
+        "lon": 76.51534
+      },
+      "metodoColocacion": "ruta-punto",
+      "diferenciaModeloRef": -10.7
+    },
+    {
+      "id": "serac",
+      "nombre": "Serac superior",
+      "categoria": "sector",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 8400,
+        "min": 8350,
+        "max": 8450
+      },
+      "certeza": "reconstruido",
+      "prioridad": 3,
+      "descripcion": "Barrera de hielo colgante (frente de decenas de metros, hasta ~100 m según fuentes) del campo de hielo al este de la cumbre. Malla esquemática: su forma real cambia cada temporada.",
+      "refs": [
+        "aaj-2005",
+        "wiki-bottleneck"
+      ],
+      "posicion": {
+        "x": 224.9,
+        "y": -289.5,
+        "altModelo": 8413.2
+      },
+      "geo": {
+        "lat": 35.87989,
+        "lon": 76.51579
+      },
+      "metodoColocacion": "serac"
+    },
+    {
+      "id": "cumbre",
+      "nombre": "Cumbre",
+      "nombreIngles": "Summit",
+      "categoria": "cumbre",
+      "rutas": [
+        "abruzzi",
+        "cesen"
+      ],
+      "altitudRef": {
+        "valor": 8611,
+        "exacta": true
+      },
+      "certeza": "documentado",
+      "prioridad": 0,
+      "descripcion": "8 611 m es la altitud convencional; la medición GNSS de 2014 dio 8 609,02 m. El DEM culmina en 8 571 m y se corrige localmente; su máximo queda a unos 210 m de la coordenada publicada.",
+      "refs": [
+        "wiki-k2",
+        "gnss-2014",
+        "cop-dem"
+      ],
+      "posicion": {
+        "x": -75.0,
+        "y": -200.0,
+        "altModelo": 8611.0
+      },
+      "geo": {
+        "lat": 35.8807,
+        "lon": 76.51247
+      },
+      "metodoColocacion": "cumbre-modelo",
+      "diferenciaModeloRef": 0.0
+    },
+    {
+      "id": "godwin-austen",
+      "nombre": "Glaciar Godwin-Austen",
+      "categoria": "geografia",
+      "rutas": [],
+      "certeza": "documentado",
+      "prioridad": 2,
+      "descripcion": "Glaciar que baja hacia el sur desde el pie del K2 hasta Concordia. Sus morrenas medias son visibles en la imagen Sentinel-2.",
+      "refs": [
+        "s2-l2a"
+      ],
+      "posicion": {
+        "x": 1650,
+        "y": -3350,
+        "altModelo": 5114.3
+      },
+      "geo": {
+        "lat": 35.85231,
+        "lon": 76.53157
+      },
+      "metodoColocacion": "local"
+    },
+    {
+      "id": "savoia",
+      "nombre": "Glaciar Savoia",
+      "categoria": "geografia",
+      "rutas": [],
+      "certeza": "aproximado",
+      "prioridad": 4,
+      "descripcion": "Llega desde el oeste y confluye con el Godwin-Austen cerca del campo base.",
+      "refs": [
+        "s2-l2a"
+      ],
+      "posicion": {
+        "x": -2600,
+        "y": -5400,
+        "altModelo": 5470.1
+      },
+      "geo": {
+        "lat": 35.83383,
+        "lon": 76.48452
+      },
+      "metodoColocacion": "local"
+    },
+    {
+      "id": "broad-peak",
+      "nombre": "Broad Peak",
+      "categoria": "geografia",
+      "rutas": [],
+      "altitudRef": {
+        "valor": 8051
+      },
+      "certeza": "aproximado",
+      "prioridad": 2,
+      "descripcion": "Ochomil vecino al sureste, en el anillo de contexto (rejilla de 100 m, que suaviza su cima).",
+      "refs": [
+        "cop-dem"
+      ],
+      "posicion": {
+        "x": 4600.0,
+        "y": -6800.0,
+        "altModelo": 7976.7
+      },
+      "geo": {
+        "lat": 35.8212,
+        "lon": 76.5642
+      },
+      "metodoColocacion": "maximo-local"
+    }
+  ]
+}

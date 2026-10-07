@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B1520" />
+    <meta name="color-scheme" content="dark" />
+    <title>K2 — Atlas interactivo</title>
+    <meta name="description" content="Representación 3D del K2 (8 611 m, Karakórum) a partir del DEM Copernicus GLO-30 y Sentinel-2: rutas Abruzzi y Česen, campamentos, Bottleneck, serac y zona de la muerte." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1520'/%3E%3Cpath d='M4 25 L13 9 L16 13 L19 7 L28 25 Z' fill='%23EEF3F6'/%3E%3Cpath d='M13 9 L16 13 L19 7 L21.5 12 L16 16 L11 13 Z' fill='%2378C9DC'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <canvas id="scene" class="scene" tabindex="0" role="img" aria-label="Vista tridimensional del K2. Arrastra para girar, pellizca o usa la rueda para acercar. Con el foco aquí: flechas para girar, + y − para acercar, R para restablecer."></canvas>
+      <div id="markers" class="markers"></div>
+
+      <header class="brand">
+        <h1 class="brand__title">K2 <span class="brand__sub">— Atlas interactivo</span></h1>
+        <p class="brand__meta"><strong class="num">8&#8239;611&#8239;m</strong> · Karakórum · frontera Pakistán–China</p>
+      </header>
+
+      <aside id="panel" class="panel" aria-label="Rutas, capas y vistas">
+        <button id="panel-toggle" class="panel__handle" type="button" aria-expanded="false" aria-controls="panel-body">
+          <span class="panel__grip" aria-hidden="true"></span>
+          <span>Rutas, capas y vistas</span>
+        </button>
+        <div id="panel-body" class="panel__body">
+          <section class="sec" aria-labelledby="h-rutas">
+            <h2 id="h-rutas" class="sec__title">Rutas</h2>
+            <label class="switch">
+              <input id="t-routes" type="checkbox" checked />
+              <span class="switch__ui" aria-hidden="true"></span>
+              <span>Mostrar rutas</span>
+            </label>
+            <ul id="route-list" class="routes"></ul>
+            <fieldset class="seg" id="route-highlight">
+              <legend>Destacar</legend>
+            </fieldset>
+            <p class="note" id="route-note"></p>
+          </section>
+
+          <section class="sec" aria-labelledby="h-capas">
+            <h2 id="h-capas" class="sec__title">Capas</h2>
+            <label class="switch"><input id="t-labels" type="checkbox" checked /><span class="switch__ui" aria-hidden="true"></span><span>Etiquetas</span></label>
+            <label class="switch"><input id="t-camps" type="checkbox" checked /><span class="switch__ui" aria-hidden="true"></span><span>Campamentos</span></label>
+            <label class="switch"><input id="t-death" type="checkbox" checked /><span class="switch__ui" aria-hidden="true"></span><span>Zona de la muerte <span class="muted">(&gt;&#8239;8&#8239;000&#8239;m)</span></span></label>
+            <p class="note">Umbral convencional de altitud extrema; no es una frontera física ni implica que por debajo no haya riesgo.</p>
+            <label class="switch"><input id="t-dem" type="checkbox" /><span class="switch__ui" aria-hidden="true"></span><span>Procedencia del relieve</span></label>
+            <ul id="dem-legend" class="legend" hidden></ul>
+            <fieldset class="seg" id="light-presets">
+              <legend>Luz</legend>
+            </fieldset>
+          </section>
+
+          <section class="sec" aria-labelledby="h-vistas">
+            <h2 id="h-vistas" class="sec__title">Vistas</h2>
+            <div id="view-list" class="views"></div>
+          </section>
+
+          <section class="sec" aria-labelledby="h-poi">
+            <h2 id="h-poi" class="sec__title">Puntos de interés</h2>
+            <div id="poi-list" class="poi-list"></div>
+          </section>
+
+          <section class="sec" aria-labelledby="h-calidad">
+            <h2 id="h-calidad" class="sec__title">Calidad</h2>
+            <fieldset class="seg" id="quality">
+              <legend class="sr-only">Perfil de calidad</legend>
+            </fieldset>
+            <p class="note" id="quality-note"></p>
+          </section>
+
+          <footer class="panel__footer">
+            <button type="button" class="link" id="open-sources">Fuentes y método</button>
+            <button type="button" class="link" id="open-help">Ayuda</button>
+            <a class="link" id="report-link" href="#" hidden>Informe de entrega</a>
+          </footer>
+          <p class="attribution">Relieve: produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved. Imagen: contiene datos Copernicus Sentinel modificados (2024).</p>
+        </div>
+      </aside>
+
+      <div class="hud" role="toolbar" aria-label="Navegación de la cámara">
+        <button id="compass" class="hud__btn hud__compass" type="button" aria-label="Orientar al norte">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><g id="compass-rose"><circle cx="24" cy="24" r="19" class="c-ring" /><path d="M24 7 L28.5 24 L24 21.5 L19.5 24 Z" class="c-n" /><path d="M24 41 L28.5 24 L24 26.5 L19.5 24 Z" class="c-s" /><text x="24" y="5.2" class="c-t">N</text></g></svg>
+        </button>
+        <button id="zoom-in" class="hud__btn" type="button" aria-label="Acercar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>
+        <button id="zoom-out" class="hud__btn" type="button" aria-label="Alejar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></button>
+        <button id="reset" class="hud__btn" type="button" aria-label="Restablecer vista general"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" /><path d="M4 4v4.5h4.5" /></svg></button>
+        <button id="autorotate" class="hud__btn" type="button" aria-pressed="false" aria-label="Rotación automática (desactivada)"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-play"><path d="M8 5.5v13l10.5-6.5z" /></svg><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-pause"><path d="M8 5.5v13M16 5.5v13" /></svg></button>
+      </div>
+
+      <section id="poi-card" class="card" hidden aria-labelledby="card-title">
+        <button id="card-close" class="card__close" type="button" aria-label="Cerrar ficha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+        <p class="card__kicker" id="card-kicker"></p>
+        <h2 class="card__title" id="card-title"></h2>
+        <p class="card__alt num" id="card-alt"></p>
+        <p class="card__desc" id="card-desc"></p>
+        <p class="card__meta" id="card-meta"></p>
+        <div class="card__actions">
+          <button id="card-focus" class="btn btn--primary" type="button">Enfocar</button>
+        </div>
+      </section>
+
+      <div id="loading" class="loading" role="status" aria-live="polite">
+        <div class="loading__box">
+          <p class="loading__title">K2 — Atlas interactivo</p>
+          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progreso de carga"><span id="bar-fill"></span></div>
+          <p id="loading-stage" class="loading__stage">Preparando…</p>
+          <div id="loading-error" class="loading__error" hidden>
+            <p id="loading-error-text"></p>
+            <button id="retry" class="btn btn--primary" type="button">Reintentar</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="diag" class="diag" hidden aria-live="off"></div>
+
+      <dialog id="dlg-sources" class="dialog" aria-labelledby="src-title">
+        <form method="dialog" class="dialog__close"><button class="card__close" aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button></form>
+        <h2 id="src-title">Fuentes y método</h2>
+        <div id="sources-body" class="dialog__body"></div>
+      </dialog>
+
+      <dialog id="dlg-help" class="dialog" aria-labelledby="help-title">
+        <form method="dialog" class="dialog__close"><button class="card__close" aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button></form>
+        <h2 id="help-title">Cómo moverse</h2>
+        <div class="dialog__body">
+          <dl class="help">
+            <dt>Girar</dt><dd>Arrastrar con un dedo o con el botón izquierdo · flechas del teclado</dd>
+            <dt>Acercar / alejar</dt><dd>Pellizcar · rueda del ratón · botones + y − · teclas + y −</dd>
+            <dt>Desplazar</dt><dd>Arrastrar con dos dedos · botón derecho · Mayús + arrastrar</dd>
+            <dt>Vistas</dt><dd>Panel «Vistas» o tecla R para la vista general</dd>
+            <dt>Puntos</dt><dd>Toca un marcador o elige en la lista; «Enfocar» lleva la cámara hasta él</dd>
+            <dt>Diagnóstico</dt><dd>Tecla D (o <code>?diag=1</code>): fotogramas, perfil, triángulos y draw calls</dd>
+          </dl>
+          <p class="note">La cámara no puede atravesar el relieve ni salir del área de 43&#8239;km modelada; el acercamiento máximo es de 350&#8239;m en los sectores cimeros y de 1&#8239;km en el resto, porque el DEM tiene celdas de 25&#8239;m.</p>
+        </div>
+      </dialog>
+    </div>
+    <noscript><p class="noscript">El atlas necesita JavaScript y WebGL. La lista de puntos y las fuentes están en el README del repositorio.</p></noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

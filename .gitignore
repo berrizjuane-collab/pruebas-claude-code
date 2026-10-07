@@ -1,0 +1,14 @@
+node_modules
+dist
+.DS_Store
+*.local
+.vite
+test-results
+playwright-report
+# Datos brutos descargados por el pipeline (reproducibles, no versionados)
+pipeline/.cache
+pipeline/.venv
+__pycache__
+
+# utilidades locales de depuración
+scripts/.tmp
