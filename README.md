@@ -15,6 +15,7 @@ Cada carpeta es un proyecto completo; entra en ella para instalarlo y ejecutarlo
 | [`traza/`](traza/) | **VÉRTICE** (antes TRAZA), calculadora visual de préstamos por el sistema francés para Ingeniería Económica | HTML autocontenido | `web/vertice-calculadora-prestamos` |
 | [`traza-promo/`](traza-promo/) | **Spot de TRAZA**, animación promocional de 15 s (MP4 y HTML) | HTML, Playwright, Python y ffmpeg | `web/traza-spot-promocional` |
 | [`campos-vectoriales/`](campos-vectoriales/) | **Campos**, laboratorio de campos vectoriales 3D (y dependientes del tiempo desde la 1.1) | TypeScript + Vite + Three.js | `viz/campos-vectoriales-3d-v1.0`, `viz/campos-vectoriales-3d-v1.1` |
+| [`nightfall/`](nightfall/) | **NIGHTFALL**, la revista de la noche caraqueña hecha web: mapa neón, locales abiertos en vivo, mezclador y carta para armar la cuenta | HTML autocontenido | `claude/webpage-from-pdf-hbv1pk` |
 
 NEON WRAITHS se publica en GitHub Pages junto con la página de Fable 5.1
 (`.github/workflows/deploy.yml`); Pages debe estar activado en
