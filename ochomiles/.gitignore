@@ -1,6 +1,6 @@
 data/raw/
 data/cache/
 data/work/
-render/
+/render/
 *.part
 __pycache__/
