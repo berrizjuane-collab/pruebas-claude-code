@@ -33,7 +33,12 @@ interface Marker {
   lastOcclusion: number;
   shown: boolean;
   key: string;
+  /** hueco de la etiqueta en el fotograma anterior (histéresis de la colocación) */
+  slot: number;
 }
+
+/** Pruebas de oclusión por fotograma en movimiento: repartidas, sin picos sincronizados. */
+const OCCLUSION_CHECKS_PER_FRAME = 4;
 
 /** Distancia máxima (m) a la que se muestra cada nivel de prioridad. */
 const PRIORITY_RANGE = [Infinity, Infinity, 15000, 9000, 6500, 4800, 21000];
@@ -47,6 +52,7 @@ export class PoiMarkers {
   private readonly lastQuat = new THREE.Quaternion();
   private lastSize = '';
   private dirty = true;
+  private occlusionCursor = 0;
 
   constructor(
     container: HTMLElement,
@@ -98,6 +104,7 @@ export class PoiMarkers {
         lastOcclusion: -Infinity,
         shown: false,
         key: '',
+        slot: -1,
       });
     }
     this.measure();
@@ -162,7 +169,13 @@ export class PoiMarkers {
     const camLocal = { x: camera.position.x, y: -camera.position.z, alt: camera.position.y + this.frame.h0 };
     const cands: (LabelCandidate & { m: Marker })[] = [];
     const occlusionInterval = moved ? 140 : 0;
-    for (const m of this.markers) {
+    // en movimiento, como mucho N rayos por fotograma y en turno rotatorio (los más antiguos antes)
+    let checks = moved ? OCCLUSION_CHECKS_PER_FRAME : Infinity;
+    const n = this.markers.length;
+    const start = this.occlusionCursor % n;
+    this.occlusionCursor++;
+    for (let r = 0; r < n; r++) {
+      const m = this.markers[(start + r) % n];
       const p = m.poi;
       let show = this.eligible(p);
       const dist = camera.position.distanceTo(m.world);
@@ -181,7 +194,8 @@ export class PoiMarkers {
           if (sx > width - insets.right + 8 || sy > height - insets.bottom + 4) show = p.id === this.filters.selected && show;
         }
       }
-      if (show && now - m.lastOcclusion >= occlusionInterval) {
+      if (show && now - m.lastOcclusion >= occlusionInterval && checks > 0) {
+        checks--;
         m.occluded = rayBlocked(this.terrain, camLocal.x, camLocal.y, camLocal.alt, p.posicion.x, p.posicion.y, m.world.y + this.frame.h0 + 6, Math.min(90, 25 + dist * 0.004));
         m.lastOcclusion = now;
       }
@@ -190,6 +204,7 @@ export class PoiMarkers {
       m.el.classList.toggle('is-ghost', ghost);
       m.el.classList.toggle('is-selected', p.id === this.filters.selected);
       if (!show) {
+        m.slot = -1;
         if (m.shown) {
           m.el.classList.remove('is-visible');
           m.leader.style.display = 'none';
@@ -198,16 +213,17 @@ export class PoiMarkers {
         }
         continue;
       }
-      cands.push({ id: p.id, x: sx, y: sy, w: m.w, h: m.h, priority: p.prioridad, forced: p.id === this.filters.selected, m });
+      cands.push({ id: p.id, x: sx, y: sy, w: m.w, h: m.h, priority: p.prioridad, forced: p.id === this.filters.selected, prevSlot: m.slot, m });
     }
-    // límite de etiquetas por perfil de calidad (las de mayor prioridad primero)
-    cands.sort((a, b) => Number(!!b.forced) - Number(!!a.forced) || a.priority - b.priority);
+    // límite de etiquetas por perfil de calidad (las de mayor prioridad primero; desempate estable)
+    cands.sort((a, b) => Number(!!b.forced) - Number(!!a.forced) || a.priority - b.priority || (a.id < b.id ? -1 : 1));
     const labeled = this.filters.showLabels ? cands.slice(0, this.filters.labelsMax) : cands.filter((c) => c.forced);
     const placements = new Map(layoutLabels(labeled, { width, height, ...insets }).map((p) => [p.id, p]));
     for (const c of cands) {
       const m = c.m;
       const pl = placements.get(c.id);
       const withLabel = !!pl?.visible;
+      m.slot = withLabel ? pl!.slot : -1;
       const isGeo = m.poi.categoria === 'geografia';
       if (isGeo && !withLabel) {
         if (m.shown) {

@@ -32,4 +32,14 @@ describe('colocación de etiquetas', () => {
     const hidden = out.filter((p) => !p.visible).map((p) => cands.find((c) => c.id === p.id)!.priority);
     if (hidden.length) expect(Math.min(...shown)).toBeLessThanOrEqual(Math.min(...hidden));
   });
+  it('histéresis: una etiqueta conserva su hueco anterior si sigue libre (sin parpadeos)', () => {
+    const vp = { width: 800, height: 600 };
+    const base = { id: 'a', x: 400, y: 300, w: 90, h: 20, priority: 1 };
+    const first = layoutLabels([base], vp)[0];
+    expect(first.slot).toBe(0); // a la derecha por defecto
+    // en el fotograma siguiente estaba a la izquierda (hueco 1): se mantiene ahí
+    const kept = layoutLabels([{ ...base, x: 402, prevSlot: 1 }], vp)[0];
+    expect(kept.slot).toBe(1);
+    expect(kept.lx).toBeLessThan(402);
+  });
 });

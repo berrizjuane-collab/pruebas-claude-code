@@ -26,7 +26,7 @@ relativas (`base: './'`), así que `dist/` funciona desde cualquier subruta.
 | Script | Qué hace |
 | --- | --- |
 | `npm run check` | ESLint + `tsc` + tests unitarios (Vitest) |
-| `npm test` | 68 tests unitarios: proyección frente a pyproj, alturas, PNG, LOD (incluido el intercambio exacto de los grupos 2×2), cámara, transiciones, etiquetas, datos, vistas contra el DEM real |
+| `npm test` | 75 tests unitarios: proyección frente a pyproj, alturas, PNG, LOD (incluido el intercambio exacto de los grupos 2×2), nubes sobre el relieve real, cámara, transiciones, etiquetas, datos, vistas contra el DEM real |
 | `npm run test:e2e` | 17 pruebas Playwright en Chromium (carga, capas, cámara con ratón y con gestos táctiles, presupuesto de draw calls, 40 ciclos de recursos, calidad, móvil, accesibilidad, sin WebGL, fallo de red y pérdida del contexto WebGL) |
 | `npm run perf` | 3 escenarios × 30 s por perfil de calidad → `docs/rendimiento.json` (`PERF_GPU=1` para usar la GPU) |
 | `npm run capturas` | Regenera `docs/capturas/` |
@@ -51,7 +51,9 @@ El panel (en móvil, la hoja inferior «Rutas, capas y vistas») incluye:
   solo los campamentos de esa vía.
 - **Capas**: etiquetas, campamentos, zona de la muerte (máscara altimétrica e
   isolínea de 8 000 m), procedencia del relieve (qué parte del DEM es medida
-  TanDEM-X y qué parte relleno) y luz (mañana/tarde).
+  TanDEM-X y qué parte relleno), nubes (ilustrativas: mar de nubes de tarde entre
+  6 300 y 7 300 m que se funde con las laderas y nube de bandera a sotavento de la
+  cumbre) y luz (mañana/tarde).
 - **Vistas**: general, Abruzzi, Hombro y Campo IV, Bottleneck y serac, cumbre y cara norte.
 - **Puntos de interés**: lista HTML completa (accesible aunque falle WebGL).
 - **Calidad**: Auto, Alta, Media o Baja.
@@ -89,11 +91,25 @@ miden aparte), definido en `src/config/quality.ts`:
 | Media | 500 k | 100 | 1,5 | mapa de 2048 |
 | Alta | 1,2 M | 150 | 2,0 | mapa de 4096 |
 
-**Auto** parte de las capacidades detectadas y ajusta el perfil con el tiempo de
-fotograma medido (mediana y p95, con histéresis para no oscilar). Render bajo
-demanda; LOD por error en pantalla con geomorphing; grupos de 2×2 bloques que se
-dibujan como uno cuando están lejos; recorte por caja; sombras solo al cambiar la
-luz o la geometría; mallas construidas en un Web Worker. Las cifras medidas (por
+**Auto** parte de las capacidades detectadas (Media en escritorio salvo GPU dedicada
+reconocible) y ajusta el perfil con el tiempo de fotograma medido (mediana y p95,
+con histéresis); el cambio se aplica siempre con la cámara quieta, nunca a mitad de
+un gesto. Render bajo demanda; LOD por error en pantalla con geomorphing; grupos de
+2×2 bloques que se dibujan como uno cuando están lejos; recorte por caja; mallas
+construidas en un Web Worker.
+
+Sin tirones al moverse:
+
+- **Sombras con proyectores estáticos**: una copia fija del relieve proyecta las
+  sombras, así que el mapa de sombras solo se rehace al cambiar la luz o la calidad
+  (antes, cada ~260 ms en movimiento).
+- **Precarga en GPU** durante la pantalla de carga de todas las geometrías de LOD
+  (380) y texturas: ningún nivel se sube a mitad de un gesto.
+- **Sin trabajo sincronizado**: la oclusión de etiquetas se reparte (4 rayos por
+  fotograma), la selección de LOD no crea arrays por fotograma (sin pausas del
+  recolector) y la anisotropía no cambia con el perfil (no se vuelven a subir texturas).
+- **Nubes**: un solo draw call instanciado; el viento avanza solo en fotogramas que ya
+  se dibujan, así que en reposo no hay render continuo. Las cifras medidas (por
 vista, peor caso, 3 escenarios × 30 s y ciclos de recursos) están en
 [`docs/VERIFICACION.md`](docs/VERIFICACION.md).
 
@@ -108,7 +124,7 @@ src/
   data/                    tipos, carga, lector PNG, validación de datos
   geo/                     proyección (Krüger), marco de escena, campos de altura
   terrain/                 worker de mallas, LOD con geomorphing y grupos 2×2, material, serac
-  scene/                   cielo, niebla, luces y sombras
+  scene/                   cielo, niebla, luces, sombras y nubes
   routes/                  rutas con Line2 (grosor en píxeles, tramo común bicolor)
   poi/                     marcadores HTML, oclusión y colocación sin solapes
   camera/                  OrbitControls + restricciones + transiciones planificadas

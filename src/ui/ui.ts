@@ -16,6 +16,7 @@ export interface UiActions {
   setLabels(on: boolean): void;
   setCamps(on: boolean): void;
   setDeathZone(on: boolean): void;
+  setClouds(on: boolean): void;
   setDemOverlay(on: boolean): void;
   setLight(id: 'manana' | 'tarde'): void;
   goToView(id: string): void;
@@ -148,6 +149,7 @@ export class Ui {
     bind('t-labels', (on) => this.actions.setLabels(on));
     bind('t-camps', (on) => this.actions.setCamps(on));
     bind('t-death', (on) => this.actions.setDeathZone(on));
+    bind('t-clouds', (on) => this.actions.setClouds(on));
     bind('t-dem', (on) => {
       this.actions.setDemOverlay(on);
       $('dem-legend').hidden = !on;
@@ -394,6 +396,7 @@ export class Ui {
     document.querySelectorAll<HTMLButtonElement>('.poi-item').forEach((b) => b.setAttribute('aria-current', String(b.dataset.id === this.selected)));
     if (!p) {
       card.hidden = true;
+      this.cardHeight = 0;
       this.lastFocus?.focus?.();
       return;
     }
@@ -406,7 +409,12 @@ export class Ui {
       `${formatDegrees(p.geo.lat, 'N', 'S')} · ${formatDegrees(p.geo.lon, 'E', 'O')} · modelo ${formatMeters(p.posicion.altModelo)}` +
       (refs.length ? ` · Fuentes: ${[...new Set(refs)].join('; ')}` : '');
     card.hidden = false;
+    // alto de la ficha, medido una vez al abrirla (no en cada fotograma): las etiquetas lo evitan
+    this.cardHeight = card.getBoundingClientRect().height;
   }
+
+  /** Alto de la ficha abierta en px CSS (0 si está cerrada). */
+  cardHeight = 0;
 
   /** Rota la brújula para que su N apunte al norte geográfico del modelo. */
   setCompass(bearingDeg: number): void {

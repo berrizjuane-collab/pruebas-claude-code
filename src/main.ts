@@ -70,8 +70,10 @@ function initialProfile(r: THREE.WebGLRenderer): ProfileId {
   const small = Math.min(screen.width, screen.height) < 820;
   const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
   if (coarse && small) return mem >= 6 ? 'media' : 'baja';
-  if (r.capabilities.maxTextureSize < 8192) return 'media';
-  return 'alta';
+  // escritorio: Alta solo con una GPU dedicada reconocible; el resto (integradas, Apple, desconocidas)
+  // empieza en Media y Auto la sube a Alta si el tiempo de fotograma lo permite (siempre en reposo)
+  if (r.capabilities.maxTextureSize >= 8192 && /nvidia|geforce|quadro|rtx|gtx|radeon rx|radeon pro|arc a\d/.test(gpu)) return 'alta';
+  return 'media';
 }
 
 function buildTerrain(assets: RawAssets): Promise<BuildResult> {
@@ -139,7 +141,7 @@ async function fallbackWithoutWebGL(): Promise<void> {
     const noop = () => {};
     const holder: { ui?: Ui } = {};
     const actions: UiActions = {
-      setRoutesMaster: noop, setRoute: noop, setHighlight: noop, setLabels: noop, setCamps: noop, setDeathZone: noop,
+      setRoutesMaster: noop, setRoute: noop, setHighlight: noop, setLabels: noop, setCamps: noop, setDeathZone: noop, setClouds: noop,
       setDemOverlay: noop, setLight: noop, goToView: noop, resetView: noop, focusPoi: noop, setQuality: noop, zoom: noop,
       orientNorth: noop, setAutoRotate: noop, orbit: noop, toggleDiagnostics: noop,
       selectPoi: (id) => holder.ui?.showPoi(id ? data.pois.poi.find((p) => p.id === id) ?? null : null),
@@ -195,6 +197,9 @@ async function start(): Promise<void> {
       bytesLoaded: assets.bytes,
     });
     if (params.get('lod') === '1') app.setLodDebug(true);
+    // precarga en GPU de todas las geometrías y texturas (evita subidas a mitad de un gesto)
+    setProgress(0.97, 'Preparando la GPU');
+    app.prewarm();
     // precompila los shaders; sin KHR_parallel_shader_compile, compileAsync solo añade un aviso
     if (renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(app.scene, app.camera);
     else renderer.compile(app.scene, app.camera);

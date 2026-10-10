@@ -15,7 +15,7 @@ import type { BuildResult } from './protocol.ts';
 import type { ChunkData } from './build.ts';
 import type { Manifest, RingName } from '../data/types.ts';
 import { createTerrainMaterial, type ChunkUniforms, type RingUniforms, type SharedTerrainUniforms } from './material.ts';
-import { distanceToBox, parentTarget, projectionFactor, selectLevel } from './lod.ts';
+import { distanceToBox, projectionFactor, selectLevel } from './lod.ts';
 import { makeDetailTexture } from './noise.ts';
 
 const MORPH_MS = 320;
@@ -70,8 +70,17 @@ export class Terrain {
   private readonly frustum = new THREE.Frustum();
   private readonly projView = new THREE.Matrix4();
   private lastStats: TerrainStats = { trianglesEstimate: 0, visibleChunks: 0, levels: [0, 0, 0, 0], merged: 0, tauUsed: 0 };
-  /** true si en el último update cambió alguna geometría (para refrescar sombras) */
-  geometryDirty = true;
+  /**
+   * Proyectores de sombra estáticos: una copia fija del relieve (núcleo y horizonte a
+   * resolución completa, contexto a paso 2) que solo se dibuja en el pase de sombras. Así
+   * el mapa de sombras no depende del LOD visible y no hay que rehacerlo al moverse: solo
+   * cuando cambia la luz. (Antes se rehacía cada ~260 ms en movimiento: tirones periódicos.)
+   */
+  private readonly casters: THREE.Mesh[] = [];
+  private readonly casterMaterial = new THREE.MeshBasicMaterial({ colorWrite: false });
+  /** búferes reutilizados por update(): sin asignaciones por fotograma (sin pausas del GC) */
+  private desiredBuf = new Int8Array(0);
+  private parentBuf = new Int8Array(0);
 
   constructor(result: BuildResult, manifest: Manifest, albedo: Record<RingName, ImageBitmap>, anisotropy: number) {
     this.group.name = 'terreno';
@@ -150,7 +159,7 @@ export class Terrain {
         this.materials.push(mat);
         const mesh = new THREE.Mesh(geoms[level], mat);
         mesh.name = `${name}-${label}${c.ci}-${c.cj}`;
-        mesh.castShadow = true;
+        mesh.castShadow = false; // las sombras las proyecta la copia estática (casters)
         mesh.receiveShadow = true;
         mesh.matrixAutoUpdate = false;
         mesh.updateMatrix();
@@ -166,6 +175,18 @@ export class Terrain {
       const indexAttrs = ring.indices.map((ix) => new THREE.BufferAttribute(ix, 1));
       const ringChunks = ring.chunks.map((c) => makeChunk(c, indexAttrs, 0, ''));
       for (const rc of ringChunks) rc.idx = this.chunks.push(rc) - 1;
+      const casterLevel = name === 'context' ? 1 : 0;
+      for (const rc of ringChunks) {
+        const cm = new THREE.Mesh(rc.geoms[Math.min(casterLevel, rc.geoms.length - 1)], this.casterMaterial);
+        cm.name = `${rc.mesh.name}-sombra`;
+        cm.castShadow = true;
+        cm.receiveShadow = false;
+        cm.visible = false;
+        cm.matrixAutoUpdate = false;
+        cm.updateMatrix();
+        this.casters.push(cm);
+        this.group.add(cm);
+      }
       if (ring.parents) {
         const pIdx = ring.parents.indices.map((ix) => new THREE.BufferAttribute(ix, 1));
         for (const pc of ring.parents.chunks) {
@@ -217,26 +238,33 @@ export class Terrain {
     for (const g of this.groups) measure(g.parent);
 
     // Selección con presupuesto: si se excede, se relaja τ (se engrosa) antes de tocar la silueta.
+    if (this.desiredBuf.length !== this.chunks.length) this.desiredBuf = new Int8Array(this.chunks.length);
+    if (this.parentBuf.length !== this.groups.length) this.parentBuf = new Int8Array(this.groups.length);
+    const desired = this.desiredBuf;
+    const parentDesired = this.parentBuf;
     let t = tau;
-    let desired: number[] = [];
-    let parentDesired: number[] = [];
     let tris = 0;
     for (let iter = 0; iter < 8; iter++) {
-      desired = this.chunks.map((c) => (c.inFrustum ? selectLevel(c.errors, c.dist, k, t, c.level) : c.geoms.length - 1));
-      parentDesired = this.groups.map((g) =>
-        parentTarget(
-          g.children.map((c) => desired[c.idx]),
-          g.children.map((c) => c.inFrustum),
-          g.parent.geoms.length,
-        ),
-      );
+      for (let i = 0; i < this.chunks.length; i++) {
+        const c = this.chunks[i];
+        desired[i] = c.inFrustum ? selectLevel(c.errors, c.dist, k, t, c.level) : c.geoms.length - 1;
+      }
+      for (let gi = 0; gi < this.groups.length; gi++) {
+        // misma regla que parentTarget(), sin crear arrays
+        const g = this.groups[gi];
+        let min = 99;
+        for (const c of g.children) if (c.inFrustum && desired[c.idx] < min) min = desired[c.idx];
+        const last = g.parent.geoms.length - 1;
+        parentDesired[gi] = min === 99 ? last : min >= 1 ? Math.min(last, min - 1) : -1;
+      }
       tris = 0;
-      this.chunks.forEach((c, i) => {
+      for (let i = 0; i < this.chunks.length; i++) {
+        const c = this.chunks[i];
         if (c.inFrustum && !(c.group && parentDesired[c.group.parent.idx] >= 0)) tris += c.data.levels[desired[i]].triangles;
-      });
-      this.groups.forEach((g, gi) => {
-        if (parentDesired[gi] >= 0 && g.parent.inFrustum) tris += g.parent.data.levels[parentDesired[gi]].triangles;
-      });
+      }
+      for (let gi = 0; gi < this.groups.length; gi++) {
+        if (parentDesired[gi] >= 0 && this.groups[gi].parent.inFrustum) tris += this.groups[gi].parent.data.levels[parentDesired[gi]].triangles;
+      }
       if (tris <= triangleBudget) break;
       t *= 1.35;
     }
@@ -299,8 +327,7 @@ export class Terrain {
     if (c.morph) {
       const f = Math.min(1, (now - c.morph.t0) / MORPH_MS);
       c.uniforms.uMorph.value = c.morph.dir === -1 ? 1 - f : f; // −1: de grueso a fino; 1: de fino a grueso
-      this.geometryDirty = true;
-      if (f >= 1) {
+        if (f >= 1) {
         if (c.morph.dir === 1) this.setLevel(c, c.level + 1);
         c.uniforms.uMorph.value = 0;
         c.morph = null;
@@ -362,9 +389,26 @@ export class Terrain {
     this.applyVisibility(false);
   }
 
-  /** true: toda la representación activa visible (pase de sombras); false: se restaura el recorte. */
+  /** true: solo la copia estática de proyectores (pase de sombras); false: se restaura el recorte. */
   setShadowPass(on: boolean): void {
-    this.applyVisibility(on);
+    if (on) {
+      for (const c of this.chunks) c.mesh.visible = false;
+      for (const g of this.groups) g.parent.mesh.visible = false;
+    } else this.applyVisibility(false);
+    for (const m of this.casters) m.visible = on;
+  }
+
+  /** Todas las geometrías (cada nivel de LOD, padres y proyectores) para precargarlas en la GPU. */
+  allGeometries(): THREE.BufferGeometry[] {
+    const set = new Set<THREE.BufferGeometry>();
+    for (const c of this.chunks) for (const g of c.geoms) set.add(g);
+    for (const gr of this.groups) for (const g of gr.parent.geoms) set.add(g);
+    return [...set];
+  }
+
+  /** Texturas del terreno (para subirlas a la GPU durante la carga). */
+  allTextures(): THREE.Texture[] {
+    return [...this.textures];
   }
 
   private applyVisibility(all: boolean): void {
@@ -385,7 +429,6 @@ export class Terrain {
     c.mesh.geometry = c.geoms[c.level];
     // nivel equivalente de bloque para el tinte de depuración (+10: padre fusionado)
     c.uniforms.uLodLevel.value = Math.min(3, c.level + c.levelOffset) + (c.levelOffset ? 10 : 0);
-    this.geometryDirty = true;
   }
 
   /** Fuerza el nivel más fino alcanzable al instante (p. ej. antes de una captura). */
@@ -436,6 +479,7 @@ export class Terrain {
     for (const c of this.chunks) for (const g of c.geoms) g.dispose();
     for (const gr of this.groups) for (const g of gr.parent.geoms) g.dispose();
     for (const m of this.materials) m.dispose();
+    this.casterMaterial.dispose();
     for (const t of this.textures) t.dispose();
     this.group.clear();
   }

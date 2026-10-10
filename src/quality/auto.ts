@@ -24,6 +24,7 @@ export function frameStats(samples: number[]): FrameStats {
 
 export class AutoQuality {
   private samples: number[] = [];
+  private tick = 0;
   private lastChange = -Infinity;
   private downgradesFrom = new Map<ProfileId, number>();
   private lastDowngradeAt = new Map<ProfileId, number>();
@@ -46,6 +47,8 @@ export class AutoQuality {
     this.samples.push(intervalMs);
     if (this.samples.length > this.window) this.samples.shift();
     if (this.samples.length < this.window || now - this.lastChange < this.cooldownMs) return null;
+    // evaluar cada 10 fotogramas basta (la ventana es de 90): sin ordenar en cada fotograma
+    if (++this.tick % 10 !== 0) return null;
     const { median, p95 } = frameStats(this.samples);
     const idx = PROFILE_ORDER.indexOf(this.profile);
     const target = this.profile === 'alta' ? 1000 / 60 : 1000 / 30;

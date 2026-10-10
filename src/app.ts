@@ -9,6 +9,7 @@ import type { BuildResult } from './terrain/protocol.ts';
 import { Terrain } from './terrain/terrain.ts';
 import { buildSerac } from './terrain/serac.ts';
 import { Environment, LIGHT_PRESETS } from './scene/environment.ts';
+import { Clouds } from './scene/clouds.ts';
 import { Routes } from './routes/routes.ts';
 import { PoiMarkers } from './poi/markers.ts';
 import { CameraController } from './camera/controller.ts';
@@ -43,6 +44,7 @@ export class App implements UiActions {
   readonly sampler: TerrainSampler;
   readonly terrain: Terrain;
   readonly env: Environment;
+  readonly clouds: Clouds;
   readonly routes: Routes;
   readonly markers: PoiMarkers;
   readonly cam: CameraController;
@@ -66,8 +68,10 @@ export class App implements UiActions {
   private continuous = false;
   private frameTimes: number[] = [];
   private cpuTimes: number[] = [];
-  private lastShadowAt = 0;
   private shadowPending = false;
+  private readonly fwd = new THREE.Vector3();
+  /** cambio de perfil decidido por Auto: se aplica al quedar la cámara quieta (nunca a mitad de un gesto) */
+  private pendingProfile: QualityProfile | null = null;
   private width = 1;
   private height = 1;
   private selected: string | null = null;
@@ -129,6 +133,14 @@ export class App implements UiActions {
     const serac = buildSerac(init.data.serac, this.frame, core);
     this.serac = serac.mesh;
     this.scene.add(this.serac);
+    const summit = m.cumbre.modelo;
+    this.clouds = new Clouds(this.frame, (x, y) => this.sampler.heightAt(x, y), { x: summit.x, y: summit.y }, this.env.fog, {
+      data: context.data,
+      n: context.n,
+      half: context.half,
+    });
+    this.clouds.setLight(this.env.preset.cloudLit, this.env.preset.cloudShadow);
+    this.scene.add(this.clouds.mesh);
     // el serac sobresale del DEM: se incorpora a la rejilla de holgura de la cámara
     for (const f of serac.footprint) {
       const j = Math.round((f.x + dilCore.half) / dilCore.spacing);
@@ -234,10 +246,14 @@ export class App implements UiActions {
       if (this.cpuTimes.length > 600) this.cpuTimes.shift();
     }
     if (this.wasMoving && !moving) {
-      // al detenerse: oclusión exacta y sombras al día
+      // al detenerse: oclusión exacta de etiquetas
       this.markers.invalidate();
-      this.shadowPending = true;
       this.needsRender = true;
+    }
+    if (!moving && this.pendingProfile) {
+      const p = this.pendingProfile;
+      this.pendingProfile = null;
+      this.applyProfile(p);
     }
     this.wasMoving = moving;
     if (moving || this.needsRender || this.shadowPending) this.raf = requestAnimationFrame(this.tick);
@@ -246,13 +262,14 @@ export class App implements UiActions {
 
   private renderFrame(now: number, moved: boolean): void {
     // muestras de tiempo de fotograma solo con render continuo
+    const sinceLast = now - this.lastRenderAt;
     if (this.continuous) {
-      const dt = now - this.lastRenderAt;
+      const dt = sinceLast;
       this.frameTimes.push(dt);
       if (this.frameTimes.length > 240) this.frameTimes.shift();
       if (this.mode === 'auto') {
         const next = this.auto.addFrame(dt, now);
-        if (next) this.applyProfile(QUALITY[next]);
+        if (next) this.pendingProfile = QUALITY[next];
       }
     }
     this.continuous = true;
@@ -273,19 +290,14 @@ export class App implements UiActions {
     this.routes.updateDashes(dist / k);
     this.terrain.setDeathTintForDistance(dist);
 
-    // sombras: solo cuando cambian geometría o luz, con frecuencia acotada en movimiento
-    if (this.profile.shadows && (this.env.shadowsDirty || this.terrain.geometryDirty || this.shadowPending)) {
-      if (now - this.lastShadowAt > 260 || !moved) {
-        this.renderer.shadowMap.needsUpdate = true;
-        this.env.shadowsDirty = false;
-        this.terrain.geometryDirty = false;
-        this.shadowPending = false;
-        this.lastShadowAt = now;
-      } else this.shadowPending = true;
-    } else if (!this.profile.shadows) {
+    // sombras: proyectores estáticos, así que solo se rehacen si cambia la luz o la calidad
+    if (this.profile.shadows && (this.env.shadowsDirty || this.shadowPending)) {
+      this.renderer.shadowMap.needsUpdate = true;
+      this.env.shadowsDirty = false;
       this.shadowPending = false;
-      this.terrain.geometryDirty = false;
-    }
+    } else if (!this.profile.shadows) this.shadowPending = false;
+    // nubes: el viento avanza solo en fotogramas que ya se dibujan (paso acotado: sin saltos)
+    this.clouds.update(this.camera, target, sinceLast, !this.cam.reducedMotion);
     this.shadowRendering = this.renderer.shadowMap.needsUpdate && this.profile.shadows;
     const prevShadow = this.shadowPass;
     this.renderer.render(this.scene, this.camera);
@@ -298,15 +310,16 @@ export class App implements UiActions {
 
     const insets = this.markerInsets();
     this.markers.update(this.camera, this.width, this.height, now, moved, insets);
-    const fwd = new THREE.Vector3();
-    this.camera.getWorldDirection(fwd);
-    this.ui.setCompass(bearingOf(fwd.x, fwd.z));
+    this.camera.getWorldDirection(this.fwd);
+    this.ui.setCompass(bearingOf(this.fwd.x, this.fwd.z));
     if (this.diagOn && now - this.lastDiag > 400) this.updateDiagnostics(now);
   }
 
   private markerInsets() {
     const mobile = this.width <= 760;
-    return mobile ? { top: 64, bottom: 60, left: 6, right: 62 } : { top: 70, bottom: 8, left: 70, right: 346 };
+    // en móvil la ficha abierta ocupa la parte baja: las etiquetas se colocan por encima
+    const card = mobile && this.ui.cardHeight ? this.ui.cardHeight + 24 : 0;
+    return mobile ? { top: 64, bottom: Math.max(60, card), left: 6, right: 62 } : { top: 70, bottom: 8, left: 70, right: 346 };
   }
 
   // --------------------------------------------------------------- tamaño
@@ -343,7 +356,9 @@ export class App implements UiActions {
     this.profile = p;
     this.env.setShadows(p.shadows, p.shadowMapSize);
     this.terrain.setDetailLevel(p.detail);
-    this.terrain.setAnisotropy(p.anisotropy);
+    // la anisotropía se fija al cargar: cambiarla obligaría a volver a subir todas las texturas
+    this.clouds.setCount(p.cloudPuffs);
+    this.shadowPending = p.shadows;
     this.markers.setFilters({ labelsMax: p.labelsMax });
     this.routes.setCasing(p.routeCasing);
     if (!initial) this.resize();
@@ -392,7 +407,13 @@ export class App implements UiActions {
     this.request();
   }
   setLight(id: 'manana' | 'tarde'): void {
-    this.env.applyPreset(LIGHT_PRESETS[id]);
+    const p = LIGHT_PRESETS[id];
+    this.env.applyPreset(p);
+    this.clouds.setLight(p.cloudLit, p.cloudShadow);
+    this.request();
+  }
+  setClouds(on: boolean): void {
+    this.clouds.setVisible(on);
     this.request();
   }
   goToView(id: string): void {
@@ -500,6 +521,30 @@ export class App implements UiActions {
     ].join('\n');
   }
 
+  /**
+   * Sube a la GPU, tras la pantalla de carga, todo lo que se usará al moverse: cada nivel de
+   * LOD de cada bloque y padre, y las texturas. Sin esto, la primera vez que un bloque cambia
+   * de nivel se sube su geometría en mitad del gesto (un tirón). Se dibuja todo una vez en un
+   * destino de 1×1 píxel: el coste de fragmentos es nulo.
+   */
+  prewarm(): void {
+    const scene = new THREE.Scene();
+    const mat = new THREE.MeshBasicMaterial();
+    for (const g of this.terrain.allGeometries()) {
+      const mesh = new THREE.Mesh(g, mat);
+      mesh.frustumCulled = false;
+      scene.add(mesh);
+    }
+    const rt = new THREE.WebGLRenderTarget(1, 1);
+    const prev = this.renderer.getRenderTarget();
+    this.renderer.setRenderTarget(rt);
+    this.renderer.render(scene, this.camera);
+    this.renderer.setRenderTarget(prev);
+    for (const t of [...this.terrain.allTextures(), ...this.clouds.textures()]) this.renderer.initTexture(t);
+    rt.dispose();
+    mat.dispose();
+  }
+
   /** Recuento del último fotograma, barato de consultar en cada fotograma (medición de rendimiento). */
   passStats(): { calls: number; triangles: number } {
     return { calls: this.mainPass.calls, triangles: this.mainPass.triangles };
@@ -527,6 +572,7 @@ export class App implements UiActions {
       cpu: frameStats(this.cpuTimes),
       lod: this.terrain.stats,
       routesVisible: this.routes.visibleObjects(),
+      cloudsVisible: this.clouds.visible,
       markersVisible: this.markers.visibleCount(),
     };
   }
@@ -558,6 +604,7 @@ export class App implements UiActions {
     this.routes.dispose();
     this.terrain.dispose();
     this.env.dispose();
+    this.clouds.dispose();
     this.serac.geometry.dispose();
     (this.serac.material as THREE.Material).dispose();
     this.renderer.dispose();

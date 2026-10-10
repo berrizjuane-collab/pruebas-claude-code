@@ -145,6 +145,16 @@ campos del Abruzzi; el C4 del Hombro es común a ambas vías.
 35–70 m con ligero desplome a lo largo de la curva de 8 360 m por encima de la
 travesía. Es esquemática: su forma real cambia cada temporada.
 
+### Nubes
+
+Capa **ilustrativa**, no una observación ni una previsión. Representa dos fenómenos
+habituales en el K2: el mar de nubes convectivas de tarde, entre 6 300 y 7 300 m,
+que envuelve las laderas medias (los copos se funden con el relieve donde lo tocan), y
+la nube de bandera que el viento dominante del oeste forma a sotavento (al este) de la
+cumbre, entre unos 8 150 y 8 450 m. La colocación es determinista (`src/scene/cloudLayout.ts`)
+y los tests comprueban franjas de altitud, posición a sotavento y que el centro de cada
+copo queda sobre el terreno.
+
 ## 5. Referencias consultadas
 
 Algunas páginas (AAC, Madison Mountaineering, Philippe Gatta, Alan Arnette,

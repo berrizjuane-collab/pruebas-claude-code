@@ -1,7 +1,7 @@
 /**
  * Cielo, niebla e iluminación. Luz principal lateral (sol) + hemisférica fría.
  * Las sombras se limitan a la zona útil (núcleo y alrededores) y solo se recalculan
- * cuando cambia algo que las afecta (LOD, preset de luz, calidad).
+ * cuando cambia la luz o la calidad (los proyectores son estáticos, ver Terrain).
  */
 import * as THREE from 'three';
 
@@ -19,6 +19,9 @@ export interface LightPreset {
   horizon: string;
   haze: string;
   exposure: number;
+  /** nubes: cara iluminada y sombra propia */
+  cloudLit: string;
+  cloudShadow: string;
 }
 
 export const LIGHT_PRESETS: Record<LightPreset['id'], LightPreset> = {
@@ -36,6 +39,8 @@ export const LIGHT_PRESETS: Record<LightPreset['id'], LightPreset> = {
     horizon: '#b9cad8',
     haze: '#aebfcd',
     exposure: 1.0,
+    cloudLit: '#fff8ee',
+    cloudShadow: '#7a8798',
   },
   tarde: {
     id: 'tarde',
@@ -51,6 +56,8 @@ export const LIGHT_PRESETS: Record<LightPreset['id'], LightPreset> = {
     horizon: '#e0c3a6',
     haze: '#c8b8a8',
     exposure: 1.05,
+    cloudLit: '#ffe0bd',
+    cloudShadow: '#857b88',
   },
 };
 

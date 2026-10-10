@@ -27,6 +27,8 @@ export interface QualityProfile {
   labelsMax: number;
   /** contorno oscuro bajo las rutas (un draw call más por tramo) */
   routeCasing: boolean;
+  /** copos de nube dibujados (la nube de bandera de la cumbre siempre entra) */
+  cloudPuffs: number;
 }
 
 export const QUALITY: Record<ProfileId, QualityProfile> = {
@@ -46,6 +48,7 @@ export const QUALITY: Record<ProfileId, QualityProfile> = {
     textureBudgetMiB: 48,
     labelsMax: 9,
     routeCasing: false,
+    cloudPuffs: 30,
   },
   media: {
     id: 'media',
@@ -63,6 +66,7 @@ export const QUALITY: Record<ProfileId, QualityProfile> = {
     textureBudgetMiB: 80,
     labelsMax: 14,
     routeCasing: true,
+    cloudPuffs: 56,
   },
   alta: {
     id: 'alta',
@@ -80,5 +84,6 @@ export const QUALITY: Record<ProfileId, QualityProfile> = {
     textureBudgetMiB: 160,
     labelsMax: 22,
     routeCasing: true,
+    cloudPuffs: 99,
   },
 };

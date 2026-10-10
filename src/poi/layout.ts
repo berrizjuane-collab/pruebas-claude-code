@@ -2,6 +2,8 @@
  * Colocación de etiquetas sin solapes (voraz por prioridad). Cada etiqueta prueba
  * posiciones junto a su ancla y, si no caben, posiciones alejadas con línea guía.
  * Los puntos de ancla de otros marcadores también son obstáculos.
+ * Histéresis: si una etiqueta tenía una posición en el fotograma anterior y sigue libre,
+ * se mantiene (sin parpadeos de un lado a otro mientras se mueve la cámara).
  */
 export interface LabelCandidate {
   id: string;
@@ -13,6 +15,8 @@ export interface LabelCandidate {
   /** menor = más importante */
   priority: number;
   forced?: boolean;
+  /** posición elegida en el fotograma anterior (índice de hueco), si la hubo */
+  prevSlot?: number;
 }
 
 export interface LabelPlacement {
@@ -22,6 +26,8 @@ export interface LabelPlacement {
   lx: number;
   ly: number;
   leader: boolean;
+  /** hueco usado (−1 si oculta o encajada a la fuerza) */
+  slot: number;
 }
 
 interface Box {
@@ -61,13 +67,15 @@ export function layoutLabels(
       [c.x - c.w / 2, c.y + gap + 34, true],
     ];
     let done = false;
-    for (const [lx, ly, leader] of near) {
+    const tryOrder = c.prevSlot !== undefined && c.prevSlot >= 0 && c.prevSlot < near.length ? [c.prevSlot, ...near.keys()] : [...near.keys()];
+    for (const slot of tryOrder) {
+      const [lx, ly, leader] = near[slot];
       const box = { x0: lx - 2, y0: ly - 2, x1: lx + c.w + 2, y1: ly + c.h + 2 };
       if (box.x0 < minX || box.y0 < minY || box.x1 > maxX || box.y1 > maxY) continue;
       if (placed.some((p) => overlaps(p, box))) continue;
       if (dots.some((d, k) => cands[k].id !== c.id && overlaps(d, box))) continue;
       placed.push(box);
-      out.set(c.id, { id: c.id, visible: true, lx, ly, leader });
+      out.set(c.id, { id: c.id, visible: true, lx, ly, leader, slot });
       done = true;
       break;
     }
@@ -76,8 +84,8 @@ export function layoutLabels(
       const lx = Math.min(Math.max(c.x + gap, minX), maxX - c.w);
       const ly = Math.min(Math.max(c.y - c.h / 2, minY), maxY - c.h);
       placed.push({ x0: lx, y0: ly, x1: lx + c.w, y1: ly + c.h });
-      out.set(c.id, { id: c.id, visible: true, lx, ly, leader: Math.hypot(lx - c.x, ly - c.y) > 60 });
-    } else if (!done) out.set(c.id, { id: c.id, visible: false, lx: c.x + gap, ly: c.y - c.h / 2, leader: false });
+      out.set(c.id, { id: c.id, visible: true, lx, ly, leader: Math.hypot(lx - c.x, ly - c.y) > 60, slot: -1 });
+    } else if (!done) out.set(c.id, { id: c.id, visible: false, lx: c.x + gap, ly: c.y - c.h / 2, leader: false, slot: -1 });
   }
   return cands.map((c) => out.get(c.id)!);
 }
