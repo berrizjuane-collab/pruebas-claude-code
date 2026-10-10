@@ -409,11 +409,12 @@ export class Ui {
       `${formatDegrees(p.geo.lat, 'N', 'S')} · ${formatDegrees(p.geo.lon, 'E', 'O')} · modelo ${formatMeters(p.posicion.altModelo)}` +
       (refs.length ? ` · Fuentes: ${[...new Set(refs)].join('; ')}` : '');
     card.hidden = false;
-    // alto de la ficha, medido una vez al abrirla (no en cada fotograma): las etiquetas lo evitan
-    this.cardHeight = card.getBoundingClientRect().height;
+    // espacio que ocupa la ficha desde su borde superior hasta el pie de la pantalla (incluye la
+    // hoja inferior bajo ella), medido una vez al abrirla, no en cada fotograma
+    this.cardHeight = Math.max(0, window.innerHeight - card.getBoundingClientRect().top);
   }
 
-  /** Alto de la ficha abierta en px CSS (0 si está cerrada). */
+  /** Alto ocupado por la ficha abierta, desde su borde superior hasta abajo (px CSS; 0 si está cerrada). */
   cardHeight = 0;
 
   /** Rota la brújula para que su N apunte al norte geográfico del modelo. */

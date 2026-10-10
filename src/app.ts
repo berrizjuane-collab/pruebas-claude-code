@@ -318,7 +318,7 @@ export class App implements UiActions {
   private markerInsets() {
     const mobile = this.width <= 760;
     // en móvil la ficha abierta ocupa la parte baja: las etiquetas se colocan por encima
-    const card = mobile && this.ui.cardHeight ? this.ui.cardHeight + 24 : 0;
+    const card = mobile && this.ui.cardHeight ? this.ui.cardHeight + 12 : 0;
     return mobile ? { top: 64, bottom: Math.max(60, card), left: 6, right: 62 } : { top: 70, bottom: 8, left: 70, right: 346 };
   }
 

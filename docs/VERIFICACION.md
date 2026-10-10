@@ -19,7 +19,7 @@ software** (ANGLE → Vulkan → SwiftShader). Fecha: 7 de octubre de 2026.
 | --- | --- | --- |
 | Tipos | `npm run typecheck` | ✓ sin errores (TypeScript 6, `strict`) |
 | Lint | `npm run lint` | ✓ sin avisos (ESLint 10 + typescript-eslint; los módulos puros no pueden usar el DOM) |
-| Tests unitarios | `npm test` | ✓ **68/68** en 12 archivos (Vitest 5) |
+| Tests unitarios | `npm test` | ✓ **75/75** en 13 archivos (Vitest 5) |
 | Build de producción | `npm run build` | ✓ JS 662 kB (174 kB gzip) + worker 12 kB + CSS 14 kB |
 | Tests de navegador | `npm run test:e2e` | ✓ **17/17** en Chromium (Playwright 1.56), escritorio 1440×900 y móvil 390×844 emulado |
 | Pipeline de datos | `bash pipeline/run_all.sh` | ✓ ejecutado de principio a fin en este entorno; genera `public/data` y los fixtures de los tests |
@@ -81,12 +81,12 @@ principal**. Lienzo de 1440×900, cada vista asentada (LOD final).
 
 | Vista | Baja: calls · triángulos | Media | Alta |
 | --- | --- | --- | --- |
-| Vista general | 33 · 227 k | 54 · 483 k | 72 · 947 k |
-| Abruzzi | 34 · 228 k | 49 · 487 k | 59 · 718 k |
-| Hombro y Campo IV | 30 · 237 k | 42 · 462 k | 42 · 462 k |
-| Bottleneck y serac | 24 · 226 k | 32 · 400 k | 32 · 400 k |
-| Cumbre | 24 · 226 k | 32 · 400 k | 32 · 400 k |
-| Cara norte | 33 · 240 k | 54 · 452 k | 72 · 930 k |
+| Vista general | 34 · 227 k | 55 · 483 k | 73 · 947 k |
+| Abruzzi | 35 · 228 k | 50 · 488 k | 60 · 719 k |
+| Hombro y Campo IV | 31 · 237 k | 43 · 463 k | 43 · 463 k |
+| Bottleneck y serac | 25 · 226 k | 33 · 400 k | 33 · 400 k |
+| Cumbre | 25 · 226 k | 33 · 400 k | 33 · 400 k |
+| Cara norte | 34 · 240 k | 55 · 452 k | 73 · 930 k |
 | **Presupuesto** | **70 · 250 k** | **100 · 500 k** | **150 · 1,2 M** |
 
 Cómo se cumple:
@@ -102,11 +102,12 @@ Cómo se cumple:
 - **Recorte por caja** contra el frustum (más ajustado que la esfera de three.js);
   el pase de sombras sigue viendo los bloques de fuera del encuadre.
 - **Contorno de las rutas** desactivado en Baja (5 draw calls menos).
+- **Nubes**: un draw call instanciado (30 / 56 / 97 copos en Baja / Media / Alta).
 
 **Peor caso**: se evaluaron 23 512 poses alcanzables (25 objetivos repartidos por
 el núcleo, distancias de 1 a 24 km, inclinaciones de 4° a 87° y orientaciones
 cada 10°). En Baja el terreno necesita como máximo **42 mallas**,
-51 draw calls en total. Sin el quadtree el máximo era 71 mallas (80 draw calls);
+52 draw calls en total con las nubes. Sin el quadtree el máximo era 71 mallas (80 draw calls);
 ese análisis es el que motivó añadirlo.
 
 **Memoria de texturas (estimación)**: 27 MiB de texturas de terreno (albedo,
@@ -114,7 +115,46 @@ máscaras, normales, procedencia y microdetalle en RGBA8 con mipmaps) más el ma
 de sombras (Media 16 MiB, Alta 64 MiB): Baja 27/48, Media 43/80 y Alta 91/160 MiB.
 Es una estimación por formato y dimensiones: no una medida de memoria de GPU.
 
-## 4. Rendimiento (3 escenarios × 30 s)
+## 4. Tirones: dónde estaban y qué se hizo
+
+Perfil por fases de cada fotograma (cámara, LOD, render, pase de sombras, etiquetas)
+durante el mismo guion de interacción (tres arrastres de órbita, seis pasos de rueda y
+dos cambios de vista), perfil Media, lienzo 640×400, SwiftShader. Los tiempos
+absolutos son de la GPU emulada; lo que importa es dónde aparecen los picos:
+
+| Medida en la interacción | Antes | Después |
+| --- | ---: | ---: |
+| Fotogramas completados en el mismo guion | 1 883 | **4 862** |
+| Coste por fotograma en el hilo principal, p95 | 521 ms | **1,4 ms** |
+| Pase de sombras rehecho en movimiento | 144 veces | **0** |
+| Geometrías subidas a la GPU a mitad de un gesto | 178 | **0** |
+| Programas de shader compilados a mitad de un gesto | 0 | 0 |
+| Cámara, LOD y etiquetas (máx. por fotograma) | ≤ 4 ms | ≤ 4 ms |
+
+Causas encontradas y arreglos:
+
+1. **Sombras**: cada cambio de nivel de detalle marcaba el mapa de sombras como sucio
+   y se rehacía cada ~260 ms mientras la cámara se movía (hasta 4096² y ~1 M de
+   triángulos). Ahora proyecta las sombras una copia estática del relieve que solo se
+   dibuja en el pase de sombras: se rehace al cambiar la luz o la calidad, nunca al
+   moverse.
+2. **Subidas a la GPU**: cada nivel de LOD se subía la primera vez que se veía. Ahora
+   las 380 geometrías y todas las texturas se suben tras la pantalla de carga
+   (dibujándolas una vez en un destino de 1×1 píxel).
+3. **Cambios de calidad**: Auto cambiaba de perfil a mitad del gesto y, al cambiar la
+   anisotropía, volvía a subir todas las texturas. Ahora el cambio espera a que la
+   cámara esté quieta y la anisotropía queda fija desde la carga. En escritorio se
+   arranca en Media salvo GPU dedicada reconocible; Auto sube a Alta si hay margen.
+4. **Picos pequeños**: la oclusión de etiquetas lanzaba todos los rayos en el mismo
+   fotograma (ahora 4 por fotograma, en turno); la selección de LOD creaba arrays en
+   cada fotograma (ahora búferes reutilizados); Auto ordenaba 90 muestras en cada
+   fotograma (ahora cada 10).
+
+Pulido relacionado: las etiquetas conservan su posición del fotograma anterior si
+sigue libre (no saltan de lado mientras se gira) y en móvil se colocan por encima de
+la ficha abierta.
+
+## 5. Rendimiento (3 escenarios × 30 s)
 
 `npm run perf` contra la build de producción (`vite preview`). La cámara recorre
 una órbita determinista (0,6° por fotograma) y los intervalos se toman con
@@ -122,48 +162,48 @@ una órbita determinista (0,6° por fotograma) y los intervalos se toman con
 
 | Perfil | Escenario | Mediana | p95 | Fotogramas | Máx. draw calls · triángulos | CPU hilo principal (med / p95) | Lienzo |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Baja | Órbita general | 1 183 ms | 3 333 ms | 18 | 34 · 234 k | 1,5 / 2,7 ms | 1440×900 |
-| Baja | Enfoque del Bottleneck | 1 050 ms | 2 350 ms | 24 | 28 · 242 k | 1,0 / 1,6 ms | 1440×900 |
-| Baja | Todas las capas activas | 1 116 ms | 3 567 ms | 20 | 34 · 249 k | 1,0 / 2,4 ms | 1440×900 |
-| Media | Órbita general | 2 533 ms | 4 466 ms | 11 | 55 · 487 k | 1,4 / 2,0 ms | 1440×900 |
-| Media | Enfoque del Bottleneck | 2 600 ms | 6 233 ms | 11 | 33 · 412 k | 1,2 / 2,0 ms | 1440×900 |
-| Media | Todas las capas activas | 2 200 ms | 5 666 ms | 11 | 57 · 499 k | 1,7 / 2,3 ms | 1440×900 |
-| Alta | Órbita general | 4 216 ms | 5 166 ms | 7 | 72 · 947 k | 1,6 / 2,5 ms | 1440×900 |
-| Alta | Enfoque del Bottleneck | 8 866 ms | 8 866 ms | 3 | 32 · 400 k | 1,3 / 1,4 ms | 1440×900 |
-| Alta | Todas las capas activas | 2 700 ms | 8 450 ms | 8 | 72 · 947 k | 1,5 / 2,3 ms | 1440×900 |
+| Baja | Órbita general | 1 117 ms | 2 900 ms | 20 | 35 · 234 k | 1,3 / 1,6 ms | 1440×900 |
+| Baja | Enfoque del Bottleneck | 900 ms | 2 550 ms | 29 | 29 · 242 k | 1,2 / 2,4 ms | 1440×900 |
+| Baja | Todas las capas activas | 1 033 ms | 2 366 ms | 25 | 35 · 249 k | 1,2 / 3,2 ms | 1440×900 |
+| Media | Órbita general | 1 900 ms | 3 950 ms | 17 | 58 · 491 k | 1,7 / 3,4 ms | 1440×900 |
+| Media | Enfoque del Bottleneck | 3 117 ms | 3 950 ms | 11 | 34 · 412 k | 1,2 / 1,7 ms | 1440×900 |
+| Media | Todas las capas activas | 1 883 ms | 4 450 ms | 12 | 58 · 500 k | 1,6 / 4,7 ms | 1440×900 |
+| Alta | Órbita general | 3 550 ms | 7 150 ms | 9 | 74 · 950 k | 1,8 / 2,1 ms | 1440×900 |
+| Alta | Enfoque del Bottleneck | 3 833 ms | 8 083 ms | 4 | 33 · 400 k | 1,3 / 1,5 ms | 1440×900 |
+| Alta | Todas las capas activas | 4 000 ms | 4 966 ms | 9 | 73 · 947 k | 2,4 / 7,2 ms | 1440×900 |
 
 Entorno registrado por el script: `ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)`, 4 núcleos, DPR 1. Los máximos de draw calls y triángulos son los de toda la ventana de 30 s, no solo del último fotograma.
 
 **Lectura**: el intervalo entre fotogramas (de 1 a 9 s) es el coste de rasterizar en la CPU con SwiftShader y no predice los FPS en una GPU. Lo transferible es: (1) el coste del hilo principal, de 1 a 3 ms por fotograma, lejos de los 16,7 ms de un objetivo de 60 FPS; (2) los recuentos de geometría, idénticos en cualquier GPU y dentro del presupuesto durante toda la órbita.
 
-## 5. Recursos en ciclos repetidos
+## 6. Recursos en ciclos repetidos
 
 Prueba e2e «20 ciclos…» (dos tandas de 20: rutas, destacado, zona de la muerte, procedencia, vista y enfoque de un punto en cada ciclo):
 
 | Medida | Inicio | Tras 20 ciclos | Tras 40 ciclos |
 | --- | ---: | ---: | ---: |
-| Geometrías subidas a la GPU (existen 379) | 62 | 127 | 127 |
-| Texturas | 13 | 13 | 13 |
-| Objetos en la escena | 124 | 124 | 124 |
+| Geometrías subidas a la GPU (existen 380) | 380 | 380 | 380 |
+| Texturas | 15 | 15 | 15 |
+| Objetos en la escena | 209 | 209 | 209 |
 | Marcadores en el DOM | 19 | 19 | 19 |
-| Montón de JavaScript | 51,7 MiB | 50,9 MiB | 50,9 MiB |
+| Montón de JavaScript | 54,5 MiB | 52,9 MiB | 52,9 MiB |
 
-Todas las geometrías (cada nivel de LOD y cada padre 2×2) se crean al cargar; los ciclos solo suben a la GPU niveles aún no usados y nunca superan las que existen. Texturas, objetos y marcadores no cambian. El montón de JavaScript se lee tras forzar la recolección de basura (`gc()` expuesto y memoria precisa en la configuración de Playwright) y se mantiene estable; es un indicio de que no hay fugas en JavaScript, no una medida de memoria de GPU. Cambiar de calidad cuatro veces tampoco duplica objetos ni pierde la selección (prueba aparte).
+Todas las geometrías (cada nivel de LOD, cada padre 2×2 y los proyectores de sombra) se suben a la GPU tras la pantalla de carga, así que el recuento queda fijo durante los ciclos: ninguna se crea ni se sube después. Texturas, objetos y marcadores no cambian. El montón de JavaScript se lee tras forzar la recolección de basura (`gc()` expuesto y memoria precisa en la configuración de Playwright) y se mantiene estable; es un indicio de que no hay fugas en JavaScript, no una medida de memoria de GPU. Cambiar de calidad cuatro veces tampoco duplica objetos ni pierde la selección (prueba aparte).
 
-## 6. Carga
+## 7. Carga
 
 | Medida | Valor |
 | --- | --- |
 | Datos descargados para la escena | 2,3 MiB (alturas 0,8 · imagen y máscaras 1,3 · procedencia 0,2 · JSON 0,1) |
 | Código | 174 kB gzip (+ worker 5 kB) |
 | Total inicial | ≈ 2,5 MiB (presupuesto ≤ 20 MB) |
-| Tiempos en este entorno | descarga 506 ms · relieve en el worker 1 168 ms · escena 280 ms · total 1 964 ms (servidor local) |
+| Tiempos en este entorno | descarga 140 ms · relieve en el worker 408 ms · escena 424 ms · total 977 ms (servidor local) |
 
 La preparación pesada (decodificar PNG, construir mallas y normales, rejilla de
 holgura) ocurre en un Web Worker; si el navegador no permite workers, se hace en
 el hilo principal.
 
-## 7. Lo que no se pudo verificar
+## 8. Lo que no se pudo verificar
 
 - **FPS en una GPU real**, de escritorio o de teléfono: el contenedor no tiene
   GPU. El script admite `PERF_GPU=1 npm run perf` para medirlo en un equipo real.
