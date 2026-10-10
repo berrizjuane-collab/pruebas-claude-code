@@ -1,0 +1,352 @@
+{
+ "dj_portada": [
+  482,
+  518
+ ],
+ "dj_victori": [
+  681,
+  765
+ ],
+ "foto_blu_laser": [
+  420,
+  560
+ ],
+ "foto_gafas": [
+  573,
+  800
+ ],
+ "foto_modo_verde": [
+  369,
+  800
+ ],
+ "foto_pinta_1": [
+  480,
+  640
+ ],
+ "foto_pinta_2": [
+  300,
+  400
+ ],
+ "foto_pinta_3": [
+  448,
+  560
+ ],
+ "foto_pinta_4": [
+  480,
+  640
+ ],
+ "foto_pinta_5": [
+  560,
+  420
+ ],
+ "foto_quinta_cupula": [
+  449,
+  800
+ ],
+ "foto_velvet_escenario": [
+  369,
+  800
+ ],
+ "foto_zoe_dj": [
+  400,
+  272
+ ],
+ "ht_achante": [
+  387,
+  516
+ ],
+ "ht_amigas_monaco": [
+  800,
+  596
+ ],
+ "ht_chica_pinta": [
+  304,
+  541
+ ],
+ "ht_dj_cabina": [
+  600,
+  800
+ ],
+ "ht_gafas": [
+  573,
+  800
+ ],
+ "ht_luces_escenario": [
+  1000,
+  1500
+ ],
+ "ht_manos_arriba": [
+  583,
+  800
+ ],
+ "ht_multitud_beat": [
+  455,
+  787
+ ],
+ "ht_multitud_contra": [
+  533,
+  800
+ ],
+ "ht_multitud_violeta": [
+  533,
+  800
+ ],
+ "ht_portada_pareja": [
+  533,
+  600
+ ],
+ "ht_zoe_laser": [
+  778,
+  415
+ ],
+ "kabal_fachada": [
+  596,
+  464
+ ],
+ "logo_achant": [
+  281,
+  114
+ ],
+ "logo_blu": [
+  168,
+  69
+ ],
+ "logo_kabal": [
+  206,
+  150
+ ],
+ "logo_kabal_latino": [
+  209,
+  165
+ ],
+ "logo_monaco": [
+  203,
+  40
+ ],
+ "logo_quinta": [
+  181,
+  89
+ ],
+ "logo_velvet": [
+  166,
+  83
+ ],
+ "logo_zoe": [
+  161,
+  87
+ ],
+ "mapa_caja_pliego": [
+  0.2925,
+  0.2229,
+  1.7085,
+  0.8625
+ ],
+ "mapa_calles": [
+  1307,
+  835
+ ],
+ "mapa_vias": [
+  1307,
+  835
+ ],
+ "papel": [
+  1024,
+  1024
+ ],
+ "papel_roto": [
+  400,
+  188
+ ],
+ "pincel_violeta": [
+  789,
+  195
+ ],
+ "pinta_recorte": [
+  258,
+  570
+ ],
+ "polaroid_00": [
+  477,
+  542
+ ],
+ "polaroid_01": [
+  477,
+  542
+ ],
+ "polaroid_02": [
+  477,
+  542
+ ],
+ "polaroid_03": [
+  477,
+  542
+ ],
+ "polaroid_04": [
+  546,
+  618
+ ],
+ "polaroid_05": [
+  410,
+  465
+ ],
+ "polaroid_06": [
+  410,
+  465
+ ],
+ "polaroid_07": [
+  410,
+  465
+ ],
+ "polaroid_08": [
+  477,
+  542
+ ],
+ "polaroid_09": [
+  477,
+  542
+ ],
+ "polaroid_10": [
+  477,
+  542
+ ],
+ "polaroid_11": [
+  477,
+  542
+ ],
+ "polaroid_12": [
+  341,
+  389
+ ],
+ "polaroid_13": [
+  477,
+  542
+ ],
+ "polaroid_14": [
+  477,
+  542
+ ],
+ "polaroid_15": [
+  477,
+  542
+ ],
+ "polaroid_16": [
+  477,
+  542
+ ],
+ "polaroid_17": [
+  546,
+  618
+ ],
+ "polaroid_18": [
+  410,
+  465
+ ],
+ "s_S": [
+  292,
+  364
+ ],
+ "s_avion": [
+  394,
+  347
+ ],
+ "s_carita": [
+  387,
+  387
+ ],
+ "s_chincheta": [
+  283,
+  318
+ ],
+ "s_chispa": [
+  261,
+  320
+ ],
+ "s_chispa3": [
+  452,
+  475
+ ],
+ "s_clip": [
+  240,
+  237
+ ],
+ "s_espirales": [
+  388,
+  400
+ ],
+ "s_estallido": [
+  397,
+  400
+ ],
+ "s_estallido_rayos": [
+  278,
+  317
+ ],
+ "s_estrella_linea": [
+  320,
+  300
+ ],
+ "s_estrella_rosa": [
+  160,
+  152
+ ],
+ "s_estrellas": [
+  395,
+  473
+ ],
+ "s_exclam": [
+  216,
+  315
+ ],
+ "s_exclam_doble": [
+  237,
+  320
+ ],
+ "s_flecha": [
+  397,
+  369
+ ],
+ "s_flecha_curva": [
+  279,
+  317
+ ],
+ "s_flechas": [
+  381,
+  182
+ ],
+ "s_megafono": [
+  476,
+  456
+ ],
+ "s_nube": [
+  240,
+  142
+ ],
+ "s_pregunta": [
+  270,
+  316
+ ],
+ "s_rayos": [
+  240,
+  203
+ ],
+ "s_rayos_blancos": [
+  320,
+  228
+ ],
+ "s_rayos_bolt": [
+  400,
+  271
+ ],
+ "s_zigzag": [
+  308,
+  170
+ ],
+ "tiza_blanca": [
+  624,
+  42
+ ],
+ "vinilo": [
+  797,
+  798
+ ]
+}

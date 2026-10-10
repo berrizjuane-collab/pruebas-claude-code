@@ -45,6 +45,12 @@ Se adapta a móvil (diseño propio, no solo encogido) y respeta
 `prefers-reduced-motion`. El sonido nunca arranca solo; hay que pulsar
 *Pon la rumba* o el botón de reproducir.
 
+## Vídeo promocional
+
+En [`promo/`](promo/) están los dos cortes de 30 s para lanzar la web
+(`nightfall-promo-9x16.mp4` para Reels y TikTok, `nightfall-promo-16x9.mp4` para YouTube),
+con música original y metraje real de la página, y el código para regenerarlos.
+
 ## Notas sobre el contenido
 
 - Los textos son los de la revista; solo se corrigieron erratas evidentes

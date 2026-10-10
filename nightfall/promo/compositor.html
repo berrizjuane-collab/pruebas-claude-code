@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>NIGHTFALL · compositor del vídeo promocional</title>
+<style>
+@font-face{font-family:"NF Cabinet";src:url(recursos/cabinet-black.woff2) format("woff2");font-weight:900;font-display:block}
+@font-face{font-family:"Montserrat";src:url(recursos/montserrat-latin.woff2) format("woff2");font-weight:400 900;font-display:block}
+@font-face{font-family:"NF Anton";src:url(recursos/anton-sub.woff2) format("woff2");font-weight:400;font-display:block}
+:root{--acido:#CCFF00;--rosa:#FF3399;--magenta:#FF0099;--violeta:#6600FF;--crema:#F6F3EC}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#000;overflow:hidden}
+body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+#escenario{position:relative;overflow:hidden;background:#000;color:#fff;font-family:"Montserrat",sans-serif}
+.escena{position:absolute;inset:0;overflow:hidden}
+.camara{position:absolute;inset:0;transform-origin:50% 50%}
+.capa{position:absolute;inset:0}
+canvas.capa{width:100%;height:100%}
+.cab{font-family:"NF Cabinet","Montserrat",sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:-.03em;line-height:.88;white-space:nowrap}
+.mont{font-family:"Montserrat",sans-serif;font-weight:800;text-transform:uppercase;white-space:nowrap}
+.anton{font-family:"NF Anton",Impact,sans-serif;font-weight:400;line-height:1;white-space:nowrap}
+.abs{position:absolute}
+.linea{position:absolute;left:0;white-space:nowrap}
+.letra{display:inline-block}
+.mascara{display:inline-block;overflow:hidden;vertical-align:top;padding:.04em 0 .02em}
+.mascara>span{display:inline-block}
+.hl{position:relative;display:inline-block;padding:.05em .14em .01em}
+.hl>.barra{position:absolute;inset:0;transform-origin:0 50%}
+.hl>.txt{position:relative}
+.stk{position:absolute;background-size:contain;background-repeat:no-repeat;background-position:center;transform-origin:50% 50%}
+.logo{position:absolute;background:#fff;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
+.grano{position:absolute;inset:-64px;pointer-events:none;background-size:256px 256px;z-index:50}
+.vineta{position:absolute;inset:0;pointer-events:none;z-index:49;background:radial-gradient(120% 90% at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
+.transicion{position:absolute;inset:0;z-index:60;pointer-events:none}
+/* dispositivos */
+.portatil{position:absolute}
+.portatil .tapa{position:absolute;inset:0;border-radius:2.2% 2.2% 0 0/3.4% 3.4% 0 0;background:#0b0b0c;box-shadow:inset 0 0 0 2px #2a2a2e,0 40px 90px rgba(0,0,0,.55)}
+.portatil .pantalla{position:absolute;left:2.4%;right:2.4%;top:3.4%;bottom:3.4%;overflow:hidden;background:#000;border-radius:.4%}
+.portatil .base{position:absolute;left:-7%;right:-7%;height:4.2%;top:100%;background:linear-gradient(180deg,#3a3a3f 0%,#1d1d21 45%,#0d0d0f 100%);border-radius:0 0 14px 14px/0 0 60% 60%;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+.portatil .base::after{content:"";position:absolute;left:42%;right:42%;top:0;height:38%;background:#0c0c0e;border-radius:0 0 10px 10px}
+.movil{position:absolute;border-radius:13%/6.2%;background:#0b0b0c;box-shadow:inset 0 0 0 3px #2c2c31,inset 0 0 0 6px #111,0 40px 90px rgba(0,0,0,.6)}
+.movil .pantalla{position:absolute;left:4.2%;right:4.2%;top:2%;bottom:2%;overflow:hidden;border-radius:10.5%/4.9%;background:#000}
+.movil .isla{position:absolute;left:36%;right:36%;top:3.2%;height:2.6%;border-radius:999px;background:#000;z-index:3}
+.pantalla img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.toma{position:absolute;overflow:hidden}
+.toma img{position:absolute;max-width:none}
+.onda{position:absolute;border-radius:50%;border:5px solid var(--acido);box-shadow:0 0 18px rgba(204,255,0,.6)}
+.chalk{position:absolute;overflow:visible}
+.chalk path{fill:none;stroke-linecap:round;stroke-linejoin:round;filter:url(#tiza)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="tiza" filterUnits="userSpaceOnUse" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency=".42 1.8" numOctaves="2" seed="11" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  4.4 0 0 0 -1.3" result="m"/>
+      <feComposite in="d" in2="m" operator="in"/>
+    </filter>
+  </defs>
+</svg>
+<div id="escenario"></div>
+<script src="compositor.js"></script>
+</body>
+</html>
