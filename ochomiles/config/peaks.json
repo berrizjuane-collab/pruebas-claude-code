@@ -1,0 +1,282 @@
+{
+  "_convencion": "Altitudes de referencia: 8000ers.com (E. Jurgalski), segun la tabla del encargo. Everest: 8.848,86 m, medicion conjunta Nepal-China anunciada el 8 de diciembre de 2020. Coordenadas WGS84: referencia publicada (approx_lat/approx_lon) refinada al maximo local del Copernicus DEM GLO-30 (dem_lat/dem_lon) por src/geo/refine_summits.py.",
+  "peaks": [
+    {
+      "order": 1,
+      "id": "shishapangma",
+      "name": "Shishapangma",
+      "altitude_m": 8027,
+      "altitude_label": "8.027 m",
+      "location": "Tíbet, China",
+      "range": "Himalaya",
+      "approx_lat": 28.3519,
+      "approx_lon": 85.7797,
+      "detail": "El único ochomil enteramente en China y el último en ascenderse (1964).",
+      "detail_sources": [
+        "Wikipedia: Shishapangma (unico ochomil completamente en territorio chino; primera ascension 2 mayo 1964)",
+        "Explorersweb: A Short History Of Shisha Pangma"
+      ],
+      "dem_lat": 28.35225,
+      "dem_lon": 85.78146,
+      "dem_elev_m": 7890.3,
+      "dem_offset_m": 177
+    },
+    {
+      "order": 2,
+      "id": "gasherbrum2",
+      "name": "Gasherbrum II",
+      "altitude_m": 8034,
+      "altitude_label": "8.034 m",
+      "location": "Frontera Pakistán–China",
+      "range": "Karakórum",
+      "approx_lat": 35.7575,
+      "approx_lon": 76.6533,
+      "detail": "Una expedición austriaca lo ascendió por primera vez en julio de 1956.",
+      "detail_sources": [
+        "Guinness World Records: First ascent of Gasherbrum II (7 julio 1956, Larch, Moravec, Willenpart)",
+        "Wikipedia: Gasherbrum II"
+      ],
+      "dem_lat": 35.75753,
+      "dem_lon": 76.65261,
+      "dem_elev_m": 7961.0,
+      "dem_offset_m": 62
+    },
+    {
+      "order": 3,
+      "id": "broadpeak",
+      "name": "Broad Peak",
+      "altitude_m": 8051,
+      "altitude_label": "8.051 m",
+      "location": "Frontera Pakistán–China",
+      "range": "Karakórum",
+      "approx_lat": 35.8106,
+      "approx_lon": 76.5683,
+      "detail": "Debe su nombre a una cumbre de más de kilómetro y medio.",
+      "detail_sources": [
+        "Wikipedia: Broad Peak (nombre de Conway, 1892; cima de mas de 1,5 km)"
+      ],
+      "dem_lat": 35.81142,
+      "dem_lon": 76.5668,
+      "dem_elev_m": 7979.5,
+      "dem_offset_m": 163
+    },
+    {
+      "order": 4,
+      "id": "gasherbrum1",
+      "name": "Gasherbrum I",
+      "altitude_m": 8080,
+      "altitude_label": "8.080 m",
+      "location": "Frontera Pakistán–China",
+      "range": "Karakórum",
+      "approx_lat": 35.7247,
+      "approx_lon": 76.6967,
+      "detail": "También llamado Hidden Peak: se oculta tras otras cumbres desde el Baltoro.",
+      "detail_sources": [
+        "American Alpine Club: Happy Anniversary Gasherbrum I First Ascent (Hidden Peak)",
+        "Wikipedia: Gasherbrum I (oculto tras las cumbres anteriores del grupo durante casi todo el glaciar Baltoro)"
+      ],
+      "dem_lat": 35.72497,
+      "dem_lon": 76.69837,
+      "dem_elev_m": 7994.3,
+      "dem_offset_m": 154
+    },
+    {
+      "order": 5,
+      "id": "annapurna",
+      "name": "Annapurna I",
+      "altitude_m": 8091,
+      "altitude_label": "8.091 m",
+      "location": "Nepal",
+      "range": "Himalaya",
+      "approx_lat": 28.5961,
+      "approx_lon": 83.8203,
+      "detail": "El primer ochomil ascendido: Herzog y Lachenal, 3 de junio de 1950.",
+      "detail_sources": [
+        "Guinness World Records: First ascent of Annapurna I",
+        "Explorersweb: The 75th Anniversary of The First Ascent Of An 8,000m Peak"
+      ],
+      "dem_lat": 28.59619,
+      "dem_lon": 83.81952,
+      "dem_elev_m": 7918.9,
+      "dem_offset_m": 77
+    },
+    {
+      "order": 6,
+      "id": "nangaparbat",
+      "name": "Nanga Parbat",
+      "altitude_m": 8125,
+      "altitude_label": "8.125 m",
+      "location": "Pakistán",
+      "range": "Himalaya",
+      "approx_lat": 35.2372,
+      "approx_lon": 74.5892,
+      "detail": "Su cara Rupal se eleva unos 4.600 metros sobre su base.",
+      "detail_sources": [
+        "Wikipedia: Nanga Parbat (Rupal Face, 4.600 m sobre su base)",
+        "Explorersweb: A Climbing History of Nanga Parbat's Rupal Face"
+      ],
+      "dem_lat": 35.23855,
+      "dem_lon": 74.58931,
+      "dem_elev_m": 8104.3,
+      "dem_offset_m": 151
+    },
+    {
+      "order": 7,
+      "id": "manaslu",
+      "name": "Manaslu",
+      "altitude_m": 8163,
+      "altitude_label": "8.163 m",
+      "location": "Nepal",
+      "range": "Himalaya",
+      "approx_lat": 28.5494,
+      "approx_lon": 84.5619,
+      "detail": "Su nombre suele traducirse como «montaña del espíritu».",
+      "detail_sources": [
+        "Wikipedia: Manaslu (del sánscrito manasa, 'intelecto' o 'alma')",
+        "Nepal Traveller: Manaslu Himal Aarohan Diwas"
+      ],
+      "dem_lat": 28.5507,
+      "dem_lon": 84.55921,
+      "dem_elev_m": 8043.8,
+      "dem_offset_m": 300
+    },
+    {
+      "order": 8,
+      "id": "dhaulagiri",
+      "name": "Dhaulagiri I",
+      "altitude_m": 8167,
+      "altitude_label": "8.167 m",
+      "location": "Nepal",
+      "range": "Himalaya",
+      "approx_lat": 28.6967,
+      "approx_lon": 83.4931,
+      "detail": "En 1808 pasó a considerarse la montaña más alta del mundo.",
+      "detail_sources": [
+        "Wikipedia: Dhaulagiri (calculos topograficos de 1808; lo fue hasta 1838)",
+        "Wikipedia: List of past presumed highest mountains"
+      ],
+      "dem_lat": 28.69792,
+      "dem_lon": 83.48948,
+      "dem_elev_m": 8135.9,
+      "dem_offset_m": 379
+    },
+    {
+      "order": 9,
+      "id": "chooyu",
+      "name": "Cho Oyu",
+      "altitude_m": 8188,
+      "altitude_label": "8.188 m",
+      "location": "Frontera Nepal–China",
+      "range": "Himalaya",
+      "approx_lat": 28.0942,
+      "approx_lon": 86.6608,
+      "detail": "Vecino del Nangpa La, histórico paso comercial entre Nepal y el Tíbet.",
+      "detail_sources": [
+        "Wikipedia: Cho Oyu (20 km al oeste del Everest; Nangpa La a poca distancia al oeste)",
+        "Britannica: Nangpa La"
+      ],
+      "dem_lat": 28.09697,
+      "dem_lon": 86.66023,
+      "dem_elev_m": 8153.3,
+      "dem_offset_m": 313
+    },
+    {
+      "order": 10,
+      "id": "makalu",
+      "name": "Makalu",
+      "altitude_m": 8485,
+      "altitude_label": "8.485 m",
+      "location": "Frontera Nepal–China",
+      "range": "Himalaya",
+      "approx_lat": 27.8897,
+      "approx_lon": 87.0889,
+      "detail": "Pirámide aislada de cuatro caras, a 19 km al sureste del Everest.",
+      "detail_sources": [
+        "Nepal Tourism Board: Makalu",
+        "Wikipedia: Makalu (pico aislado con forma de piramide de cuatro caras, 19 km al SE del Everest)"
+      ],
+      "dem_lat": 27.89146,
+      "dem_lon": 87.08851,
+      "dem_elev_m": 8242.9,
+      "dem_offset_m": 200
+    },
+    {
+      "order": 11,
+      "id": "lhotse",
+      "name": "Lhotse",
+      "altitude_m": 8516,
+      "altitude_label": "8.516 m",
+      "location": "Frontera Nepal–China",
+      "range": "Himalaya",
+      "approx_lat": 27.9617,
+      "approx_lon": 86.9333,
+      "detail": "«Pico sur» en tibetano: el Collado Sur lo une al Everest.",
+      "detail_sources": [
+        "Wikipedia: Lhotse (lho 'sur', tse 'pico'; unido al Everest por el Collado Sur)"
+      ],
+      "dem_lat": 27.96178,
+      "dem_lon": 86.93243,
+      "dem_elev_m": 8416.0,
+      "dem_offset_m": 86
+    },
+    {
+      "order": 12,
+      "id": "kangchenjunga",
+      "name": "Kangchenjunga",
+      "altitude_m": 8586,
+      "altitude_label": "8.586 m",
+      "location": "Frontera Nepal–India",
+      "range": "Himalaya",
+      "approx_lat": 27.7033,
+      "approx_lon": 88.1475,
+      "detail": "En 1955 sus primeros escaladores se detuvieron bajo la cima, por respeto.",
+      "detail_sources": [
+        "Wikipedia: Kangchenjunga (Brown y Band, 25 mayo 1955, se detuvieron antes de la cima por la promesa al Chogyal de Sikkim)"
+      ],
+      "dem_lat": 27.70277,
+      "dem_lon": 88.14758,
+      "dem_elev_m": 8564.3,
+      "dem_offset_m": 60
+    },
+    {
+      "order": 13,
+      "id": "k2",
+      "name": "K2",
+      "altitude_m": 8611,
+      "altitude_label": "8.611 m",
+      "location": "Frontera Pakistán–China",
+      "range": "Karakórum",
+      "approx_lat": 35.8825,
+      "approx_lon": 76.5133,
+      "detail": "Su nombre procede de la notación topográfica de 1856: Karakórum 2.",
+      "detail_sources": [
+        "Wikipedia: K2 (notacion del Great Trigonometrical Survey; T. G. Montgomerie, 1856)"
+      ],
+      "dem_lat": 35.88072,
+      "dem_lon": 76.5125,
+      "dem_elev_m": 8570.6,
+      "dem_offset_m": 210
+    },
+    {
+      "order": 14,
+      "id": "everest",
+      "name": "Everest",
+      "altitude_m": 8848.86,
+      "altitude_label": "8.848,86 m",
+      "altitude_note": "Medición Nepal–China, 2020",
+      "location": "Frontera Nepal–China",
+      "range": "Himalaya",
+      "approx_lat": 27.9881,
+      "approx_lon": 86.9253,
+      "detail": "Sagarmatha y Chomolungma: el punto más alto de la Tierra.",
+      "detail_sources": [
+        "Nepal Tourism Board (altura 8.848,86 m)",
+        "Al Jazeera / CNN, 8 dic 2020: anuncio conjunto Nepal-China"
+      ],
+      "dem_lat": 27.98904,
+      "dem_lon": 86.92555,
+      "dem_elev_m": 8737.8,
+      "dem_offset_m": 107
+    }
+  ]
+}
