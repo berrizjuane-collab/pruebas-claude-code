@@ -18,10 +18,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 MAPD = os.path.join(ROOT, "data", "work", "map")
 
 # rampa hipsometrica (m, sRGB de pantalla) - atlas oscuro, cumbres claras
-RAMP = [(-200, (0.040, 0.066, 0.090)), (0, (0.082, 0.112, 0.140)), (1000, (0.100, 0.135, 0.165)),
-        (3000, (0.135, 0.170, 0.200)), (4500, (0.175, 0.212, 0.240)), (5500, (0.260, 0.300, 0.325)),
-        (6500, (0.480, 0.525, 0.545)), (8000, (0.800, 0.830, 0.840)), (9000, (0.900, 0.920, 0.925))]
+RAMP = [(-200, (0.040, 0.066, 0.090)), (0, (0.078, 0.106, 0.133)), (1000, (0.094, 0.126, 0.155)),
+        (3000, (0.120, 0.152, 0.180)), (4500, (0.145, 0.178, 0.205)), (5500, (0.190, 0.226, 0.252)),
+        (6500, (0.400, 0.445, 0.470)), (8000, (0.780, 0.810, 0.825)), (9000, (0.900, 0.920, 0.925))]
 OCEAN = (0.035, 0.058, 0.080)
+STYLE_VERSION = "v3"
 GLACIER = (0.86, 0.90, 0.915)
 
 
@@ -67,7 +68,7 @@ class AtlasBase:
         self.levels = {}
         for name, exag in (("A", 9.0), ("B", 2.6)):
             meta = json.load(open(os.path.join(MAPD, f"{name}_meta.json")))
-            cache = os.path.join(MAPD, f"{name}_styled.npy")
+            cache = os.path.join(MAPD, f"{name}_styled_{STYLE_VERSION}.npy")
             if os.path.exists(cache):
                 img = np.load(cache)
             else:
@@ -81,8 +82,10 @@ class AtlasBase:
                 base = ramp(zc)
                 shade = (0.38 + 0.78 * hs)[..., None]
                 col = base * shade
-                g = np.array(GLACIER, np.float32) * (0.55 + 0.55 * hs)[..., None]
-                col = col * (1 - 0.75 * glac[..., None]) + g * (0.75 * glac[..., None])
+                # glaciares (Natural Earth): borde suavizado y sombreado del relieve, sin recortes planos
+                glac = cv2.GaussianBlur(glac, (0, 0), 0.9)
+                g = np.array(GLACIER, np.float32) * (0.42 + 0.66 * hs)[..., None]
+                col = col * (1 - 0.55 * glac[..., None]) + g * (0.55 * glac[..., None])
                 water = np.clip((1 - land) + lakes, 0, 1)[..., None]
                 col = col * (1 - water) + np.array(OCEAN, np.float32) * water
                 img = np.clip(col, 0, 1).astype(np.float16)
@@ -110,15 +113,37 @@ class AtlasBase:
                              borderMode=cv2.BORDER_CONSTANT, borderValue=OCEAN)
         return out
 
+    def coverage(self, name, cam, W, H, feather=40.0):
+        """Peso [0,1] de los pixeles de pantalla cubiertos por el nivel (borde suavizado)."""
+        meta = self.levels[name]["meta"]
+        q = 8   # se calcula a 1/8 y se amplia: la mascara es suave
+        u = (np.arange(0, W, q, dtype=np.float32)[None, :] + q / 2) - W / 2
+        v = (np.arange(0, H, q, dtype=np.float32)[:, None] + q / 2) - H / 2
+        th = math.radians(cam.get("rot", 0.0))
+        c, sn = math.cos(th), math.sin(th)
+        s = cam["scale"]
+        X = cam["cx"] + (c * u + sn * v) * s
+        Y = cam["cy"] + (sn * u - c * v) * s
+        x1 = meta["x0"] + meta["w"] * meta["res"]
+        y0 = meta["y1"] - meta["h"] * meta["res"]
+        d = np.minimum.reduce([X - meta["x0"], x1 - X, Y - y0, meta["y1"] - Y]) / s
+        m = np.clip(d / feather, 0, 1).astype(np.float32)
+        return cv2.resize(m, (W, H), interpolation=cv2.INTER_LINEAR)
+
     def render_base(self, cam, W=3840, H=2160):
         s = cam["scale"]
         if s >= 1500:
             return self.warp("A", cam, W, H)
-        if s <= 900:
-            return self.warp("B", cam, W, H)
-        t = (s - 900) / 600
-        t = t * t * (3 - 2 * t)
-        return self.warp("A", cam, W, H) * t + self.warp("B", cam, W, H) * (1 - t)
+        m = self.coverage("B", cam, W, H)
+        if s > 900:
+            t = (s - 900) / 600
+            m = m * (1 - t * t * (3 - 2 * t))
+        b = self.warp("B", cam, W, H)
+        if m.min() >= 0.999:
+            return b
+        a = self.warp("A", cam, W, H)
+        m = m[..., None]
+        return a * (1 - m) + b * m
 
 
 def to_screen(cam, X, Y, W=3840, H=2160):

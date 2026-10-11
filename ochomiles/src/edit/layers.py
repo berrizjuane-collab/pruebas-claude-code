@@ -1,0 +1,119 @@
+"""Tipos de capa del montaje y graficos superpuestos."""
+import math
+
+import numpy as np
+
+from .timeline import track
+
+
+class Layer:
+    def __init__(self, start, end, opacity=1.0, mask=None, name=""):
+        self.start, self.end = int(start), int(end)
+        self._op = opacity
+        self.mask = mask
+        self.name = name
+
+    def opacity(self, f):
+        if callable(self._op):
+            return float(self._op(f))
+        return float(track(self._op, f))
+
+    def render(self, ctx, f):
+        raise NotImplementedError
+
+
+class Shot3D(Layer):
+    """Plano 3D (dict de film.py). extra(f) -> kwargs adicionales para el render (estilo, etc.).
+    blur: n subfotogramas para desenfoque de movimiento (o funcion f -> n)."""
+
+    def __init__(self, shot, start=None, end=None, opacity=1.0, mask=None, extra=None, blur=None, fx=None):
+        super().__init__(shot["start"] if start is None else start, shot["end"] if end is None else end,
+                         opacity, mask, shot["id"])
+        self.shot = shot
+        self.extra = extra
+        self.blur = blur
+        self.fx = fx
+
+    def render(self, ctx, f):
+        kw = self.extra(f) if self.extra else {}
+        n = self.blur(f) if callable(self.blur) else (self.blur or 1)
+        if n and n > 1:
+            # obturador de 180 grados: subfotogramas en [f - 0.25, f + 0.25]
+            acc = None
+            for i in range(n):
+                fs = f + (i + 0.5) / n * 0.5 - 0.25
+                im = ctx.sr.render(self.shot, fs, **kw)
+                acc = im if acc is None else acc + im
+            img = acc / n
+        else:
+            img = ctx.sr.render(self.shot, f, **kw)
+        if self.fx:
+            img = self.fx(ctx, f, img)
+        return img
+
+
+class Fn(Layer):
+    def __init__(self, start, end, fn, opacity=1.0, mask=None, name="fn"):
+        super().__init__(start, end, opacity, mask, name)
+        self.fn = fn
+
+    def render(self, ctx, f):
+        return self.fn(ctx, f)
+
+
+class Solid(Layer):
+    def __init__(self, start, end, color=(0, 0, 0), opacity=1.0, name="solid"):
+        super().__init__(start, end, opacity, None, name)
+        self.color = np.array(color, np.float32)
+
+    def render(self, ctx, f):
+        return np.broadcast_to(self.color, (ctx.H, ctx.W, 3)).copy()
+
+
+class Overlay:
+    def __init__(self, start, end, draw, name=""):
+        self.start, self.end = int(start), int(end)
+        self._draw = draw
+        self.name = name
+
+    def draw(self, canvas, ctx, f, img):
+        return self._draw(canvas, ctx, f, img)
+
+
+def ramp(f, a, b, kind="smooth"):
+    """0 antes de a, 1 despues de b, suave entre medias."""
+    if b <= a:
+        return 1.0 if f >= a else 0.0
+    t = min(max((f - a) / (b - a), 0.0), 1.0)
+    if kind == "linear":
+        return t
+    return t * t * (3 - 2 * t)
+
+
+def window(f, a, b, c, d):
+    """Sube de a a b, se mantiene, baja de c a d."""
+    return min(ramp(f, a, b), 1.0 - ramp(f, c, d))
+
+
+class FX(Layer):
+    """Capa de efecto con su propia alfa (nubes, ventisca). fn(ctx, f, below) -> (rgb, alfa).
+    'below' es la imagen ya compuesta bajo la capa (para tomar su paleta)."""
+
+    needs_below = True
+
+    def __init__(self, start, end, fn, name="fx"):
+        super().__init__(start, end, 1.0, None, name)
+        self.fn = fn
+        self._cache = (None, None, None)
+        self.mask = self._mask
+
+    def render_with(self, ctx, f, below):
+        rgb, a = self.fn(ctx, f, below)
+        self._cache = (f, rgb, a)
+        return rgb
+
+    def render(self, ctx, f):
+        return self.render_with(ctx, f, None)
+
+    def _mask(self, ctx, f):
+        return self._cache[2] if self._cache[0] == f else np.zeros((ctx.H, ctx.W), np.float32)

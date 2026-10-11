@@ -188,7 +188,9 @@ class TerrainRenderer:
         self.hdr = ctx.texture(sz, 4, dtype="f4")
         self.aux = ctx.texture(sz, 4, dtype="f4")
         self.hdr.filter = (moderngl.LINEAR, moderngl.LINEAR)
-        self.shade_fbo = ctx.framebuffer([self.hdr, self.aux])
+        self.atlas_tex = ctx.texture(sz, 4, dtype="f2")
+        self.atlas_tex.filter = (moderngl.LINEAR, moderngl.LINEAR)
+        self.shade_fbo = ctx.framebuffer([self.hdr, self.aux, self.atlas_tex])
         bw, bh = width // 4, height // 4
         self.bloom_a = ctx.texture((bw, bh), 4, dtype="f2")
         self.bloom_b = ctx.texture((bw, bh), 4, dtype="f2")
@@ -314,10 +316,10 @@ class TerrainRenderer:
     # ---------------------------------------------------------------- render
     def render(self, scene, cam: Camera, grade=None, style=0.0, contour_m=200.0, detail=1.0,
                snow_boost=1.0, sun_scale=1.0, sun_tint=(1, 1, 1), stars=0.0, sun_disk=1.0,
-               exposure=None, return_aux=False, sky_boost=1.35, clouds=None, fog=None):
+               exposure=None, return_aux=False, sky_boost=1.35, clouds=None, fog=None, atlas_exag=2.6):
         ctx = self.ctx
         aspect = self.W / self.H
-        view, proj = cam.matrices(aspect)
+        view, proj = cam.matrices(aspect, near=getattr(cam, "near", 15.0), far=getattr(cam, "far", 2.4e6))
         vp = (proj @ view).astype(np.float32)
         inv_vp = np.linalg.inv(proj @ view).astype(np.float32)
         az = math.radians(scene["sun_az"])
@@ -364,6 +366,8 @@ class TerrainRenderer:
         _us(p, "u_cam_alt", float(cam.pos[2]))
         _us(p, "u_haze", float(scene["haze"]))
         _us(p, "u_style", float(style))
+        _us(p, "u_atlas_exag", float(atlas_exag))
+        self._style = float(style)
         _us(p, "u_contour_m", float(contour_m))
         _us(p, "u_detail", float(detail))
         _us(p, "u_snow_boost", float(snow_boost))
@@ -459,6 +463,9 @@ class TerrainRenderer:
         for k in ("lift", "gamma", "gain", "shadow_tint", "high_tint"):
             _us(pp, f"u_{k}", tuple(float(v) for v in g[k]))
         _us(pp, "u_res", (float(self.W), float(self.H)))
+        self.atlas_tex.use(2)
+        _us(pp, "t_atlas", 2)
+        _us(pp, "u_style", getattr(self, "_style", 0.0))
         self.post_vao.render(moderngl.TRIANGLE_STRIP)
         img = np.frombuffer(self.out_tex.read(), np.float16).reshape(self.H, self.W, 4)[::-1, :, :3]
         if return_aux:

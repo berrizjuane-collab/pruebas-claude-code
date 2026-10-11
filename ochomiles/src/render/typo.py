@@ -88,7 +88,7 @@ def color4(c, a=None):
 
 
 def draw_text(canvas, fonts, text, x, y, family, size, color=(1, 1, 1, 1), tracking=0.0, features=None,
-              align="left", opacity=1.0, blur=0.0):
+              align="left", opacity=1.0, blur=0.0, halo=None):
     """Texto en una linea con la linea base en y. Devuelve el ancho."""
     face = fonts[family]
     gl, xs, w = face.shape(text, size, features, tracking)
@@ -103,6 +103,15 @@ def draw_text(canvas, fonts, text, x, y, family, size, color=(1, 1, 1, 1), track
     b.allocRunPosH(font, gl, xs, 0.0)
     blob = b.make()
     c = list(color) + [1.0] * (4 - len(color))
+    if halo:
+        # halo oscuro difuso: separa el texto del relieve claro sin dibujar paneles
+        hc, hw = halo
+        hc = list(hc) + [1.0] * (4 - len(hc))
+        hp = skia.Paint(AntiAlias=True, Color4f=skia.Color4f(hc[0], hc[1], hc[2], hc[3] * opacity),
+                        Style=skia.Paint.kStrokeAndFill_Style, StrokeWidth=hw)
+        hp.setStrokeJoin(skia.Paint.kRound_Join)
+        hp.setMaskFilter(skia.MaskFilter.MakeBlur(skia.kNormal_BlurStyle, max(hw * 0.7, 0.5)))
+        canvas.drawTextBlob(blob, ox, y, hp)
     paint = skia.Paint(AntiAlias=True, Color4f=skia.Color4f(c[0], c[1], c[2], c[3] * opacity))
     if blur > 0.05:
         paint.setMaskFilter(skia.MaskFilter.MakeBlur(skia.kNormal_BlurStyle, blur))

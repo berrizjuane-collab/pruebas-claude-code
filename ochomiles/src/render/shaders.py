@@ -57,6 +57,9 @@ SHADE_FS = COMMON + r"""
 in vec2 v_uv;
 layout(location=0) out vec4 f_color;
 layout(location=1) out vec4 f_aux;      // xyz mundo (muestra 0), w distancia (1e9 = cielo)
+layout(location=2) out vec4 f_atlas;    // color del atlas 2D (sRGB de pantalla) para el enlace mapa <-> 3D
+vec3 g_atlas = vec3(0.035, 0.058, 0.080);
+uniform float u_atlas_exag;
 
 uniform sampler2DMS t_gbuf;
 uniform mat4 u_inv_viewproj;
@@ -180,7 +183,7 @@ vec3 shade_sky(vec3 v){
         float star = smoothstep(0.09, 0.0, dd) * step(0.985, m) * (m - 0.985) * 66.0;
         col += vec3(0.8, 0.85, 1.0) * star * u_stars * 0.02 * smoothstep(-0.02, 0.08, v.z);
     }
-    return mix(col, vec3(0.006, 0.008, 0.011), u_style);
+    return col;
 }
 
 vec3 shade_terrain(vec3 W, out float dist){
@@ -204,6 +207,7 @@ vec3 shade_terrain(vec3 W, out float dist){
         N = normalize(mix(n2, n1, w1));
         if (w0 > 0.0) N = normalize(mix(N, nrm(textureLod(t_n0, uv_of(r_l0, p), lod_for(fp0, 30.0)).xy), w0));
     }
+    vec3 N0 = N;                                      // normal del relieve sin microdetalle
     float fp = fp0 / max(abs(dot(N, V)), 0.25);      // huella del pixel sobre la superficie
     float slope = 1.0 - N.z;
     float steep = smoothstep(0.16, 0.44, slope);
@@ -305,16 +309,31 @@ vec3 shade_terrain(vec3 W, out float dist){
     float wrap = snow * 0.12 * max(dot(N, L) + 0.3, 0.0) / 1.3 * lit;
     vec3 col = alb / PI * (Esun * (ndl + wrap) + Esky + Ebounce) + Esun * ndl * spec * 0.6;
 
-    // --- estilo atlas ---
+    // --- color de atlas: misma rampa hipsometrica y sombreado multidireccional que el atlas 2D ---
     if (u_style > 0.001){
-        vec3 Ln = normalize(vec3(-0.6, 0.6, 0.75));
-        float hs = clamp(dot(N, Ln), 0.0, 1.0);
-        float t = clamp((zr - 500.0) / 8000.0, 0.0, 1.0);
-        vec3 c_low = vec3(0.020, 0.028, 0.040);
-        vec3 c_mid = vec3(0.085, 0.120, 0.150);
-        vec3 c_high = vec3(0.70, 0.74, 0.76);
-        vec3 tint = mix(mix(c_low, c_mid, smoothstep(0.0, 0.55, t)), c_high, smoothstep(0.55, 1.0, t));
-        vec3 atlas = tint * (0.30 + 0.95 * hs);
+        vec3 Na = normalize(vec3(N0.xy * u_atlas_exag, N0.z));
+        float hs = 0.0;
+        float az[4] = float[](315.0, 270.0, 0.0, 225.0);
+        float wt[4] = float[](0.55, 0.15, 0.15, 0.15);
+        for (int i = 0; i < 4; i++){
+            float a = radians(az[i]);
+            vec3 l = vec3(cos(radians(40.0)) * sin(a), cos(radians(40.0)) * cos(a), sin(radians(40.0)));
+            hs += wt[i] * clamp(dot(Na, l), 0.0, 1.0);
+        }
+        hs /= sin(radians(40.0));
+        float zs[9] = float[](-200.0, 0.0, 1000.0, 3000.0, 4500.0, 5500.0, 6500.0, 8000.0, 9000.0);
+        vec3 cs[9] = vec3[](vec3(0.040, 0.066, 0.090), vec3(0.078, 0.106, 0.133), vec3(0.094, 0.126, 0.155),
+                            vec3(0.120, 0.152, 0.180), vec3(0.145, 0.178, 0.205), vec3(0.190, 0.226, 0.252),
+                            vec3(0.400, 0.445, 0.470), vec3(0.780, 0.810, 0.825), vec3(0.900, 0.920, 0.925));
+        float zc0 = clamp(zr, -200.0, 9000.0);
+        vec3 rc = cs[0];
+        for (int i = 0; i < 8; i++){
+            if (zc0 >= zs[i] && zc0 <= zs[i+1]) rc = mix(cs[i], cs[i+1], (zc0 - zs[i]) / (zs[i+1] - zs[i]));
+        }
+        vec3 atlas = rc * (0.38 + 0.78 * hs);
+        vec3 gl = vec3(0.86, 0.90, 0.915) * (0.42 + 0.66 * hs);
+        atlas = mix(atlas, gl, 0.55 * clamp(snow_avg, 0.0, 1.0) * smoothstep(3800.0, 5200.0, zr));
+        // curvas de nivel (equidistancia u_contour_m, directoras cada 5)
         float zc = zr / u_contour_m;
         float fw = max(fp / max(u_contour_m, 1.0) * max(slope * 3.0, 0.05), 1e-4);
         float fr = abs(fract(zc - 0.5) - 0.5) / fw;
@@ -323,13 +342,13 @@ vec3 shade_terrain(vec3 W, out float dist){
         float idx = abs(fract(zc5 - 0.5) - 0.5) / max(fw / 5.0, 1e-4);
         float iline = 1.0 - smoothstep(0.6, 1.8, idx);
         float lfade = 1.0 - smoothstep(0.25, 0.6, fw);
-        atlas = mix(atlas, vec3(0.80, 0.86, 0.88) * 0.55, max(line * 0.45, iline * 0.8) * lfade);
-        col = mix(col, atlas * 0.35, u_style);
+        atlas = mix(atlas, vec3(0.80, 0.86, 0.88), max(line * 0.30, iline * 0.55) * lfade);
+        g_atlas = clamp(atlas, 0.0, 1.0);
     }
 
     // --- perspectiva aerea ---
     vec3 fogged = aerial(col, -V, dist, u_cam_alt, max(zr, 0.0));
-    return mix(fogged, col, u_style * 0.85);
+    return fogged;
 }
 
 // ---------------- mar de nubes ----------------
@@ -484,6 +503,7 @@ void main(){
     }
     f_color = vec4(col, 1.0);
     f_aux = vec4(s[0].xyz, s[0].w > 0.5 ? dist : 1e9);
+    f_atlas = vec4(g_atlas, 1.0);
 }
 """
 
@@ -503,6 +523,8 @@ uniform vec3  u_shadow_tint;
 uniform vec3  u_high_tint;
 uniform float u_vignette;
 uniform vec2  u_res;
+uniform sampler2D t_atlas;
+uniform float u_style;
 
 vec3 agx_curve(vec3 x){
     vec3 x2 = x*x; vec3 x4 = x2*x2;
@@ -537,6 +559,7 @@ void main(){
     d = pow(max(d, 0.0), 1.0 / u_gamma);
     vec2 q = v_uv - 0.5; q.x *= u_res.x / u_res.y;
     d *= 1.0 - u_vignette * smoothstep(0.35, 1.05, length(q));
+    if (u_style > 0.001) d = mix(d, texture(t_atlas, v_uv).rgb, u_style);
     f_color = vec4(d, 1.0);
 }
 """
