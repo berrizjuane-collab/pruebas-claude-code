@@ -79,9 +79,9 @@ como un desplazamiento de varios niveles en los colores saturados o en negros y 
 
 | Fotograma | 4K | 1080p | 1080p web |
 |---|---|---|---|
-| f 240 · amanecer y título | +0,04 / −0,16 / −0,04 · 43,3 dB | +0,22 / −0,14 / +0,03 · 42,7 dB | +0,22 / −0,07 / +0,06 · 41,9 dB |
-| f 520 · mapa | +0,43 / +0,14 / +0,46 · 38,5 dB | +0,42 / +0,22 / +0,49 · 36,9 dB | +0,37 / +0,22 / +0,33 · 35,6 dB |
-| f 3500 · Everest | +0,10 / −0,02 / +0,25 · 41,1 dB | +0,07 / 0,00 / +0,04 · 41,9 dB | +0,15 / −0,04 / +0,16 · 40,6 dB |
+| f 240 · amanecer y título | +0,04 / −0,16 / −0,04 · 43,3 dB | +0,22 / −0,14 / +0,03 · 42,7 dB | +0,18 / −0,06 / +0,11 · 42,4 dB |
+| f 520 · mapa | +0,43 / +0,14 / +0,46 · 38,5 dB | +0,42 / +0,22 / +0,49 · 36,9 dB | +0,41 / +0,22 / +0,37 · 34,8 dB |
+| f 3500 · Everest | +0,10 / −0,02 / +0,25 · 41,1 dB | +0,07 / 0,00 / +0,04 · 41,9 dB | +0,15 / 0,00 / +0,27 · 38,4 dB |
 
 *Error medio con signo en R / G / B (niveles de 0 a 255) y PSNR.*
 
@@ -101,7 +101,7 @@ intermedio de 10 bits convertido como en su codificación (SSIM de la luminancia
 | 4K (CRF 18) | 0,980 | 0,958 | 0,911 (f 1452) |
 | 4K, ambas reducidas a 960 × 540 | 0,996 | 0,992 | 0,988 |
 | 1080p (CRF 17) | 0,979 | 0,951 | 0,791 (f 1453) |
-| 1080p web (4 Mbps) | 0,966 | 0,830 | 0,744 (f 3385) |
+| 1080p web (4 Mbps de media) | 0,967 | 0,920 | 0,900 (f 1452) |
 
 - **La 4K pierde casi solo grano.** Al reducir ambas a 960 × 540, que promedia el grano,
   el SSIM sube a 0,996.
@@ -113,11 +113,10 @@ intermedio de 10 bits convertido como en su codificación (SSIM de la luminancia
   durante medio segundo, más en la 1080p que en la 4K. Revisado a tamaño real, no aparecen
   bloques. Por debajo de 0,95 solo quedan 12 fotogramas de la 4K, y por debajo de 0,90,
   6 de la 1080p (f 1452–1458).
-- **La versión web es la que más pierde.** Su mediana es 0,973, pero 152 fotogramas
-  (6,3 s) bajan de 0,90, casi todos en los saltos por el mapa y en los pasos entre el mapa
-  y el relieve. En esos momentos el relieve pierde textura fina y aparecen manchas. Es una versión para
-  verla en el repositorio; para proyectar o publicar están la 1080p de alta calidad y
-  la 4K.
+- **La versión web pierde más, pero de forma pareja.** Ningún fotograma baja de 0,90
+  (véase el hallazgo 10). A cambio, cede algo de detalle en los planos tranquilos. Es una
+  versión para verla en el repositorio; para proyectar o publicar están la 1080p de alta
+  calidad y la 4K.
 
 *Nota de método.* La primera medida (0,932 en la 4K) emparejaba uno de cada tres
 fotogramas con el anterior. El intermedio .mkv guarda las marcas de tiempo en
@@ -125,6 +124,10 @@ milisegundos (0, 42, 83…) y el filtro SSIM sincroniza por tiempo. Con las marc
 renumeradas por fotograma, el patrón desaparece: la media es la misma en las tres
 posiciones de cada grupo de tres fotogramas. Eso confirma además que las entregas no
 pierden ni duplican fotogramas.
+
+| # | Problema | Corrección |
+|---|---|---|
+| 10 | La primera versión web (dos pasadas a 4 Mbps con un tope de 8 Mbps) se quedaba sin bits en los saltos por el mapa. 152 fotogramas (6,3 s) bajaban de 0,90 y el peor caía a 0,744 (f 3385): el relieve de la meseta se emborronaba y en f 1452 aparecía una mancha de color. | Se volvió a codificar con la misma tasa media y un tope de 25 Mbps, más bits para lo complejo (qcomp 0,7), cuantización adaptada a las sombras (aq-mode 3) y el preajuste veryslow. Ahora ningún fotograma baja de 0,90 y la mancha desaparece. A cambio, la mediana pasa de 0,973 a 0,970, y el archivo crece de 97,1 a 97,7 MB. |
 
 **Bandas y bloques.** Los degradados oscuros se revisaron a tamaño real y con el contraste
 multiplicado por 6: el cielo de la firma (f 4250), la noche del campo base (f 3960) y el
@@ -162,7 +165,7 @@ verdadero se miden con el medidor EBU R128 de FFmpeg sobre el sonido decodificad
 |---|---|---|---|---|---|
 | Película 4K | H.264 High@5.1 · 3840 × 2160 · 4:2:0 8 bits | 4.320 · 180,000 s | AAC-LC 320 kbps · 48 kHz · estéreo | −14,2 LUFS · 9,1 LU · −1,2 dBTP | 1.122,4 MB · 49,9 Mbps |
 | Película 1080p | H.264 High@4.2 · 1920 × 1080 | 4.320 · 180,000 s | ídem | −14,2 · 9,1 · −1,2 | 307,3 MB · 13,7 Mbps |
-| Película 1080p web | H.264 High@4.2 · 1920 × 1080 · dos pasadas | 4.320 · 180,000 s | ídem | −14,2 · 9,1 · −1,2 | 97,1 MB · 4,3 Mbps |
+| Película 1080p web | H.264 High@4.2 · 1920 × 1080 · dos pasadas | 4.320 · 180,000 s | ídem | −14,2 · 9,1 · −1,2 | 97,7 MB · 4,3 Mbps |
 | Teaser 4K | H.264 High@5.1 · 3840 × 2160 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 164,7 MB · 43,9 Mbps |
 | Teaser 1080p | H.264 High@4.2 · 1920 × 1080 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 42,6 MB · 11,4 Mbps |
 | Teaser vertical | H.264 High@4.2 · 1080 × 1920 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 32,2 MB · 8,6 Mbps |
@@ -176,7 +179,7 @@ mismo.
 
 | # | Problema | Corrección |
 |---|---|---|
-| 10 | La primera versión web llevaba AAC a 192 kbps. El codificador rebasaba el pico del máster: −0,9 dBTP, fuera del límite de −1 dBTP. | Se le puso la pista AAC de 320 kbps de las demás versiones, idéntica bit a bit a la de la 4K (mismo MD5), sin recodificar la imagen (MD5 de la imagen igual antes y después). Pico: −1,2 dBTP. |
+| 11 | La primera versión web llevaba AAC a 192 kbps. El codificador rebasaba el pico del máster: −0,9 dBTP, fuera del límite de −1 dBTP. | Se le puso la pista AAC de 320 kbps de las demás versiones sin recodificar la imagen (MD5 de la imagen igual antes y después). La versión definitiva (hallazgo 10) lleva esa misma pista, idéntica bit a bit a la de la 4K (mismo MD5): −1,2 dBTP. |
 
 **Sincronía.** El sonido decodificado de cada entrega se correlaciona con su máster en tres
 puntos: 5, 80 y 155 s en la película, y 2, 12 y 20 s en los teasers. El desfase es de
@@ -216,7 +219,7 @@ Son los golpes de compás, no clics.
 - **Reproducción inmediata.** Los seis MP4 llevan el índice (moov) antes de los datos, así
   que empiezan a reproducirse sin descargarse enteros.
 - **Compatibilidad.** Perfil High, niveles 5.1 (4K) y 4.2 (1080p y vertical), GOP de 2 s
-  y los topes de tasa de la pasada 2.
+  y topes de tasa de 60 Mbps (4K), 24 Mbps (1080p) y 25 Mbps (web).
 - **Sin errores de decodificación.** Se decodificaron enteros los teasers y las tres
   películas (estas, durante la medida del SSIM).
 

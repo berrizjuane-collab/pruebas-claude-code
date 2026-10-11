@@ -191,13 +191,17 @@ def remux_web_audio():
 
 
 def encode_web(args):
-    """1080p ligera (< 100 MB) que cabe en git sin LFS: H.264 a dos pasadas, 4,0 Mbps + AAC 320 kbps."""
+    """1080p ligera (< 100 MB) que cabe en git sin LFS: H.264 a dos pasadas, 4,0 Mbps de media
+    + AAC 320 kbps. Con un tope de 8 Mbps los saltos por el mapa (vuelo cenital rapido sobre
+    relieve con grano) se quedaban sin bits y bajaban a SSIM 0,74; con el tope en 25 Mbps,
+    qcomp 0,7 (mas bits a lo complejo) y veryslow, el peor fotograma queda en 0,90 con el
+    mismo tamano."""
     if args.audio_only:
         return remux_web_audio()
     src = source_args()
     vf = ["-vf", "zscale=w=1920:h=1080:filter=lanczos:dither=error_diffusion,format=yuv420p"]
-    v = ["-c:v", "libx264", "-preset", "slow", "-b:v", "4000k", "-maxrate", "8M", "-bufsize", "16M",
-         "-profile:v", "high", "-level:v", "4.2", "-g", "48", *COLOR_TAGS]
+    v = ["-c:v", "libx264", "-preset", "veryslow", "-b:v", "4000k", "-maxrate", "25M", "-bufsize", "50M",
+         "-qcomp", "0.7", "-aq-mode", "3", "-profile:v", "high", "-level:v", "4.2", "-g", "48", *COLOR_TAGS]
     log_prefix = os.path.join(OUT_DIR, "x264_web")
     run(["ffmpeg", "-y", "-loglevel", "error", *src, *vf, *v, "-pass", "1", "-passlogfile", log_prefix,
          "-an", "-f", "mp4", os.devnull])

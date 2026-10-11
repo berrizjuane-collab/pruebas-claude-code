@@ -19,7 +19,7 @@ tabla se han medido sobre cada archivo (`render/verificacion.json`).
 
 | Archivo | Qué es | Formato | Sonido medido | Tamaño | Dónde |
 |---|---|---|---|---|---|
-| `14_cumbres_1080p24_web.mp4` | Película, 180 s | 1920 × 1080 · H.264 High a dos pasadas, 4,0 Mbps · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 97,1 MB | [`entregables/`](entregables/) |
+| `14_cumbres_1080p24_web.mp4` | Película, 180 s | 1920 × 1080 · H.264 High a dos pasadas, 4,0 Mbps de media · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 97,7 MB | [`entregables/`](entregables/) |
 | `14_cumbres_teaser_30s_1080p24.mp4` | Teaser, 30 s | 1920 × 1080 · H.264 High, CRF 17 · AAC 320 kbps | −14,2 LUFS · −1,5 dBTP | 42,6 MB | [`entregables/`](entregables/) |
 | `14_cumbres_teaser_30s_vertical_1080x1920.mp4` | Teaser vertical 9:16, 30 s | 1080 × 1920 · H.264 High, CRF 17 · AAC 320 kbps | −14,2 LUFS · −1,5 dBTP | 32,2 MB | [`entregables/`](entregables/) |
 | `fijos/14_cumbres_01…03_*.png` y `.jpg` | Tres fijos promocionales | 3840 × 2160, renderizados directamente (PNG de 8 bits y JPG de calidad 95) | — | 1,4–11,9 MB | [`entregables/fijos/`](entregables/fijos/) |
@@ -41,8 +41,9 @@ responde 403), así que la subida falla. Hay dos formas de tenerlas:
 2. Regenerarlas en cualquier máquina con `./reproducir.sh`.
 
 La 1080p «web» es la misma película que la 1080p de alta calidad, con menos tasa de bits.
-Con el contraste exagerado se nota que aplana el grano en los fondos más oscuros. Para
-proyección o pantallas grandes conviene la 4K o la 1080p de alta calidad.
+Cede algo de detalle fino y, con el contraste exagerado, se nota que aplana el grano en los
+fondos más oscuros. Para proyección o pantallas grandes conviene la 4K o la 1080p de alta
+calidad.
 
 Sin locución no hay subtítulos, así que no se entrega SRT
 ([`docs/guion.md`](docs/guion.md)).
