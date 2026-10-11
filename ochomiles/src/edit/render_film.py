@@ -175,7 +175,7 @@ def probe(path):
     out = subprocess.run(["ffprobe", "-v", "error", "-count_packets", "-show_entries",
                           "stream=index,codec_type,codec_name,profile,width,height,pix_fmt,r_frame_rate,"
                           "nb_read_packets,sample_rate,channels,color_space,color_transfer,color_primaries,"
-                          "bit_rate:format=duration,size,bit_rate", "-of", "json", path],
+                          "bit_rate,start_time,duration:format=duration,size,bit_rate", "-of", "json", path],
                          capture_output=True, text=True).stdout
     return json.loads(out)
 
@@ -191,9 +191,45 @@ def loudness(path):
             "pico_verdadero_dBTP": get(r"True peak:.*?Peak:\s+(-?[\d.]+) dBFS")}
 
 
+def moov_first(path):
+    """True si el indice (moov) va antes de los datos (mdat): reproduccion inmediata en web."""
+    with open(path, "rb") as fh:
+        pos, order = 0, []
+        size = os.path.getsize(path)
+        while pos < size and len(order) < 12:
+            fh.seek(pos)
+            hdr = fh.read(16)
+            if len(hdr) < 8:
+                break
+            n = int.from_bytes(hdr[:4], "big")
+            kind = hdr[4:8].decode("latin-1")
+            if n == 1:
+                n = int.from_bytes(hdr[8:16], "big")
+            order.append(kind)
+            if n <= 0:
+                break
+            pos += n
+    return ("moov" in order and "mdat" in order and order.index("moov") < order.index("mdat")), order
+
+
+def ssim_vs_source(path, frames=None):
+    """SSIM medio (Y) del archivo frente a los segmentos intermedios (perdida de la codificacion)."""
+    sel = [] if frames is None else ["-frames:v", str(frames)]
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", path, *source_args(), *sel, "-lavfi",
+                        "[0:v]format=yuv420p[a];[1:v]zscale=dither=error_diffusion,format=yuv420p[b];[a][b]ssim",
+                        "-f", "null", "-"], capture_output=True, text=True).stderr
+    m = re.search(r"SSIM Y:([\d.]+).*All:([\d.]+)", r)
+    return {"ssim_Y": float(m.group(1)), "ssim_total": float(m.group(2))} if m else None
+
+
+DEFAULT_CHECK = [MASTER, UHD, FHD, os.path.join(OUT_DIR, "14_cumbres_teaser_30s_2160p24.mp4"),
+                 os.path.join(OUT_DIR, "14_cumbres_teaser_30s_1080p24.mp4"),
+                 os.path.join(OUT_DIR, "14_cumbres_teaser_30s_vertical_1080x1920.mp4")]
+
+
 def verify(args):
     rep = {}
-    for p in [MASTER, UHD, FHD] + list(args.extra or []):
+    for p in DEFAULT_CHECK + list(args.extra or []):
         if not os.path.exists(p):
             continue
         info = probe(p)
@@ -202,11 +238,19 @@ def verify(args):
         rep[os.path.basename(p)] = {
             "tamano_MB": round(int(info["format"]["size"]) / 1e6, 1),
             "duracion_s": float(info["format"]["duration"]),
+            "tasa_Mbps": round(int(info["format"]["bit_rate"]) / 1e6, 1),
             "video": {k: v.get(k) for k in ("codec_name", "profile", "width", "height", "pix_fmt", "r_frame_rate",
-                                            "nb_read_packets", "color_space", "color_transfer", "color_primaries")},
-            "audio": ({k: a[0].get(k) for k in ("codec_name", "sample_rate", "channels")} if a else None),
+                                            "nb_read_packets", "color_space", "color_transfer", "color_primaries",
+                                            "start_time", "duration")},
+            "audio": ({k: a[0].get(k) for k in ("codec_name", "sample_rate", "channels", "start_time", "duration")}
+                      if a else None),
             "sonoridad": loudness(p) if a else None,
         }
+        if p.endswith(".mp4"):
+            ok, order = moov_first(p)
+            rep[os.path.basename(p)]["moov_antes_de_mdat"] = ok
+        if args.ssim and p == UHD:
+            rep[os.path.basename(p)]["ssim_frente_al_intermedio"] = ssim_vs_source(p)
         log(f"verificado {os.path.basename(p)}: {json.dumps(rep[os.path.basename(p)], ensure_ascii=False)}")
     out = os.path.join(ROOT, "render", "verificacion.json")
     with open(out, "w") as fh:
@@ -230,6 +274,7 @@ def main():
     ap.add_argument("--crf-master", type=int, default=16)
     ap.add_argument("--master", action="store_true", help="codificar tambien el master de archivo HEVC")
     ap.add_argument("--extra", nargs="*")
+    ap.add_argument("--ssim", action="store_true", help="medir SSIM del MP4 4K frente al intermedio")
     args = ap.parse_args()
     if args.cmd == "plan":
         for s, e in segments(*(int(v) for v in args.range.split(":")), args.seg):
