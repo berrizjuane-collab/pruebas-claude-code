@@ -1,0 +1,12 @@
+{
+  "_nota": "CAMPOS PENDIENTES DE LA EMPRESA. 'name' es un marcador provisional: sustituyalo por el nombre real y vuelva a renderizar solo el tramo 4032-4319 (python -m src.edit.render_film --range 4032:4320). 'contact' debe quedar vacio salvo que se faciliten datos reales (web o telefono). El logotipo es una propuesta provisional dibujada en src/render/titles.py (logo_mark).",
+  "name": "NOMBRE DE LA EMPRESA",
+  "tagline": "Tu próxima expedición empieza mucho antes de la cumbre.",
+  "cta": "Planifica tu próxima expedición",
+  "contact": "",
+  "credits": [
+    "Relieve: Copernicus DEM GLO-30 (© DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, programa Copernicus de la UE y la ESA)",
+    "Imágenes: datos modificados de Copernicus Sentinel-2 (2023-2025) · Cartografía: Natural Earth y Terrain Tiles (Mapzen, SRTM y otras fuentes)",
+    "Altitudes de referencia: 8000ers.com · Everest: medición Nepal-China, 2020 · Música y diseño sonoro originales"
+  ]
+}

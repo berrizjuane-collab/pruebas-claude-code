@@ -60,6 +60,7 @@ layout(location=1) out vec4 f_aux;      // xyz mundo (muestra 0), w distancia (1
 layout(location=2) out vec4 f_atlas;    // color del atlas 2D (sRGB de pantalla) para el enlace mapa <-> 3D
 vec3 g_atlas = vec3(0.035, 0.058, 0.080);
 uniform float u_atlas_exag;
+uniform float u_fp4k;
 
 uniform sampler2DMS t_gbuf;
 uniform mat4 u_inv_viewproj;
@@ -342,6 +343,7 @@ vec3 shade_terrain(vec3 W, out float dist){
         float idx = abs(fract(zc5 - 0.5) - 0.5) / max(fw / 5.0, 1e-4);
         float iline = 1.0 - smoothstep(0.6, 1.8, idx);
         float lfade = 1.0 - smoothstep(0.25, 0.6, fw);
+        lfade *= 1.0 - smoothstep(14.0, 40.0, fp * u_fp4k);     // sin curvas en vistas continentales
         atlas = mix(atlas, vec3(0.80, 0.86, 0.88), max(line * 0.30, iline * 0.55) * lfade);
         g_atlas = clamp(atlas, 0.0, 1.0);
     }

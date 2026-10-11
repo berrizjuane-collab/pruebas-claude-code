@@ -12,7 +12,7 @@ from ..render.terrain_gl import Camera
 from .mapcam import map_cam_for_nadir
 from .timeline import ease
 
-D_TOP = 1.2e6          # distancia a la cumbre en el punto cenital (m): ~870 km de anchura con 40 grados
+D_TOP = 8.0e5          # distancia a la cumbre en el punto cenital (m): ~584 km de anchura con 40 grados
 
 
 def _sph(v):
@@ -99,6 +99,7 @@ class CameraPlan:
         self.mods = []       # funciones (f, cam) -> cam
 
     def __call__(self, sr, f):
+        self.sr = sr
         c = self._base(sr, f)
         for m in self.mods:
             c = m(f, c)
@@ -125,3 +126,39 @@ class CameraPlan:
                                float(c.pos[2]), c.fov_h, W)
         mc["rot"] = mc["rot"] - math.degrees(getattr(c, "psi", 0.0))
         return mc
+
+
+def ndc_of(c, p, aspect=16 / 9):
+    """Coordenadas normalizadas de pantalla (-1..1) de un punto del mundo para la camara c."""
+    from ..render.terrain_gl import R_EFF
+    view, proj = c.matrices(aspect)
+    rel = np.asarray(p, float) - c.pos
+    rel[2] -= (rel[0] ** 2 + rel[1] ** 2) / (2 * R_EFF)
+    clip = proj @ view @ np.array([rel[0], rel[1], rel[2], 1.0])
+    return clip[:2] / clip[3]
+
+
+def summit_match_mod(src_plan, dst_plan, b, settle=60):
+    """Corte por correspondencia: en el primer fotograma del plano B su cumbre ocupa el lugar
+    exacto de la cumbre del plano A en el ultimo; el desplazamiento optico se disuelve luego."""
+    cache = {}
+
+    def mod(f, c):
+        if f >= b + settle:
+            return c
+        if "s" not in cache:
+            sr = dst_plan.sr
+            ca = src_plan._base(sr, b - 1)
+            for m in src_plan.mods:
+                ca = m(b - 1, ca)
+            na = ndc_of(ca, sr.pivot(src_plan.shot))
+            nb_ = ndc_of(dst_plan._base(sr, b), sr.pivot(dst_plan.shot))
+            cache["s"] = ((nb_[0] - na[0]) / 2.0, (nb_[1] - na[1]) / 2.0)
+        sx, sy = cache["s"]
+        k = 1.0 - ease(min(max((f - b) / settle, 0.0), 1.0), "smooth")
+        c2 = Camera(c.pos, target=c.target, fov_h=c.fov_h, roll=c.roll,
+                    shift=(c.shift[0] + sx * k, c.shift[1] + sy * k))
+        c2.up = getattr(c, "up", (0.0, 0.0, 1.0))
+        return c2
+
+    return mod

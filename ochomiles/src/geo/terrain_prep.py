@@ -44,6 +44,29 @@ def from_cop30(dst, tr, crs, resampling):
     with rasterio.open(VRT) as src:
         reproject(rasterio.band(src, 1), dst, dst_transform=tr, dst_crs=crs,
                   src_nodata=-32767, dst_nodata=np.nan, resampling=resampling, num_threads=4)
+    # el mosaico VRT devuelve 0 fuera de las teselas descargadas: es "sin dato", no nivel del mar
+    # (no hay cotas reales cercanas a 0 m a menos de 500 km de estas cumbres)
+    dst[np.abs(dst) < 0.5] = np.nan
+
+
+def despike(z, max_valid=8850.0, tol=900.0):
+    """Elimina artefactos de remuestreo (anillos del cubico junto a teselas defectuosas):
+    cotas negativas, por encima del Everest o muy alejadas de la mediana local -> hueco."""
+    from scipy.ndimage import median_filter
+    med = median_filter(np.nan_to_num(z, nan=0.0), size=5)
+    bad = (z < 0) | (z > max_valid) | (np.abs(z - med) > tol)
+    z[bad] = np.nan
+    return int(bad.sum())
+
+
+def fill_gaps(z):
+    """Rellena huecos residuales (NaN o 0 m) con el valor valido mas proximo."""
+    from scipy.ndimage import distance_transform_edt
+    bad = ~np.isfinite(z) | (np.abs(z) < 0.5)
+    if bad.any():
+        idx = distance_transform_edt(bad, return_distances=False, return_indices=True)
+        z[bad] = z[tuple(i[bad] for i in idx)]
+    return int(bad.sum())
 
 
 def from_terrarium(dst, tr, crs, z, region):
@@ -88,6 +111,12 @@ def restore_summits(z, tr, crs, region_peaks, log):
         delta = float(p["altitude_m"]) - zmax
         if abs(delta) < 1.0:
             continue
+        # un deficit mayor de 400 m no es suavizado del DEM sino un hueco de datos: no se corrige
+        # (inventaria relieve); el nivel L2 toma Copernicus alrededor de las cumbres para evitarlo
+        if abs(delta) > 400.0:
+            log.append({"peak": p["id"], "cell_m": cell, "dem_max_m": round(zmax, 1), "added_m": 0.0,
+                        "new_max_m": round(zmax, 1), "skipped": "deficit > 400 m (hueco de datos)"})
+            continue
         # perfil suave (1 - (r/R)^2)^2: eleva la cupula de la cumbre sin crear agujas;
         # pendiente anadida maxima ~ 1.5*delta/R (unos 10-15 grados)
         R = max(4.0 * abs(delta) + 400.0, 2.0 * cell)
@@ -104,7 +133,7 @@ def restore_summits(z, tr, crs, region_peaks, log):
                     "added_m": round(delta, 1), "new_max_m": round(float(np.nanmax(near)), 1)})
 
 
-def prep(region):
+def prep(region, only=None):
     t0 = time.time()
     os.makedirs(OUT, exist_ok=True)
     crs = local_crs(region)
@@ -116,16 +145,25 @@ def prep(region):
     # cumbres de otras regiones que caen dentro de los niveles lejanos tambien se corrigen
     all_peaks = list(peaks().values())
     info = {"region": region, "crs": crs, "center": [lat_c, lon_c], "levels": {}, "summit_fix": []}
+    old = json.load(open(os.path.join(OUT, f"{region}.json"))) if only and os.path.exists(
+        os.path.join(OUT, f"{region}.json")) else None
+    if old:
+        info["levels"] = old["levels"]
+        info["summit_fix"] = [f for f in old["summit_fix"] if f["cell_m"] not in [c for n_, c, h_ in LEVELS if n_ in only]]
     for name, cell, half in LEVELS:
+        if only and name not in only:
+            continue
         half = half0 if half is None else half
         tr, n = level_grid(region, cell, half)
         z = np.full((n, n), np.nan, np.float32)
-        if name in ("L0", "L1"):
-            from_cop30(z, tr, crs, Resampling.cubic if name == "L0" else Resampling.average)
+        # Copernicus GLO-30 donde haya teselas (alrededor de las 14 cumbres), Terrain Tiles en el resto
+        from_cop30(z, tr, crs, Resampling.cubic if name == "L0" else Resampling.average)
         missing = float(np.isnan(z).mean())
         if missing > 0:
             from_terrarium(z, tr, crs, {"L0": 12, "L1": 10, "L2": 9}[name], region)
-        z = np.nan_to_num(z, nan=0.0)
+        z[np.abs(z) < 0.5] = np.nan               # teselas Terrarium vacias o fallidas
+        nspk = despike(z, tol=900.0 if name != "L0" else 1e9)
+        nfill = fill_gaps(z)
         restore_summits(z, tr, crs, all_peaks if name != "L0" else reg_peaks + [
             p for p in all_peaks if p not in reg_peaks], info["summit_fix"])
         path = os.path.join(OUT, f"{region}_{name}.tif")
@@ -134,7 +172,8 @@ def prep(region):
             ds.write(z, 1)
         info["levels"][name] = {"cell": cell, "n": n, "half": n * cell / 2, "cop30_missing": missing,
                                 "transform": list(tr)[:6]}
-        print(f"  {region} {name}: {n}x{n} @ {cell:.0f} m, faltaban {missing*100:.1f}% -> Terrain Tiles", flush=True)
+        print(f"  {region} {name}: {n}x{n} @ {cell:.0f} m, faltaban {missing*100:.1f}% -> Terrain Tiles;"
+              f" {nfill} celdas rellenadas por vecindad ({nspk} artefactos)", flush=True)
         if name in ("L0", "L1"):
             svf = sky_view(z, cell, ndir=16 if name == "L0" else 8,
                            max_dist=20000.0 if name == "L0" else 60000.0)
@@ -151,6 +190,8 @@ def prep(region):
 
 
 if __name__ == "__main__":
-    regs = list(REGIONS) if sys.argv[1] == "all" else sys.argv[1:]
+    args = [a for a in sys.argv[1:] if not a.startswith("--levels=")]
+    lv = [a.split("=", 1)[1].split(",") for a in sys.argv[1:] if a.startswith("--levels=")]
+    regs = list(REGIONS) if args[0] == "all" else args
     for r in regs:
-        prep(r)
+        prep(r, only=lv[0] if lv else None)

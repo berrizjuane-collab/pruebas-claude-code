@@ -111,6 +111,7 @@ class ShotRenderer:
             w = clouds.pop("wind", (0.0, 0.0))
             clouds["off"] = (w[0] * t * 20.0, w[1] * t * 20.0)
         kw = dict(exposure=track(shot.get("exposure", 8.0), f), clouds=clouds, fog=shot.get("fog"),
+                  sky_boost=shot.get("sky_boost", 1.35), stars=track(shot.get("stars", 0.0), f),
                   style=track(shot.get("style", 0.0), f), grade=shot.get("grade"))
         kw.update(extra)
         return self.r.render(sc, c, **kw)

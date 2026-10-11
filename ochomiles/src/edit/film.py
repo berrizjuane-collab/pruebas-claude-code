@@ -114,3 +114,71 @@ HEROES = [
          sun=(250.0, 0.9), exposure=14.0,
          clouds={"base": 4800.0, "thick": 700.0, "cov": 0.55, "scale": 8000.0, "wind": (4.0, 1.0)}),
 ]
+
+
+# ------------------------------------------------------------------------------------
+# Apertura (3,5-12,5 s): subida junto al Collado Sur (7.861 m en el DEM) desde el Cwm
+# Occidental; al coronar entre las paredes del Everest y el Lhotse se abre el horizonte
+# oriental y asoma el sol (azimut de salida del sol a 28 N a mediados de octubre: ~98 grados).
+# ------------------------------------------------------------------------------------
+def _opening():
+    import math as _m
+    import numpy as _np
+    from .timeline import PathRig
+    C = _np.array([5599.0, -2818.0, 7861.0])        # Collado Sur en la TM local de 'khumbu'
+
+    def at(bearing, d, z):
+        b = _m.radians(bearing)
+        return (C[0] + d * _m.sin(b), C[1] + d * _m.cos(b), z)
+
+    east = lambda d, z, az=103.0: at(az, d, z)
+    keys = [
+        (96, (4300.0, -3215.0, 7770.0), (9700.0, -3770.0, 8300.0), 58.0),
+        (156, at(252.0, 1050.0, 8020.0), east(9000.0, 8300.0), 56.0),
+        (198, at(250.0, 520.0, 8360.0), east(30000.0, 7800.0), 50.0),
+        (312, east(1700.0, 8460.0, 100.0), east(45000.0, 6950.0, 104.0), 44.0),
+    ]
+    return {"id": "apertura", "chapter": 0, "peak": "everest", "region": "khumbu",
+            "start": 96, "end": 312, "rig": PathRig(keys, timing="linear"),
+            "pivot_xyz": tuple(C), "focus": (C[0] + 2000.0, C[1] - 500.0),
+            "sun": (98.0, [(96, -1.95), (180, -1.25), (230, -0.95), (312, -0.55)]),
+            "exposure": [(96, 24.0), (150, 23.0), (178, 21.0), (214, 12.0), (312, 10.5)],
+            "sky_boost": 2.8,
+            "clouds": {"base": 4500.0, "thick": 900.0, "cov": 0.62, "scale": 8000.0, "wind": (3.0, 1.0)},
+            "haze": 1.1}
+
+
+OPENING = _opening()
+
+
+# ------------------------------------------------------------------------------------------
+# Sintesis: campo base sur del Everest (5.364 m; 5.290 m en el DEM) al anochecer.
+# Las luces de tienda son ilustrativas (dimension humana), dispuestas sobre el glaciar.
+# ------------------------------------------------------------------------------------------
+EBC = (-2184.0, 288.0, 5290.0)
+
+
+def _camp():
+    import math as _m
+    from .timeline import PathRig
+
+    def at(bearing, d, z, base=EBC):
+        b = _m.radians(bearing)
+        return (base[0] + d * _m.sin(b), base[1] + d * _m.cos(b), z)
+
+    look = lambda bearing, d, z: at(bearing, d, z)
+    keys = [
+        (3790, at(235.0, 1800.0, 5570.0), look(72.0, 6500.0, 5420.0), 56.0),
+        (3880, at(235.0, 1740.0, 5570.0), look(74.0, 6500.0, 5560.0), 56.0),
+        (4050, at(235.0, 1620.0, 5580.0), look(82.0, 6500.0, 9150.0), 56.0),
+        (4320, at(235.0, 1580.0, 5585.0), look(83.0, 6500.0, 9450.0), 56.0),
+    ]
+    return {"id": "campo_base", "chapter": 15, "peak": "everest", "region": "khumbu",
+            "start": 3790, "end": 4319, "rig": PathRig(keys, timing="linear"), "lights": True,
+            "pivot_xyz": EBC, "focus": (EBC[0] + 3000.0, EBC[1] + 1000.0),
+            "sun": (262.0, [(3790, 1.4), (3900, 0.4), (4000, -0.6), (4100, -1.6), (4200, -2.4), (4320, -3.2)]),
+            "exposure": [(3790, 9.0), (3900, 11.0), (4000, 14.0), (4100, 20.0), (4320, 28.0)],
+            "sky_boost": 2.6, "stars": [(3790, 0.0), (4000, 0.2), (4150, 1.0)]}
+
+
+CAMP = _camp()

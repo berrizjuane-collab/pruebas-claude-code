@@ -367,6 +367,7 @@ class TerrainRenderer:
         _us(p, "u_haze", float(scene["haze"]))
         _us(p, "u_style", float(style))
         _us(p, "u_atlas_exag", float(atlas_exag))
+        _us(p, "u_fp4k", float(self.W) / 3840.0)
         self._style = float(style)
         _us(p, "u_contour_m", float(contour_m))
         _us(p, "u_detail", float(detail))

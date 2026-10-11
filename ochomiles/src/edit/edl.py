@@ -22,17 +22,17 @@ from .transitions import CameraPlan
 # transicion en la frontera entre el capitulo k y k+1 (0: mapa -> 01; 14: 14 -> sintesis)
 TRANSITIONS = {
     0: "contours", 1: "hop", 2: "cloud_wipe", 3: "motion_cut", 4: "hop", 5: "whip", 6: "cloud_pass",
-    7: "dissolve", 8: "spindrift", 9: "summit_match", 10: "pan_reveal", 11: "haze", 12: "black",
+    7: "dissolve", 8: "spindrift", 9: "summit_match", 10: "pan_reveal", 11: "glow", 12: "black",
     13: "grand_hop", 14: "rise_to_map",
 }
 # entrada y salida del bloque de datos (fotograma relativo al capitulo) segun la transicion
-T_IN = {"contours": 46, "hop": 46, "grand_hop": 56, "black": 30}
-T_OUT = {"hop": 168, "grand_hop": 160, "rise_to_map": 172, "pan_reveal": 158, "haze": 172, "black": 176,
+T_IN = {"contours": 46, "hop": 46, "grand_hop": 50, "black": 30}
+T_OUT = {"hop": 168, "grand_hop": 160, "rise_to_map": 176, "pan_reveal": 158, "glow": 172, "black": 176,
          "cloud_wipe": 180, "whip": 182, "cloud_pass": 180, "spindrift": 182}
 
 # tiempos de los saltos (relativos a la frontera b)
 HOP = {"rise": (-36, -8), "map": (-12, 12), "dive": (8, 40), "style_up": (-30, -14), "style_down": (12, 30)}
-GRAND = {"rise": (-46, -12), "map": (-16, 20), "dive": (14, 54), "style_up": (-40, -18), "style_down": (18, 38)}
+GRAND = {"rise": (-46, -12), "map": (-16, 18), "dive": (12, 46), "style_up": (-40, -18), "style_down": (16, 34)}
 
 
 class EDL:
@@ -83,9 +83,9 @@ def chapters(edl, shots):
             style[k + 1].append((b + P["style_down"][0], b + P["style_down"][1], 1.0, 0.0))
             maps.append((k, b, P, src, dst, tr))
         elif tr == "rise_to_map":
-            src["plan"].rise = (b - 40, b - 8)
-            spans[14][1] = b - 6
-            style[14].append((b - 34, b - 16, 0.0, 1.0))
+            src["plan"].rise = (b - 34, b - 4)
+            spans[14][1] = b - 2
+            style[14].append((b - 28, b - 12, 0.0, 1.0))
         elif tr == "cloud_wipe":
             spans[k][1], spans[k + 1][0] = b + 6, b - 6
             fades[k + 1]["in"] = (b - 6, b + 6)
@@ -103,8 +103,8 @@ def chapters(edl, shots):
             fades[k + 1]["in"] = (b - 6, b + 6)
             fx.append(("spindrift", b))
         elif tr == "dissolve":
-            spans[k][1], spans[k + 1][0] = b + 10, b - 10
-            fades[k + 1]["in"] = (b - 10, b + 10)
+            spans[k][1], spans[k + 1][0] = b + 8, b - 8
+            fades[k + 1]["in"] = (b - 8, b + 8)
         elif tr == "whip":
             spans[k][1], spans[k + 1][0] = b + 3, b - 3
             fades[k + 1]["in"] = (b - 3, b + 3)
@@ -119,15 +119,18 @@ def chapters(edl, shots):
             fades[k + 1]["in"] = (b - 8, b + 8)
             src["plan"].mods.append(lambda f, c, b=b: yaw_camera(c, -46.0 * ease((f - (b - 44)) / 50.0, "smooth"))
                                     if f > b - 44 else c)
-        elif tr == "haze":
-            spans[k][1], spans[k + 1][0] = b + 12, b - 12
-            fades[k + 1]["in"] = (b - 12, b + 12)
-            fogs[k].append((b - 34, b + 12, None, {"dens": 3.2e-4, "h": 9800.0, "fall": 2600.0}))
-            fogs[k + 1].append((b - 12, b + 40, {"dens": 3.2e-4, "h": 9800.0, "fall": 2600.0}, None))
+        elif tr == "glow":
+            # fundido luminoso: la luz de un plano se abre (halo calido) y deja paso al siguiente
+            spans[k][1], spans[k + 1][0] = b + 10, b - 10
+            fades[k + 1]["in"] = (b - 10, b + 10)
+            fx.append(("glow", b))
         elif tr == "black":
             spans[k][1], spans[k + 1][0] = b - 1, b + 8
             fades[k]["out"] = (b - 20, b - 2)
             fades[k + 1]["in"] = (b + 8, b + 32)
+        elif tr == "summit_match":
+            from .transitions import summit_match_mod
+            dst["plan"].mods.append(summit_match_mod(src["plan"], dst["plan"], b))
         # cortes (motion_cut, summit_match): sin solape
 
     for k in range(1, 15):
@@ -206,7 +209,7 @@ def transition_fx(edl, fx, shots):
             edl.layers.append(FX(b - 24, b + 24, fn, "nube_lateral"))
         elif kind == "cloud_pass":
             def fn(ctx, f, below, b=b):
-                cover = float(window(f, b - 26, b - 6, b + 6, b + 28))
+                cover = float(window(f, b - 20, b - 3, b + 3, b + 22)) ** 1.4
                 lit, shade = palette_from(below)
                 return cloud_tunnel(ctx.W, ctx.H, (f - b) / 24.0, cover, lit=lit, shade=shade)
             edl.layers.append(FX(b - 26, b + 28, fn, "paso_nube"))
@@ -215,11 +218,13 @@ def transition_fx(edl, fx, shots):
                 amt = float(window(f, b - 20, b - 4, b + 4, b + 20))
                 rgb, al = spindrift(ctx.W, ctx.H, (f - b) / 24.0, amt)
                 # en el centro de la transicion el velo de nieve cubre casi todo
-                veil = float(window(f, b - 8, b - 2, b + 2, b + 8)) * 0.85
+                veil = float(window(f, b - 6, b - 1, b + 1, b + 6)) * 0.55
                 al = al + veil * (1 - al)
                 rgb = rgb * (1 - veil * 0.3) + np.array((0.90, 0.93, 0.96), np.float32) * veil * 0.3
                 return rgb, al
             edl.layers.append(FX(b - 20, b + 20, fn, "ventisca"))
+        elif kind == "glow":
+            edl.post.append(_glow_post(b))
 
 
 def hop_maps(edl, maps):
@@ -288,6 +293,110 @@ def chapter_overlays(edl):
         edl.overlays.append(Overlay(cs, cs + CHAPTER_LEN - 1, draw, f"datos{k:02d}"))
 
 
+def _glow_post(b, half=22):
+    """Halo luminoso sobre la imagen compuesta alrededor de b (se aplica tras los graficos
+    no: antes del grano; los graficos ya estan fundidos a esa altura)."""
+    import cv2
+
+    def post(ctx, f, img):
+        a = window(f, b - half, b - 2, b + 2, b + half)
+        if a <= 0.002:
+            return img
+        k = ctx.k
+        big = cv2.GaussianBlur(img, (0, 0), 60 * k + 1)
+        warm = np.array([1.06, 1.0, 0.92], np.float32)
+        out = img * (1 - 0.35 * a) + big * warm * (0.55 * a) + (0.10 * a) * warm
+        return out
+    return post
+
+
+def opening(edl):
+    """0-96 macro de nieve y huella; 96-312 subida a la arista del Collado Sur y amanecer."""
+    from .film import OPENING
+    from .layers import Fn, Overlay
+    from ..render.titles import opening_titles
+
+    def macro(ctx, f):
+        m = ctx.cache.get("macro")
+        if m is None:
+            from ..render.macro import MacroOpening
+            m = ctx.cache["macro"] = MacroOpening(ctx.W, ctx.H)
+        return m.render(f)
+
+    edl.layers.append(Fn(0, 96, macro, name="macro"))
+    edl.layers.append(Shot3D(OPENING, start=96, end=312, opacity=lambda f: ramp(f, 96, 116)))
+    edl.overlays.append(Overlay(100, 290, lambda canvas, ctx, f, img: opening_titles(canvas, ctx.fonts, f),
+                                "titulo"))
+
+
+def synthesis(edl, shots):
+    """3594-3822 mapa completo; 3806-4319 campo base al anochecer; textos y marca."""
+    from .film import CAMP
+    from .layers import CampShot, Overlay
+    from .mapcam import map_cam_path
+    from ..render.titles import brand_card, synthesis_titles
+    S = mapseq.SYN
+    camp = copy.copy(CAMP)
+    camp["plan"] = CameraPlan(camp)
+    camp["camera_fn"] = camp["plan"]
+    dive0, dive1 = S["out"], S["out"] + 34
+    camp["plan"].dive = (dive0, dive1)
+    ev = shots[13]
+
+    def cam_fn(ctx, f):
+        sr = ctx.sr
+        a = ev["plan"].map_cam(sr, 3596)
+        arc = mapseq.arc_cam()
+        z = camp["plan"].map_cam(sr, dive0)
+        keys = [(S["in"], a, "out", 1.3), (S["arc"], arc, "linear", 1.3),
+                (S["zoom"], dict(arc, scale=arc["scale"] * 0.96), "in", 1.3), (dive0, z)]
+        if f >= dive0:
+            return camp["plan"].map_cam(sr, f)
+        return map_cam_path(keys, f)
+
+    op = lambda f: ramp(f, S["in"], S["in"] + 8) * (1.0 - ramp(f, dive0, dive0 + 10))
+    edl.layers.append(mapseq.MapLayer(S["in"], dive0 + 10, cam_fn, mapseq.synth_content, opacity=op,
+                                      name="sintesis"))
+    # luces de tienda sobre el glaciar (campo base sur): posiciones reales del glaciar, ilustrativas
+    rng = np.random.default_rng(8848)
+    from .film import EBC
+    n = 64
+    along = rng.normal(0, 210, n)
+    across = rng.normal(0, 55, n)
+    ang = np.radians(42.0)
+    xy = np.stack([EBC[0] + along * np.sin(ang) + across * np.cos(ang),
+                   EBC[1] + along * np.cos(ang) - across * np.sin(ang)], 1)
+    warm = rng.uniform(0, 1, n) < 0.8
+    col = np.where(warm[:, None], np.array([1.0, 0.70, 0.40]), np.array([0.92, 0.95, 1.0]))
+    inten = rng.uniform(0.35, 1.0, n) ** 1.5
+    phase = rng.uniform(0, 6.28, n)
+    lights_state = {"P": None}
+
+    def style(f):
+        return {"style": 1.0 - ramp(f, dive0 + 4, dive0 + 22)} if f < dive0 + 24 else {}
+
+    class _Camp(CampShot):
+        def render(self, ctx, f):
+            if lights_state["P"] is None:
+                rd = ctx.sr.region("khumbu")
+                z = rd.height(xy[:, 0], xy[:, 1]) + 2.0
+                lights_state["P"] = np.column_stack([xy, z])
+                self.lights = (lights_state["P"], col, inten, phase)
+            return super().render(ctx, f)
+
+    edl.layers.append(_Camp(camp, None, on=lambda f: ramp(f, 3888, 3944), start=dive0 - 6, end=4319,
+                            opacity=lambda f: ramp(f, dive0 - 6, dive0 + 4), extra=style))
+    edl.overlays.append(Overlay(3690, 3995, lambda canvas, ctx, f, img: synthesis_titles(canvas, ctx.fonts, f),
+                                "sintesis_textos"))
+    edl.overlays.append(Overlay(4032, 4319, lambda canvas, ctx, f, img: brand_card(canvas, ctx.fonts, f),
+                                "marca"))
+
+    def fade_end(ctx, f, img):
+        return img * (1.0 - ramp(f, 4300, 4319)) if f >= 4300 else img
+
+    edl.final_post = [fade_end]
+
+
 def grain(ctx, f, img):
     """Grano fino de pelicula, igual en todas las fuentes (unifica 3D, mapa y graficos)."""
     import cv2
@@ -304,10 +413,13 @@ def build():
     edl = EDL()
     edl.layers.append(Solid(0, TOTAL - 1, (0, 0, 0)))
     shots = _hero_shots()
+    opening(edl)
     maps, fx = chapters(edl, shots)
     map_intro(edl, shots)
+    synthesis(edl, shots)
     hop_maps(edl, maps)
     transition_fx(edl, fx, shots)
     chapter_overlays(edl)
     edl.post.append(grain)
+    edl.post.extend(getattr(edl, "final_post", []))
     return edl

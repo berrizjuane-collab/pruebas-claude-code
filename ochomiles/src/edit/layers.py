@@ -117,3 +117,43 @@ class FX(Layer):
 
     def _mask(self, ctx, f):
         return self._cache[2] if self._cache[0] == f else np.zeros((ctx.H, ctx.W), np.float32)
+
+
+class CampShot(Shot3D):
+    """Plano 3D con luces de campamento proyectadas desde coordenadas reales del glaciar
+    (oclusion con el mapa de profundidad del render)."""
+
+    def __init__(self, shot, lights, on, **kw):
+        super().__init__(shot, **kw)
+        self.lights = lights          # (N, 3) mundo; (N, 3) color; (N,) intensidad; (N,) fase
+        self.on = on                  # f -> 0..1 encendido
+
+    def render(self, ctx, f):
+        import cv2
+        from .shot3d import project_points
+        kw = self.extra(f) if self.extra else {}
+        img, aux = ctx.sr.render(self.shot, f, return_aux=True, **kw)
+        on = float(self.on(f))
+        if on <= 0.002:
+            return img
+        P, C, I, ph = self.lights
+        H, W = img.shape[:2]
+        layer = np.zeros((H, W, 3), np.float32)
+        c = ctx.sr.camera(self.shot, f)
+        uvs = project_points(ctx.sr, self.shot, f, list(P))
+        k = ctx.k
+        for i, (u, v, ok) in enumerate(uvs):
+            if u is None or not ok:
+                continue
+            iu, iv = int(u), int(v)
+            if not (0 <= iu < W and 0 <= iv < H):
+                continue
+            d = float(np.linalg.norm(P[i] - c.pos))
+            if d > aux[iv, iu, 3] + 40.0:          # tapada por el relieve
+                continue
+            fl = 0.88 + 0.12 * np.sin(f * 0.21 + ph[i]) * np.sin(f * 0.07 + 2 * ph[i])
+            cv2.circle(layer, (int(u * 16), int(v * 16)), max(int(16 * 1.2 * k), 8),
+                       tuple(float(x) * I[i] * fl * on for x in C[i]), -1, cv2.LINE_AA, shift=4)
+        glow = cv2.GaussianBlur(layer, (0, 0), 1.0 * k + 0.4) * 1.4 + cv2.GaussianBlur(layer, (0, 0), 7 * k + 1) * 1.8 \
+            + cv2.GaussianBlur(layer, (0, 0), 26 * k + 2) * 1.2
+        return img + glow
