@@ -29,6 +29,7 @@ class ShotRenderer:
         self.max_regions = max_regions
         self.max_scenes = max_scenes
         self._use = 0
+        self.cam_mod = None      # (camara, plano, f) -> camara: reencuadre (version vertical)
 
     def _touch(self, d, k):
         self._use += 1
@@ -58,13 +59,13 @@ class ShotRenderer:
 
     def camera(self, shot, f):
         if "camera_fn" in shot:          # camaras de transicion (subida/bajada cenital, latigazos)
-            return shot["camera_fn"](self, f)
-        piv = self.pivot(shot)
-        cam, tgt, fov, roll, shift = shot["rig"].at(f, piv)
-        up = shot.get("up", (0.0, 0.0, 1.0))
-        c = Camera(cam, target=tgt, fov_h=fov, roll=roll, shift=shift)
-        c.up = up
-        return c
+            c = shot["camera_fn"](self, f)
+        else:
+            piv = self.pivot(shot)
+            cam, tgt, fov, roll, shift = shot["rig"].at(f, piv)
+            c = Camera(cam, target=tgt, fov_h=fov, roll=roll, shift=shift)
+            c.up = shot.get("up", (0.0, 0.0, 1.0))
+        return self.cam_mod(c, shot, f) if self.cam_mod else c
 
     def scene(self, shot):
         sid = shot["id"]

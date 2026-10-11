@@ -404,9 +404,11 @@ def _dof(img, depth, focus, strength, levels=(0.0, 1.5, 3.5, 7.0, 12.0, 20.0)):
 class MacroOpening:
     """Plano macro 0-96 (fotogramas a 24 fps)."""
 
-    def __init__(self, W, H):
+    def __init__(self, W, H, frac=1.0):
+        """frac < 1: encuadre equivalente a un recorte central del plano horizontal (vertical 9:16)."""
         self.W, self.H = W, H
-        self.k = W / 3840.0
+        self.frac = frac
+        self.k = W / 3840.0 / frac
         self.relief = build_relief()
         from .fxclouds import _field
         self.vapor = _field(seed=31)
@@ -464,7 +466,7 @@ class MacroOpening:
         pos, tgt, roll = self.camera(f)
         fwd, right, up = _cam_basis(pos, tgt, roll)
         fov = math.radians(40.0)
-        thw = math.tan(fov / 2)
+        thw = math.tan(fov / 2) * self.frac
         thh = thw * H / W
         lamp, ldir, on = self.lamp(f, pos)
         out = np.zeros((H, W, 3), np.float32)
