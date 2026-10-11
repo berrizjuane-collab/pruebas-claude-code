@@ -12,7 +12,8 @@
 Uso:
   python -m src.edit.render_film render --res 3840x2160 [--range 0:4320] [--jobs 1]
   python -m src.edit.render_film assemble
-  python -m src.edit.render_film verify
+  python -m src.edit.render_film web [--audio-only]
+  python -m src.edit.render_film verify [--ssim]
 """
 import argparse
 import json
@@ -175,8 +176,24 @@ def encode_deliverables(src, args, common_a):
 WEB = os.path.join(OUT_DIR, f"{NAME}_1080p24_web.mp4")
 
 
+# misma pista AAC 320 kbps que las otras versiones: a 192 kbps el codificador rebasaba el
+# pico verdadero del master (medido: -1,6 dBTP en el WAV -> -0,9 dBTP en el MP4)
+WEB_AUDIO = ["-c:a", "aac", "-b:a", "320k", "-ar", "48000"]
+
+
+def remux_web_audio():
+    """Sustituye el audio de la version web sin recodificar la imagen."""
+    tmp = WEB[:-4] + "_tmp.mp4"
+    run(["ffmpeg", "-y", "-loglevel", "error", "-i", WEB, "-i", AUDIO, "-map", "0:v", "-map", "1:a",
+         "-c:v", "copy", *WEB_AUDIO, "-movflags", "+faststart", tmp])
+    os.replace(tmp, WEB)
+    log("audio de la version web sustituido")
+
+
 def encode_web(args):
-    """1080p ligera (< 100 MB) que cabe en git sin LFS: H.264 a dos pasadas, 4,0 Mbps + AAC 192 kbps."""
+    """1080p ligera (< 100 MB) que cabe en git sin LFS: H.264 a dos pasadas, 4,0 Mbps + AAC 320 kbps."""
+    if args.audio_only:
+        return remux_web_audio()
     src = source_args()
     vf = ["-vf", "zscale=w=1920:h=1080:filter=lanczos:dither=error_diffusion,format=yuv420p"]
     v = ["-c:v", "libx264", "-preset", "slow", "-b:v", "4000k", "-maxrate", "8M", "-bufsize", "16M",
@@ -185,7 +202,7 @@ def encode_web(args):
     run(["ffmpeg", "-y", "-loglevel", "error", *src, *vf, *v, "-pass", "1", "-passlogfile", log_prefix,
          "-an", "-f", "mp4", os.devnull])
     run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a", *vf, *v,
-         "-pass", "2", "-passlogfile", log_prefix, "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+         "-pass", "2", "-passlogfile", log_prefix, *WEB_AUDIO,
          "-movflags", "+faststart", WEB])
     log("version web codificada")
 
@@ -305,6 +322,7 @@ def main():
     ap.add_argument("--only-master", action="store_true", help="solo el master de archivo")
     ap.add_argument("--extra", nargs="*")
     ap.add_argument("--ssim", action="store_true", help="medir SSIM del MP4 4K frente al intermedio")
+    ap.add_argument("--audio-only", action="store_true", help="web: rehacer solo el audio (copia la imagen)")
     args = ap.parse_args()
     if args.cmd == "plan":
         for s, e in segments(*(int(v) for v in args.range.split(":")), args.seg):
