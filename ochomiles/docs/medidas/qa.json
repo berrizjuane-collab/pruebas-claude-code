@@ -1,0 +1,211 @@
+{
+ "color": {
+  "2160p f240": {
+   "media_firmada_RGB": [
+    0.04,
+    -0.16,
+    -0.04
+   ],
+   "error_abs_medio": 1.25,
+   "PSNR_dB": 43.28
+  },
+  "1080p f240": {
+   "media_firmada_RGB": [
+    0.22,
+    -0.14,
+    0.03
+   ],
+   "error_abs_medio": 1.31,
+   "PSNR_dB": 42.74
+  },
+  "1080p web f240": {
+   "media_firmada_RGB": [
+    0.18,
+    -0.06,
+    0.11
+   ],
+   "error_abs_medio": 1.36,
+   "PSNR_dB": 42.35
+  },
+  "2160p f520": {
+   "media_firmada_RGB": [
+    0.43,
+    0.14,
+    0.46
+   ],
+   "error_abs_medio": 2.12,
+   "PSNR_dB": 38.45
+  },
+  "1080p f520": {
+   "media_firmada_RGB": [
+    0.42,
+    0.22,
+    0.49
+   ],
+   "error_abs_medio": 2.37,
+   "PSNR_dB": 36.89
+  },
+  "1080p web f520": {
+   "media_firmada_RGB": [
+    0.41,
+    0.22,
+    0.37
+   ],
+   "error_abs_medio": 2.97,
+   "PSNR_dB": 34.82
+  },
+  "2160p f3500": {
+   "media_firmada_RGB": [
+    0.1,
+    -0.02,
+    0.25
+   ],
+   "error_abs_medio": 1.51,
+   "PSNR_dB": 41.07
+  },
+  "1080p f3500": {
+   "media_firmada_RGB": [
+    0.07,
+    0.0,
+    0.04
+   ],
+   "error_abs_medio": 1.26,
+   "PSNR_dB": 41.94
+  },
+  "1080p web f3500": {
+   "media_firmada_RGB": [
+    0.15,
+    -0.0,
+    0.27
+   ],
+   "error_abs_medio": 1.93,
+   "PSNR_dB": 38.38
+  }
+ },
+ "sonido": {
+  "formato": "48000 Hz, 2 canales, PCM_24",
+  "muestras": 8640000,
+  "integrada_LUFS": -14.1,
+  "rango_LU": 9.1,
+  "pico_verdadero_dBTP": -1.6,
+  "pico_muestra_dBFS": -1.6,
+  "momentanea_max_LUFS": -7.2,
+  "corto_plazo_max_LUFS": -9.5,
+  "componente_continua_dBFS": [
+   -91.4,
+   -91.3
+  ],
+  "correlacion_LR": 0.72,
+  "correlacion_LR_minima_por_segundo": 0.1,
+  "perdida_al_sumar_a_mono_LU": 1.1,
+  "primera_muestra": [
+   0.0,
+   0.0
+  ],
+  "rms_ultimos_100ms_dBFS": -70.1
+ },
+ "sincro": {
+  "14_cumbres_2160p24.mp4": {
+   "desfase_muestras": [
+    0,
+    0,
+    0
+   ],
+   "en_segundos": [
+    5,
+    80,
+    155
+   ]
+  },
+  "14_cumbres_1080p24.mp4": {
+   "desfase_muestras": [
+    0,
+    0,
+    0
+   ],
+   "en_segundos": [
+    5,
+    80,
+    155
+   ]
+  },
+  "14_cumbres_1080p24_web.mp4": {
+   "desfase_muestras": [
+    0,
+    0,
+    0
+   ],
+   "en_segundos": [
+    5,
+    80,
+    155
+   ]
+  },
+  "14_cumbres_teaser_30s_2160p24.mp4": {
+   "desfase_muestras": [
+    0,
+    0,
+    0
+   ],
+   "en_segundos": [
+    2,
+    12,
+    20
+   ]
+  },
+  "14_cumbres_teaser_30s_1080p24.mp4": {
+   "desfase_muestras": [
+    0,
+    0,
+    0
+   ],
+   "en_segundos": [
+    2,
+    12,
+    20
+   ]
+  },
+  "14_cumbres_teaser_30s_vertical_1080x1920.mp4": {
+   "desfase_muestras": [
+    0,
+    0,
+    0
+   ],
+   "en_segundos": [
+    2,
+    12,
+    20
+   ]
+  }
+ },
+ "empalmes": [
+  {
+   "teaser_s": 9,
+   "compases": "4->6",
+   "salto_max_teaser": 0.0166,
+   "salto_max_pelicula": 0.016,
+   "correlacion_despues": 1.0
+  },
+  {
+   "teaser_s": 12,
+   "compases": "6->45",
+   "salto_max_teaser": 0.0447,
+   "salto_max_pelicula": 0.042,
+   "correlacion_despues": 1.0
+  },
+  {
+   "teaser_s": 15,
+   "compases": "45->48",
+   "salto_max_teaser": 0.2433,
+   "salto_max_pelicula": 0.3608,
+   "correlacion_despues": 0.998
+  },
+  {
+   "teaser_s": 21,
+   "compases": "49->57",
+   "salto_max_teaser": 0.1064,
+   "salto_max_pelicula": 0.2293,
+   "correlacion_despues": 0.998
+  }
+ ]
+}

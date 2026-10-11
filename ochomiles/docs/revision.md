@@ -68,8 +68,9 @@ intermedios de 10 bits ya codificados.
 **Sobre las entregas exportadas.** Material: la película en 4K
 (`14_cumbres_2160p24.mp4`), en 1080p de alta calidad (`14_cumbres_1080p24.mp4`) y en
 1080p web (`14_cumbres_1080p24_web.mp4`), los teasers y los fijos. Las medidas se repiten
-con `python -m src.edit.qa` y `python -m src.edit.render_film verify --ssim`
-(resultados en `render/qa.json` y `render/verificacion.json`).
+con `python -m src.edit.qa` y `python -m src.edit.render_film verify --ssim`. Los
+resultados están en [`docs/medidas/`](medidas/): `verificacion.json`, `qa.json` y el SSIM
+de cada fotograma en `ssim/`.
 
 **Color de extremo a extremo.** Cada fijo se renderiza directamente a RGB, sin pasar por
 vídeo, y se compara con el mismo fotograma de cada película. El fotograma se decodifica con
@@ -98,11 +99,14 @@ intermedio de 10 bits convertido como en su codificación (SSIM de la luminancia
 
 | Versión | Media | 1 % peor | Mínimo |
 |---|---|---|---|
+| Máster HEVC 4:2:2 10 bits (CRF 16) | 0,986 | 0,977 | 0,970 (f 3384) |
 | 4K (CRF 18) | 0,980 | 0,958 | 0,911 (f 1452) |
 | 4K, ambas reducidas a 960 × 540 | 0,996 | 0,992 | 0,988 |
 | 1080p (CRF 17) | 0,979 | 0,951 | 0,791 (f 1453) |
 | 1080p web (4 Mbps de media) | 0,967 | 0,920 | 0,900 (f 1452) |
 
+- **El máster es la copia más fiel.** Conserva los 10 bits y el color 4:2:2 del
+  intermedio, y su peor fotograma (0,970) queda por encima de la media de la versión web.
 - **La 4K pierde casi solo grano.** Al reducir ambas a 960 × 540, que promedia el grano,
   el SSIM sube a 0,996.
 - **Los mínimos están en los saltos por el mapa.** Son vuelos cenitales rápidos sobre el
@@ -158,7 +162,7 @@ de vídeo, y en JPG de calidad 95.
 
 ## Pasada 3 · Sonido y exportación (entregas finales)
 
-**Medidas de cada archivo** (`render/verificacion.json`). La sonoridad y el pico
+**Medidas de cada archivo** ([`medidas/verificacion.json`](medidas/verificacion.json)). La sonoridad y el pico
 verdadero se miden con el medidor EBU R128 de FFmpeg sobre el sonido decodificado.
 
 | Archivo | Imagen | Fotogramas · duración | Sonido | Sonoridad · LRA · pico verdadero | Tamaño · tasa |
@@ -220,8 +224,8 @@ Son los golpes de compás, no clics.
   que empiezan a reproducirse sin descargarse enteros.
 - **Compatibilidad.** Perfil High, niveles 5.1 (4K) y 4.2 (1080p y vertical), GOP de 2 s
   y topes de tasa de 60 Mbps (4K), 24 Mbps (1080p) y 25 Mbps (web).
-- **Sin errores de decodificación.** Se decodificaron enteros los teasers y las tres
-  películas (estas, durante la medida del SSIM).
+- **Sin errores de decodificación.** Se decodificaron enteros los seis MP4 y el máster, sin
+  un solo error.
 
 **Lo que no se ha podido comprobar**
 

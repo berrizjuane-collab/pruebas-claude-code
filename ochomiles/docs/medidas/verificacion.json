@@ -1,0 +1,294 @@
+{
+  "14_cumbres_master_2160p24_hevc422_10bit.mov": {
+    "tamano_MB": 1142.2,
+    "duracion_s": 180.0,
+    "tasa_Mbps": 50.8,
+    "video": {
+      "codec_name": "hevc",
+      "profile": "Rext",
+      "width": 3840,
+      "height": 2160,
+      "pix_fmt": "yuv422p10le",
+      "r_frame_rate": "24/1",
+      "nb_read_packets": "4320",
+      "color_space": "bt709",
+      "color_transfer": "bt709",
+      "color_primaries": "bt709",
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "audio": {
+      "codec_name": "pcm_s24le",
+      "profile": null,
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.1,
+      "rango_LU": 9.1,
+      "pico_verdadero_dBTP": -1.6
+    },
+    "ssim_frente_al_intermedio": {
+      "ssim_Y": 0.985497,
+      "ssim_total": 0.991882,
+      "fotogramas": 4320,
+      "ssim_Y_minimo": 0.969647
+    }
+  },
+  "14_cumbres_2160p24.mp4": {
+    "tamano_MB": 1122.4,
+    "duracion_s": 180.0,
+    "tasa_Mbps": 49.9,
+    "video": {
+      "codec_name": "h264",
+      "profile": "High",
+      "width": 3840,
+      "height": 2160,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "nb_read_packets": "4320",
+      "color_space": "bt709",
+      "color_transfer": "bt709",
+      "color_primaries": "bt709",
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "audio": {
+      "codec_name": "aac",
+      "profile": "LC",
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.2,
+      "rango_LU": 9.1,
+      "pico_verdadero_dBTP": -1.2
+    },
+    "moov_antes_de_mdat": true,
+    "ssim_frente_al_intermedio": {
+      "ssim_Y": 0.979535,
+      "ssim_total": 0.98428,
+      "fotogramas": 4320,
+      "ssim_Y_minimo": 0.91142
+    }
+  },
+  "14_cumbres_1080p24.mp4": {
+    "tamano_MB": 307.3,
+    "duracion_s": 180.0,
+    "tasa_Mbps": 13.7,
+    "video": {
+      "codec_name": "h264",
+      "profile": "High",
+      "width": 1920,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "nb_read_packets": "4320",
+      "color_space": "bt709",
+      "color_transfer": "bt709",
+      "color_primaries": "bt709",
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "audio": {
+      "codec_name": "aac",
+      "profile": "LC",
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.2,
+      "rango_LU": 9.1,
+      "pico_verdadero_dBTP": -1.2
+    },
+    "moov_antes_de_mdat": true,
+    "ssim_frente_al_intermedio": {
+      "ssim_Y": 0.979378,
+      "ssim_total": 0.983832,
+      "fotogramas": 4320,
+      "ssim_Y_minimo": 0.790638
+    }
+  },
+  "14_cumbres_1080p24_web.mp4": {
+    "tamano_MB": 97.7,
+    "duracion_s": 180.0,
+    "tasa_Mbps": 4.3,
+    "video": {
+      "codec_name": "h264",
+      "profile": "High",
+      "width": 1920,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "nb_read_packets": "4320",
+      "color_space": "bt709",
+      "color_transfer": "bt709",
+      "color_primaries": "bt709",
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "audio": {
+      "codec_name": "aac",
+      "profile": "LC",
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": "0.000000",
+      "duration": "180.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.2,
+      "rango_LU": 9.1,
+      "pico_verdadero_dBTP": -1.2
+    },
+    "moov_antes_de_mdat": true,
+    "ssim_frente_al_intermedio": {
+      "ssim_Y": 0.967207,
+      "ssim_total": 0.974536,
+      "fotogramas": 4320,
+      "ssim_Y_minimo": 0.900119
+    }
+  },
+  "14_cumbres_teaser_30s_2160p24.mp4": {
+    "tamano_MB": 164.7,
+    "duracion_s": 30.0,
+    "tasa_Mbps": 43.9,
+    "video": {
+      "codec_name": "h264",
+      "profile": "High",
+      "width": 3840,
+      "height": 2160,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "nb_read_packets": "720",
+      "color_space": "bt709",
+      "color_transfer": "bt709",
+      "color_primaries": "bt709",
+      "start_time": "0.000000",
+      "duration": "30.000000"
+    },
+    "audio": {
+      "codec_name": "aac",
+      "profile": "LC",
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": "0.000000",
+      "duration": "30.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.2,
+      "rango_LU": 10.0,
+      "pico_verdadero_dBTP": -1.5
+    },
+    "moov_antes_de_mdat": true
+  },
+  "14_cumbres_teaser_30s_1080p24.mp4": {
+    "tamano_MB": 42.6,
+    "duracion_s": 30.0,
+    "tasa_Mbps": 11.4,
+    "video": {
+      "codec_name": "h264",
+      "profile": "High",
+      "width": 1920,
+      "height": 1080,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "nb_read_packets": "720",
+      "color_space": "bt709",
+      "color_transfer": "bt709",
+      "color_primaries": "bt709",
+      "start_time": "0.000000",
+      "duration": "30.000000"
+    },
+    "audio": {
+      "codec_name": "aac",
+      "profile": "LC",
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": "0.000000",
+      "duration": "30.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.2,
+      "rango_LU": 10.0,
+      "pico_verdadero_dBTP": -1.5
+    },
+    "moov_antes_de_mdat": true
+  },
+  "14_cumbres_teaser_30s_vertical_1080x1920.mp4": {
+    "tamano_MB": 32.2,
+    "duracion_s": 30.0,
+    "tasa_Mbps": 8.6,
+    "video": {
+      "codec_name": "h264",
+      "profile": "High",
+      "width": 1080,
+      "height": 1920,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "24/1",
+      "nb_read_packets": "720",
+      "color_space": "bt709",
+      "color_transfer": "bt709",
+      "color_primaries": "bt709",
+      "start_time": "0.000000",
+      "duration": "30.000000"
+    },
+    "audio": {
+      "codec_name": "aac",
+      "profile": "LC",
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": "0.000000",
+      "duration": "30.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.2,
+      "rango_LU": 10.0,
+      "pico_verdadero_dBTP": -1.5
+    },
+    "moov_antes_de_mdat": true
+  },
+  "banda_sonora.wav": {
+    "tamano_MB": 51.8,
+    "duracion_s": 180.0,
+    "tasa_Mbps": 2.3,
+    "video": null,
+    "audio": {
+      "codec_name": "pcm_s24le",
+      "profile": null,
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": null,
+      "duration": "180.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.1,
+      "rango_LU": 9.1,
+      "pico_verdadero_dBTP": -1.6
+    }
+  },
+  "14_cumbres_teaser_30s.wav": {
+    "tamano_MB": 8.6,
+    "duracion_s": 30.0,
+    "tasa_Mbps": 2.3,
+    "video": null,
+    "audio": {
+      "codec_name": "pcm_s24le",
+      "profile": null,
+      "sample_rate": "48000",
+      "channels": 2,
+      "start_time": null,
+      "duration": "30.000000"
+    },
+    "sonoridad": {
+      "integrada_LUFS": -14.2,
+      "rango_LU": 10.0,
+      "pico_verdadero_dBTP": -1.6
+    }
+  }
+}

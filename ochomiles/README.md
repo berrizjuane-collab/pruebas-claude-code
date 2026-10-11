@@ -15,7 +15,7 @@ repositorio (véase «Entregas»).
 
 Todas las versiones van a 24 fps, con color BT.709 etiquetado y sonido estéreo a 48 kHz,
 masterizado a −14 LUFS con el pico verdadero por debajo de −1 dBTP. Los valores de la
-tabla se han medido sobre cada archivo (`render/verificacion.json`).
+tabla se han medido sobre cada archivo ([`docs/medidas/`](docs/medidas/)).
 
 | Archivo | Qué es | Formato | Sonido medido | Tamaño | Dónde |
 |---|---|---|---|---|---|
