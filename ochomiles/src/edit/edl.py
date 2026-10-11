@@ -329,6 +329,10 @@ def opening(edl):
                                 "titulo"))
 
 
+# encendido de las luces del campamento (fotogramas): mientras el campamento esta en cuadro
+CAMP_LIGHTS = (3856, 3896)
+
+
 def synthesis(edl, shots):
     """3594-3822 mapa completo; 3806-4319 campo base al anochecer; textos y marca."""
     from .film import CAMP
@@ -384,7 +388,7 @@ def synthesis(edl, shots):
                 self.lights = (lights_state["P"], col, inten, phase)
             return super().render(ctx, f)
 
-    edl.layers.append(_Camp(camp, None, on=lambda f: ramp(f, 3888, 3944), start=dive0 - 6, end=4319,
+    edl.layers.append(_Camp(camp, None, on=lambda f: ramp(f, *CAMP_LIGHTS), start=dive0 - 6, end=4319,
                             opacity=lambda f: ramp(f, dive0 - 6, dive0 + 4), extra=style))
     edl.overlays.append(Overlay(3690, 3995, lambda canvas, ctx, f, img: synthesis_titles(canvas, ctx.fonts, f),
                                 "sintesis_textos"))

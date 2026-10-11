@@ -81,7 +81,7 @@ resuelve en **re mayor** (c. 48), con subida, platillo invertido y golpe.
 | 02:29+18 | 3570–3600 | Desde el Everest la cámara sube hasta el mapa. | |
 | 02:29+18 | 3594–3822 | **Mapa final del arco.** Los 14 puntos se encienden en ámbar (desde f 3618, cada 3 fotogramas) y una línea discontinua los une por orden de altitud (f 3622–3690). Recuadros del Baltoro y del Mahalangur con sus puntos encendidos. | Leyenda: **«Recorrido editorial — orden ascendente de altitud, no una ruta»** · f 3690–3802: *«Cada una exige preparación, paciencia y respeto.»* |
 | 02:37+02 | 3770–3830 | El mapa se acerca al Khumbu y baja al terreno. | |
-| 02:38+14 | 3806–4319 | **Campo base sur del Everest al atardecer** (5.290 m en el modelo). Último sol en las paredes, alpenglow y estrellas. Desde f 3888 se encienden 64 luces de tienda, ilustrativas. | f 3852–4000: *«La ambición nos lleva arriba.»* · f 3888–4000: *«El criterio nos trae de vuelta.»* |
+| 02:38+14 | 3806–4319 | **Campo base sur del Everest al atardecer** (5.290 m en el modelo). Último sol en las paredes, alpenglow y estrellas. Entre f 3856 y 3896 se encienden 64 luces de tienda (ilustrativas) sobre el glaciar; la cámara las mantiene en cuadro mientras duran las frases y, desde f 3990, sube hacia las cumbres encendidas. | f 3852–4000: *«La ambición nos lleva arriba.»* · f 3888–4000: *«El criterio nos trae de vuelta.»* |
 
 ## 5. Firma y llamada a la acción · 02:48–03:00 · f 4032–4319 · c. 57–60
 

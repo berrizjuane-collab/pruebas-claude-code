@@ -36,6 +36,9 @@ OUT = os.path.join(OUT_DIR, "14_cumbres_teaser_30s_vertical_1080x1920.mp4")
 
 # centro del encuadre vertical dentro del plano horizontal (NDC horizontal, -1..1) por plano
 REFRAME = {"apertura": [(96, -0.10), (200, -0.16), (312, -0.16)], "campo_base": [(3790, 0.30), (4320, 0.30)]}
+# desplazamiento optico vertical (NDC/2, positivo = la escena baja en el cuadro): al entrar la
+# firma la camara del campo base aun mira bajo y la montana ocuparia el sitio del logotipo
+REFRAME_Y = {"campo_base": [(3990, 0.0), (4032, 0.25), (4110, 0.0)]}
 # tramos de mapa: "box" = el mapa horizontal entero enmarcado; si no, recorte central
 MAP_BOX = [(276, 600)]
 
@@ -50,10 +53,11 @@ def _track(keys, f):
 def crop_camera(c, shot, f):
     """Camara vertical equivalente a un recorte del plano horizontal centrado en REFRAME."""
     cx = _track(REFRAME.get(shot["id"], 0.0), f)
+    cy = _track(REFRAME_Y.get(shot["id"], 0.0), f)
     t = math.tan(math.radians(c.fov_h) / 2) * FRAC
     s0 = c.shift
     c2 = Camera(c.pos, target=c.target, fov_h=2 * math.degrees(math.atan(t)), roll=c.roll, fwd=c.fwd,
-                shift=((s0[0] + cx / 2) / FRAC, s0[1]))
+                shift=((s0[0] + cx / 2) / FRAC, s0[1] + cy))
     c2.up = getattr(c, "up", (0.0, 0.0, 1.0))
     for a in ("psi",):
         if hasattr(c, a):

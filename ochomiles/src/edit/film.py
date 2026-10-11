@@ -169,10 +169,13 @@ def _camp():
         return (base[0] + d * _m.sin(b), base[1] + d * _m.cos(b), z)
 
     look = lambda bearing, d, z: at(bearing, d, z)
+    # la mirada se mantiene baja mientras se encienden las luces del campamento (f 3856-3896)
+    # y dura lo que duran las dos frases; despues sube hacia el alpenglow donde entra la firma
     keys = [
         (3790, at(235.0, 1800.0, 5570.0), look(72.0, 6500.0, 5420.0), 56.0),
-        (3880, at(235.0, 1740.0, 5570.0), look(74.0, 6500.0, 5560.0), 56.0),
-        (4050, at(235.0, 1620.0, 5580.0), look(82.0, 6500.0, 9150.0), 56.0),
+        (3880, at(235.0, 1740.0, 5570.0), look(74.0, 6500.0, 5480.0), 56.0),
+        (3990, at(235.0, 1680.0, 5575.0), look(78.0, 6500.0, 5760.0), 56.0),
+        (4110, at(235.0, 1620.0, 5580.0), look(82.0, 6500.0, 9150.0), 56.0),
         (4320, at(235.0, 1580.0, 5585.0), look(83.0, 6500.0, 9450.0), 56.0),
     ]
     return {"id": "campo_base", "chapter": 15, "peak": "everest", "region": "khumbu",
