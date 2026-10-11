@@ -149,6 +149,15 @@ def assemble(args):
     os.makedirs(OUT_DIR, exist_ok=True)
     src = source_args()
     common_a = ["-c:a", "aac", "-b:a", "320k", "-ar", "48000"]
+    if args.only_master:
+        args.master = True
+    else:
+        encode_deliverables(src, args, common_a)
+    if args.master:
+        encode_master(src, args)
+
+
+def encode_deliverables(src, args, common_a):
     # entregas: H.264 High 8 bits 4:2:0 con difusion de error al bajar de 10 a 8 bits
     run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a",
          "-vf", "zscale=dither=error_diffusion,format=yuv420p",
@@ -161,14 +170,34 @@ def assemble(args):
          "-profile:v", "high", "-level:v", "4.2", "-g", "48", *COLOR_TAGS, *common_a,
          "-movflags", "+faststart", FHD])
     log("entregas codificadas")
-    if args.master:
-        # master de archivo: HEVC Main 4:2:2 10 bits de alta calidad + PCM 24 bits 48 kHz
-        run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a",
-             "-c:v", "libx265", "-preset", "medium", "-crf", str(args.crf_master), "-pix_fmt", "yuv422p10le",
-             "-x265-params", "log-level=error:colorprim=bt709:transfer=bt709:colormatrix=bt709",
-             "-tag:v", "hvc1", *COLOR_TAGS, "-c:a", "pcm_s24le",
-             "-metadata", "title=14 cumbres. Un horizonte extraordinario.", "-movflags", "+write_colr", MASTER])
-        log("master codificado")
+
+
+WEB = os.path.join(OUT_DIR, f"{NAME}_1080p24_web.mp4")
+
+
+def encode_web(args):
+    """1080p ligera (< 100 MB) que cabe en git sin LFS: H.264 a dos pasadas, 4,0 Mbps + AAC 192 kbps."""
+    src = source_args()
+    vf = ["-vf", "zscale=w=1920:h=1080:filter=lanczos:dither=error_diffusion,format=yuv420p"]
+    v = ["-c:v", "libx264", "-preset", "slow", "-b:v", "4000k", "-maxrate", "8M", "-bufsize", "16M",
+         "-profile:v", "high", "-level:v", "4.2", "-g", "48", *COLOR_TAGS]
+    log_prefix = os.path.join(OUT_DIR, "x264_web")
+    run(["ffmpeg", "-y", "-loglevel", "error", *src, *vf, *v, "-pass", "1", "-passlogfile", log_prefix,
+         "-an", "-f", "mp4", os.devnull])
+    run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a", *vf, *v,
+         "-pass", "2", "-passlogfile", log_prefix, "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+         "-movflags", "+faststart", WEB])
+    log("version web codificada")
+
+
+def encode_master(src, args):
+    """Master de archivo: HEVC Main 4:2:2 10 bits de alta calidad + PCM 24 bits 48 kHz."""
+    run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a",
+         "-c:v", "libx265", "-preset", "medium", "-crf", str(args.crf_master), "-pix_fmt", "yuv422p10le",
+         "-x265-params", "log-level=error:colorprim=bt709:transfer=bt709:colormatrix=bt709",
+         "-tag:v", "hvc1", *COLOR_TAGS, "-c:a", "pcm_s24le",
+         "-metadata", "title=14 cumbres. Un horizonte extraordinario.", "-movflags", "+write_colr", MASTER])
+    log("master codificado")
 
 
 def probe(path):
@@ -222,7 +251,7 @@ def ssim_vs_source(path, frames=None):
     return {"ssim_Y": float(m.group(1)), "ssim_total": float(m.group(2))} if m else None
 
 
-DEFAULT_CHECK = [MASTER, UHD, FHD, os.path.join(OUT_DIR, "14_cumbres_teaser_30s_2160p24.mp4"),
+DEFAULT_CHECK = [MASTER, UHD, FHD, WEB, os.path.join(OUT_DIR, "14_cumbres_teaser_30s_2160p24.mp4"),
                  os.path.join(OUT_DIR, "14_cumbres_teaser_30s_1080p24.mp4"),
                  os.path.join(OUT_DIR, "14_cumbres_teaser_30s_vertical_1080x1920.mp4")]
 
@@ -260,7 +289,7 @@ def verify(args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["render", "assemble", "verify", "plan"])
+    ap.add_argument("cmd", choices=["render", "assemble", "verify", "plan", "web"])
     ap.add_argument("--res", default="3840x2160")
     ap.add_argument("--range", default=f"0:{TOTAL}")
     ap.add_argument("--seg", type=int, default=108, help="longitud maxima de segmento (fotogramas)")
@@ -273,6 +302,7 @@ def main():
     ap.add_argument("--crf-fhd", type=int, default=17)
     ap.add_argument("--crf-master", type=int, default=16)
     ap.add_argument("--master", action="store_true", help="codificar tambien el master de archivo HEVC")
+    ap.add_argument("--only-master", action="store_true", help="solo el master de archivo")
     ap.add_argument("--extra", nargs="*")
     ap.add_argument("--ssim", action="store_true", help="medir SSIM del MP4 4K frente al intermedio")
     args = ap.parse_args()
@@ -283,6 +313,8 @@ def main():
         render(args)
     elif args.cmd == "assemble":
         assemble(args)
+    elif args.cmd == "web":
+        encode_web(args)
     else:
         verify(args)
 

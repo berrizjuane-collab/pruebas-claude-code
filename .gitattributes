@@ -1,5 +1,4 @@
-# Entregas de vídeo e imagen de «14 cumbres» (ochomiles/): Git LFS (GitHub limita a 100 MB por archivo)
-ochomiles/entregables/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
-ochomiles/entregables/**/*.mov filter=lfs diff=lfs merge=lfs -text
-ochomiles/entregables/**/*.png filter=lfs diff=lfs merge=lfs -text
-ochomiles/entregables/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+# Entregas de máxima calidad de «14 cumbres» (ochomiles/): Git LFS. En el entorno donde se produjo
+# la película la red no permitía lfs.github.com, así que esta carpeta solo se sube cuando LFS esté
+# disponible; las entregas de menos de 100 MB van en ochomiles/entregables/ como archivos normales.
+ochomiles/entregables/alta_calidad/** filter=lfs diff=lfs merge=lfs -text

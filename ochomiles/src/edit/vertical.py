@@ -361,8 +361,9 @@ def main():
     import subprocess
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb48le", "-s", f"{W}x{H}",
            "-r", str(FPS), "-i", "-", "-i", teaser.WAV, "-map", "0:v", "-map", "1:a",
-           "-vf", f"fade=t=in:st=0:d=0.25,fade=t=out:st={n / FPS - 0.5}:d=0.5,"
-                  "zscale=matrix=709:range=limited:dither=error_diffusion,format=yuv420p",
+           # primero RGB -> YUV BT.709 (zscale) y despues los fundidos, que ya operan en YUV
+           "-vf", "zscale=matrix=709:range=limited:dither=error_diffusion,format=yuv420p,"
+                  f"fade=t=in:st=0:d=0.25,fade=t=out:st={n / FPS - 0.5}:d=0.5",
            "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-maxrate", "24M", "-bufsize", "48M",
            "-profile:v", "high", "-level:v", "4.2", *COLOR_TAGS, "-c:a", "aac", "-b:a", "320k", "-ar", "48000",
            "-movflags", "+faststart", "-shortest", OUT]
