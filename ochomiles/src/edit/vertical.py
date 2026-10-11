@@ -101,7 +101,12 @@ def render_map(L, ctx, f):
         out[y0:y0 + box.shape[0]] = box
         return out
     lc = ctx.land(3840, 2160)
-    im = L.render(lc, f)
+    # los rotulos curvos de cordillera quedarian cortados por el recorte: fuera en vertical
+    ranges, ctx.mapart.ranges = ctx.mapart.ranges, {}
+    try:
+        im = L.render(lc, f)
+    finally:
+        ctx.mapart.ranges = ranges
     cw = int(round(2160 * W / H))
     x0 = (3840 - cw) // 2
     return cv2.resize(im[:, x0:x0 + cw], (W, H), interpolation=cv2.INTER_AREA)
