@@ -63,6 +63,7 @@ intermedios de 10 bits ya codificados.
 |---|---|---|
 | 7 | Las 64 luces del campo base sur del Everest se encendían en f 3888–3944, justo cuando la cámara subía hacia las cumbres. Proyectadas con la cámara del plano, en f 3944 solo quedaban 7 en cuadro y desde f 3970 ninguna, así que la dimensión humana de la síntesis no se veía. | Las luces se encienden antes (f 3856–3896) y la mirada sigue baja mientras duran las dos frases (hasta f 3990); después sube hacia el alpenglow donde entra la firma. Con la cámara nueva, las 64 luces están en cuadro de f 3860 a f 3990, a la izquierda de las frases y sin tocarlas. Además, a 4K cada luz era un punto de 1–3 px que se perdía al reducir a 1080p: el núcleo pasa a unos 3 px, con un halo más amplio, y en la versión 1080p el campamento se lee como un racimo de luces sobre el glaciar. Se rehicieron los cinco segmentos afectados (f 3810–4320). |
 | 8 | En el teaser vertical, al entrar la firma, el logotipo se dibujaba sobre la montaña iluminada. | Desplazamiento óptico vertical en ese tramo, solo en la versión 9:16. |
+| 9 | En el MP4 4K, revisado a tamaño real, el punto ámbar de la regla del Everest (8.848,86 m cae casi al final) tocaba el «2020» de la nota «Medición Nepal–China, 2020». | La nota se alinea con la altura de las mayúsculas de la cifra; se rehicieron los dos segmentos del Everest (f 3384–3600) y se volvieron a codificar las entregas. |
 
 *El resto de la pasada se completa sobre los MP4 exportados.*
 
