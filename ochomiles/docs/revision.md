@@ -226,6 +226,9 @@ Son los golpes de compás, no clics.
   y topes de tasa de 60 Mbps (4K), 24 Mbps (1080p) y 25 Mbps (web).
 - **Sin errores de decodificación.** Se decodificaron enteros los seis MP4 y el máster, sin
   un solo error.
+- **Subida comprobada.** Los cuatro archivos de más de 100 MB están en Git LFS
+  (`entregables/alta_calidad/`). El servidor de GitHub confirma cada objeto con el mismo
+  SHA-256 y el mismo tamaño que el archivo medido aquí.
 
 **Lo que no se ha podido comprobar**
 
@@ -233,6 +236,3 @@ Son los golpes de compás, no clics.
   compatibilidad se deduce del perfil, el nivel y las etiquetas.
 - **Una escucha humana.** La mezcla se ha revisado con medidas y espectros. Conviene
   escucharla con auriculares y en altavoces antes de publicarla.
-- **Las versiones de más de 100 MB fuera de este entorno.** La 4K, la 1080p de alta
-  calidad, el teaser 4K y el máster se han medido aquí. No están en el repositorio porque
-  el entorno bloquea `lfs.github.com` (véase el README).

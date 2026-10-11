@@ -8,8 +8,8 @@ original. No hay metraje, fotos ni música de archivo.
 
 **Estado:** terminada y verificada sobre los archivos exportados
 ([`docs/revision.md`](docs/revision.md)). La identidad de marca es provisional (véase
-«Campos pendientes de la empresa»). Las versiones de más de 100 MB todavía no están en el
-repositorio (véase «Entregas»).
+«Campos pendientes de la empresa»). Todas las entregas están en el repositorio; las de más
+de 100 MB, en Git LFS (véase «Entregas»).
 
 ## Entregas
 
@@ -23,22 +23,29 @@ tabla se han medido sobre cada archivo ([`docs/medidas/`](docs/medidas/)).
 | `14_cumbres_teaser_30s_1080p24.mp4` | Teaser, 30 s | 1920 × 1080 · H.264 High, CRF 17 · AAC 320 kbps | −14,2 LUFS · −1,5 dBTP | 42,6 MB | [`entregables/`](entregables/) |
 | `14_cumbres_teaser_30s_vertical_1080x1920.mp4` | Teaser vertical 9:16, 30 s | 1080 × 1920 · H.264 High, CRF 17 · AAC 320 kbps | −14,2 LUFS · −1,5 dBTP | 32,2 MB | [`entregables/`](entregables/) |
 | `fijos/14_cumbres_01…03_*.png` y `.jpg` | Tres fijos promocionales | 3840 × 2160, renderizados directamente (PNG de 8 bits y JPG de calidad 95) | — | 1,4–11,9 MB | [`entregables/fijos/`](entregables/fijos/) |
-| `14_cumbres_2160p24.mp4` | Película, 180 s, **4K** | 3840 × 2160 · H.264 High, CRF 18 (49,9 Mbps) · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 1.122,4 MB | pendiente de subir |
-| `14_cumbres_1080p24.mp4` | Película, 180 s, 1080p de alta calidad | 1920 × 1080 · H.264 High, CRF 17 (13,7 Mbps) · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 307,3 MB | pendiente de subir |
-| `14_cumbres_teaser_30s_2160p24.mp4` | Teaser, 30 s, 4K | 3840 × 2160 · H.264 High, CRF 18 · AAC 320 kbps | −14,2 LUFS · −1,5 dBTP | 164,7 MB | pendiente de subir |
-| `14_cumbres_master_2160p24_hevc422_10bit.mov` | Máster de archivo | 3840 × 2160 · HEVC 4:2:2 de 10 bits, CRF 16 · PCM de 24 bits | −14,1 LUFS · −1,6 dBTP | 1.142,2 MB | pendiente de subir |
+| `14_cumbres_2160p24.mp4` | Película, 180 s, **4K** | 3840 × 2160 · H.264 High, CRF 18 (49,9 Mbps) · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 1.122,4 MB | [`entregables/alta_calidad/`](entregables/alta_calidad/) (Git LFS) |
+| `14_cumbres_1080p24.mp4` | Película, 180 s, 1080p de alta calidad | 1920 × 1080 · H.264 High, CRF 17 (13,7 Mbps) · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 307,3 MB | [`entregables/alta_calidad/`](entregables/alta_calidad/) (Git LFS) |
+| `14_cumbres_teaser_30s_2160p24.mp4` | Teaser, 30 s, 4K | 3840 × 2160 · H.264 High, CRF 18 · AAC 320 kbps | −14,2 LUFS · −1,5 dBTP | 164,7 MB | [`entregables/alta_calidad/`](entregables/alta_calidad/) (Git LFS) |
+| `14_cumbres_master_2160p24_hevc422_10bit.mov` | Máster de archivo | 3840 × 2160 · HEVC 4:2:2 de 10 bits, CRF 16 · PCM de 24 bits | −14,1 LUFS · −1,6 dBTP | 1.142,2 MB | [`entregables/alta_calidad/`](entregables/alta_calidad/) (Git LFS) |
 
-**Por qué faltan las versiones grandes.** GitHub no admite archivos de más de 100 MB en
-git normal; para eso está Git LFS, y el repositorio ya lo tiene preparado:
-`.gitattributes` manda a LFS todo lo que se guarde en `entregables/alta_calidad/`. Pero la
-política de red de este entorno de Claude Code bloquea `lfs.github.com` (el proxy
-responde 403), así que la subida falla. Hay dos formas de tenerlas:
+**Cómo bajar las versiones grandes.** Las cuatro de `entregables/alta_calidad/` superan el
+límite de 100 MB de git normal y van en Git LFS: en git solo queda una referencia y GitHub
+guarda el archivo aparte.
 
-1. Añadir `lfs.github.com` a los dominios permitidos en la configuración de red del
-   entorno ([documentación](https://code.claude.com/docs/en/cloud-environments#network-access)).
-   Después basta con copiar los cuatro archivos a `entregables/alta_calidad/` y hacer
-   commit y push.
-2. Regenerarlas en cualquier máquina con `./reproducir.sh`.
+- Desde la web de GitHub, cada archivo tiene su botón de descarga.
+- Con git, sin bajar los 2,7 GB al clonar:
+
+  ```bash
+  GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/berrizjuane-collab/pruebas-claude-code.git
+  cd pruebas-claude-code
+  git lfs pull --include="ochomiles/entregables/alta_calidad/14_cumbres_2160p24.mp4"
+  ```
+
+Cada descarga cuenta en la cuota mensual de transferencia de Git LFS de la cuenta: en una
+cuenta gratuita, 10 GiB de almacenamiento y 10 GiB de transferencia al mes, y bajar las
+cuatro versiones gasta unos 2,5 GiB. Si la cuenta no tiene método de pago o tiene el
+presupuesto en 0 $, al agotar la cuota LFS se bloquea hasta el mes siguiente; no se
+cobra ([facturación de Git LFS](https://docs.github.com/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage)).
 
 La 1080p «web» es la misma película que la 1080p de alta calidad, con menos tasa de bits.
 Cede algo de detalle fino y, con el contraste exagerado, se nota que aplana el grano en los
