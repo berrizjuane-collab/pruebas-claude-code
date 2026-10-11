@@ -94,7 +94,7 @@ def legend(canvas, ctx, a):
     draw_text(canvas, ctx.fonts, "Todos por encima de los 8.000 metros", x, y - 22, "SerifTextItalic", 34,
               (*GLACIER, 0.9), opacity=a, halo=((*OBSIDIAN, 0.6), 6))
     canvas_circle(canvas, x + 9, y + 44, 7.0, a)
-    draw_text(canvas, ctx.fonts, "cumbre principal (coordenadas WGS84 verificadas)", x + 30, y + 53, "Data", 25,
+    draw_text(canvas, ctx.fonts, "cumbre principal (coordenadas WGS84 verificadas)", x + 30, y + 54, "Data", 28,
               (*GLACIER, 0.85), opacity=a, halo=((*OBSIDIAN, 0.6), 6))
     import skia
     p = skia.Paint(AntiAlias=True, Style=skia.Paint.kStroke_Style, StrokeWidth=1.6,
@@ -102,9 +102,9 @@ def legend(canvas, ctx, a):
     canvas.drawLine(x, y + 92, x + 22, y + 92, p)
     p.setPathEffect(skia.DashPathEffect.Make([9.0, 7.0], 0.0))
     canvas.drawLine(x, y + 124, x + 22, y + 124, p)
-    draw_text(canvas, ctx.fonts, "límite internacional", x + 30, y + 100, "Data", 22, (*SLATE_LIGHT, 0.9),
+    draw_text(canvas, ctx.fonts, "límite internacional", x + 30, y + 101, "Data", 26, (*SLATE_LIGHT, 0.9),
               opacity=a, halo=((*OBSIDIAN, 0.6), 5))
-    draw_text(canvas, ctx.fonts, "límite en disputa o línea de control (Natural Earth)", x + 30, y + 132, "Data", 22,
+    draw_text(canvas, ctx.fonts, "límite en disputa o línea de control (Natural Earth)", x + 30, y + 133, "Data", 26,
               (*SLATE_LIGHT, 0.9), opacity=a, halo=((*OBSIDIAN, 0.6), 5))
 
 

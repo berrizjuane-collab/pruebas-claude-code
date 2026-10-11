@@ -112,8 +112,8 @@ def chapters(edl, shots):
                                     if f > b - 12 else c)
             dst["plan"].mods.append(lambda f, c, b=b: yaw_camera(c, -70.0 * (1 - ease((f - (b - 3)) / 16.0, "out3")))
                                     if f < b + 13 else c)
-            blur[k].append((b - 9, b + 3, 7))
-            blur[k + 1].append((b - 3, b + 9, 7))
+            blur[k].append((b - 9, b + 3, 10))
+            blur[k + 1].append((b - 3, b + 9, 10))
         elif tr == "pan_reveal":
             spans[k][1], spans[k + 1][0] = b + 8, b - 8
             fades[k + 1]["in"] = (b - 8, b + 8)
@@ -287,7 +287,7 @@ def chapter_overlays(edl):
             u = f - cs
             data_block(canvas, ctx.fonts, ctx.peaks_ordered[k - 1], k, u, t_in=t_in, t_out=t_out)
             op = window(u, t_in - 4, t_in + 14, t_out + 4, t_out + 22)
-            ctx.locator.draw(canvas, k, u, opacity=op, t_in=t_in)
+            ctx.locator.draw(canvas, k, u, opacity=op, t_in=t_in, fonts=ctx.fonts)
             return True
 
         edl.overlays.append(Overlay(cs, cs + CHAPTER_LEN - 1, draw, f"datos{k:02d}"))

@@ -159,8 +159,9 @@ class Locator:
         self.screen = [self.to_px(*p) for p in pts]
 
     def _relief(self):
-        """Relieve sombreado del nivel A del atlas (Terrain Tiles, LCC) remuestreado al recuadro.
-        Se ve la cordillera (relieve local alto); la meseta y las llanuras apenas se insinuan."""
+        """Mapa en miniatura: relieve sombreado del nivel A del atlas (Terrain Tiles, LCC)
+        remuestreado al recuadro y teñido por altitud (llanuras oscuras, meseta pizarra,
+        cordillera blanca). Ocupa todo el recuadro; el borde lo dibuja draw()."""
         from .atlas import MAPD, hillshade
         meta = json.load(open(os.path.join(MAPD, "A_meta.json")))
         z = np.load(os.path.join(MAPD, "A_elev.npy")).astype(np.float32)
@@ -168,37 +169,59 @@ class Locator:
         a = self.scale / res
         M = np.array([[a, 0, (self.cx - meta["x0"]) / res - 0.5 - a * self.w / 2],
                       [0, a, (meta["y1"] - self.cy) / res - 0.5 - a * self.h / 2]])
-        z = cv2.warpAffine(z, M, (self.w, self.h), flags=cv2.INTER_AREA | cv2.WARP_INVERSE_MAP, borderValue=-100)
+        z = cv2.warpAffine(z, M, (self.w, self.h), flags=cv2.INTER_AREA | cv2.WARP_INVERSE_MAP, borderValue=0)
         zc = np.maximum(z, 0)
-        hs = hillshade(zc, self.scale, 6.0)
-        m1 = cv2.GaussianBlur(zc, (0, 0), 3.0)
-        m2 = cv2.GaussianBlur(zc * zc, (0, 0), 3.0)
-        relief = np.sqrt(np.clip(m2 - m1 * m1, 0, None))          # desviacion local (~8 km)
-        t = np.clip((hs - 0.55) * 0.9 + 0.5, 0, 1)
-        hl = np.clip((z - 4500) / 3000, 0, 1)
-        k = t * (0.55 + 0.45 * hl)
-        rgb = np.dstack([0.20 + 0.72 * k, 0.24 + 0.70 * k, 0.28 + 0.66 * k])
-        alpha = np.clip(0.60 * np.clip((relief - 150) / 900, 0, 1) + 0.25 * np.clip((z - 2500) / 3000, 0, 1), 0, 0.8)
+        hs = np.clip(hillshade(zc, self.scale, 7.0), 0, 1.6)
+        # la meseta (4.500-5.000 m) queda en pizarra media para que la cordillera sea lo mas claro
+        zs = [0.0, 1200.0, 3600.0, 5200.0, 6300.0, 7500.0]
+        cs = np.array([(0.100, 0.130, 0.165), (0.130, 0.160, 0.195), (0.195, 0.230, 0.265),
+                       (0.290, 0.330, 0.365), (0.780, 0.810, 0.830), (0.950, 0.960, 0.955)], np.float32)
+        base = np.dstack([np.interp(zc, zs, cs[:, c]) for c in range(3)])
+        rgb = base * (0.50 + 0.50 * hs)[..., None]
+        # vineta interior suave: el borde del recuadro se oscurece un poco (lectura de "ventana")
         yy, xx = np.mgrid[0:self.h, 0:self.w].astype(np.float32)
-        ex = (xx - self.w / 2) / (self.w / 2)
-        ey = (yy - self.h / 2) / (self.h / 2)
-        r = (ex ** 4 + ey ** 4) ** 0.25                       # superelipse: esquinas redondeadas
-        vig = np.clip((1.0 - r) / 0.30, 0, 1)
-        alpha = alpha * vig * vig * (3 - 2 * vig)
-        pm = rgb * alpha[..., None]
+        ex = np.minimum(xx, self.w - 1 - xx) / 60.0
+        ey = np.minimum(yy, self.h - 1 - yy) / 60.0
+        vig = np.clip(np.minimum(ex, ey), 0, 1)
+        rgb = rgb * (0.72 + 0.28 * vig)[..., None]
+        alpha = np.full((self.h, self.w), 0.90, np.float32)
+        pm = np.clip(rgb, 0, 1) * alpha[..., None]
         return np.ascontiguousarray((np.dstack([pm, alpha[..., None]]) * 255 + 0.5).astype(np.uint8))
 
     def to_px(self, X, Y):
         return (self.x0 + self.w / 2 + (X - self.cx) / self.scale,
                 self.y0 + self.h / 2 - (Y - self.cy) / self.scale)
 
-    def draw(self, canvas, k, u, opacity=1.0, t_in=0):
+    RADIUS = 20.0
+    # rotulos de cordillera: Karakorum en la esquina superior izquierda (sobre su grupo de
+    # cumbres, sin tocar los marcadores) e Himalaya bajo el arco (lon, lat del ancla)
+    RANGE_TAGS = [("KARAKÓRUM", None, None, "left"), ("HIMALAYA", 84.4, 27.25, "center")]
+
+    def draw(self, canvas, k, u, opacity=1.0, t_in=0, fonts=None):
         """k: capitulo activo (1..14); u: fotograma relativo al inicio del capitulo."""
         if opacity <= 0.003:
             return
+        rect = skia.RRect.MakeRectXY(skia.Rect.MakeXYWH(self.x0, self.y0, self.w, self.h), self.RADIUS, self.RADIUS)
+        # sombra suave que separa el recuadro del cielo
+        sh = skia.Paint(AntiAlias=True, Color4f=skia.Color4f(*OBSIDIAN, 0.35 * opacity))
+        sh.setMaskFilter(skia.MaskFilter.MakeBlur(skia.kNormal_BlurStyle, 18))
+        canvas.drawRRect(rect, sh)
+        canvas.save()
+        canvas.clipRRect(rect, doAntiAlias=True)
         paint = skia.Paint(AntiAlias=True)
         paint.setAlphaf(opacity)
         canvas.drawImage(self.image, self.x0, self.y0, skia.SamplingOptions(skia.FilterMode.kLinear), paint)
+        canvas.restore()
+        canvas.drawRRect(rect, skia.Paint(AntiAlias=True, Style=skia.Paint.kStroke_Style, StrokeWidth=1.6,
+                                          Color4f=skia.Color4f(*GLACIER, 0.30 * opacity)))
+        if fonts is not None:
+            for text, lon, lat, align in self.RANGE_TAGS:
+                if lon is None:
+                    tx, ty = self.x0 + 28, self.y0 + 30
+                else:
+                    tx, ty = self.to_px(*project(lon, lat))
+                draw_text(canvas, fonts, text, tx, ty, "DataMedium", 21, (*SLATE_LIGHT, 0.80), tracking=21 * 0.32,
+                          align=align, opacity=opacity)
         # resto de cumbres: puntos pequenos (visitadas algo mas presentes)
         for i, (px, py) in enumerate(self.screen):
             if i == k - 1:

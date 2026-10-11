@@ -57,11 +57,12 @@ HEROES = [
          {"bearing": [(0, 262.0), (216, 250.0)], "dist": [(0, 24000.0), (216, 21000.0)],
           "alt": [(0, 6300.0), (216, 7400.0, "out")], "lz": -900.0, "fov": 34.0},
          sun=(160.0, 15.0), exposure=6.5),
-    # 05 Annapurna I: gran pared sur (Santuario), encuadre frontal; sol de manana desde el ESE
+    # 05 Annapurna I: gran pared sur (Santuario), encuadre frontal; sol bajo de primera hora
+    # desde el este: luz rasante que modela aristas y canales (con luz frontal la pared se aplana)
     hero(5, "annapurna",
          {"bearing": [(0, 184.0), (216, 176.0)], "dist": [(0, 17500.0), (216, 15000.0, "out")],
           "alt": [(0, 7200.0), (216, 7500.0)], "lz": -1600.0, "fov": 36.0},
-         sun=(108.0, 18.0), exposure=7.0),
+         sun=(84.0, 9.0), exposure=6.4),
     # 06 Nanga Parbat: cara Rupal (sur): panoramica vertical de la base a la cima; sol rasante del este
     hero(6, "nangaparbat",
          {"bearing": 168.0, "dist": [(0, 17000.0), (216, 16000.0)], "alt": [(0, 6000.0), (216, 6400.0)],
@@ -142,7 +143,8 @@ def _opening():
             "start": 96, "end": 312, "rig": PathRig(keys, timing="linear"),
             "pivot_xyz": tuple(C), "focus": (C[0] + 2000.0, C[1] - 500.0),
             "sun": (98.0, [(96, -1.95), (180, -1.25), (230, -0.95), (312, -0.55)]),
-            "exposure": [(96, 24.0), (150, 23.0), (178, 21.0), (214, 12.0), (312, 10.5)],
+            # hora azul mas baja al principio: la nieve en sombra y el horizonte encendido
+            "exposure": [(96, 13.0), (150, 15.5), (178, 18.0), (214, 12.0), (312, 10.5)],
             "sky_boost": 2.8,
             "clouds": {"base": 4500.0, "thick": 900.0, "cov": 0.62, "scale": 8000.0, "wind": (3.0, 1.0)},
             "haze": 1.1}

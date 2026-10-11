@@ -281,7 +281,7 @@ class MapArt:
                     draw_text(canvas, self.fonts, _title_es(txt), u, v,
                               "SerifTextItalic", 34, (*GLACIER, 0.36), align="center", opacity=a)
                 else:
-                    size = 30 if sty == "country" else 24
+                    size = 30 if sty == "country" else 26
                     draw_text(canvas, self.fonts, txt, u, v, "DataMedium", size, (*SLATE_LIGHT, 0.62),
                               tracking=size * 0.42, align="center", opacity=a)
         ro = opacity if ranges_opacity is None else ranges_opacity
@@ -393,7 +393,7 @@ class MapArt:
             return
         a_in = opacity
         # titulo del recuadro
-        draw_text(canvas, self.fonts, ins.cfg["title"], bx + 2, by - 18, "DataMedium", 24, (*SLATE_LIGHT, 0.9),
+        draw_text(canvas, self.fonts, ins.cfg["title"], bx + 2, by - 18, "DataMedium", 26, (*SLATE_LIGHT, 0.9),
                   tracking=7, opacity=a_in)
         # escala grafica (10 km)
         km = 10000.0 / ins.scale
@@ -401,7 +401,7 @@ class MapArt:
         canvas.drawLine(x0s, y0s, x0s + km, y0s, _stroke(GLACIER, 0.8 * a_in, 2.0))
         for xx in (x0s, x0s + km):
             canvas.drawLine(xx, y0s - 7, xx, y0s + 1, _stroke(GLACIER, 0.8 * a_in, 2.0))
-        draw_text(canvas, self.fonts, "10 km", x0s + km / 2, y0s - 14, "Data", 21, (*GLACIER, 0.85),
+        draw_text(canvas, self.fonts, "10 km", x0s + km / 2, y0s - 14, "Data", 24, (*GLACIER, 0.85),
                   align="center", opacity=a_in)
         canvas.save()
         canvas.clipRect(dst)

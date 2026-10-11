@@ -39,17 +39,45 @@ class Shot3D(Layer):
         n = self.blur(f) if callable(self.blur) else (self.blur or 1)
         if n and n > 1:
             # obturador de 180 grados: subfotogramas en [f - 0.25, f + 0.25]
-            acc = None
+            acc, first, last = None, None, None
             for i in range(n):
                 fs = f + (i + 0.5) / n * 0.5 - 0.25
                 im = ctx.sr.render(self.shot, fs, **kw)
-                acc = im if acc is None else acc + im
-            img = acc / n
+                if i == 0:
+                    first = im.copy()
+                last = im
+                acc = im.copy() if acc is None else acc + im
+            img = fill_motion_gaps(acc / n, first, last, n)
         else:
             img = ctx.sr.render(self.shot, f, **kw)
         if self.fx:
             img = self.fx(ctx, f, img)
         return img
+
+
+def fill_motion_gaps(img, first, last, n):
+    """Los n subfotogramas dejan copias discretas cuando el movimiento es rapido (barrido).
+    Se estima el desplazamiento entre el primero y el ultimo por correlacion de fase y se
+    aplica un desenfoque lineal de la longitud de un paso: muestras + caja = integral continua."""
+    import cv2
+    q = 4
+    h, w = img.shape[:2]
+    a = cv2.resize(first.mean(axis=2).astype(np.float32), (w // q, h // q), interpolation=cv2.INTER_AREA)
+    b = cv2.resize(last.mean(axis=2).astype(np.float32), (w // q, h // q), interpolation=cv2.INTER_AREA)
+    win = cv2.createHanningWindow(a.shape[::-1], cv2.CV_32F)
+    (dx, dy), _ = cv2.phaseCorrelate(a, b, win)
+    dx, dy = dx * q, dy * q
+    step = math.hypot(dx, dy) / max(n - 1, 1)
+    if step < 1.5:
+        return img
+    L = int(math.ceil(step)) | 1
+    k = np.zeros((L, L), np.float32)
+    c = L // 2
+    ux, uy = dx / math.hypot(dx, dy), dy / math.hypot(dx, dy)
+    for t in np.linspace(-c, c, 4 * L):
+        k[int(round(c + t * uy)), int(round(c + t * ux))] += 1.0
+    k /= k.sum()
+    return cv2.filter2D(img, -1, k, borderType=cv2.BORDER_REPLICATE)
 
 
 class Fn(Layer):

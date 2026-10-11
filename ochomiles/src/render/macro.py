@@ -71,8 +71,9 @@ def _sole_mask(n, length):
     return dist, res
 
 
-def _crampon_print(X, Y, cx, cy, ang, rng, length=0.305):
-    """Huella de bota con crampon de 12 puntas sobre costra dura. Devuelve (dz en m, mascara)."""
+def _crampon_print(X, Y, cx, cy, ang, rng, length=0.305, crumb=None):
+    """Huella de bota con crampon de 12 puntas sobre costra dura. Devuelve (dz en m, mascara).
+    crumb: ruido fino (desv. 1) que desmenuza las paredes de la huella."""
     c, s = math.cos(ang), math.sin(ang)
     u = ((X - cx) * c + (Y - cy) * s) / length + 0.5          # 0 talon, 1 puntera
     v = -(X - cx) * s + (Y - cy) * c                           # a lo ancho (m)
@@ -82,9 +83,16 @@ def _crampon_print(X, Y, cx, cy, ang, rng, length=0.305):
     cc = (v + 0.07) / res
     d = cv2.remap(dist, cc.astype(np.float32), rr.astype(np.float32), cv2.INTER_LINEAR,
                   borderMode=cv2.BORDER_CONSTANT, borderValue=0.0)
-    m = np.clip(d / 0.0035, 0, 1)                               # pared de ~3,5 mm
+    m = np.clip(d / 0.005, 0, 1)                                # pared de ~5 mm
     wall = m * m * (3 - 2 * m)
-    dz = -0.0075 * wall * (0.9 + 0.1 * np.cos(u * 23.0)) - 0.0012 * wall * (u < 0.3)
+    # escalon del tacon suavizado (un corte brusco dibujaba una linea recta en la huella)
+    heel = np.clip((0.34 - u) / 0.10, 0, 1)
+    heel = heel * heel * (3 - 2 * heel)
+    dz = -0.0075 * wall * (0.9 + 0.1 * np.cos(u * 23.0)) - 0.0012 * wall * heel
+    if crumb is not None:
+        # pared desmenuzada: migas de costra en la franja de la pared, no estrias verticales
+        band = 4.0 * m * (1.0 - m)
+        dz += 0.0011 * band * crumb
     # 12 puntas: 2 frontales, 2 secundarias, 4 verticales delanteras, 4 de talon
     def hole(pu, pv, rad, depth):
         r = np.sqrt(((u - pu) * length) ** 2 + (v - pv) ** 2)
@@ -122,7 +130,7 @@ def _crampon_print(X, Y, cx, cy, ang, rng, length=0.305):
 
 
 def build_relief():
-    path = os.path.join(CACHE, "macro_relief_v6.npz")
+    path = os.path.join(CACHE, "macro_relief_v7.npz")
     if os.path.exists(path):
         d = np.load(path)
         return {k: d[k] for k in d.files}
@@ -139,8 +147,9 @@ def build_relief():
     glaze = np.clip((glaze_n - 0.9) / 0.6, 0, 1).astype(np.float32)
     h_far = (sast + bumps + grain * (1 - 0.7 * glaze)).astype(np.float32)
     rng = np.random.default_rng(42)
-    p1, m1 = _crampon_print(X, Y, -0.045, 0.37, math.radians(128.0), rng)
-    p2, m2 = _crampon_print(X, Y, 0.20, 1.02, math.radians(118.0), rng)
+    crumb = _aniso_noise(n, 0.0012, 0.0045, 0.0, 1.0, 5, SPAN)
+    p1, m1 = _crampon_print(X, Y, -0.045, 0.37, math.radians(128.0), rng, crumb=crumb)
+    p2, m2 = _crampon_print(X, Y, 0.20, 1.02, math.radians(118.0), rng, crumb=crumb)
     # en la huella y su entorno inmediato la costra queda compactada (el pie aplana la nieve)
     flat = np.clip(m1 + m2, 0, 1)
     near = cv2.GaussianBlur(flat, (0, 0), 0.030 / TEXEL)
