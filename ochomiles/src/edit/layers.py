@@ -180,8 +180,9 @@ class CampShot(Shot3D):
             if d > aux[iv, iu, 3] + 40.0:          # tapada por el relieve
                 continue
             fl = 0.88 + 0.12 * np.sin(f * 0.21 + ph[i]) * np.sin(f * 0.07 + 2 * ph[i])
-            cv2.circle(layer, (int(u * 16), int(v * 16)), max(int(16 * 1.2 * k), 8),
+            # nucleo de ~3 px a 4K (sigue leyendose como punto de luz al reducir a 1080p)
+            cv2.circle(layer, (int(u * 16), int(v * 16)), max(int(16 * 3.0 * k), 8),
                        tuple(float(x) * I[i] * fl * on for x in C[i]), -1, cv2.LINE_AA, shift=4)
-        glow = cv2.GaussianBlur(layer, (0, 0), 1.0 * k + 0.4) * 1.4 + cv2.GaussianBlur(layer, (0, 0), 7 * k + 1) * 1.8 \
-            + cv2.GaussianBlur(layer, (0, 0), 26 * k + 2) * 1.2
+        glow = cv2.GaussianBlur(layer, (0, 0), 1.6 * k + 0.4) * 1.6 + cv2.GaussianBlur(layer, (0, 0), 11 * k + 1) * 1.6 \
+            + cv2.GaussianBlur(layer, (0, 0), 36 * k + 2) * 1.1
         return img + glow
