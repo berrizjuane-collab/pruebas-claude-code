@@ -99,7 +99,9 @@ def data_block(canvas, fonts, peak, k, u, t_in=14, t_out=184):
                      features={"tnum": True}, opacity=a, blur=bl)
     draw_text(canvas, fonts, "m", x + wnum + 18, y_alt + dy, "DataLight", 52, (*GLACIER, 0.8), opacity=a, blur=bl)
     if peak.get("altitude_note"):
-        draw_text(canvas, fonts, peak["altitude_note"], x + wnum + 80, y_alt + dy - 4, "Data", 28,
+        # alineada con la altura de las mayusculas de la cifra: en el Everest la marca de la regla
+        # cae casi al final y, a la altura de la linea base, tocaba la nota
+        draw_text(canvas, fonts, peak["altitude_note"], x + wnum + 80, y_alt + dy - 42, "Data", 28,
                   (*SLATE_LIGHT, 0.95), opacity=a, blur=bl)
     # regla de altitud: 8.000 - 8.850 m con las 14 marcas
     a_r = min(out_cubic((u - (t_in + 16)) / 24), 1 - smooth((u - t_out - 4) / 12))
