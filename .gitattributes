@@ -1,0 +1,5 @@
+# Entregas de vídeo e imagen de «14 cumbres» (ochomiles/): Git LFS (GitHub limita a 100 MB por archivo)
+ochomiles/entregables/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+ochomiles/entregables/**/*.mov filter=lfs diff=lfs merge=lfs -text
+ochomiles/entregables/**/*.png filter=lfs diff=lfs merge=lfs -text
+ochomiles/entregables/**/*.jpg filter=lfs diff=lfs merge=lfs -text
