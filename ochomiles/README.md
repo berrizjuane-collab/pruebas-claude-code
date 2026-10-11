@@ -26,7 +26,7 @@ tabla se han medido sobre cada archivo (`render/verificacion.json`).
 | `14_cumbres_2160p24.mp4` | Película, 180 s, **4K** | 3840 × 2160 · H.264 High, CRF 18 (49,9 Mbps) · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 1.122,4 MB | pendiente de subir |
 | `14_cumbres_1080p24.mp4` | Película, 180 s, 1080p de alta calidad | 1920 × 1080 · H.264 High, CRF 17 (13,7 Mbps) · AAC 320 kbps | −14,2 LUFS · −1,2 dBTP | 307,3 MB | pendiente de subir |
 | `14_cumbres_teaser_30s_2160p24.mp4` | Teaser, 30 s, 4K | 3840 × 2160 · H.264 High, CRF 18 · AAC 320 kbps | −14,2 LUFS · −1,5 dBTP | 164,7 MB | pendiente de subir |
-| `14_cumbres_master_2160p24_hevc422_10bit.mov` | Máster de archivo | 3840 × 2160 · HEVC 4:2:2 de 10 bits, CRF 16 · PCM de 24 bits | −14,1 LUFS · −1,6 dBTP (WAV) | en codificación | pendiente de subir |
+| `14_cumbres_master_2160p24_hevc422_10bit.mov` | Máster de archivo | 3840 × 2160 · HEVC 4:2:2 de 10 bits, CRF 16 · PCM de 24 bits | −14,1 LUFS · −1,6 dBTP | 1.142,2 MB | pendiente de subir |
 
 **Por qué faltan las versiones grandes.** GitHub no admite archivos de más de 100 MB en
 git normal; para eso está Git LFS, y el repositorio ya lo tiene preparado:

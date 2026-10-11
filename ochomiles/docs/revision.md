@@ -169,7 +169,7 @@ verdadero se miden con el medidor EBU R128 de FFmpeg sobre el sonido decodificad
 | Teaser 4K | H.264 High@5.1 · 3840 × 2160 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 164,7 MB · 43,9 Mbps |
 | Teaser 1080p | H.264 High@4.2 · 1920 × 1080 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 42,6 MB · 11,4 Mbps |
 | Teaser vertical | H.264 High@4.2 · 1080 × 1920 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 32,2 MB · 8,6 Mbps |
-| Máster de archivo | HEVC Main 4:2:2 10 bits · 3840 × 2160 | en codificación: se mide al terminar | PCM 24 bits · 48 kHz | — | — |
+| Máster de archivo (.mov) | HEVC Main 4:2:2 10 bits (extensiones de rango) · 3840 × 2160 | 4.320 · 180,000 s | PCM 24 bits · 48 kHz, idéntico bit a bit al máster WAV (mismo MD5) | −14,1 · 9,1 · −1,6 | 1.142,2 MB · 50,8 Mbps |
 | Máster de sonido (WAV) | — | 180,000 s (8.640.000 muestras) | PCM 24 bits · 48 kHz | −14,1 · 9,1 · −1,6 | 51,8 MB |
 | Sonido del teaser (WAV) | — | 30,000 s | PCM 24 bits · 48 kHz | −14,2 · 10,0 · −1,6 | 8,6 MB |
 
