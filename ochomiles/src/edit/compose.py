@@ -112,14 +112,31 @@ def to_uint8(img, f, dither=True):
     return np.clip(x + 0.5, 0, 255).astype(np.uint8)
 
 
-def ffmpeg_writer(path, W, H, crf=16, preset="medium", audio=None):
+# conversion RGB -> YUV con matriz BT.709 (la que suponen los reproductores en HD y 4K) y etiquetas
+COLOR_TAGS = ["-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv"]
+
+
+def to_uint16(img):
+    return (np.clip(img, 0, 1) * 65535.0 + 0.5).astype(np.uint16)
+
+
+def ffmpeg_writer(path, W, H, crf=16, preset="medium", audio=None, mezz=False):
+    """mezz=False: H.264 8 bits 4:2:0 (revision). mezz=True: intermedio de alta calidad
+    H.264 High 4:2:2 10 bits (familia XAVC) a partir de RGB de 16 bits, para el master."""
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+    pix_in = "rgb48le" if mezz else "rgb24"
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", pix_in, "-s", f"{W}x{H}",
            "-r", str(FPS), "-i", "-"]
     if audio:
         cmd += ["-i", audio, "-c:a", "aac", "-b:a", "320k", "-shortest"]
-    cmd += ["-c:v", "libx264", "-preset", preset, "-crf", str(crf), "-pix_fmt", "yuv420p",
-            "-movflags", "+faststart", path]
+    if mezz:
+        cmd += ["-vf", "zscale=matrix=709:range=limited:dither=error_diffusion,format=yuv422p10le",
+                "-c:v", "libx264", "-profile:v", "high422", "-preset", preset, "-crf", str(crf),
+                "-g", "48", "-keyint_min", "24", *COLOR_TAGS, path]
+    else:
+        cmd += ["-vf", "zscale=matrix=709:range=limited:dither=error_diffusion,format=yuv420p",
+                "-c:v", "libx264", "-preset", preset, "-crf", str(crf), *COLOR_TAGS,
+                "-movflags", "+faststart", path]
     return subprocess.Popen(cmd, stdin=subprocess.PIPE)
 
 
@@ -133,6 +150,9 @@ def main():
     ap.add_argument("--stills", default=None)
     ap.add_argument("--samples", type=int, default=4)
     ap.add_argument("--crf", type=int, default=18)
+    ap.add_argument("--preset", default="medium")
+    ap.add_argument("--mezz", action="store_true", help="intermedio 10 bits 4:2:2 (render final)")
+    ap.add_argument("--png", action="store_true", help="fijos en PNG de 16 bits en vez de JPEG")
     args = ap.parse_args()
     W, H = (int(v) for v in args.res.split("x"))
     from . import edl as edl_mod
@@ -143,23 +163,30 @@ def main():
     else:
         a, b = (int(v) for v in (args.range or f"0:{TOTAL}").split(":"))
         frames = list(range(a, b, args.step))
-    writer = ffmpeg_writer(args.out, W, H, crf=args.crf) if args.out else None
+    writer = ffmpeg_writer(args.out, W, H, crf=args.crf, preset=args.preset, mezz=args.mezz) if args.out else None
     if args.stills:
         os.makedirs(args.stills, exist_ok=True)
     t0 = time.time()
     for i, f in enumerate(frames):
         img = evaluate(edl, ctx, f)
-        u8 = to_uint8(img, f)
         if writer:
-            writer.stdin.write(u8.tobytes())
+            if args.mezz:
+                writer.stdin.write(to_uint16(img).tobytes())
+            else:
+                writer.stdin.write(to_uint8(img, f).tobytes())
         if args.stills:
-            cv2.imwrite(os.path.join(args.stills, f"f{f:04d}.jpg"), u8[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 93])
+            if args.png:
+                cv2.imwrite(os.path.join(args.stills, f"f{f:04d}.png"), to_uint16(img)[..., ::-1])
+            else:
+                cv2.imwrite(os.path.join(args.stills, f"f{f:04d}.jpg"), to_uint8(img, f)[..., ::-1],
+                            [cv2.IMWRITE_JPEG_QUALITY, 93])
         if i % 24 == 0 or i == len(frames) - 1:
             el = time.time() - t0
             print(f"[compose] {i+1}/{len(frames)} f={f} {el/(i+1):.2f} s/fot", flush=True)
     if writer:
         writer.stdin.close()
-        writer.wait()
+        if writer.wait() != 0:
+            sys.exit("[compose] ffmpeg termino con error")
 
 
 if __name__ == "__main__":
