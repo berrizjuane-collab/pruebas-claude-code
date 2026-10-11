@@ -69,13 +69,14 @@ def master_audio():
     mix = cut_audio(mus) * M.db(-1.0) + cut_audio(fx) * M.db(-2.0)
     mix = S.butter(mix, "high", 25, 2).astype(np.float32)
     mix = M.compress(mix, thresh_db=-20, ratio=1.8)
-    meter = pyln.Meter(M.SR)
-    for _ in range(2):
-        mix = mix * M.db(-14.0 - meter.integrated_loudness(mix))
-        mix = M.true_peak_limit(mix, ceiling_db=-1.6)
+    # fundidos antes de normalizar: la sonoridad medida incluye el final que se apaga
     t = np.arange(len(mix)) / M.SR
     dur = len(BARS) * 3.0
-    mix = mix * np.clip(t / 0.05, 0, 1)[:, None] * np.clip((dur - t) / 1.2, 0, 1)[:, None]
+    mix = mix * (np.clip(t / 0.05, 0, 1) * np.clip((dur - t) / 1.2, 0, 1))[:, None].astype(np.float32)
+    meter = pyln.Meter(M.SR)
+    for _ in range(3):
+        mix = mix * M.db(-14.0 - meter.integrated_loudness(mix))
+        mix = M.true_peak_limit(mix, ceiling_db=-1.6)
     sf.write(WAV, mix.astype(np.float32), M.SR, subtype="PCM_24")
     log(f"teaser: audio {len(mix)/M.SR:.2f} s, {meter.integrated_loudness(mix):.2f} LUFS")
 
