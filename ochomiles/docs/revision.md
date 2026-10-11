@@ -65,10 +65,167 @@ intermedios de 10 bits ya codificados.
 | 8 | En el teaser vertical, al entrar la firma, el logotipo se dibujaba sobre la montaña iluminada. | Desplazamiento óptico vertical en ese tramo, solo en la versión 9:16. |
 | 9 | En el MP4 4K, revisado a tamaño real, el punto ámbar de la regla del Everest (8.848,86 m cae casi al final) tocaba el «2020» de la nota «Medición Nepal–China, 2020». | La nota se alinea con la altura de las mayúsculas de la cifra; se rehicieron los dos segmentos del Everest (f 3384–3600) y se volvieron a codificar las entregas. |
 
-*El resto de la pasada se completa sobre los MP4 exportados.*
+**Sobre las entregas exportadas.** Material: la película en 4K
+(`14_cumbres_2160p24.mp4`), en 1080p de alta calidad (`14_cumbres_1080p24.mp4`) y en
+1080p web (`14_cumbres_1080p24_web.mp4`), los teasers y los fijos. Las medidas se repiten
+con `python -m src.edit.qa` y `python -m src.edit.render_film verify --ssim`
+(resultados en `render/qa.json` y `render/verificacion.json`).
+
+**Color de extremo a extremo.** Cada fijo se renderiza directamente a RGB, sin pasar por
+vídeo, y se compara con el mismo fotograma de cada película. El fotograma se decodifica con
+la matriz BT.709 de rango limitado escrita a mano, como haría un reproductor. Un error de
+matriz (BT.601 en lugar de BT.709) o de rango (completo en lugar de limitado) aparecería
+como un desplazamiento de varios niveles en los colores saturados o en negros y blancos.
+
+| Fotograma | 4K | 1080p | 1080p web |
+|---|---|---|---|
+| f 240 · amanecer y título | +0,04 / −0,16 / −0,04 · 43,3 dB | +0,22 / −0,14 / +0,03 · 42,7 dB | +0,22 / −0,07 / +0,06 · 41,9 dB |
+| f 520 · mapa | +0,43 / +0,14 / +0,46 · 38,5 dB | +0,42 / +0,22 / +0,49 · 36,9 dB | +0,37 / +0,22 / +0,33 · 35,6 dB |
+| f 3500 · Everest | +0,10 / −0,02 / +0,25 · 41,1 dB | +0,07 / 0,00 / +0,04 · 41,9 dB | +0,15 / −0,04 / +0,16 · 40,6 dB |
+
+*Error medio con signo en R / G / B (niveles de 0 a 255) y PSNR.*
+
+Ningún canal se desvía más de medio nivel, así que la cadena no altera el color ni los
+niveles. Lo que queda es la pérdida de la compresión (grano y bordes finos), mayor en el
+mapa por sus líneas de 1–2 px.
+
+*Nota de método.* Una primera medida, decodificando con el filtro zscale de ffmpeg a RGB de
+16 bits, daba −2 niveles en todas las versiones. Una ida y vuelta sin compresión daba lo
+mismo, así que el error era de esa herramienta y no de los archivos. No se recodificó nada.
+
+**Pérdida de compresión.** Cada versión se compara, fotograma a fotograma, con el
+intermedio de 10 bits convertido como en su codificación (SSIM de la luminancia):
+
+| Versión | Media | 1 % peor | Mínimo |
+|---|---|---|---|
+| 4K (CRF 18) | 0,980 | 0,958 | 0,911 (f 1452) |
+| 4K, ambas reducidas a 960 × 540 | 0,996 | 0,992 | 0,988 |
+| 1080p (CRF 17) | 0,979 | 0,951 | 0,791 (f 1453) |
+| 1080p web (4 Mbps) | 0,966 | 0,830 | 0,744 (f 3385) |
+
+- **La 4K pierde casi solo grano.** Al reducir ambas a 960 × 540, que promedia el grano,
+  el SSIM sube a 0,996.
+- **Los mínimos están en los saltos por el mapa.** Son vuelos cenitales rápidos sobre el
+  relieve con grano: f 1440–1466 hacia el Annapurna, f 3384–3410 hacia el Everest y
+  f 770–830 hacia el Gasherbrum II. Los topes de tasa son deliberados, para que cualquier
+  reproductor lea los archivos sin cortes: 60 Mbps en la 4K y 24 Mbps en la 1080p. En el
+  salto hacia el Annapurna, el más largo, el tope suaviza la textura fina del relieve
+  durante medio segundo, más en la 1080p que en la 4K. Revisado a tamaño real, no aparecen
+  bloques. Por debajo de 0,95 solo quedan 12 fotogramas de la 4K, y por debajo de 0,90,
+  6 de la 1080p (f 1452–1458).
+- **La versión web es la que más pierde.** Su mediana es 0,973, pero 152 fotogramas
+  (6,3 s) bajan de 0,90, casi todos en los saltos por el mapa y en los pasos entre el mapa
+  y el relieve. En esos momentos el relieve pierde textura fina y aparecen manchas. Es una versión para
+  verla en el repositorio; para proyectar o publicar están la 1080p de alta calidad y
+  la 4K.
+
+*Nota de método.* La primera medida (0,932 en la 4K) emparejaba uno de cada tres
+fotogramas con el anterior. El intermedio .mkv guarda las marcas de tiempo en
+milisegundos (0, 42, 83…) y el filtro SSIM sincroniza por tiempo. Con las marcas
+renumeradas por fotograma, el patrón desaparece: la media es la misma en las tres
+posiciones de cada grupo de tres fotogramas. Eso confirma además que las entregas no
+pierden ni duplican fotogramas.
+
+**Bandas y bloques.** Los degradados oscuros se revisaron a tamaño real y con el contraste
+multiplicado por 6: el cielo de la firma (f 4250), la noche del campo base (f 3960) y el
+cielo del amanecer (f 200). En la 4K el grano sigue entero y no hay bandas. La 1080p web
+aplana el grano en bloques de ±1 nivel en los fondos más oscuros: con el contraste normal
+no se ven; al exagerarlo, sí.
+
+**Rótulos.** Todo el texto queda dentro del área segura de rótulos (90 %):
+
+- margen lateral de 216 px en 4K (5,6 %);
+- localizador a 132 px del borde superior (6,1 %);
+- la línea más baja, la de los créditos, a 150 px del borde inferior (6,9 %).
+
+Se revisó a tamaño real la 1080p web, la versión con menos tasa de bits. Todo se lee sin
+problemas:
+
+- el bloque de datos, incluida la nota «Medición Nepal–China, 2020»;
+- el localizador y la leyenda del mapa;
+- la llamada a la acción;
+- los créditos (31 px en 4K, 15,5 px en 1080p).
+
+**Teasers y fijos.** En los dos teasers, la marca, el lema, la llamada a la acción y los
+créditos están completos antes del fundido final (f 700 de 720). Los tres fijos son
+renders directos a 3840 × 2160 de los fotogramas 240, 520 y 3500: en PNG, sin compresión
+de vídeo, y en JPG de calidad 95.
 
 ---
 
 ## Pasada 3 · Sonido y exportación (entregas finales)
 
-*Pendiente: se completa midiendo los archivos exportados.*
+**Medidas de cada archivo** (`render/verificacion.json`). La sonoridad y el pico
+verdadero se miden con el medidor EBU R128 de FFmpeg sobre el sonido decodificado.
+
+| Archivo | Imagen | Fotogramas · duración | Sonido | Sonoridad · LRA · pico verdadero | Tamaño · tasa |
+|---|---|---|---|---|---|
+| Película 4K | H.264 High@5.1 · 3840 × 2160 · 4:2:0 8 bits | 4.320 · 180,000 s | AAC-LC 320 kbps · 48 kHz · estéreo | −14,2 LUFS · 9,1 LU · −1,2 dBTP | 1.122,4 MB · 49,9 Mbps |
+| Película 1080p | H.264 High@4.2 · 1920 × 1080 | 4.320 · 180,000 s | ídem | −14,2 · 9,1 · −1,2 | 307,3 MB · 13,7 Mbps |
+| Película 1080p web | H.264 High@4.2 · 1920 × 1080 · dos pasadas | 4.320 · 180,000 s | ídem | −14,2 · 9,1 · −1,2 | 97,1 MB · 4,3 Mbps |
+| Teaser 4K | H.264 High@5.1 · 3840 × 2160 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 164,7 MB · 43,9 Mbps |
+| Teaser 1080p | H.264 High@4.2 · 1920 × 1080 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 42,6 MB · 11,4 Mbps |
+| Teaser vertical | H.264 High@4.2 · 1080 × 1920 | 720 · 30,000 s | ídem | −14,2 · 10,0 · −1,5 | 32,2 MB · 8,6 Mbps |
+| Máster de archivo | HEVC Main 4:2:2 10 bits · 3840 × 2160 | en codificación: se mide al terminar | PCM 24 bits · 48 kHz | — | — |
+| Máster de sonido (WAV) | — | 180,000 s (8.640.000 muestras) | PCM 24 bits · 48 kHz | −14,1 · 9,1 · −1,6 | 51,8 MB |
+| Sonido del teaser (WAV) | — | 30,000 s | PCM 24 bits · 48 kHz | −14,2 · 10,0 · −1,6 | 8,6 MB |
+
+Todas las imágenes van a 24 fps exactos, con etiquetas BT.709 (primarios, transferencia y
+matriz) y rango limitado. En cada archivo, imagen y sonido empiezan en 0,000 s y duran lo
+mismo.
+
+| # | Problema | Corrección |
+|---|---|---|
+| 10 | La primera versión web llevaba AAC a 192 kbps. El codificador rebasaba el pico del máster: −0,9 dBTP, fuera del límite de −1 dBTP. | Se le puso la pista AAC de 320 kbps de las demás versiones, idéntica bit a bit a la de la 4K (mismo MD5), sin recodificar la imagen (MD5 de la imagen igual antes y después). Pico: −1,2 dBTP. |
+
+**Sincronía.** El sonido decodificado de cada entrega se correlaciona con su máster en tres
+puntos: 5, 80 y 155 s en la película, y 2, 12 y 20 s en los teasers. El desfase es de
+0 muestras en los seis MP4. El SSIM fotograma a fotograma muestra además que cada
+fotograma coincide con el suyo del intermedio. Por tanto, imagen y sonido quedan donde los
+puso el montaje: el golpe del título en f 180 y el arpegio con los 14 marcadores.
+
+**Máster de sonido.**
+
+| Medida | Valor |
+|---|---|
+| Sonoridad integrada | −14,1 LUFS |
+| Rango de sonoridad | 9,1 LU |
+| Pico verdadero | −1,6 dBTP |
+| Máximo a corto plazo / momentáneo | −9,5 / −7,2 LUFS |
+| Componente continua | −91 dBFS |
+| Correlación entre canales | 0,72; nunca negativa (mínimo por segundo: 0,10) |
+| Pérdida al sumar a mono | 1,1 LU: no hay cancelaciones de fase |
+| Principio y final | empieza en una muestra 0 y acaba por debajo de −70 dBFS: ni clic de entrada ni corte |
+
+**Empalmes del teaser.** Los cuatro empalmes entre compases no contiguos llevan fundidos
+cruzados de 25 ms. Pasado el fundido, el teaser coincide con la película (correlación de
+0,998 a 1,000). Dentro del fundido, el mayor salto entre muestras es del mismo orden que
+el de la película en ese punto musical, o menor:
+
+| Empalme del teaser | Película | Teaser |
+|---|---|---|
+| 0:09 · c. 4 → 6 | 0,016 | 0,017 |
+| 0:12 · c. 6 → 45 | 0,042 | 0,045 |
+| 0:15 · c. 45 → 48 | 0,36 | 0,24 |
+| 0:21 · c. 49 → 57 | 0,23 | 0,11 |
+
+Son los golpes de compás, no clics.
+
+**Exportación.**
+
+- **Reproducción inmediata.** Los seis MP4 llevan el índice (moov) antes de los datos, así
+  que empiezan a reproducirse sin descargarse enteros.
+- **Compatibilidad.** Perfil High, niveles 5.1 (4K) y 4.2 (1080p y vertical), GOP de 2 s
+  y los topes de tasa de la pasada 2.
+- **Sin errores de decodificación.** Se decodificaron enteros los teasers y las tres
+  películas (estas, durante la medida del SSIM).
+
+**Lo que no se ha podido comprobar**
+
+- **La reproducción en dispositivos concretos** (televisores, móviles, navegadores). La
+  compatibilidad se deduce del perfil, el nivel y las etiquetas.
+- **Una escucha humana.** La mezcla se ha revisado con medidas y espectros. Conviene
+  escucharla con auriculares y en altavoces antes de publicarla.
+- **Las versiones de más de 100 MB fuera de este entorno.** La 4K, la 1080p de alta
+  calidad, el teaser 4K y el máster se han medido aquí. No están en el repositorio porque
+  el entorno bloquea `lfs.github.com` (véase el README).
