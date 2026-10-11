@@ -129,8 +129,8 @@ def data_block(canvas, fonts, peak, k, u, t_in=14, t_out=184):
     a, dy, bl = appear(u, t_in + 18, t_out + 3)
     loc = f"{peak['location'].upper()}     ·     {peak['range'].upper()}"
     draw_text(canvas, fonts, loc, x + 2, y_loc + dy, "DataMedium", 33, SLATE_LIGHT, tracking=7, opacity=a, blur=bl)
-    # detalle
-    a, dy, bl = appear(u, t_in + 26, t_out)
+    # detalle (entra poco despues de la ubicacion: el dato necesita el tiempo de lectura)
+    a, dy, bl = appear(u, t_in + 20, t_out)
     for i, ln in enumerate(lines):
         draw_text(canvas, fonts, ln, x, y_detail + i * 70 + dy, "SerifTextItalic", 54, (*GLACIER, 0.94),
                   opacity=a, blur=bl)
