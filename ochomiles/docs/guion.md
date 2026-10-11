@@ -121,3 +121,39 @@ El encargo dejaba la locución como opcional. Se descartó para que la música y
 antes del K2 llevaran el arco y para que la pieza funcione igual sin sonido (redes, pantallas en
 tiendas o ferias). Las frases editoriales en pantalla hacen de voz. Como no hay locución,
 no se entrega archivo SRT.
+
+---
+
+## Teaser de 30 s y versión vertical 9:16
+
+El teaser se monta con 10 compases enteros de la película (un compás = 3 s = 72
+fotogramas), así que imagen y música se cortan en los mismos puntos y la sincronía se
+conserva. El sonido se recompone desde las mezclas previas al máster, con fundidos
+cruzados de 25 ms en los empalmes, y se vuelve a masterizar a −14 LUFS
+(`src/edit/teaser.py`). Abre en 0,25 s desde negro y cierra con un fundido de 0,5 s.
+
+| Teaser | Compás | Película (f) | Contenido |
+|---|---|---|---|
+| 0:00–0:03 | c. 2 | 72–143 | Fin de la macro; empieza la subida. *«Hay lugares que cambian nuestra forma de mirar.»* |
+| 0:03–0:06 | c. 3 | 144–215 | El sol toca el horizonte: **«14 cumbres.»** con el golpe grave (f 180). |
+| 0:06–0:09 | c. 4 | 216–287 | *«Un horizonte extraordinario.»* sobre la luz rasante. |
+| 0:09–0:12 | c. 6 | 360–431 | Mapa: se encienden los 14 marcadores con el arpegio de 14 notas. |
+| 0:12–0:15 | c. 45 | 3168–3239 | K2 sale del negro con su golpe; bloque de datos. |
+| 0:15–0:18 | c. 48 | 3384–3455 | Gran salto sobre el Everest en alpenglow; la música resuelve en re mayor. |
+| 0:18–0:21 | c. 49 | 3456–3527 | Everest, 8.848,86 m, con su bloque de datos. |
+| 0:21–0:24 | c. 57 | 4032–4103 | Marca provisional y NOMBRE DE LA EMPRESA. |
+| 0:24–0:27 | c. 58 | 4104–4175 | Lema y entrada de PLANIFICA TU PRÓXIMA EXPEDICIÓN. |
+| 0:27–0:30 | c. 59 | 4176–4247 | Llamada a la acción y créditos de datos; fundido final. |
+
+**Versión vertical (1080 × 1920).** Usa los mismos compases y la misma pista de sonido.
+No es un recorte ciego del 16:9:
+
+- Los planos 3D se vuelven a renderizar con el encuadre vertical (equivale a un recorte
+  centrado del 31,6 % del ancho). En la apertura y en la firma se desplaza el encuadre para
+  que el sol y las cumbres no queden fuera.
+- El mapa se recompone en una caja centrada.
+- Títulos, bloques de datos y firma se maquetan de nuevo para 9:16.
+- Durante la firma, el encuadre se desplaza en vertical para que el logotipo no pise la
+  montaña iluminada.
+
+`src/edit/vertical.py` renderiza los 720 fotogramas.

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Reproduce la película completa desde cero: datos, sonido, imagen y entregas.
 # Requisitos: requirements.txt + ffmpeg, fluidsynth, musescore-general-soundfont y Mesa (EGL).
-# Tiempo orientativo con 4 núcleos y 16 GB: datos ~1 h, render 4K ~6 h, entregas ~1,5 h.
+# Tiempo orientativo con 4 núcleos y 16 GB: datos ~1 h, render 4K ~6 h, entregas ~3,5 h.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -38,7 +38,9 @@ python3 -m src.audio.mix --stems                   # partitura, diseño sonoro y
 # 3. Imagen y entregas ------------------------------------------------------------------
 python3 -m src.edit.render_film render --res 3840x2160   # 40 segmentos reanudables (10 bits 4:2:2)
 python3 -m src.edit.render_film assemble --master        # MP4 4K y 1080p + máster HEVC 4:2:2
-python3 -m src.edit.teaser                               # teaser de 30 s (10 compases)
+python3 -m src.edit.render_film web                      # 1080p ligera (< 100 MB) para el repositorio
+python3 -m src.edit.teaser                               # teaser de 30 s (10 compases), 4K y 1080p
+python3 -m src.edit.vertical                             # teaser vertical 9:16 (1080 x 1920)
 python3 -m src.edit.stills                               # 3 fijos promocionales 4K
 python3 -m src.edit.storyboard                           # storyboard con fotogramas del corte
-python3 -m src.edit.render_film verify                   # medidas sobre los archivos exportados
+python3 -m src.edit.render_film verify --ssim            # medidas sobre los archivos exportados

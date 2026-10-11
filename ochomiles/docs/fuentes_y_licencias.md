@@ -201,7 +201,7 @@ La OFL permite usar las fuentes en obras comerciales e incrustarlas en vídeo.
 | OpenCV, Pillow | procesado de imagen | Apache-2.0 / HPND |
 | rasterio (GDAL), pyproj (PROJ), shapely, mgrs | datos geoespaciales | BSD / MIT |
 | mido, soundfile, pyloudnorm | MIDI, audio, medida de sonoridad | MIT / BSD-3 / MIT |
-| FFmpeg 6.1 (libx264, zscale) | codificación y medida EBU R128 | LGPL/GPL (la salida codificada no queda sujeta a esas licencias) |
+| FFmpeg 6.1 (libx264, libx265, zscale) | codificación, medida EBU R128 y SSIM | LGPL/GPL (la salida codificada no queda sujeta a esas licencias) |
 
 ---
 

@@ -258,14 +258,45 @@ def moov_first(path):
     return ("moov" in order and "mdat" in order and order.index("moov") < order.index("mdat")), order
 
 
-def ssim_vs_source(path, frames=None):
-    """SSIM medio (Y) del archivo frente a los segmentos intermedios (perdida de la codificacion)."""
-    sel = [] if frames is None else ["-frames:v", str(frames)]
-    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", path, *source_args(), *sel, "-lavfi",
-                        "[0:v]format=yuv420p[a];[1:v]zscale=dither=error_diffusion,format=yuv420p[b];[a][b]ssim",
-                        "-f", "null", "-"], capture_output=True, text=True).stderr
-    m = re.search(r"SSIM Y:([\d.]+).*All:([\d.]+)", r)
-    return {"ssim_Y": float(m.group(1)), "ssim_total": float(m.group(2))} if m else None
+# cada archivo se compara con el intermedio convertido igual que en su codificacion, asi que
+# el SSIM mide solo la perdida de la compresion
+SSIM_REF = {UHD: "zscale=dither=error_diffusion,format=yuv420p",
+            FHD: "zscale=w=1920:h=1080:filter=lanczos:dither=error_diffusion,format=yuv420p",
+            WEB: "zscale=w=1920:h=1080:filter=lanczos:dither=error_diffusion,format=yuv420p",
+            MASTER: "format=yuv422p10le"}
+SSIM_DIR = os.path.join(ROOT, "render", "ssim")
+
+
+def ssim_vs_source(paths):
+    """SSIM de cada archivo frente a los segmentos intermedios, en una sola pasada (el intermedio
+    4K se decodifica una vez). Las marcas de tiempo se renumeran por fotograma en las dos
+    entradas: el .mkv las guarda en milisegundos (0, 42, 83...) y, sin renumerar, la
+    sincronizacion del filtro emparejaria uno de cada tres fotogramas con el anterior.
+    Guarda el valor de cada fotograma en render/ssim/<archivo>.log."""
+    paths = [p for p in paths if p in SSIM_REF and os.path.exists(p)]
+    if not paths:
+        return {}
+    os.makedirs(SSIM_DIR, exist_ok=True)
+    n = len(paths)
+    graph = [f"[{n}:v]settb=1/24,setpts=N,split={n}" + "".join(f"[s{i}]" for i in range(n))]
+    maps, inputs = [], []
+    for i, p in enumerate(paths):
+        fmt = SSIM_REF[p].rsplit("format=", 1)[1]
+        stats = os.path.join(SSIM_DIR, os.path.basename(p).rsplit(".", 1)[0] + ".log")
+        graph.append(f"[s{i}]{SSIM_REF[p]}[r{i}];[{i}:v]settb=1/24,setpts=N,format={fmt}[d{i}];"
+                     f"[d{i}][r{i}]ssim=stats_file={stats}[o{i}]")
+        inputs += ["-i", p]
+        maps += ["-map", f"[o{i}]", "-f", "null", "-"]
+    err = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", *inputs, *source_args(),
+                          "-filter_complex", ";".join(graph), *maps], capture_output=True, text=True).stderr
+    found = sorted((int(k), float(y), float(a)) for k, y, a in
+                   re.findall(r"Parsed_ssim_(\d+) @ [^\]]+\] SSIM Y:([\d.]+).*?All:([\d.]+)", err))
+    out = {}
+    for p, (_, y, a) in zip(paths, found):
+        frames = [float(m) for m in re.findall(r"Y:([\d.]+)", open(os.path.join(
+            SSIM_DIR, os.path.basename(p).rsplit(".", 1)[0] + ".log")).read())]
+        out[p] = {"ssim_Y": y, "ssim_total": a, "fotogramas": len(frames), "ssim_Y_minimo": min(frames)}
+    return out
 
 
 DEFAULT_CHECK = [MASTER, UHD, FHD, WEB, os.path.join(OUT_DIR, "14_cumbres_teaser_30s_2160p24.mp4"),
@@ -279,25 +310,27 @@ def verify(args):
         if not os.path.exists(p):
             continue
         info = probe(p)
-        v = [s for s in info["streams"] if s["codec_type"] == "video"][0]
+        v = ([s for s in info["streams"] if s["codec_type"] == "video"] or [None])[0]
         a = [s for s in info["streams"] if s["codec_type"] == "audio"]
         rep[os.path.basename(p)] = {
             "tamano_MB": round(int(info["format"]["size"]) / 1e6, 1),
             "duracion_s": float(info["format"]["duration"]),
             "tasa_Mbps": round(int(info["format"]["bit_rate"]) / 1e6, 1),
-            "video": {k: v.get(k) for k in ("codec_name", "profile", "width", "height", "pix_fmt", "r_frame_rate",
-                                            "nb_read_packets", "color_space", "color_transfer", "color_primaries",
-                                            "start_time", "duration")},
-            "audio": ({k: a[0].get(k) for k in ("codec_name", "sample_rate", "channels", "start_time", "duration")}
-                      if a else None),
+            "video": ({k: v.get(k) for k in ("codec_name", "profile", "width", "height", "pix_fmt", "r_frame_rate",
+                                             "nb_read_packets", "color_space", "color_transfer", "color_primaries",
+                                             "start_time", "duration")} if v else None),
+            "audio": ({k: a[0].get(k) for k in ("codec_name", "profile", "sample_rate", "channels", "start_time",
+                                                "duration")} if a else None),
             "sonoridad": loudness(p) if a else None,
         }
         if p.endswith(".mp4"):
             ok, order = moov_first(p)
             rep[os.path.basename(p)]["moov_antes_de_mdat"] = ok
-        if args.ssim and p == UHD:
-            rep[os.path.basename(p)]["ssim_frente_al_intermedio"] = ssim_vs_source(p)
         log(f"verificado {os.path.basename(p)}: {json.dumps(rep[os.path.basename(p)], ensure_ascii=False)}")
+    if args.ssim:
+        for p, val in ssim_vs_source(DEFAULT_CHECK).items():
+            rep[os.path.basename(p)]["ssim_frente_al_intermedio"] = val
+            log(f"ssim {os.path.basename(p)}: {json.dumps(val)}")
     out = os.path.join(ROOT, "render", "verificacion.json")
     with open(out, "w") as fh:
         json.dump(rep, fh, indent=2, ensure_ascii=False)
@@ -321,7 +354,7 @@ def main():
     ap.add_argument("--master", action="store_true", help="codificar tambien el master de archivo HEVC")
     ap.add_argument("--only-master", action="store_true", help="solo el master de archivo")
     ap.add_argument("--extra", nargs="*")
-    ap.add_argument("--ssim", action="store_true", help="medir SSIM del MP4 4K frente al intermedio")
+    ap.add_argument("--ssim", action="store_true", help="medir el SSIM de las peliculas frente al intermedio")
     ap.add_argument("--audio-only", action="store_true", help="web: rehacer solo el audio (copia la imagen)")
     args = ap.parse_args()
     if args.cmd == "plan":
