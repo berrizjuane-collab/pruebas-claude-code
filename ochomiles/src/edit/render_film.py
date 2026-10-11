@@ -3,8 +3,9 @@
 1. render: divide la pelicula en segmentos y renderiza cada uno con compose.py en un
    intermedio H.264 High 4:2:2 10 bits (render/seg/AAAA_BBBB.mkv). Un segmento terminado
    no se repite: si el proceso se corta, basta con volver a lanzar la orden.
-2. assemble: une los segmentos sin recodificar, anade la banda sonora PCM 24 bits (master
-   de archivo .mov) y codifica las entregas MP4 4K y 1080p (H.264 8 bits 4:2:0, AAC).
+2. assemble: une los segmentos sin recodificar y codifica las entregas MP4 4K y 1080p
+   (H.264 8 bits 4:2:0, AAC 320 kbps) y, con --master, el master de archivo (HEVC 4:2:2
+   10 bits + PCM 24 bits, por debajo del limite de 2 GB por archivo de Git LFS).
 3. verify: mide en los archivos exportados duracion, fotogramas, resolucion, sonoridad
    integrada (EBU R128) y pico verdadero, y lo guarda en render/verificacion.json.
 
@@ -31,7 +32,7 @@ AUDIO = os.path.join(ROOT, "data", "work", "audio", "banda_sonora.wav")
 LOG = os.path.join(ROOT, "render", "film.log")
 
 NAME = "14_cumbres"
-MASTER = os.path.join(OUT_DIR, f"{NAME}_master_2160p24_422_10bit.mov")
+MASTER = os.path.join(OUT_DIR, f"{NAME}_master_2160p24_hevc422_10bit.mov")
 UHD = os.path.join(OUT_DIR, f"{NAME}_2160p24.mp4")
 FHD = os.path.join(OUT_DIR, f"{NAME}_1080p24.mp4")
 
@@ -131,9 +132,9 @@ def run(cmd):
     subprocess.run(cmd, check=True)
 
 
-def assemble(args):
-    os.makedirs(OUT_DIR, exist_ok=True)
-    segs = segments(0, TOTAL, args.seg)
+def source_args():
+    """Entrada ffmpeg: los segmentos intermedios unidos sin recodificar (concat)."""
+    segs = segments(0, TOTAL, 108)
     missing = [(s, e) for s, e in segs if not os.path.exists(seg_path(s, e))]
     if missing:
         sys.exit(f"faltan segmentos: {missing}")
@@ -141,23 +142,33 @@ def assemble(args):
     with open(lst, "w") as fh:
         for s, e in segs:
             fh.write(f"file '{seg_path(s, e)}'\n")
-    # master de archivo: video intermedio sin recodificar + PCM 24 bits 48 kHz
-    run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, "-i", AUDIO,
-         "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "pcm_s24le", *COLOR_TAGS,
-         "-metadata", "title=14 cumbres. Un horizonte extraordinario.", "-movflags", "+write_colr", MASTER])
-    # entregas: H.264 High 8 bits 4:2:0 con difusion de error al bajar de 10 a 8 bits
+    return ["-f", "concat", "-safe", "0", "-i", lst]
+
+
+def assemble(args):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    src = source_args()
     common_a = ["-c:a", "aac", "-b:a", "320k", "-ar", "48000"]
-    run(["ffmpeg", "-y", "-loglevel", "error", "-i", MASTER, "-map", "0:v", "-map", "0:a",
+    # entregas: H.264 High 8 bits 4:2:0 con difusion de error al bajar de 10 a 8 bits
+    run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a",
          "-vf", "zscale=dither=error_diffusion,format=yuv420p",
-         "-c:v", "libx264", "-preset", "slow", "-crf", str(args.crf_uhd), "-maxrate", "80M", "-bufsize", "160M",
+         "-c:v", "libx264", "-preset", "slow", "-crf", str(args.crf_uhd), "-maxrate", "60M", "-bufsize", "120M",
          "-profile:v", "high", "-level:v", "5.1", "-g", "48", *COLOR_TAGS, *common_a,
          "-movflags", "+faststart", UHD])
-    run(["ffmpeg", "-y", "-loglevel", "error", "-i", MASTER, "-map", "0:v", "-map", "0:a",
+    run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a",
          "-vf", "zscale=w=1920:h=1080:filter=lanczos:dither=error_diffusion,format=yuv420p",
-         "-c:v", "libx264", "-preset", "slow", "-crf", str(args.crf_fhd), "-maxrate", "30M", "-bufsize", "60M",
+         "-c:v", "libx264", "-preset", "slow", "-crf", str(args.crf_fhd), "-maxrate", "24M", "-bufsize", "48M",
          "-profile:v", "high", "-level:v", "4.2", "-g", "48", *COLOR_TAGS, *common_a,
          "-movflags", "+faststart", FHD])
     log("entregas codificadas")
+    if args.master:
+        # master de archivo: HEVC Main 4:2:2 10 bits de alta calidad + PCM 24 bits 48 kHz
+        run(["ffmpeg", "-y", "-loglevel", "error", *src, "-i", AUDIO, "-map", "0:v", "-map", "1:a",
+             "-c:v", "libx265", "-preset", "medium", "-crf", str(args.crf_master), "-pix_fmt", "yuv422p10le",
+             "-x265-params", "log-level=error:colorprim=bt709:transfer=bt709:colormatrix=bt709",
+             "-tag:v", "hvc1", *COLOR_TAGS, "-c:a", "pcm_s24le",
+             "-metadata", "title=14 cumbres. Un horizonte extraordinario.", "-movflags", "+write_colr", MASTER])
+        log("master codificado")
 
 
 def probe(path):
@@ -214,8 +225,10 @@ def main():
     ap.add_argument("--samples", type=int, default=4)
     ap.add_argument("--crf", type=int, default=12, help="calidad del intermedio 10 bits")
     ap.add_argument("--preset", default="medium")
-    ap.add_argument("--crf-uhd", type=int, default=16)
-    ap.add_argument("--crf-fhd", type=int, default=16)
+    ap.add_argument("--crf-uhd", type=int, default=18)
+    ap.add_argument("--crf-fhd", type=int, default=17)
+    ap.add_argument("--crf-master", type=int, default=16)
+    ap.add_argument("--master", action="store_true", help="codificar tambien el master de archivo HEVC")
     ap.add_argument("--extra", nargs="*")
     args = ap.parse_args()
     if args.cmd == "plan":

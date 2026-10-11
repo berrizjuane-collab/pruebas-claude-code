@@ -1,4 +1,4 @@
-"""Teaser de 30 s montado por compases a partir del master de la pelicula.
+"""Teaser de 30 s montado por compases a partir del render final de la pelicula.
 
 A 80 BPM un compas de 4/4 dura 3 s (72 fotogramas), asi que 10 compases son 30 s
 exactos. Imagen y sonido se cortan en los mismos limites de compas de la pelicula, de modo
@@ -17,7 +17,7 @@ import soundfile as sf
 from ..audio import mix as M
 from ..audio import synth as S
 from .compose import COLOR_TAGS
-from .render_film import MASTER, OUT_DIR, log, run
+from .render_film import OUT_DIR, log, run, source_args
 
 # compases de la pelicula (1..60) que forman el teaser, en orden
 BARS = [2, 3, 4, 6, 45, 48, 49, 57, 58, 59]
@@ -86,10 +86,11 @@ def video():
     cut = f"select='{sel}',setpts=N/(24*TB),fade=t=in:st=0:d=0.25,fade=t=out:st={n/24-0.5}:d=0.5"
     common = ["-map", "0:v", "-map", "1:a", "-frames:v", str(n), "-c:a", "aac", "-b:a", "320k", "-ar", "48000",
               *COLOR_TAGS, "-movflags", "+faststart", "-shortest"]
-    for path, scale, level, maxrate in ((UHD, "", "5.1", "80M"), (FHD, "w=1920:h=1080:filter=lanczos:", "4.2", "30M")):
-        run(["ffmpeg", "-y", "-loglevel", "error", "-i", MASTER, "-i", WAV,
+    for path, scale, level, crf, maxrate in ((UHD, "", "5.1", "18", "60M"),
+                                             (FHD, "w=1920:h=1080:filter=lanczos:", "4.2", "17", "24M")):
+        run(["ffmpeg", "-y", "-loglevel", "error", *source_args(), "-i", WAV,
              "-vf", f"{cut},zscale={scale}dither=error_diffusion,format=yuv420p",
-             "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-maxrate", maxrate, "-bufsize", "160M",
+             "-c:v", "libx264", "-preset", "slow", "-crf", crf, "-maxrate", maxrate, "-bufsize", "120M",
              "-profile:v", "high", "-level:v", level, "-g", "48", *common, path])
 
 
