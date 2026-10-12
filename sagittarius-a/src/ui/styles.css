@@ -1,0 +1,11 @@
+:root {
+  --bg: #030406;
+  --fg: #e7e9ec;
+  --fg-dim: #9aa1aa;
+  --fg-faint: #5f6670;
+  --line: rgba(255, 255, 255, 0.09);
+  --panel: rgba(12, 14, 18, 0.72);
+  --accent: #e3a54a;
+}
+html, body, #root { margin: 0; height: 100%; background: var(--bg); color: var(--fg); overflow: hidden; }
+canvas.stage { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
