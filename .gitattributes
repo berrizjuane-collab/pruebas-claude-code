@@ -1,3 +1,6 @@
 # Entregas de máxima calidad de «14 cumbres» (ochomiles/), de más de 100 MB: Git LFS. Las de menos
 # de 100 MB van en ochomiles/entregables/ como archivos normales.
 ochomiles/entregables/alta_calidad/** filter=lfs diff=lfs merge=lfs -text
+
+# Máster de alta calidad de «K2 · Espolón de los Abruzos» (k2-abruzzi/), de más de 100 MB: Git LFS.
+k2-abruzzi/output/alta_calidad/** filter=lfs diff=lfs merge=lfs -text
