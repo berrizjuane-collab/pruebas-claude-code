@@ -21,7 +21,7 @@ OUT = '/home/user/k2data/audio/narration'
 # (display text for subtitles, text sent to the TTS, speed)
 LINES = [
     ("Tras semanas de aclimatación y avances por campamentos, el ascenso sigue el Espolón de los Abruzos.",
-     "Tras semanas de aclimatación y avances por campamentos, el ascenso sigue el Espolón de los Abruzos.", 0.97),
+     "Tras semanas de aclimatación, y avances por campamentos, el ascenso sigue el Espolón de los Abruzos.", 0.96),
     ("No es una línea recta hacia la cima: es una sucesión de roca, hielo, viento y pasos expuestos.",
      "No es una línea recta hacia la cima: es una sucesión de roca, hielo, viento, y pasos expuestos.", 0.97),
     ("La Chimenea de House obliga a trepar por una angosta fisura;",
@@ -31,12 +31,18 @@ LINES = [
     ("Tras el Hombro, cerca de los ocho mil metros, comienza el tramo decisivo.",
      "Tras el Hombro, cerca de los ocho mil metros, comienza el tramo decisivo.", 0.95),
     ("El Bottleneck se estrecha bajo un serac colgante: cada paso y cada minuto cuentan.",
-     "El Bótelnek se estrecha bajo un serac colgante: cada paso, y cada minuto, cuentan.", 0.93),
+     "El Bótelnek, se estrecha bajo un serac colgante. Cada paso y cada minuto cuentan.", 0.96),
     ("Superado el corredor y su travesía, la arista final conduce a 8.611 metros.",
      "Superado el corredor y su travesía, la arista final conduce a ocho mil seiscientos once metros.", 0.96),
     ("Pero en el K2, tocar la cima es solo la mitad del viaje: aún hay que volver.",
-     "Pero en el Ka Dos, tocar la cima es solo la mitad del viaje: aún hay que volver.", 0.92),
+     "Pero en el Ka Dos, tocar la cima es solo la mitad del viaje. Aún hay que volver.", 0.97),
 ]
+
+# Takes used in the film (chosen by retake_in_mix.py / the take search): noise_scale, noise_w, speed
+# (lines 1, 3, 4, 6 from build(); 0, 2, 5 from retake_in_mix.py; 7 from a parameter sweep)
+CHOSEN = {0: (0.50, 0.60, 0.96), 1: (0.60, 0.75, 0.97), 2: (0.70, 0.60, 0.96), 3: (0.70, 0.75, 0.96),
+          4: (0.65, 0.75, 0.95), 5: (0.70, 0.80, 0.96), 6: (0.65, 0.75, 0.96), 7: (0.70, 0.60, 0.97)}
+# VITS sampling is stochastic: re-running reproduces the selection procedure, not bit-identical audio.
 
 # words whose TTS spelling differs: accept the display spelling in the ASR check
 ASR_ALIASES = {'jaus': 'house', 'botelnek': 'bottleneck', 'ka': 'k', 'dos': '2', 'k2': 'k 2'}

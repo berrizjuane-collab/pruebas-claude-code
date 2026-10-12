@@ -210,11 +210,22 @@ class LabelDrawer:
             r = 7
             dr.ellipse([ax - r, ay - r, ax + r, ay + r], outline=self.col + (int(255 * a_pin),), width=2)
             dr.ellipse([ax - 2.5, ay - 2.5, ax + 2.5, ay + 2.5], fill=self.col + (int(255 * a_pin),))
-        # soft shadow for legibility on bright snow
+        # soft shadow for legibility; on bright snow add a feathered scrim behind the block
         al = np.asarray(layer)[..., 3].astype(np.float32) / 255.0
         sh = cv2.GaussianBlur(al, (0, 0), 7.0) * 0.55 + cv2.GaussianBlur(al, (0, 0), 1.6) * 0.35
-        sh = np.clip(sh, 0, 0.75)
-        out = img * (1 - sh[..., None]) + np.array([0.02, 0.03, 0.05], np.float32) * sh[..., None]
+        ys, xs = np.nonzero(al > 0.05)
+        if len(xs):
+            bx0, bx1, by0, by1 = xs.min(), xs.max(), ys.min(), ys.max()
+            lum = float((img[by0:by1 + 1, bx0:bx1 + 1] @ np.array([0.2126, 0.7152, 0.0722], np.float32)).mean())
+            k = float(smoothstep(0.42, 0.78, lum)) * max(a_title, a_sub, a_rule * a_out)
+            if k > 0:
+                pad = 46
+                scrim = np.zeros((H, W), np.float32)
+                scrim[max(0, by0 - pad):min(H, by1 + pad), max(0, bx0 - pad):min(W, bx1 + pad)] = 1.0
+                scrim = cv2.GaussianBlur(scrim, (0, 0), 34.0) * 0.42 * k
+                sh = np.maximum(sh * (1 + 0.5 * k), scrim)
+        sh = np.clip(sh, 0, 0.8)
+        out = img * (1 - sh[..., None]) + np.array([0.03, 0.04, 0.07], np.float32) * sh[..., None]
         rgb = np.asarray(layer)[..., :3].astype(np.float32) / 255.0
         out = out * (1 - al[..., None]) + rgb * al[..., None]
         return out
@@ -294,8 +305,8 @@ def main(start=0, end=NFRAMES, step=1):
         # global fades
         fade = float(smoothstep(0.0, 0.9, t)) * (1.0 - float(smoothstep(DURATION - 1.0, DURATION - 0.05, t)))
         img = img * fade
-        # 1-LSB triangular dither against banding in skies
-        rng = np.random.default_rng(f)
+        # 1-LSB triangular dither against banding in skies (static pattern: costs no bitrate)
+        rng = np.random.default_rng(12345)
         dith = (rng.random(img.shape[:2], dtype=np.float32) - rng.random(img.shape[:2], dtype=np.float32)) / 255.0
         out = np.clip(img + dith[..., None], 0, 1)
         cv2.imwrite(f'{OUT}/{f:05d}.png', (out[..., ::-1] * 255 + 0.5).astype(np.uint8))
