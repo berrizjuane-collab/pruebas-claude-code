@@ -11,6 +11,7 @@ Godwin-Austen a la cumbre, pasando por la Chimenea de House, la Pirámide Negra,
 |---|---|
 | `output/K2_Espolon_de_los_Abruzos.mp4` | **Pieza principal.** 1920×1080, 24 fps, H.264 (2 pasadas, ~13 Mbps) + AAC 48 kHz; pista de subtítulos en español activable |
 | `output/K2_Espolon_de_los_Abruzos_subtitulado.mp4` | La misma pieza con los subtítulos incrustados (para reproductores sin pista de subtítulos) |
+| `output/K2_Espolon_de_los_Abruzos_720p_ligero.mp4` | Versión ligera (1280×720, ~4 Mbps, 27 MB) con subtítulos incrustados, para móvil o mensajería |
 | `output/K2_Espolon_de_los_Abruzos.srt` | Subtítulos: transcripción fiel de la narración, cortados en las pausas reales de la voz |
 | `output/alta_calidad/K2_Espolon_de_los_Abruzos_master.mp4` | Máster 1080p (CRF 15, ~45 Mbps) — en Git LFS |
 
