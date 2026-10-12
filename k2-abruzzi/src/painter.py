@@ -434,6 +434,19 @@ class Painter:
         out = canvas * shade_[..., None] * (1 + (self.canvas_tex[..., None] - 1) * tex)
         return np.clip(out, 0, 1)
 
+    # ---- checkpointing (resume a render without re-seeding the stroke field)
+    def get_state(self):
+        return dict(anc=self.anc, sky=self.sky, layer=self.layer, seed=self.seed, born=self.born,
+                    next_seed=np.array([self.next_seed]),
+                    rng=np.frombuffer(repr(self.rng.bit_generator.state).encode(), dtype=np.uint8))
+
+    def set_state(self, d):
+        self.anc, self.sky, self.layer = d['anc'], d['sky'].astype(bool), d['layer'].astype(np.int8)
+        self.seed, self.born = d['seed'].astype(np.uint64), d['born'].astype(np.int64)
+        self.next_seed = int(d['next_seed'][0])
+        import ast
+        self.rng.bit_generator.state = ast.literal_eval(bytes(d['rng']).decode())
+
     def _keep(self, m):
         self.anc = self.anc[m]
         self.sky = self.sky[m]

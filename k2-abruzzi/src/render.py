@@ -136,8 +136,11 @@ def group_range(names):
     return a, b
 
 
-def run_group(names, R=None, every=1, warm=4, outroot=OUT):
-    """Render a group of shots that share one continuous stroke field (one Painter)."""
+def run_group(names, R=None, every=1, warm=4, outroot=OUT, ckpt_every=12):
+    """Render a group of shots that share one continuous stroke field (one Painter).
+
+    The painter state is checkpointed every `ckpt_every` frames, so an interrupted render resumes
+    exactly where it stopped (same strokes, same boil)."""
     R = R or Renderer()
     objs = {n: SHOT_CLASSES[n](R.sc) for n in names}
     bounds = [(n, objs[n].t0, objs[n].t1) for n in names]
@@ -145,10 +148,17 @@ def run_group(names, R=None, every=1, warm=4, outroot=OUT):
     current = None
     f0, f1 = group_range(names)
     gname = '+'.join(names)
-    os.makedirs(f'{outroot}/{gname}', exist_ok=True)
+    gdir = f'{outroot}/{gname}'
+    os.makedirs(gdir, exist_ok=True)
+    ck = f'{gdir}/ckpt.npz'
+    start = f0 - warm
+    resume = None
+    if os.path.exists(ck):
+        resume = dict(np.load(ck, allow_pickle=False))
+        start = int(resume['frame'][0]) + 1
+        print(f'{gname}: resuming at frame {start}', flush=True)
     t_all = time.time()
-    frames = list(range(f0 - warm, f1, every))
-    for f in frames:
+    for f in range(start, f1, every):
         t = f / FPS
         name = names[0]
         for n, a, b in bounds:
@@ -159,17 +169,29 @@ def run_group(names, R=None, every=1, warm=4, outroot=OUT):
             current = name
             if painter is None:
                 painter = Painter(S.W_OUT, S.H_OUT, **objs[name].painter_kw)
+                if resume is not None:
+                    painter.set_state(resume)
         t0 = time.time()
         img, _ = R.frame(objs[name], painter, f, preview=False)
         if f >= f0:
-            cv2.imwrite(f'{outroot}/{gname}/{f:05d}.png', (img[..., ::-1] * 255 + 0.5).astype(np.uint8))
+            cv2.imwrite(f'{gdir}/{f:05d}.png', (img[..., ::-1] * 255 + 0.5).astype(np.uint8))
+        if (f - f0) % ckpt_every == 0 or f == f1 - 1:
+            st = painter.get_state()
+            st['frame'] = np.array([f])
+            np.savez(ck + '.tmp.npz', **st)
+            os.replace(ck + '.tmp.npz', ck)
         print(f'{gname} {name} f{f} {time.time() - t0:.2f}s', flush=True)
+    with open(f'{gdir}/DONE', 'w') as fh:
+        fh.write(f'{f0} {f1}\n')
     print(f'{gname}: done in {time.time() - t_all:.1f}s', flush=True)
 
 
 if __name__ == '__main__' and len(sys.argv) > 1 and sys.argv[1] == 'groups':
     R = Renderer()
     for g in sys.argv[2:]:
+        if os.path.exists(f'{OUT}/{g}/DONE'):
+            print(f'{g}: already done', flush=True)
+            continue
         run_group(g.split('+'), R)
     sys.exit(0)
 

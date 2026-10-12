@@ -107,9 +107,10 @@ class Shot:
             sky = sky + pal['moon'] * 1.2
         if not hasattr(c, 'figmask'):
             c.figmask = np.zeros(c.canvas.shape[:2], np.float32)
+        phase = (c.t / (3.2 + 0.13 * (cl_.seed % 5)) + 0.37 * (cl_.seed % 7)) % 1.0
         cl_.draw(c.canvas, c.zbuf, uv[0], hpx, z[0], pose, facing=facing, view=view, light_dir=tuple(light_dir),
                  light=1.0, drawing=c.drawing, headlamp=headlamp, sun=sun, sky=sky, exposure=pal['exposure'],
-                 mask=c.figmask)
+                 mask=c.figmask, phase=phase)
 
     def paint_figures(self, c, cell=3.0, width=3.0, length=8.0):
         if getattr(c, 'figmask', None) is not None and not c.preview and c.figmask.max() > 0:
