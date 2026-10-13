@@ -142,7 +142,7 @@ export const INITIAL_STATE: AppState = {
   turbulence: 0.45,
   hotspot: false,
   riaf: { ne0: 1.56e7, te0: 3e11, beta: 10, h: 1, kappa: 1 },
-  markerScale: 1,
+  markerScale: 1.8,
   fixedScale: null,
   autoExposure: true,
   exposureEV: 0,

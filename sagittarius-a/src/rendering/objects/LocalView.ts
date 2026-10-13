@@ -38,8 +38,8 @@ export class LocalView {
     this.cubeRT = new THREE.WebGLCubeRenderTarget(64, { type: THREE.HalfFloatType, generateMipmaps: false });
     // Luz de relleno ILUSTRATIVA (como un foco junto a la cámara): la luz real que recibe el objeto
     // es la del cielo trazado (mapa de entorno), muy tenue en óptico salvo cerca de la sombra.
-    this.key = new THREE.DirectionalLight('#f4f1ea', 0.75);
-    this.scene.add(this.key, this.key.target, new THREE.AmbientLight('#8090a0', 0.12));
+    this.key = new THREE.DirectionalLight('#f4f1ea', 1.1);
+    this.scene.add(this.key, this.key.target, new THREE.AmbientLight('#8090a0', 0.2));
   }
 
   setExperiment(exp: Experiment | null): void {

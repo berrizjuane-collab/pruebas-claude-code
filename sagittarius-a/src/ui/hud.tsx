@@ -224,7 +224,7 @@ export function EhtInfo() {
         <div className="bar" style={{ width: `${bar / muasPerPx}px` }} />
         <span>{bar} μas</span>
         <span className="eht-metrics">
-          F₂₃₀ = {s.flux !== null ? `${fmt(s.flux, 2)} Jy` : '…'} (obs. {fmt(flux.value, 1)} Jy) · anillo ≈ {s.ring !== null ? `${fmt(s.ring, 1)} μas` : '…'} (EHT {fmt(ring.value, 1)} ± {fmt(ring.sigma, 1)} μas)
+          F₂₃₀ = {s.flux !== null ? `${fmt(s.flux, 2)} Jy` : '…'} (obs. ≈ {fmt(flux.value, 2)} Jy) · anillo ≈ {s.ring !== null ? `${fmt(s.ring, 1)} μas` : '…'} (EHT {fmt(ring.value, 1)} ± {fmt(ring.sigma, 1)} μas)
           {s.beam ? ` · haz ${fmt(s.fwhm, 0)} μas` : ''}
         </span>
       </div>

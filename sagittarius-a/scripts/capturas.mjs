@@ -8,6 +8,7 @@
  *   npm run capturas            (ESCALA_FOTO=0.5 MUESTRAS=4 por defecto)
  */
 import { spawnSync } from 'node:child_process';
+import { rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -64,4 +65,6 @@ const run = (w, h, pasos) => {
 };
 run(1280, 720, escritorio);
 run(390, 844, ['inicio', 'foto:09-movil']);
+// La foto automática del paso «inicio» no forma parte de la documentación
+rmSync(join(out, '01-inicio.png'), { force: true });
 console.log('Capturas en docs/capturas/');

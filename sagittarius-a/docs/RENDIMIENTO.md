@@ -37,7 +37,28 @@ SwiftShader.
 > coste relativo de cada perfil y comprobar que la aplicación funciona sin GPU, **no** para predecir el
 > rendimiento en una GPU real, que es de dos a cuatro órdenes de magnitud superior.
 
-MEDIDAS_PENDIENTES
+Medido con `ESCALAS=0.15,0.3 SEGUNDOS=20 npm run rendimiento` en una ventana de 1280 × 720
+(renderizador: *ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)), SwiftShader driver)*,
+4 núcleos de CPU), calidad interactiva, un fotograma completo por vuelta:
+
+| Perfil | Escala | Resolución trazada | ms / fotograma | Rayos / s |
+|---|---|---|---|---|
+| Cinematográfico (plasma, 3 frecuencias) | 15 % | 192 × 108 | 1549 | 1,3 · 10⁴ |
+| Cinematográfico | 30 % | 384 × 216 | 5356 | 1,5 · 10⁴ |
+| Científico EHT (230 GHz, cámara a 10⁴ M) | 15 % | 192 × 108 | 2102 | 0,99 · 10⁴ |
+| Científico EHT | 30 % | 384 × 216 | 7289 | 1,1 · 10⁴ |
+| Espacio-tiempo (sin plasma) | 15 % | 192 × 108 | 447 | 4,6 · 10⁴ |
+| Espacio-tiempo | 30 % | 384 × 216 | 1535 | 5,4 · 10⁴ |
+
+Lecturas útiles aunque el valor absoluto no represente una GPU:
+
+- La transferencia radiativa en tres frecuencias cuesta unas **3,5 veces** el trazado puro
+  (espacio-tiempo frente a cinematográfico).
+- El perfil EHT es el más caro por rayo: la cámara está a 10⁴ M y los rayos recorren más camino.
+- El coste es lineal en el número de píxeles: lo que justifica la resolución dinámica.
+- En software la aplicación funciona de extremo a extremo (interfaz, física en el trabajador,
+  capturas: ≈ 1–1,5 min cada una), pero a ~1 fotograma por segundo incluso a escala baja: no es
+  fluida. Se necesita una GPU para usarla de forma interactiva.
 
 ## Qué esperar en una GPU
 

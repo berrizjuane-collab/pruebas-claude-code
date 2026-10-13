@@ -148,6 +148,7 @@ export class RayTracer {
       uMarkerMeta: { value: this.markerMeta },
       uMkBound: { value: Array.from({ length: MAX_MARKERS }, v4) },
       uCamInside: { value: 0 },
+      uMarkerGain: { value: 1 },
     };
     this.material = new THREE.RawShaderMaterial({
       glslVersion: THREE.GLSL3,

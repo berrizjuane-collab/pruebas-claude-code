@@ -336,6 +336,9 @@ export class Engine {
       const jitter: [number, number] = this.post.samples === 0 ? [0, 0] : [halton(j + 1, 2) - 0.5, halton(j + 1, 3) - 0.5];
       this.tracer.setSettings(settings);
       this.tracer.uniforms.uCamInside.value = frame.inside ? 1 : 0;
+      // Balizas (ilustrativas): con g = 1 brillan como el punto blanco de la imagen, de modo que se
+      // distinguen sobre el plasma; el factor g⁴ conserva el enrojecimiento y el apagado físicos.
+      this.tracer.uniforms.uMarkerGain.value = s.profile === 'cinematic' ? Math.max(this.white, 1e-6) : s.profile === 'spacetime' ? 0.85 / Math.max(this.exposure, 1e-12) : 1;
       this.tracer.setCamera({ t: frame.t, pos: frame.pos, e: frame.e, fovY: s.profile === 'eht' ? 2 * Math.atan(s.ehtFovM / 1e4) : this.nav.fovY }, rw, rh, jitter);
       this.hooks.beforeTrace?.(frame, this.tracer);
       const t0 = performance.now();

@@ -17,7 +17,7 @@ const CLASSES: Array<[Parameters<typeof Badge>[0]['kind'], string]> = [
   ['exacto', 'Métrica de Kerr en Kerr–Schild; geodésicas temporales y nulas (Dormand–Prince 5(4), tolerancia 10⁻¹⁰); constantes E, L_z, Q; horizontes, ergosfera, ISCO, órbitas fotónicas; cruce del horizonte; tensor de Riemann y marea; desplazamiento al rojo de la señal (problema emisor–observador).'],
   ['aprox', 'Trazado en GPU con RK4 en precisión simple (contrastado con la referencia en CPU: error angular mediano ~10⁻⁶ rad); interpolación lineal entre muestras cada 0,25 M; desviación geodésica linealizada para las piezas de un cuerpo; criterio de rotura cuasiestático.'],
   ['modelo', 'Flujo de acreción RIAF (perfiles de n_e, T_e, B, cinemática), sincrotrón térmico (ajuste de Leung et al. 2011), punto caliente, turbulencia log-normal, parámetros de materiales.'],
-  ['ilustrativo', 'Balizas ampliadas de los objetos en la vista exterior, campo estelar procedimental, banda galáctica, forma de los fragmentos, iluminación de los modelos 3D en la vista B (a partir de un mapa de entorno trazado), diagramas (trayectorias en coordenadas, conos, incrustación).'],
+  ['ilustrativo', 'Balizas ampliadas de los objetos en la vista exterior, campo estelar procedimental, banda galáctica, forma de los fragmentos y del agua, iluminación de los modelos 3D en la vista B (mapa de entorno trazado más una luz de relleno), diagramas (trayectorias en coordenadas, conos, incrustación).'],
   ['estetico', 'Paleta cinematográfica, compresión logarítmica, bloom, ACES, interfaz.'],
 ];
 
@@ -29,7 +29,7 @@ export function InfoPanel() {
           <b>A · Cámara exterior.</b> Cada píxel es una geodésica nula integrada hacia el pasado desde el marco local de la cámara. Lo que aparece es lo que llegaría a un detector: lente, sombra, anillos fotónicos, Doppler y desplazamiento al rojo gravitacional. Los objetos se ven por su baliza con <b>tiempo retardado</b>: al acercarse al horizonte su señal se enrojece, se ralentiza y se apaga, sin desaparecer artificialmente.
         </p>
         <p className="note">
-          <b>B · Marco del objeto.</b> Cámara comóvil con el objeto. Su reloj marca tiempo propio y cruza el horizonte en un tiempo propio finito: no hay pared, ni superficie luminosa, ni explosión. La marea depende de la masa del agujero, del tamaño y de la resistencia del cuerpo.
+          <b>B · Marco del objeto.</b> Cámara comóvil con el objeto. Su reloj marca tiempo propio y cruza el horizonte en un tiempo propio finito: no hay pared, ni superficie luminosa, ni explosión. La marea depende de la masa del agujero, del tamaño y de la resistencia del cuerpo. Por defecto se ve en luz óptica: el flujo de acreción de Sgr A* es transparente y casi no emite en el visible, así que se ven la sombra y el cielo con lente; en milimétrico, la cámara está dentro del plasma que brilla.
         </p>
         <p className="note">
           <b>C · Diagrama.</b> La trayectoria calculada frente a la estructura causal: el cruce del horizonte se ve aquí, aunque ninguna cámara exterior pueda recibir luz de ese evento.

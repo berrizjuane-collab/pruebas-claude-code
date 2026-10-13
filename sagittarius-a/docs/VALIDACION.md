@@ -6,7 +6,7 @@ La validación tiene cuatro niveles, todos automatizados y reproducibles:
 |---|---|---|---|
 | 1. Pruebas unitarias | `npm test` | 67 pruebas de Vitest: integradores, métrica, geodésicas, observadores, marea, sincrotrón, trazador de referencia, experimentos, señal recibida | 67/67 superadas |
 | 2. Informe cuantitativo | `npm run validar` | Mide el error de 32 casos frente a soluciones exactas (`docs/validacion/fisica.json`) | Tabla 1 |
-| 3. GPU frente a CPU | `npm run validar:gpu` | El trazador del navegador (float32, RK4) contra la referencia (float64, Dormand–Prince 10⁻¹⁰), píxel a píxel (`docs/validacion/gpu.json`) | Tabla 2 |
+| 3. GPU frente a CPU | `npm run validar:gpu` | El trazador del navegador (float32, RK4) contra la referencia (float64, Dormand–Prince 10⁻¹⁰), rayo a rayo (`docs/validacion/gpu.json`) | Tabla 2 |
 | 4. Aplicación real | `node scripts/recorrido.mjs` | Abre la aplicación compilada en Chromium, lanza objetos, recorre las tres perspectivas y los paneles y falla ante cualquier error de página o de consola | sin errores (ver §5) |
 
 ## 1. Física: errores medidos frente a soluciones exactas
@@ -44,20 +44,22 @@ posición unas 215 veces. La aplicación usa 10⁻¹⁰ (error de posición ~10�
 salida de validación: dirección final y estado) y en la CPU (Dormand–Prince, 10⁻¹⁰), y se comparan la
 clasificación (escape, captura…), la dirección final en el cielo y, con plasma, la intensidad a 230 GHz.
 
-| Caso | Calidad | Clasificación | Error angular mediano | p95 | Máximo | Pasos GPU (media) |
-|---|---|---|---|---|---|---|
-| Schwarzschild, cámara estática r = 30, ecuatorial | interactiva | 100 % | 3,4·10⁻⁷ rad | 4,0·10⁻⁶ | 2,6·10⁻⁵ | 107 |
-| Kerr a = 0,9, ZAMO r = 12, θ = 80° | interactiva | 100 % | 1,8·10⁻⁶ rad | 1,3·10⁻⁵ | 2,5·10⁻⁴ | 118 |
-| Kerr a = 0,9, ZAMO r = 12, θ = 80° | alta fidelidad | 100 % | 4,3·10⁻⁷ rad | 3,5·10⁻⁶ | 8,7·10⁻⁵ | 296 |
-| Kerr a = 0,6, observador lejano r = 1000, θ = 60° (sombra) | interactiva | 100 % | 2,2·10⁻⁶ rad | 3,7·10⁻⁵ | 1,0·10⁻³ | 168 |
-| Kerr a = 0,5, cámara en caída libre **dentro** del horizonte (r = 1,3) | interactiva | 100 % | 1,1·10⁻⁷ rad | 3,7·10⁻⁷ | 6,2·10⁻⁷ | 121 |
+| Caso | Rayos | Calidad | Clasificación | Error angular mediano | p95 | Máximo | Pasos GPU (media) |
+|---|---|---|---|---|---|---|---|
+| Schwarzschild, cámara estática r = 30, ecuatorial | 1600 | interactiva | 100 % | 3,5·10⁻⁷ rad | 4,4·10⁻⁶ | 6,9·10⁻⁵ | 107 |
+| Kerr a = 0,9, ZAMO r = 12, θ = 80° | 1600 | interactiva | 100 % | 1,7·10⁻⁶ rad | 1,2·10⁻⁵ | 1,2·10⁻⁴ | 118 |
+| Kerr a = 0,9, ZAMO r = 12, θ = 80° | 1600 | alta fidelidad | 99,94 % (1 rayo) | 4,2·10⁻⁷ rad | 4,0·10⁻⁶ | 5,3·10⁻⁵ | 295 |
+| Kerr a = 0,6, observador lejano r = 1000, θ = 60° (sombra) | 1600 | interactiva | 100 % | 2,1·10⁻⁶ rad | 2,9·10⁻⁵ | 1,1·10⁻³ | 168 |
+| Kerr a = 0,5, cámara en caída libre **dentro** del horizonte (r = 1,3) | 1600 | interactiva | 100 % | 1,1·10⁻⁷ rad | 3,7·10⁻⁷ | 7,1·10⁻⁷ | 121 |
 
-| Caso con plasma | Píxeles con el mismo estado | Error relativo de I₂₃₀ mediano | p95 | Flujo total GPU/CPU |
-|---|---|---|---|---|
-| RIAF, a = 0,5, r = 40, θ = 60°, 230 GHz | 97,9 % | 0,11 % | 1,9 % | 1,002 |
+| Caso con plasma | Rayos | Píxeles con el mismo estado | Error relativo de I₂₃₀ mediano | p95 | Flujo total GPU/CPU |
+|---|---|---|---|---|---|
+| RIAF, a = 0,5, r = 40, θ = 60°, 230 GHz | 1600 | 100 % | 0,14 % | 2,4 % | 1,004 |
 
 Los errores máximos aparecen en píxeles que rozan la órbita fotónica (borde de la sombra), donde
-la sensibilidad a las condiciones iniciales es exponencial. Ninguno cambia la clasificación.
+la sensibilidad a las condiciones iniciales es exponencial. En la última ejecución, 1 de los 1600 rayos
+del caso de alta fidelidad roza la separatriz y la GPU lo da por capturado mientras la CPU lo ve
+escapar; el resto coincide.
 Entorno de la medida: Chromium sin GPU (SwiftShader, float32 IEEE). En una GPU real la aritmética
 float32 puede diferir en el último bit; el orden de magnitud es el mismo.
 
@@ -82,9 +84,17 @@ float32 puede diferir en el último bit; el orden de magnitud es el mismo.
 `scripts/calibrar-riaf.ts` traza la imagen a 230 GHz con el trazador de referencia (a = 0,5, i = 30°):
 con T₀ = 3·10¹¹ K y n₀ = 1,56·10⁷ cm⁻³ el flujo total es ≈ 2,35 Jy (observado: ≈ 2,35 Jy, Wielgus et
 al. 2022) y la profundidad óptica máxima ≈ 1,5. En la aplicación, el perfil EHT mide sobre la imagen el
-flujo total y el diámetro del anillo y los muestra junto a los valores del EHT (51,8 ± 2,3 μas). La
-coincidencia del flujo es por construcción (calibración); la del tamaño del anillo es una
-**comprobación** independiente, aproximada (modelo, no GRMHD).
+flujo total y el diámetro del anillo y los muestra junto a los valores del EHT. Medidas en tres
+generaciones de `docs/capturas/02-eht-sintetico.png` (a* = 0,5, i = 30°, turbulencia 0,45, haz de 20 μas;
+el plasma varía con el tiempo):
+
+| Magnitud | Aplicación | Observado | Comentario |
+|---|---|---|---|
+| Flujo total a 230 GHz | 2,13–2,16 Jy | ≈ 2,35 Jy (Wielgus et al. 2022) | −8 a −9 %: la calibración se hizo sin turbulencia; las fluctuaciones log-normales y la orientación cambian el flujo de cada instante |
+| Diámetro del anillo | 46,6–48,8 μas | 51,8 ± 2,3 μas (EHT 2022) | a 1,3–2,3 σ; medido como el pico del perfil promediado en acimut (bins de ≈ 2 μas), sin el ajuste de modelos geométricos del EHT |
+
+La coincidencia del flujo es en buena parte por construcción (calibración); la del tamaño del anillo
+es una **comprobación** independiente y aproximada (modelo RIAF, no GRMHD).
 
 ## 5. Recorrido automático de la aplicación
 
@@ -100,5 +110,7 @@ desarrollo (1280 × 720):
 - **Sin errores de página ni de consola** en las ejecuciones finales.
 
 Los recorridos detectaron y permitieron corregir: el orden de los eventos (la ergosfera se
-detectaba en la malla de muestreo; ahora se localiza con la salida densa), solapes de la interfaz a
-1280 px, y la escala del diagrama (t, r), que ahora es isótropa.
+detectaba en la malla de muestreo; ahora se localiza con la salida densa); la cámara de la vista B,
+que quedaba dentro de la baliza ampliada de su propio objeto y veía un fondo uniforme; valores no
+finitos en el mapa de entorno por el desplazamiento al azul extremo dentro del horizonte; solapes de
+la interfaz a 1280 px; y la escala del diagrama (t, r), que ahora es isótropa.

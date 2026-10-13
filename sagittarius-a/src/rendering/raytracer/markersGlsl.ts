@@ -28,6 +28,7 @@ uniform sampler2D uMarkerTex;
 uniform sampler2D uMarkerMeta;
 uniform vec4 uMkBound[MAX_MARKERS];
 uniform float uCamInside;
+uniform float uMarkerGain; // brillo de referencia de las balizas (ilustrativo: punto blanco de la imagen)
 
 vec4 mkFetch(int row, float gIdx) {
   int col = int(mod(gIdx, float(MARKER_W)));
@@ -117,7 +118,7 @@ vec3 markerColor(vec4 info, float tauEmit) {
   float T = B.y;
   vec4 bbE = blackbody(T);
   vec4 bbO = blackbody(T * g);
-  float lum = B.w * g * g * g * g * bbO.a / max(bbE.a, 1e-6);
+  float lum = uMarkerGain * B.w * g * g * g * g * bbO.a / max(bbE.a, 1e-6);
   float blink = 1.0;
   if (B.z > 0.0) {
     float ph = fract(tauEmit / B.z);

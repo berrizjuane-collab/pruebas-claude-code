@@ -61,11 +61,15 @@ try {
   const muestrasFoto = Number(process.env.MUESTRAS ?? 2);
   const foto = async (nombre) => {
     const t0 = Date.now();
+    // Se detiene el bucle de render tras la captura: si no, el siguiente fotograma (a la escala
+    // reducida de la prueba) sustituiría la imagen acumulada antes de la foto.
     await page.evaluate(async ([n, e]) => {
       const o = window.__obs;
       await o.engine.capture(n, e);
+      o.engine.stop();
     }, [muestrasFoto, escalaFoto]);
     await page.screenshot({ path: join(outDir, `${nombre}.png`), timeout: 180000 });
+    await page.evaluate(() => window.__obs.engine.start());
     console.log(`captura ${nombre} en ${Date.now() - t0} ms`);
   };
   for (const paso of pasos) {

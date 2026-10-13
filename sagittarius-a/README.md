@@ -17,6 +17,12 @@ el cruce del horizonte emergen de las ecuaciones.
 > Capturas reales de la aplicación (`npm run capturas`), generadas en un entorno **sin GPU**
 > (SwiftShader) con escala de render reducida: en una GPU la imagen es más nítida.
 
+## Abrir sin instalar nada
+
+Abre **[`entrega/sagittarius-a.html`](entrega/sagittarius-a.html)** con doble clic: es la aplicación
+completa en un único archivo, sin servidor ni conexión. Necesita un navegador con WebGL 2 y
+aceleración por hardware (en un equipo sin GPU funciona, pero a ~1 fotograma por segundo).
+
 ## Instalar y ejecutar
 
 Requisitos: Node ≥ 22.12 y un navegador con WebGL 2 y texturas de coma flotante (Chrome, Edge,
@@ -136,8 +142,11 @@ Tabla completa: [docs/LIMITACIONES.md](docs/LIMITACIONES.md).
 - Precesión del periastro frente a la integral elíptica exacta: 6·10⁻¹².
 - Constantes de Carter en Kerr (a = 0,9) tras 3000 M: deriva ≤ 8·10⁻¹².
 - Kretschmann numérico frente al analítico, dentro y fuera del horizonte: ≤ 2,5·10⁻¹¹.
-- GPU frente a CPU: 100 % de acuerdo en captura/escape; error angular mediano 10⁻⁷–2·10⁻⁶ rad;
-  intensidad a 230 GHz 0,11 % mediano; flujo total a 0,2 %.
+- GPU frente a CPU (1600 rayos por caso): acuerdo en captura/escape del 100 % (99,94 % en un caso:
+  un rayo rasante al borde de la sombra); error angular mediano 10⁻⁷–2·10⁻⁶ rad; intensidad a
+  230 GHz 0,14 % mediana; flujo total a 0,4 %.
+- Imagen sintética EHT medida en la aplicación: anillo de 46,6–48,8 μas (EHT: 51,8 ± 2,3 μas) y flujo
+  de 2,13–2,16 Jy (observado ≈ 2,35 Jy).
 
 Detalles y método: [docs/VALIDACION.md](docs/VALIDACION.md).
 
