@@ -37,7 +37,7 @@ etiquetas (panel **Información → Clasificación de cada elemento**).
 | Perfil EHT: imagen sintética 230 GHz, haz gaussiano | Modelo + aproximado | Comparación cualitativa con el anillo de 51,8 ± 2,3 μas. No es una reconstrucción interferométrica: no hay muestreo (u, v), ni dispersión interestelar, ni ruido. |
 | Color del perfil cinematográfico | **Estético** | Índice espectral 86–690 GHz convertido en una paleta cálida; brillo con compresión logarítmica. |
 | Exposición automática, bloom, ACES | Estético | Presentación. |
-| Balizas de los objetos (vista A) | Ilustrativo | Esferas emisoras **ampliadas** (escala visual ajustable); su luz sí sigue geodésicas con tiempo retardado. |
+| Balizas de los objetos (vista A) | Ilustrativo | Esferas emisoras **ampliadas** (escala visual ajustable, ~10⁶ km de radio); su luz sí sigue geodésicas con tiempo retardado. En la vista B no se traza la baliza del propio objeto (la cámara estaría dentro de ella); las de los demás objetos sí. |
 | Trayectorias, marcas de posición, conos de luz, rejilla, horizonte dibujado (SPACE-TIME GEOMETRY) | Ilustrativo | Dibujos en coordenadas cartesianas de Kerr–Schild con proyección euclídea: diagramas, no luz. |
 | Diagrama de incrustación | Ilustrativo | Corte ecuatorial t_BL = cte, de r₊ hacia fuera, como superficie de revolución (paraboloide de Flamm para a = 0). Donde la curvatura de Gauss impide la incrustación isométrica en ℝ³ se muestra solo la parte incrustable y la interfaz lo indica. La tercera dimensión no es física. |
 | Cuerpos extensos: marco y marea | Exacto | Marco giroscópico transportado en paralelo; E_ij en ese marco. |
@@ -46,7 +46,8 @@ etiquetas (panel **Información → Clasificación de cada elemento**).
 | Forma de los fragmentos | Ilustrativo | Rocas genéricas. |
 | Agua del contenedor | Modelo + ilustrativo | Equilibrio cuasiestático en el potencial de marea (Φ = ½ ξᵀEξ) o burbuja central si domina la capilaridad (Bo < 1). Sin hidrodinámica ni oleaje. |
 | Deformación elástica ampliada (vista B) | Ilustrativo | ε ≈ ρL²E/(8Y); el factor de ampliación se indica en pantalla. |
-| Modelos 3D (vista B) | Ilustrativo | Escala real; iluminación con un mapa de entorno trazado desde el objeto (6 × 64², cada 0,5 s), de baja resolución. |
+| Modelos 3D (vista B) | Ilustrativo | Escala real; iluminación con un mapa de entorno trazado desde el objeto (6 × 64², cada 0,5 s, con la misma exposición que el fondo) más una **luz de relleno ilustrativa** junto a la cámara: en óptico el cielo apenas ilumina. |
+| Banda de la vista B | Exacto (elección de banda) | Óptico por defecto: el sincrotrón del flujo cae como exp(−(ν/ν_s)^⅓) y es despreciable en el visible, y el plasma es transparente (τ_es ~ 10⁻⁵), así que se ven la sombra y el cielo con lente. En milimétrico la cámara está dentro del plasma emisor y ve brillo en casi todas direcciones (el perfil de densidad dentro de ~2 r_g es una extrapolación del modelo). |
 | Cámara exterior: observadores estático, ZAMO, órbita, lluvia | Exacto | Tétradas ortonormales; el estático no existe dentro de la ergosfera y la interfaz lo impide. |
 | Navegación de la cámara | Operación de software | Cambiar de punto de vista no es un movimiento físico. La única trayectoria física de la cámara es la caída libre. «Reiniciar» tras una caída es una operación de software, declarada en pantalla. |
 | Tiempo | Exacto | t de Kerr–Schild (coincide con el de un observador estático lejano salvo una constante); τ propio de cada objeto. El multiplicador no altera la física. |

@@ -15,8 +15,10 @@ const raiz = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(raiz, 'docs/capturas');
 const env = { ...process.env, ESCALA: process.env.ESCALA ?? '0.2', ESCALA_FOTO: process.env.ESCALA_FOTO ?? '0.5', MUESTRAS: process.env.MUESTRAS ?? '4' };
 
-// Ir al instante en que el último experimento cruza un radio dado y pausar
-const ir = (r) => `eval:(() => { const o = __obs; const e = [...o.client.experiments.values()].pop(); const d = e.body.data; let k = 0; for (; k < e.nSamples; k++) if (d[k * 40 + 36] < ${r}) break; if (k >= e.nSamples) return 'sin muestras'; o.engine.t = d[k * 40]; __store.set({ running: false }); return d[k * 40 + 36]; })()`;
+// Ir al instante en que el último experimento cruza un radio dado (esperando a que el trabajador
+// lo haya calculado) y pausar
+const ir = (r) =>
+  `eval:(async () => { const o = __obs; const e = [...o.client.experiments.values()].pop(); const t0 = performance.now(); let k = -1; while (performance.now() - t0 < 120000) { const d = e.body.data; for (let j = 0; j < e.nSamples; j++) if (d[j * 40 + 36] < ${r}) { k = j; break; } if (k >= 0 || e.done) break; o.client.setTarget(o.engine.t + 3000); await new Promise((res) => setTimeout(res, 500)); } if (k < 0) return 'no alcanza r < ${r}'; const d = e.body.data; o.engine.t = d[k * 40]; __store.set({ running: false }); return JSON.stringify({ r: d[k * 40 + 36], t: d[k * 40] }); })()`;
 const set = (obj) => `eval:__store.set(${JSON.stringify(obj)})`;
 const overlay = (obj) => `eval:__store.set((s) => ({ overlay: { ...s.overlay, ...${JSON.stringify(obj)} } }))`;
 
@@ -57,7 +59,7 @@ const escritorio = [
 ];
 
 const run = (w, h, pasos) => {
-  const r = spawnSync('node', [join(raiz, 'scripts/recorrido.mjs'), out, String(w), String(h), pasos.join('|')], { stdio: 'inherit', env });
+  const r = spawnSync('node', [join(raiz, 'scripts/recorrido.mjs'), out, String(w), String(h), pasos.join('\n')], { stdio: 'inherit', env });
   if (r.status !== 0) process.exit(r.status ?? 1);
 };
 run(1280, 720, escritorio);

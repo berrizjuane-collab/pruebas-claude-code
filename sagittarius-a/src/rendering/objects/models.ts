@@ -58,6 +58,8 @@ export interface ObjectModel {
   size: number;
   /** Partes que se actualizan dinámicamente (pantalla del reloj, agua…). tidal: E_ij del marco del cuerpo [s⁻²] (xx, xy, xz, yy, yz, zz). */
   update?: (info: { tau: number; t: number; tidal?: number[] }) => void;
+  /** Encuadre inicial preferido de la cámara de la vista B (guiñada, cabeceo, distancia en tamaños). */
+  view?: { yaw: number; pitch: number; distance: number };
   dispose: () => void;
 }
 
@@ -252,7 +254,9 @@ export function buildModel(kind: ObjectKind): ObjectModel {
       // Agua (80 % del volumen) con forma de equilibrio: ver tankWater()
       const water = tankWater();
       wrap.add(water.mesh);
-      return finish(wrap, 2.4, ({ tidal }) => water.update(tidal));
+      const m = finish(wrap, 2.4, ({ tidal }) => water.update(tidal));
+      m.view = { yaw: 1.35, pitch: 0.32, distance: 2.6 };
+      return m;
     }
     case 'cubo': {
       const n = 5;

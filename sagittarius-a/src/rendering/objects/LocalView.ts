@@ -59,6 +59,10 @@ export class LocalView {
     if (!exp) return;
     this.model = buildModel(exp.cfg.object);
     this.scene.add(this.model.group);
+    const v = this.model.view ?? { yaw: 0.35, pitch: 0.22, distance: 3.2 };
+    this.yaw = v.yaw;
+    this.pitch = v.pitch;
+    this.distance = v.distance;
     this.model.group.matrixAutoUpdate = false;
     // Fragmentos: rocas irregulares instanciadas (forma ilustrativa, posiciones calculadas)
     const g = new THREE.IcosahedronGeometry(1, 2);
@@ -73,6 +77,15 @@ export class LocalView {
     this.chunks = new THREE.InstancedMesh(g, new THREE.MeshStandardMaterial({ color: spec.color, roughness: 0.8, metalness: spec.material.density > 2600 ? 0.6 : 0.05 }), 64);
     this.chunks.visible = false;
     this.scene.add(this.chunks);
+    this.version++;
+  }
+
+  /** Encuadre inicial del modelo actual. */
+  resetView(): void {
+    const v = this.model?.view ?? { yaw: 0.35, pitch: 0.22, distance: 3.2 };
+    this.yaw = v.yaw;
+    this.pitch = v.pitch;
+    this.distance = v.distance;
     this.version++;
   }
 
@@ -141,6 +154,8 @@ export class LocalView {
     };
     const prevSteps = tracer.uniforms.uMaxSteps.value;
     tracer.uniforms.uMaxSteps.value = Math.min(prevSteps, 400);
+    // El cubo es de media precisión (máx. 65 504): se acota la radiancia para no generar infinitos
+    tracer.uniforms.uMaxOut.value = 6.0e4;
     faces.forEach(([f, u], i) => {
       const right = f.clone().cross(u).normalize();
       tracer.setCamera({ t: st.t, pos: [st.pos[0], st.pos[1], st.pos[2]], e: [Float64Array.from(st.u), comb(right), comb(u), comb(f)], fovY: Math.PI / 2 }, 64, 64, [0, 0]);
@@ -148,6 +163,7 @@ export class LocalView {
       renderer.render(tracer.scene, tracer.camera);
     });
     tracer.uniforms.uMaxSteps.value = prevSteps;
+    tracer.uniforms.uMaxOut.value = 3.0e38;
     renderer.setRenderTarget(null);
     this.envRT?.dispose();
     this.envRT = this.pmrem.fromCubemap(this.cubeRT.texture);

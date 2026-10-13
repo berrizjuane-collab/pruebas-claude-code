@@ -30,6 +30,7 @@ uniform float uREscape;
 uniform float uPastT;
 uniform int uProfile;      // 0 cinematográfico, 1 EHT, 2 espacio-tiempo
 uniform int uOutputMode;   // 0 normal, 1 validación geométrica, 2 validación radiativa
+uniform float uMaxOut;     // tope de radiancia de salida (mapas de entorno en media precisión)
 uniform float uPlasmaOn;
 uniform vec3 uNu;
 uniform int uNBands;
@@ -206,6 +207,10 @@ void main() {
   } else {
     col = bg;
   }
+  // Cerca del horizonte interior el desplazamiento al azul del cielo diverge: se evita propagar
+  // NaN y se acota la radiancia (solo importa en el mapa de entorno, que es de media precisión).
+  if (any(isnan(col)) || any(notEqual(col, col))) col = vec3(0.0);
+  col = min(col, vec3(uMaxOut));
   outColor = vec4(col, 1.0);
 }
 `;

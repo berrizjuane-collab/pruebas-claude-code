@@ -69,6 +69,8 @@ canvas.stage { transition: opacity 1.4s var(--ease); }
 
 /* Selector de perspectiva (arriba al centro) */
 .views { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.views .band { display: flex; align-items: center; gap: 10px; }
+.views .band .note { font-size: 10.5px; color: var(--fg-dim); max-width: 330px; text-shadow: 0 0 8px #000; }
 .views .caption { font-size: 10.5px; color: var(--fg-dim); letter-spacing: 0.02em; text-align: center; max-width: 520px; text-shadow: 0 0 8px #000; }
 
 /* Barra de herramientas (arriba a la derecha) */
@@ -226,8 +228,10 @@ select option { background: var(--panel-solid); }
 .view-diagram .launchbar { display: none; }
 .view-diagram .telemetry, .view-diagram .timebar { bottom: 18px; }
 .diagram { position: absolute; top: 96px; bottom: 18px; left: 332px; right: 282px; display: flex; flex-direction: column; background: rgba(6, 8, 11, 0.95); border: 1px solid var(--line); border-radius: var(--radius); animation: panel-in 0.28s var(--ease); }
-.diagram header .zoom { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--fg-dim); margin-left: auto; }
-.diagram header .zoom input { width: 110px; }
+.diagram header .t { white-space: nowrap; }
+.diagram .tools { display: flex; align-items: center; gap: 12px; padding: 6px 14px; border-bottom: 1px solid var(--line); }
+.diagram .zoom { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--fg-dim); }
+.diagram .zoom input { width: 160px; }
 .diagram header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
 .diagram header .t { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-2); font-weight: 600; }
 .diagram canvas { flex: 1; width: 100%; min-height: 0; display: block; }
@@ -268,14 +272,32 @@ select option { background: var(--panel-solid); }
 
 @media (max-width: 860px) {
   .ident dl { display: none; }
-  .telemetry { width: calc(100vw - 32px); bottom: 150px; }
-  .timebar { left: 16px; right: auto; bottom: 238px; display: none; }
+  /* Fila inferior: lanzamiento (dos filas) · tiempo compacto · telemetría */
   .launchbar { left: 16px; right: 16px; transform: none; flex-wrap: wrap; justify-content: center; }
+  .launch-controls { padding-left: 0; border-left: 0; }
   .cat .meta { width: 130px; }
-  .panel { left: 16px; right: 16px; width: auto; top: 110px; bottom: 170px; }
+  .timebar { left: 16px; right: 16px; width: auto; bottom: 156px; padding: 6px 8px; }
+  .timebar .slider, .timebar .clock { display: none; }
+  .telemetry { width: auto; left: 16px; right: 16px; bottom: 210px; }
+  .panel { left: 16px; right: 16px; width: auto; top: 110px; bottom: 156px; }
+  .panel.wide { width: auto; }
   .popover { width: calc(100vw - 32px); grid-template-columns: 1fr; }
   .views { top: 64px; }
   .legend { display: none; }
-  .diagram { left: 16px; right: 16px; top: 110px; bottom: 210px; }
+  .view-diagram .telemetry { display: none; }
+  .diagram { left: 16px; right: 16px; top: 110px; bottom: 72px; }
   .diagram header { flex-wrap: wrap; }
+}
+
+/* Teléfonos: barra de herramientas a todo el ancho arriba; identificación y perspectivas debajo */
+@media (max-width: 600px) {
+  .toolbar { top: 10px; left: 10px; right: 10px; justify-content: space-between; }
+  .ident { top: 62px; left: 16px; }
+  .ident h1 { font-size: 13px; letter-spacing: 0.2em; }
+  .ident .sub { font-size: 9.5px; letter-spacing: 0.12em; }
+  .views { top: 104px; }
+  .views .caption, .views .band .note { display: none; }
+  .toasts { top: 150px; }
+  .panel, .diagram { top: 150px; }
+  .throw { padding: 0 16px; }
 }

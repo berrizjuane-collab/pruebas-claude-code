@@ -124,6 +124,8 @@ y débiles. La aplicación no fuerza ninguna explosión en el horizonte.
   recibe la emisión de la línea de universo real, enrojecida por el efecto gravitacional y Doppler.
   La escala visual de las balizas es ajustable y está declarada como ilustrativa.
 - **Vista propia (B):** modelo 3D a escala real en el marco localmente inercial del objeto (principio
-  de equivalencia), iluminado por un mapa de entorno **trazado** desde su posición y velocidad. La
-  forma de los fragmentos es ilustrativa; su posición es la calculada.
+  de equivalencia), iluminado por un mapa de entorno **trazado** desde su posición y velocidad y por
+  una luz de relleno ilustrativa. Por defecto en luz óptica (el flujo de acreción es transparente y
+  casi no emite en el visible); opcionalmente en milimétrico. La forma de los fragmentos es
+  ilustrativa; su posición es la calculada.
 - **Diagrama (C):** la trayectoria calculada en coordenadas.

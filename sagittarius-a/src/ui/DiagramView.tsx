@@ -210,7 +210,7 @@ export function DiagramView() {
         const rTick = rMax > 40 ? 10 : rMax > 16 ? 5 : rMax > 8 ? 2 : 1;
         for (let r = 0; r <= rMax + 1e-9; r += rTick) g.fillText(fmt(r, 0), X(r) - 4, H - B + 14);
         g.fillText('r [r_g]', W - R - 44, H - B + 26);
-        for (let tt = Math.ceil(t0 / (rTick * 2)) * rTick * 2; tt <= t1; tt += rTick * 2) g.fillText(fmt(tt, 0), 4, Y(tt) + 3);
+        for (let tt = Math.ceil(t0 / (rTick * 2)) * rTick * 2; tt <= t1; tt += rTick * 2) if (Y(tt) > T + 18) g.fillText(fmt(tt, 0), 4, Y(tt) + 3);
         g.fillText('t_KS [M]', 4, T + 2);
         g.strokeStyle = 'rgba(232,234,237,0.25)';
         g.setLineDash([2, 4]);
@@ -356,13 +356,6 @@ export function DiagramView() {
     <section className="diagram" aria-label="Diagrama matemático">
       <header>
         <span className="t">Diagrama · no es luz</span>
-        {tab === 'tr' && (
-          <label className="zoom">
-            r máx.
-            <input type="range" min={Math.log(4)} max={Math.log(80)} step={0.01} value={Math.log(zoom)} onChange={(e) => setZoom(Math.exp(Number(e.target.value)))} aria-label="Extensión radial del diagrama" />
-            <span className="mono">{fmt(zoom, 0)} r_g</span>
-          </label>
-        )}
         <Segmented
           small
           value={tab}
@@ -374,6 +367,15 @@ export function DiagramView() {
           ]}
         />
       </header>
+      {tab === 'tr' && (
+        <div className="tools">
+          <label className="zoom">
+            Extensión radial
+            <input type="range" min={Math.log(4)} max={Math.log(80)} step={0.01} value={Math.log(zoom)} onChange={(e) => setZoom(Math.exp(Number(e.target.value)))} aria-label="Extensión radial del diagrama" />
+            <span className="mono">{fmt(zoom, 0)} r_g</span>
+          </label>
+        </div>
+      )}
       <canvas ref={ref} />
       <footer>
         {tab === 'tr'

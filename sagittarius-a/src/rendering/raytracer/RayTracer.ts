@@ -112,6 +112,7 @@ export class RayTracer {
       uPastT: { value: 300 },
       uProfile: { value: 0 },
       uOutputMode: { value: 0 },
+      uMaxOut: { value: 3.0e38 },
       uPlasmaOn: { value: 1 },
       uNu: { value: new THREE.Vector3(86e9, 230e9, 690e9) },
       uNBands: { value: 3 },

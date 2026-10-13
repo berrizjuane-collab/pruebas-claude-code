@@ -3,7 +3,8 @@
  * observatorio, ejecuta acciones (lanzar objetos, cambiar de perspectiva, abrir paneles) y guarda
  * capturas. Informa de cualquier error de la página o de la consola.
  *
- *   node scripts/recorrido.mjs <directorio-salida> [ancho] [alto] ["inicio|click:ARROJAR|tecla:Digit2|foto:nombre|…"]
+ *   node scripts/recorrido.mjs <directorio-salida> [ancho] [alto] ["inicio\nclick:ARROJAR\ntecla:Digit2\nfoto:nombre…"]
+ * (un paso por línea)
  */
 import { chromium } from '@playwright/test';
 import { spawn, execFileSync } from 'node:child_process';
@@ -15,7 +16,11 @@ const raiz = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = process.argv[2] ?? '/tmp/recorrido';
 const W = Number(process.argv[3] ?? 1280);
 const H = Number(process.argv[4] ?? 720);
-const pasos = (process.argv[5] ?? 'inicio').split('|');
+// Pasos separados por saltos de línea (el código de los pasos «eval» puede contener «|»)
+const pasos = (process.argv[5] ?? 'inicio')
+  .split('\n')
+  .map((p) => p.trim())
+  .filter(Boolean);
 mkdirSync(outDir, { recursive: true });
 
 // Compilación de producción servida con «vite preview»: sin recargas en caliente si se editan fuentes

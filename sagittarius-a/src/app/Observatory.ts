@@ -97,7 +97,11 @@ export class Observatory {
       followTarget: () => this.followTarget(),
       overrideFrame: (t) => this.objectFrame(t),
       beforeTrace: (frame, tracer) => {
-        this.markers.sync([...this.client.experiments.values()], store.get().spin);
+        const s = store.get();
+        // En la vista B la cámara ES el objeto: su baliza ampliada (ilustrativa, ~10⁶ km) la
+        // envolvería y taparía todo el cielo, así que no se traza.
+        const own = s.view === 'object' ? s.followExperiment : null;
+        this.markers.sync([...this.client.experiments.values()].filter((e) => e.id !== own), s.spin);
         this.markers.visualScale = store.get().markerScale;
         this.markers.update(tracer, frame.t, performance.now(), eng.scales.tg);
       },
@@ -260,11 +264,7 @@ export class Observatory {
 
   /** Vuelve a colocar la cámara comóvil de la vista B en su encuadre inicial. */
   resetLocalView(): void {
-    const lv = this.localView;
-    lv.yaw = 0.35;
-    lv.pitch = 0.22;
-    lv.distance = 3.2;
-    lv.version++;
+    this.localView.resetView();
   }
 
   removeExperiment(id: string): void {

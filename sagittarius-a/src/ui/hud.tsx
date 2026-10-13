@@ -76,6 +76,7 @@ const VIEW_CAPTION: Record<View, string> = {
 
 export function ViewSwitch() {
   const view = useApp((s) => s.view);
+  const band = useApp((s) => s.objectBand);
   const hasObj = useApp((s) => !!s.followExperiment && s.experiments.some((e) => e.id === s.followExperiment && (e.object !== 'nube' && e.object !== 'fotones')));
   return (
     <div className="views">
@@ -90,6 +91,21 @@ export function ViewSwitch() {
         ]}
       />
       <div className="caption">{VIEW_CAPTION[view]}</div>
+      {view === 'object' && (
+        <div className="band">
+          <Segmented<'optico' | 'mm'>
+            small
+            value={band}
+            label="Banda de la cámara del objeto"
+            onChange={(objectBand) => store.set({ objectBand })}
+            options={[
+              { value: 'optico', label: 'Óptico', title: 'Luz visible: el plasma de Sgr A* es transparente y casi no emite; se ven la sombra y el cielo con lente.' },
+              { value: 'mm', label: 'Milimétrico', title: '86–690 GHz: dentro del flujo de acreción la cámara está inmersa en plasma que brilla en todas direcciones.' },
+            ]}
+          />
+          <span className="note">{band === 'optico' ? 'En óptico el flujo de acreción es transparente y casi no emite: se ven la sombra y las estrellas con lente.' : 'En milimétrico la cámara está dentro del plasma emisor: brillo en casi todas direcciones.'}</span>
+        </div>
+      )}
     </div>
   );
 }
