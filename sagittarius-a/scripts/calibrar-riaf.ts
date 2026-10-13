@@ -36,7 +36,7 @@ const dt = performance.now() - t0;
 const pix = (2 * half) / N;
 let sum = 0;
 for (const v of img) sum += v;
-const thetaG = scales.thetaGMuas / 206264.80624709636e6; // rad
+const thetaG = scales.thetaGMuas / 206264.806247096e6; // rad
 const fluxJy = 1e23 * sum * pix * pix * thetaG * thetaG;
 // Diámetro del anillo: pico del perfil promediado en acimut
 const nb = 60;

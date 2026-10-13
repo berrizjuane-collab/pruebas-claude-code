@@ -45,6 +45,18 @@ export interface FrameHooks {
   followTarget?: () => [number, number, number] | null;
   /** Cámara impuesta por otra perspectiva (p. ej. comóvil con un objeto). */
   overrideFrame?: (t: number, pose: Pose) => CameraFrame | null;
+  /** Versión de una cámara externa (vista B): si cambia, se reinicia la acumulación. */
+  cameraVersion?: () => number;
+}
+
+export interface BenchmarkResult {
+  fps: number;
+  msPerFrame: number;
+  width: number;
+  height: number;
+  raysPerSecond: number;
+  frames: number;
+  gpu: string;
 }
 
 export class Engine {
@@ -62,6 +74,8 @@ export class Engine {
   settings: TracerSettings;
   private settingsKey = '';
   private lastNavVersion = -1;
+  private lastFovDeg = NaN;
+  private bench: { frames: number; t0: number } | null = null;
   private frameIndex = 0;
   private sampleIndex = 0;
   private lastTime = 0;
@@ -81,7 +95,7 @@ export class Engine {
     return this.post.samples;
   }
   /** Forzar captura de alta calidad (resolución completa y N muestras). */
-  captureRequest: { samples: number; resolve: (c: HTMLCanvasElement) => void } | null = null;
+  captureRequest: { samples: number; scale: number; resolve: (c: HTMLCanvasElement) => void } | null = null;
   fixedScale: number | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -115,15 +129,15 @@ export class Engine {
       this.nav.version++;
     }
     this.nav.settings = { rotateSensitivity: s.sensitivity, zoomSensitivity: s.sensitivity, moveSpeed: s.moveSpeed, inertia: s.inertia };
-    if (this.nav.mode !== s.navMode && s.navMode !== 'follow') this.nav.setMode(s.navMode);
-    if (s.navMode === 'follow') this.nav.mode = 'follow';
+    if (this.nav.mode !== s.navMode) this.nav.setMode(s.navMode);
+    this.fixedScale = s.fixedScale;
     const sc = this.scales;
     if (sc.massSolar !== s.massSolar || sc.distanceKpc !== s.distanceKpc) this.scales = blackHoleScales(s.massSolar, s.distanceKpc);
     this.idle = false;
   }
 
   riafParams(s: AppState): RiafParams {
-    return { ...DEFAULT_RIAF, turbulence: s.turbulence, hotspotAmp: s.hotspot ? 2.5 : 0 };
+    return { ...DEFAULT_RIAF, ...s.riaf, turbulence: s.turbulence, hotspotAmp: s.hotspot ? 2.5 : 0 };
   }
 
   /** Ajustes del trazador para el estado actual. */
@@ -181,10 +195,42 @@ export class Engine {
     this.running = false;
   }
 
-  /** Solicita una captura a resolución completa con n muestras acumuladas. */
-  capture(samples = 32): Promise<HTMLCanvasElement> {
+  /** Fotogramas presentados desde el arranque. */
+  get frames(): number {
+    return this.frameIndex;
+  }
+
+  get gpu(): string {
+    return this.gpuName;
+  }
+
+  /**
+   * Banco de pruebas honesto: durante `seconds` se traza un fotograma completo en cada vuelta
+   * (sin reutilizar la acumulación) a la escala de render indicada, y se mide el tiempo real.
+   */
+  async benchmark(seconds = 5, scale = 1): Promise<BenchmarkResult> {
+    // La escala se fija en el estado (el motor la relee en cada cambio del almacén)
+    const prev = store.get().fixedScale;
+    store.set({ fixedScale: scale });
+    // medio segundo de calentamiento (compilación, tamaños de los objetivos)
+    this.bench = { frames: 0, t0: performance.now() };
+    await new Promise((r) => setTimeout(r, 500));
+    this.bench = { frames: 0, t0: performance.now() };
+    await new Promise((r) => setTimeout(r, seconds * 1000));
+    const b = this.bench;
+    this.bench = null;
+    store.set({ fixedScale: prev });
+    const dt = (performance.now() - b.t0) / 1000;
+    const w = Math.round(this.canvas.width * scale);
+    const h = Math.round(this.canvas.height * scale);
+    const fps = b.frames / dt;
+    return { fps, msPerFrame: (1000 * dt) / Math.max(1, b.frames), width: w, height: h, raysPerSecond: fps * w * h, frames: b.frames, gpu: this.gpuName };
+  }
+
+  /** Solicita una captura con n muestras acumuladas (por defecto a resolución completa). */
+  capture(samples = 32, scale = 1): Promise<HTMLCanvasElement> {
     return new Promise((resolve) => {
-      this.captureRequest = { samples, resolve };
+      this.captureRequest = { samples, scale, resolve };
       this.post.resetAccumulation();
       this.idle = false;
     });
@@ -201,10 +247,27 @@ export class Engine {
     return { w, h };
   }
 
+  /**
+   * Estado efectivo del fotograma. En la vista B la cámara viaja con el objeto: por defecto se
+   * muestra la luz ÓPTICA, en la que el flujo de Sgr A* es transparente y casi no emite (su
+   * sincrotrón cae como exp(−(ν/ν_s)^⅓) muy por debajo del visible), es decir, el perfil
+   * «espacio-tiempo»; en banda milimétrica se usa el cinematográfico (el EHT es un observador terrestre).
+   */
+  private effectiveState(s0: AppState): AppState {
+    if (s0.view !== 'object') return s0;
+    const profile = s0.objectBand === 'optico' ? 'spacetime' : s0.profile === 'eht' ? 'cinematic' : s0.profile;
+    return profile === s0.profile ? s0 : { ...s0, profile };
+  }
+
+  /** Exposición lineal aplicada en la composición (para iluminar coherentemente los modelos 3D). */
+  get currentExposure(): number {
+    return this.exposure;
+  }
+
   frame(now: number): void {
     const dtReal = Math.min(0.1, Math.max(0, (now - this.lastTime) / 1000));
     this.lastTime = now;
-    const s = store.get();
+    const s = this.effectiveState(store.get());
     const { w, h } = this.resize();
 
     // --- Tiempo de simulación ---
@@ -216,7 +279,11 @@ export class Engine {
     }
 
     // --- Cámara ---
-    this.nav.fovY = (s.fovDeg * Math.PI) / 180;
+    if (s.fovDeg !== this.lastFovDeg) {
+      // El campo de visión lo fija la interfaz; el zoom óptico (Alt + rueda) lo devuelve al estado
+      this.lastFovDeg = s.fovDeg;
+      this.nav.fovY = (s.fovDeg * Math.PI) / 180;
+    }
     this.nav.update(dtReal, this.hooks.followTarget?.() ?? null);
     const pose = this.nav.pose();
     let frame: CameraFrame;
@@ -233,7 +300,8 @@ export class Engine {
     // --- Ajustes y detección de cambios ---
     const settings = this.buildSettings(s, frame);
     const key = JSON.stringify([settings, s.exposureEV, s.autoExposure, s.bloom, s.ehtBeam, s.beamFwhmMuas, s.ehtFovM]);
-    const camMoved = this.nav.version !== this.lastNavVersion;
+    const camVersion = this.nav.version + (this.hooks.cameraVersion?.() ?? 0);
+    const camMoved = camVersion !== this.lastNavVersion;
     const settingsChanged = key !== this.settingsKey;
     const timeMoved = this.t !== prevT;
     const dynamic = timeMoved && ((settings.plasmaOn && settings.plasma.turbulence + settings.plasma.hotspot[0] > 0) || !!this.hooks.dynamic?.() || !!this.relCam.dive);
@@ -242,7 +310,7 @@ export class Engine {
       this.sampleIndex = 0;
       this.idle = false;
     }
-    this.lastNavVersion = this.nav.version;
+    this.lastNavVersion = camVersion;
     this.settingsKey = key;
     this.settings = settings;
 
@@ -255,14 +323,14 @@ export class Engine {
     // --- Resolución dinámica ---
     const moving = camMoved || this.nav.autoOrbit !== 0;
     let scale = this.renderScale;
-    if (this.captureRequest) scale = 1;
+    if (this.captureRequest) scale = this.captureRequest.scale;
     else if (this.fixedScale) scale = this.fixedScale;
     const rw = Math.max(16, Math.round(w * scale));
     const rh = Math.max(16, Math.round(h * scale));
     this.post.setSize(rw, rh);
 
     // --- Trazado ---
-    const accumulateMore = this.post.samples < maxSamples || dynamic;
+    const accumulateMore = this.post.samples < maxSamples || dynamic || !!this.bench;
     if (accumulateMore) {
       const j = this.sampleIndex++;
       const jitter: [number, number] = this.post.samples === 0 ? [0, 0] : [halton(j + 1, 2) - 0.5, halton(j + 1, 3) - 0.5];
@@ -272,9 +340,10 @@ export class Engine {
       this.hooks.beforeTrace?.(frame, this.tracer);
       const t0 = performance.now();
       this.tracer.render(this.renderer, this.post.trace);
-      this.post.accumulate(this.renderer, maxSamples, dynamic ? (this.hooks.dynamic?.() ? 0.6 : 0.3) : 0);
+      this.post.accumulate(this.renderer, maxSamples, dynamic ? (this.hooks.dynamic?.() ? 0.6 : 0.3) : this.bench ? 0.5 : 0);
       const gl = this.renderer.getContext();
-      if (this.frameIndex % 30 === 0) gl.finish();
+      if (this.frameIndex % 30 === 0 || this.bench) gl.finish();
+      if (this.bench) this.bench.frames++;
       const traceMs = performance.now() - t0;
       void traceMs;
     } else {
@@ -396,6 +465,13 @@ export class Engine {
     void dt;
     const { rPlus } = horizons(s.spin);
     const d = this.relCam.dive;
+    // Mantener la interfaz al día con los cambios hechos desde la propia navegación
+    const fovDeg = Math.round(((this.nav.fovY * 180) / Math.PI) * 100) / 100;
+    if (Math.abs(fovDeg - s.fovDeg) > 0.01) {
+      this.lastFovDeg = fovDeg;
+      store.set({ fovDeg });
+    }
+    if (this.nav.mode !== s.navMode) store.set({ navMode: this.nav.mode });
     const th = Math.acos(Math.max(-1, Math.min(1, frame.pos[2] / Math.max(1e-9, Math.hypot(...frame.pos)))));
     store.set({
       live: {

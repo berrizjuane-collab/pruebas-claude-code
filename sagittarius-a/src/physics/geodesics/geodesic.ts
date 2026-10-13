@@ -12,7 +12,7 @@
  */
 import { Dopri5, findRoot } from '../integrators/dopri5';
 import { KerrSchild } from '../metrics/kerrSchild';
-import { horizons } from '../metrics/kerr';
+import { ergosphereRadius, horizons } from '../metrics/kerr';
 
 export type GeodesicKind = 'massive' | 'null';
 
@@ -222,6 +222,16 @@ export class GeodesicIntegrator {
     if (trackEvents.isco !== undefined) {
       const ri = trackEvents.isco;
       if (r0 > ri && r1 <= ri) locate((y) => rOf(y) - ri, r0 - ri, r1 - ri, 'isco');
+    }
+    // Entrada en la ergosfera: r = r_E(θ) = M + √(M² − a² cos²θ), con cos θ = z/r
+    if (trackEvents.ergosphere && this.ks.a !== 0) {
+      const ergo = (y: Float64Array) => {
+        const r = rOf(y);
+        return r - ergosphereRadius(this.ks.a, Math.acos(Math.max(-1, Math.min(1, y[2] / r))));
+      };
+      const e0 = ergo(y0);
+      const e1 = ergo(y1);
+      if (e0 > 0 && e1 <= 0) locate(ergo, e0, e1, 'ergosphere');
     }
     // Pericentro / apocentro (cambio de signo de dr/dt)
     if (dr0 < 0 && dr1 >= 0 && r1 > this.rPlus) {

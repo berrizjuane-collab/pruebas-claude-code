@@ -8,6 +8,8 @@
  *
  * Modos: órbita alrededor de un objetivo, vuelo libre (WASD) y seguimiento de un objeto.
  */
+import { MODEL_HYPOTHESES } from '../physics/sgra';
+
 export type Vec3 = [number, number, number];
 export type NavMode = 'orbit' | 'free' | 'follow';
 
@@ -41,18 +43,24 @@ export interface NavSettings {
 
 export const DEFAULT_NAV: NavSettings = { rotateSensitivity: 1, zoomSensitivity: 1, moveSpeed: 1, inertia: true };
 
+/**
+ * Pose inicial y de «restablecer»: 34 r_g, con inclinación de 30° respecto del eje de espín (la
+ * hipótesis de modelado del observatorio, MODEL_HYPOTHESES.inclinationDeg, favorecida por EHT 2022).
+ */
+export const HOME_VIEW = { distance: 34, azimuth: -Math.PI / 2, elevation: ((90 - MODEL_HYPOTHESES.inclinationDeg) * Math.PI) / 180, fovDeg: 34 };
+
 export class CameraController {
   mode: NavMode = 'orbit';
   /** Órbita: objetivo, distancia, acimut y elevación (latitud sobre el plano ecuatorial). */
   target: Vec3 = [0, 0, 0];
-  distance = 26;
-  azimuth = -Math.PI / 2;
-  elevation = (24 * Math.PI) / 180;
+  distance = HOME_VIEW.distance;
+  azimuth = HOME_VIEW.azimuth;
+  elevation = HOME_VIEW.elevation;
   /** Vuelo libre: posición y orientación (guiñada/cabeceo de la mirada). */
   freePos: Vec3 = [0, -26, 8];
   yaw = Math.PI / 2;
   pitch = -0.3;
-  fovY = (50 * Math.PI) / 180;
+  fovY = (HOME_VIEW.fovDeg * Math.PI) / 180;
   settings: NavSettings = { ...DEFAULT_NAV };
   limits: CameraLimits = { minRadius: () => 2.2, maxRadius: 2e4 };
   /** Velocidades para la inercia. */
@@ -282,7 +290,7 @@ export class CameraController {
 
   reset(): void {
     this.mode = 'orbit';
-    this.animateTo({ target: [0, 0, 0], distance: 26, azimuth: -Math.PI / 2, elevation: (24 * Math.PI) / 180, fovY: (50 * Math.PI) / 180 });
+    this.animateTo({ target: [0, 0, 0], distance: HOME_VIEW.distance, azimuth: HOME_VIEW.azimuth, elevation: HOME_VIEW.elevation, fovY: (HOME_VIEW.fovDeg * Math.PI) / 180 });
   }
 }
 

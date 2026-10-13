@@ -16,7 +16,7 @@ const base = await new Promise((res, rej) => {
   const to = setTimeout(() => rej(new Error('vite no arrancó')), 60000);
   let buf = '';
   server.stdout.on('data', (d) => {
-    buf += String(d).replace(/\x1b\[[0-9;]*m/g, '');
+    buf += String(d).replace(new RegExp(String.fromCharCode(27) + '\\[[0-9;]*m', 'g'), '');
     const m = buf.match(/Local:\s+(http:\/\/localhost:\d+\/)/);
     if (m) {
       clearTimeout(to);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { KerrSchild } from '../metrics/kerrSchild';
-import { horizons, iscoRadius, photonOrbitRadius, zamoOmega } from '../metrics/kerr';
+import { ergosphereRadius, horizons, iscoRadius, photonOrbitRadius, zamoOmega } from '../metrics/kerr';
 import { GeodesicIntegrator, integrateSampled, type GeodesicEvent } from './geodesic';
 import { constantsOfMotion } from './conserved';
 import {
@@ -138,6 +138,26 @@ describe('Kerr: cruce del horizonte y fin del dominio en el horizonte de Cauchy'
     expect(Math.abs(c1.Lz - c0.Lz)).toBeLessThan(1e-8);
     expect(Math.abs(c1.Q - c0.Q) / Math.max(1, c0.Q)).toBeLessThan(1e-7);
     expect(Math.abs(c1.mu2 - 1)).toBeLessThan(1e-8);
+  });
+});
+
+describe('Ergosfera', () => {
+  it('la entrada en la ergosfera se localiza en r = r_E(θ) y ocurre antes del cruce del horizonte', () => {
+    const a = 0.9;
+    const ks = new KerrSchild(a);
+    const st = infallingState(ks, 12, 1.2, 0.3, 1, 0.5, 0);
+    const gi = new GeodesicIntegrator(ks, 'massive', { rtol: 1e-11, atol: 1e-13 });
+    gi.reset(0, st.pos, st.p);
+    const evs: GeodesicEvent[] = [];
+    while (!gi.terminated) evs.push(...gi.step({ ergosphere: true }));
+    const ie = evs.findIndex((e) => e.kind === 'ergosphere');
+    const ih = evs.findIndex((e) => e.kind === 'horizon');
+    expect(ie).toBeGreaterThanOrEqual(0);
+    expect(ih).toBeGreaterThan(ie);
+    const e = evs[ie];
+    const th = Math.acos(e.state[2] / e.r);
+    expect(Math.abs(e.r - ergosphereRadius(a, th))).toBeLessThan(1e-9);
+    expect(evs[ih].t).toBeGreaterThan(e.t);
   });
 });
 

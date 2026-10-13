@@ -1,0 +1,281 @@
+{
+  "generado": "2026-10-12T21:35:29.376Z",
+  "node": "v22.22.0",
+  "filas": [
+    {
+      "grupo": "Integradores",
+      "caso": "Dormand–Prince 5(4), oscilador armónico, tol = 1e-6 (76 pasos)",
+      "referencia": "cos t",
+      "medida": "y(20.24)",
+      "error": 0.000005538393531706598,
+      "tipoError": "absoluto"
+    },
+    {
+      "grupo": "Integradores",
+      "caso": "Dormand–Prince 5(4), oscilador armónico, tol = 1e-9 (296 pasos)",
+      "referencia": "cos t",
+      "medida": "y(20.06)",
+      "error": 3.7895791504816145e-9,
+      "tipoError": "absoluto"
+    },
+    {
+      "grupo": "Integradores",
+      "caso": "Dormand–Prince 5(4), oscilador armónico, tol = 1e-12 (1174 pasos)",
+      "referencia": "cos t",
+      "medida": "y(20.02)",
+      "error": 3.410216553589862e-12,
+      "tipoError": "absoluto"
+    },
+    {
+      "grupo": "Integradores",
+      "caso": "RK4 (el de la GPU): orden de convergencia medido log₂(e(h)/e(h/2)), h = 0,1",
+      "referencia": "4",
+      "medida": "3.893",
+      "error": 0.026741752377405392,
+      "tipoError": "relativo"
+    },
+    {
+      "grupo": "Caída radial",
+      "caso": "τ al cruzar r = 2M desde el reposo en r₀ = 10M",
+      "referencia": "cicloide 33.7008698519 M",
+      "medida": "33.7008698519 M",
+      "error": 3.2532318782753095e-13,
+      "tipoError": "relativo",
+      "umbralTest": 1e-9
+    },
+    {
+      "grupo": "Caída radial",
+      "caso": "τ al final del dominio (r = 2.0e-3 M)",
+      "referencia": "cicloide 35.1240314890 M",
+      "medida": "35.1240314890 M",
+      "error": 2.557012905203576e-13,
+      "tipoError": "relativo",
+      "umbralTest": 1e-8
+    },
+    {
+      "grupo": "Caída radial",
+      "caso": "Ligadura hamiltoniana |H + ½| máxima (incluido el interior)",
+      "referencia": "0",
+      "medida": "2.49e-12",
+      "error": 2.4868995751603507e-12,
+      "tipoError": "absoluto",
+      "umbralTest": 1e-9
+    },
+    {
+      "grupo": "Caída radial",
+      "caso": "t de Kerr–Schild en el cruce del horizonte (finito)",
+      "referencia": "finito",
+      "medida": "38.5539 M",
+      "error": 0,
+      "tipoError": "absoluto"
+    },
+    {
+      "grupo": "Kerr a = 0,9",
+      "caso": "Caída oblicua hasta r₋: deriva de E",
+      "referencia": "1.00000000000",
+      "medida": "1.00000000000",
+      "error": 0,
+      "tipoError": "absoluto",
+      "umbralTest": 1e-12
+    },
+    {
+      "grupo": "Kerr a = 0,9",
+      "caso": "Caída oblicua hasta r₋: deriva de L_z",
+      "referencia": "1.50000000000",
+      "medida": "1.49999999998",
+      "error": 1.4040620518092809e-11,
+      "tipoError": "relativo",
+      "umbralTest": 1e-8
+    },
+    {
+      "grupo": "Kerr a = 0,9",
+      "caso": "Caída oblicua hasta r₋: deriva de Q (Carter)",
+      "referencia": "1.08763658673",
+      "medida": "1.08763658685",
+      "error": 1.0258948611238887e-10,
+      "tipoError": "relativo",
+      "umbralTest": 1e-7
+    },
+    {
+      "grupo": "Kerr a = 0,9",
+      "caso": "Caída oblicua hasta r₋: ligadura de masa |μ² − 1|",
+      "referencia": "1",
+      "medida": "0.999999990658",
+      "error": 9.342329576611519e-9,
+      "tipoError": "absoluto",
+      "umbralTest": 1e-8
+    },
+    {
+      "grupo": "Kerr a = 0,9",
+      "caso": "Órbita inclinada y excéntrica, 3000 M: máx. deriva relativa de L_z, Q y μ²",
+      "referencia": "constantes",
+      "medida": "7.59e-12",
+      "error": 7.589065288366305e-12,
+      "tipoError": "relativo",
+      "umbralTest": 1e-8
+    },
+    {
+      "grupo": "Órbitas",
+      "caso": "Circular prógrada en r_ISCO + 1 (a = 0), 10 vueltas: máx. |Δr|/r",
+      "referencia": "7.000000 M",
+      "medida": "máx. |Δr| = 4.27e-10 M",
+      "error": 6.094832575139923e-11,
+      "tipoError": "relativo",
+      "umbralTest": 1.4285714285714284e-8
+    },
+    {
+      "grupo": "Órbitas",
+      "caso": "Circular prógrada en r_ISCO + 1 (a = 0.5), 10 vueltas: máx. |Δr|/r",
+      "referencia": "5.233003 M",
+      "medida": "máx. |Δr| = 2.90e-10 M",
+      "error": 5.5405300018932704e-11,
+      "tipoError": "relativo",
+      "umbralTest": 1.9109488183061448e-8
+    },
+    {
+      "grupo": "Órbitas",
+      "caso": "Circular prógrada en r_ISCO + 1 (a = 0.9), 10 vueltas: máx. |Δr|/r",
+      "referencia": "3.320883 M",
+      "medida": "máx. |Δr| = 1.87e-10 M",
+      "error": 5.6221053005497696e-11,
+      "tipoError": "relativo",
+      "umbralTest": 3.011247271958883e-8
+    },
+    {
+      "grupo": "Órbitas",
+      "caso": "Precesión del periastro (Schwarzschild, p = 40M, e = 0,4)",
+      "referencia": "30.51537007° (integral elíptica)",
+      "medida": "30.51537007°",
+      "error": 5.860112658122404e-12,
+      "tipoError": "relativo",
+      "umbralTest": 0.000001
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Órbita fotónica r = 3M (inestable), 2 vueltas: máx. |Δr|",
+      "referencia": "3 M",
+      "medida": "1.22e-8 M",
+      "error": 4.070515184177263e-9,
+      "tipoError": "relativo",
+      "umbralTest": 0.000033333333333333335
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Órbita fotónica ecuatorial prógrada (a = 0,7), 30 M",
+      "referencia": "2.01333412 M (Bardeen et al. 1972)",
+      "medida": "máx. |Δr| = 4.46e-12 M",
+      "error": 2.217210092002455e-12,
+      "tipoError": "relativo",
+      "umbralTest": 0.000004966885467640451
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Órbita fotónica ecuatorial retrógrada (a = 0,7), 30 M",
+      "referencia": "3.72534525 M (Bardeen et al. 1972)",
+      "medida": "máx. |Δr| = 1.70e-11 M",
+      "error": 4.565648441249672e-12,
+      "tipoError": "relativo",
+      "umbralTest": 0.0000026843149632789437
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Deflexión de la luz, b = 20 M (truncada en ±10⁶ M)",
+      "referencia": "2.36135995e-1 rad (integral exacta)",
+      "medida": "2.36135995e-1 rad",
+      "error": 1.2202481361770974e-11,
+      "tipoError": "relativo"
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Deflexión de la luz, b = 100 M (truncada en ±10⁶ M)",
+      "referencia": "4.12225398e-2 rad (integral exacta)",
+      "medida": "4.12225397e-2 rad",
+      "error": 1.8977463058029453e-10,
+      "tipoError": "relativo"
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Deflexión de la luz, b = 1000 M (truncada en ±10⁶ M)",
+      "referencia": "4.01182380e-3 rad (integral exacta)",
+      "medida": "4.01182381e-3 rad",
+      "error": 2.0635831172953025e-9,
+      "tipoError": "relativo"
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Tiempo de vuelo radial 10M → 100M (retardo de Shapiro)",
+      "referencia": "100.0221037480 M",
+      "medida": "100.0221037480 M",
+      "error": 2.3584805701225576e-14,
+      "tipoError": "relativo",
+      "umbralTest": 9.99779011367141e-11
+    },
+    {
+      "grupo": "Fotones",
+      "caso": "Parámetro de impacto crítico b_c (a = 0) = 3√3 M",
+      "referencia": "5.196152422707",
+      "medida": "5.196152422707",
+      "error": 0,
+      "tipoError": "relativo"
+    },
+    {
+      "grupo": "Curvatura",
+      "caso": "Kretschmann numérico (Riemann por diferencias de Richardson) frente al analítico, 36 puntos dentro y fuera del horizonte",
+      "referencia": "fórmula cerrada",
+      "medida": "peor caso 2.46e-11",
+      "error": 2.464443245907295e-11,
+      "tipoError": "relativo",
+      "umbralTest": 0.000001
+    },
+    {
+      "grupo": "Curvatura",
+      "caso": "Tensor de marea, observador estático en Schwarzschild: diag(−2, 1, 1)·M/r³",
+      "referencia": "exacto",
+      "medida": "peor caso 8.42e-12",
+      "error": 8.418932218035025e-12,
+      "tipoError": "relativo",
+      "umbralTest": 0.000001
+    },
+    {
+      "grupo": "Curvatura",
+      "caso": "Marea del observador en caída (también dentro del horizonte, r = 1,2M)",
+      "referencia": "diag(−2, 1, 1)·M/r³",
+      "medida": "peor caso 4.43e-11",
+      "error": 4.433553524307854e-11,
+      "tipoError": "relativo",
+      "umbralTest": 0.00001
+    },
+    {
+      "grupo": "Convergencia",
+      "caso": "Órbita inclinada y excéntrica (a = 0,9): posición en t = 1000 M con rtol = 1e-6",
+      "referencia": "rtol = 1e-13",
+      "medida": "|Δx| = 1.29e-4 M",
+      "error": 0.00012853636929391303,
+      "tipoError": "absoluto"
+    },
+    {
+      "grupo": "Convergencia",
+      "caso": "Órbita inclinada y excéntrica (a = 0,9): posición en t = 1000 M con rtol = 1e-8 (mejora ×3 por cada ×100 de tolerancia)",
+      "referencia": "rtol = 1e-13",
+      "medida": "|Δx| = 4.93e-5 M",
+      "error": 0.00004934986029516488,
+      "tipoError": "absoluto"
+    },
+    {
+      "grupo": "Convergencia",
+      "caso": "Órbita inclinada y excéntrica (a = 0,9): posición en t = 1000 M con rtol = 1e-10 (mejora ×214 por cada ×100 de tolerancia)",
+      "referencia": "rtol = 1e-13",
+      "medida": "|Δx| = 2.31e-7 M",
+      "error": 2.3054033167098565e-7,
+      "tipoError": "absoluto"
+    },
+    {
+      "grupo": "Convergencia",
+      "caso": "Órbita inclinada y excéntrica (a = 0,9): posición en t = 1000 M con rtol = 1e-12 (mejora ×218 por cada ×100 de tolerancia)",
+      "referencia": "rtol = 1e-13",
+      "medida": "|Δx| = 1.06e-9 M",
+      "error": 1.055368153503209e-9,
+      "tipoError": "absoluto"
+    }
+  ]
+}

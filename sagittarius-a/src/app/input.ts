@@ -6,7 +6,14 @@
  * Espacio = pausa, R = restablecer cámara, F = seguir objeto, H = ocultar interfaz.
  * Táctil: un dedo = orbitar, dos dedos = pellizcar (zoom) y desplazar.
  */
-import type { CameraController } from '../camera/CameraController';
+/** Destino de la navegación: la cámara exterior o la cámara comóvil de la vista B. */
+export interface NavTarget {
+  rotate(dx: number, dy: number): void;
+  pan(dx: number, dy: number): void;
+  zoom(delta: number): void;
+  zoomFov(delta: number): void;
+  setKeys(move: [number, number, number], boost: boolean): void;
+}
 
 export interface InputActions {
   togglePause: () => void;
@@ -22,7 +29,7 @@ export interface InputActions {
   interacted: () => void;
 }
 
-export function bindInput(el: HTMLElement, nav: CameraController, act: InputActions): () => void {
+export function bindInput(el: HTMLElement, nav: NavTarget, act: InputActions): () => void {
   let dragging = false;
   let panning = false;
   let lx = 0;
@@ -86,12 +93,10 @@ export function bindInput(el: HTMLElement, nav: CameraController, act: InputActi
 
   const keys = new Set<string>();
   const updateMove = () => {
-    nav.keyMove = [
-      (keys.has('KeyW') ? 1 : 0) - (keys.has('KeyS') ? 1 : 0),
-      (keys.has('KeyD') ? 1 : 0) - (keys.has('KeyA') ? 1 : 0),
-      (keys.has('KeyE') ? 1 : 0) - (keys.has('KeyQ') ? 1 : 0),
-    ];
-    nav.boost = keys.has('ShiftLeft') || keys.has('ShiftRight');
+    nav.setKeys(
+      [(keys.has('KeyW') ? 1 : 0) - (keys.has('KeyS') ? 1 : 0), (keys.has('KeyD') ? 1 : 0) - (keys.has('KeyA') ? 1 : 0), (keys.has('KeyE') ? 1 : 0) - (keys.has('KeyQ') ? 1 : 0)],
+      keys.has('ShiftLeft') || keys.has('ShiftRight'),
+    );
   };
   const isTyping = (e: KeyboardEvent) => {
     const t = e.target as HTMLElement | null;

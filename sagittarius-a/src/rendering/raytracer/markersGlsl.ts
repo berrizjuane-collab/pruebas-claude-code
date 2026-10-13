@@ -17,7 +17,7 @@
  * Uniforme uMkBound[m]: esfera envolvente de la baliza en la ventana temporal visible.
  */
 export const MAX_MARKERS = 64;
-export const MARKER_TEX_WIDTH = 2048;
+export const MARKER_TEX_WIDTH = 1024;
 
 export const GLSL_MARKERS = /* glsl */ `
 #define MAX_MARKERS ${MAX_MARKERS}

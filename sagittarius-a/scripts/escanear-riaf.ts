@@ -18,7 +18,7 @@ const ks = new KerrSchild(a);
 const D = 1e4;
 const N = 22;
 const half = 12;
-const thetaG = sc.thetaGMuas / 206264.80624709636e6;
+const thetaG = sc.thetaGMuas / 206264.806247096e6;
 
 function measure(ne0: number, te0: number) {
   const riaf = new RiafModel(ks, { ...DEFAULT_RIAF, ne0, te0, turbulence: 0 });
@@ -27,7 +27,6 @@ function measure(ne0: number, te0: number) {
   let sum = 0;
   let tauMax = 0;
   let Imax = 0;
-  let Icenter = 0;
   for (let j = 0; j < N; j++)
     for (let i = 0; i < N; i++) {
       const ax = ((2 * (i + 0.5)) / N - 1) * half;
@@ -37,7 +36,7 @@ function measure(ne0: number, te0: number) {
       tauMax = Math.max(tauMax, r.tau[0]);
       Imax = Math.max(Imax, r.I[0]);
     }
-  Icenter = tr.trace(cam, [0, 0, 1]).I[0];
+  const Icenter = tr.trace(cam, [0, 0, 1]).I[0];
   const pix = (2 * half) / N;
   return { flux: 1e23 * sum * pix * pix * thetaG * thetaG, tauMax, contrast: Icenter / Imax };
 }

@@ -3,7 +3,7 @@
  * frecuencia (pose de la cámara, tiempo de simulación) vive en el motor, que publica aquí
  * instantáneas a baja frecuencia para la interfaz.
  */
-import { useSyncExternalStore } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
 import type { Profile } from '../rendering/raytracer/RayTracer';
 import type { Quality } from '../rendering/raytracer/settings';
 import type { CameraObserver } from '../camera/RelativisticCamera';
@@ -11,6 +11,7 @@ import type { NavMode } from '../camera/CameraController';
 import type { LaunchConfig, ExperimentSummary } from '../simulation/types';
 import { DEFAULT_LAUNCH } from '../simulation/types';
 import { MODEL_HYPOTHESES } from '../physics/sgra';
+import type { TelemetrySnapshot } from './Observatory';
 
 export type Units = 'km' | 'rg' | 'rs';
 export type View = 'exterior' | 'object' | 'diagram';
@@ -73,6 +74,9 @@ export interface AppState {
   gridOn: boolean;
   turbulence: number;
   hotspot: boolean;
+  riaf: { ne0: number; te0: number; beta: number; h: number; kappa: number };
+  markerScale: number;
+  fixedScale: number | null;
   autoExposure: boolean;
   exposureEV: number;
   bloom: number;
@@ -99,7 +103,10 @@ export interface AppState {
   selectedExperiment: string | null;
   followExperiment: string | null;
   deformExaggeration: number;
+  /** Banda de la vista B: óptica (el plasma de Sgr A* es transparente y no emite) o milimétrica. */
+  objectBand: 'optico' | 'mm';
   live: LiveSnapshot;
+  telemetry: TelemetrySnapshot | null;
   toasts: Toast[];
   audioOn: boolean;
   busy: string | null;
@@ -134,6 +141,9 @@ export const INITIAL_STATE: AppState = {
   gridOn: false,
   turbulence: 0.45,
   hotspot: false,
+  riaf: { ne0: 1.56e7, te0: 3e11, beta: 10, h: 1, kappa: 1 },
+  markerScale: 1,
+  fixedScale: null,
   autoExposure: true,
   exposureEV: 0,
   bloom: 0.12,
@@ -143,7 +153,7 @@ export const INITIAL_STATE: AppState = {
   overlay: { ...DEFAULT_OVERLAY },
   observer: 'zamo',
   navMode: 'orbit',
-  fovDeg: 50,
+  fovDeg: 34,
   sensitivity: 1,
   moveSpeed: 1,
   inertia: true,
@@ -160,10 +170,11 @@ export const INITIAL_STATE: AppState = {
   selectedExperiment: null,
   followExperiment: null,
   deformExaggeration: 1,
+  objectBand: 'optico',
   live: {
     t: 0,
-    camR: 26,
-    camTheta: 66,
+    camR: 34,
+    camTheta: 30,
     camObserver: 'ZAMO',
     camNote: null,
     camInside: false,
@@ -180,6 +191,7 @@ export const INITIAL_STATE: AppState = {
     diving: false,
     diveInfo: null,
   },
+  telemetry: null,
   toasts: [],
   audioOn: false,
   busy: null,
@@ -215,8 +227,26 @@ export class Store<T extends object> {
 
 export const store = new Store<AppState>(INITIAL_STATE);
 
+function shallowEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
+  const ka = Object.keys(a);
+  const kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (const k of ka) if (!Object.is((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k])) return false;
+  return true;
+}
+
+/** Suscripción a una parte del estado; los selectores que devuelven objetos se comparan en superficie. */
 export function useApp<S>(selector: (s: AppState) => S): S {
-  return useSyncExternalStore(store.subscribe, () => selector(store.get()), () => selector(store.get()));
+  const ref = useRef<{ v: S } | null>(null);
+  const get = () => {
+    const next = selector(store.get());
+    if (ref.current && shallowEqual(ref.current.v, next)) return ref.current.v;
+    ref.current = { v: next };
+    return next;
+  };
+  return useSyncExternalStore(store.subscribe, get, get);
 }
 
 let toastId = 1;
