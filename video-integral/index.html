@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Un área, dos mundos</title>
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<style>
+@font-face{font-family:'Instrument Serif';font-style:normal;font-weight:400;src:url(vendor/fonts/instrument-serif-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;src:url(vendor/fonts/instrument-serif-latin-400-italic.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:400;src:url(vendor/fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:500;src:url(vendor/fonts/inter-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:600;src:url(vendor/fonts/inter-latin-600-normal.woff2) format('woff2')}
+
+:root{
+  --ink:#eef1f8; --dim:#8d95ab; --warm:#ff9a3c; --coral:#ff6f91; --gold:#ffd166;
+  --cyan:#4de3ff; --violet:#9b7bff; --bg:#06070d;
+}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:var(--bg);cursor:pointer}
+#cv{position:absolute;left:0;top:0;width:1920px;height:1080px}
+#dom{position:absolute;inset:0;pointer-events:none}
+#fade{position:absolute;inset:0;background:#000;pointer-events:none;opacity:1}
+
+.a{position:absolute;left:0;top:0;white-space:nowrap;visibility:hidden;color:var(--ink);will-change:transform,opacity}
+.serif{font-family:'Instrument Serif',Georgia,serif}
+.sans{font-family:'Inter',system-ui,sans-serif}
+.it{font-style:italic}
+.dim{color:var(--dim)} .warm{color:var(--warm)} .coral{color:var(--coral)} .gold{color:var(--gold)} .cyan{color:var(--cyan)}
+
+.cap{font-family:'Instrument Serif',Georgia,serif;font-size:46px;letter-spacing:.005em;color:#f3f5fb;text-shadow:0 2px 24px rgba(0,0,0,.9)}
+.cap .katex{font-size:.92em}
+.cap em{font-style:italic;color:var(--gold)}
+.cap em.c{color:var(--cyan)}
+
+.chap{font-family:'Inter';font-weight:600;font-size:17px;letter-spacing:.32em;text-transform:uppercase;color:var(--dim)}
+.chap b{color:var(--ink);font-weight:600;margin-right:.9em}
+.chap i{display:inline-block;width:54px;height:1px;background:currentColor;vertical-align:middle;margin-right:1.1em;opacity:.6}
+
+.hook{font-family:'Instrument Serif';font-style:italic;font-size:104px;letter-spacing:-.01em}
+.hook span{display:inline-block}
+.kicker{font-family:'Inter';font-weight:600;font-size:20px;letter-spacing:.42em;text-transform:uppercase;color:var(--dim)}
+.title{font-family:'Instrument Serif';font-size:190px;letter-spacing:-.02em;line-height:1;
+  background:linear-gradient(90deg,#ffd166 0%,#ff9a3c 22%,#ff6f91 45%,#9b7bff 68%,#4de3ff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .08em .12em}
+.sub{font-family:'Instrument Serif';font-style:italic;font-size:48px;color:#c9cfdd}
+.sub b{font-weight:400;font-style:normal}
+
+.lbl{font-family:'Inter';font-weight:600;font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
+.num{font-family:'Inter';font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.counter{text-align:center}
+.counter .num{display:block;font-size:84px;margin-top:6px}
+.mini .num{font-size:46px}
+.readout{font-family:'Inter';font-weight:500;font-size:44px;font-variant-numeric:tabular-nums}
+.readout .katex{font-size:1.05em;margin-right:.1em}
+
+.row{display:flex;align-items:center;font-size:52px}
+.row .l{width:400px;text-align:right}
+.row .ar{width:150px;text-align:center;color:var(--dim);font-family:'Inter';font-size:34px}
+.row .r{text-align:left}
+.note{font-family:'Instrument Serif';font-style:italic;font-size:28px;color:var(--dim)}
+
+.quote{font-family:'Instrument Serif';font-size:84px;line-height:1.12;text-align:center;letter-spacing:-.01em}
+.quote em{font-style:italic;color:var(--gold)}
+.quote em.c{color:var(--cyan)}
+.tag{font-family:'Instrument Serif';font-style:italic;font-size:32px}
+
+/* player */
+#hud{position:fixed;left:0;right:0;bottom:0;display:flex;gap:14px;align-items:center;padding:12px 18px;
+  background:linear-gradient(transparent,rgba(0,0,0,.75));font:500 13px Inter,system-ui,sans-serif;color:#cfd5e3;
+  opacity:0;transition:opacity .35s}
+#hud.on{opacity:1}
+#hud button{all:unset;cursor:pointer;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);text-align:center;line-height:34px;font-size:14px}
+#hud input{flex:1;accent-color:#ffb057}
+#hud span{font-variant-numeric:tabular-nums;min-width:86px;text-align:right}
+body.render #hud{display:none}
+body.render #stage{cursor:default}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv" width="1920" height="1080"></canvas>
+  <div id="dom"></div>
+  <div id="fade"></div>
+</div>
+<div id="hud">
+  <button id="pp" aria-label="Reproducir o pausar">❚❚</button>
+  <input id="seek" type="range" min="0" max="1000" value="0" aria-label="Posición">
+  <span id="clock">0:00 / 0:00</span>
+</div>
+<script src="vendor/katex/katex.min.js"></script>
+<script src="anim.js"></script>
+</body>
+</html>
