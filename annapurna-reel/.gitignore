@@ -1,0 +1,5 @@
+build/
+audio/*.wav
+audio/**/*.wav
+audio/vo_alvaro/
+__pycache__/
