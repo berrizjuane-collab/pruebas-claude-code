@@ -31,7 +31,7 @@ const CONFIG = {
 
   /* ── 3. SERVICIOS ─────────────────────────────────────────────────── */
   // icono: "consulta" | "vacuna" | "desparasitacion" | "emergencia"
-  // La tarjeta con icono "emergencia" se pinta en coral para destacarla.
+  // La tarjeta con icono "emergencia" se pinta en azul marino para destacarla.
   servicios: [
     { icono: "consulta",        titulo: "Consulta general", texto: "Revisión completa, diagnóstico y un plan claro de cuidado." },
     { icono: "vacuna",          titulo: "Vacunación",       texto: "Esquema al día para cachorros, gatitos y adultos." },
@@ -41,7 +41,7 @@ const CONFIG = {
 
   /* ── 4. PRECIOS ───────────────────────────────────────────────────── */
   precios: {
-    destacado: {                              // El precio que va dentro de la placa.
+    destacado: {                              // El precio que se muestra en grande.  
       nombre:  "Consulta general",
       precio:  "$25",
       detalle: "Revisión física completa y orientación para el cuidado en casa."
@@ -118,7 +118,7 @@ const CONFIG = {
 
 <!-- Metaetiquetas básicas. Recuerda editarlas a mano junto con CONFIG.descripcion. -->
 <meta name="description" content="Consulta veterinaria, vacunación, desparasitación y emergencias en Caracas. Precios claros, horario y ubicación.">
-<meta name="theme-color" content="#F6EFE2">
+<meta name="theme-color" content="#FFFFFF">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_VE">
 <meta property="og:title" content="Clínica Veterinaria Huellitas">
@@ -127,72 +127,68 @@ const CONFIG = {
      Debe ser una URL absoluta (https://…). Descomenta la línea cuando la tengas:
 <meta property="og:image" content="https://tu-dominio.com/veterinaria/compartir.jpg"> -->
 
-<!-- Favicon SVG: huella crema sobre verde pino. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231E4A42'/%3E%3Cg fill='%23F6EFE2' transform='translate(9 7) scale(.72)'%3E%3Cpath d='M32 30c-9 0-17 8-17 16 0 6 5 9 10 8 3-.6 5-1.6 7-1.6s4 1 7 1.6c5 1 10-2 10-8 0-8-8-16-17-16z'/%3E%3Cellipse cx='14' cy='25' rx='5.5' ry='7.5' transform='rotate(-25 14 25)'/%3E%3Cellipse cx='25' cy='14' rx='5.5' ry='8' transform='rotate(-8 25 14)'/%3E%3Cellipse cx='39' cy='14' rx='5.5' ry='8' transform='rotate(8 39 14)'/%3E%3Cellipse cx='50' cy='25' rx='5.5' ry='7.5' transform='rotate(25 50 25)'/%3E%3C/g%3E%3C/svg%3E">
+<!-- Favicon SVG: huella blanca sobre azul marino. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230B2545'/%3E%3Cg fill='%23FFFFFF' transform='translate(9 7) scale(.72)'%3E%3Cpath d='M32 30c-9 0-17 8-17 16 0 6 5 9 10 8 3-.6 5-1.6 7-1.6s4 1 7 1.6c5 1 10-2 10-8 0-8-8-16-17-16z'/%3E%3Cellipse cx='14' cy='25' rx='5.5' ry='7.5' transform='rotate(-25 14 25)'/%3E%3Cellipse cx='25' cy='14' rx='5.5' ry='8' transform='rotate(-8 25 14)'/%3E%3Cellipse cx='39' cy='14' rx='5.5' ry='8' transform='rotate(8 39 14)'/%3E%3Cellipse cx='50' cy='25' rx='5.5' ry='7.5' transform='rotate(25 50 25)'/%3E%3C/g%3E%3C/svg%3E">
 
-<!-- Fuentes: Fraunces (títulos) e Inter (texto). Si no cargan, se usan las del sistema. -->
+<!-- Fuentes: Instrument Serif (títulos y cifras) y Manrope (texto). Si no cargan, se usan las del sistema. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..700,0..100;1,9..144,400..700,0..100&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap">
 
 <style>
-/* Composición: columna central de 1120 px. Hero a dos columnas (texto + ilustración en arco)
-   con una franja de datos rápidos debajo; servicios en fila de cuatro; precios y horario
-   lado a lado (papel claro junto a verde pino); ubicación a dos columnas; contacto sobre
-   una banda salvia que cierra la página. En móvil todo cae a una columna. */
+/* Composición: columna de 1168 px con 20 px de margen. Cada sección abre con una regla fina,
+   su número en itálica y el título. Los fondos marcan el ritmo:
+   blanco (cabecera) → hielo (hero) → blanco (servicios) → paneles hielo y marino (precios y
+   horario) → niebla (ubicación) → cielo (contacto) → marino (pie). Sin sombras: solo líneas de 1 px. */
 :root {
   /* Color */
-  --crema: #F6EFE2;          /* fondo general */
-  --arena: #EDE2CD;          /* fondo de apoyo, formas orgánicas */
-  --papel: #FFFBF4;          /* tarjetas */
-  --pino: #1E4A42;           /* color principal profundo */
-  --pino-hondo: #163A33;
-  --salvia: #8FAE9B;         /* color principal suave */
-  --salvia-clara: #D5E2D3;
-  --salvia-niebla: #E6EEE3;
-  --coral: #F08B6F;          /* acento: llamados a la acción */
-  --coral-vivo: #EC7C5D;
-  --coral-hondo: #A93F27;    /* coral para texto sobre fondos claros */
-  --coral-claro: #FBE3D9;
-  --tinta: #1C2B27;          /* texto principal */
-  --tinta-suave: #4D5E58;    /* texto secundario */
-  --linea: rgba(30, 74, 66, .14);
-  --velo: rgba(246, 239, 226, .12);
-  --velo-linea: rgba(246, 239, 226, .22);
+  --marino: #0B2545;        /* tinta principal, panel de horario, pie */
+  --azul: #1F4E79;          /* números de sección, etiquetas, detalles */
+  --acero: #3A6797;         /* trazos intermedios */
+  --celeste: #8DB3E2;       /* acento: botón WhatsApp, fila de hoy */
+  --cielo: #CFE0F3;         /* banda de contacto, fondo de la ilustración */
+  --hielo: #E6EEF7;         /* hero, panel de precios */
+  --niebla: #F3F7FC;        /* banda de ubicación, celdas */
+  --blanco: #FFFFFF;
+  --tinta-suave: #4A5D78;   /* texto secundario */
+  --regla-suave: rgba(11, 37, 69, .16);      /* líneas finas */
+  --regla-clara: rgba(255, 255, 255, .22);   /* líneas sobre marino */
+  --sobre-marino: rgba(255, 255, 255, .74);  /* texto secundario sobre marino */
 
   /* Tipografía */
-  --f-titulo: "Fraunces", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --f-texto: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --f-serif: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --f-texto: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  /* Forma */
-  --radio: 24px;
-  --radio-s: 14px;
-  --sombra: 0 1px 2px rgba(28, 43, 39, .04), 0 10px 28px -14px rgba(28, 43, 39, .14);
-  --sombra-alta: 0 2px 4px rgba(28, 43, 39, .05), 0 22px 44px -18px rgba(28, 43, 39, .26);
+  /* Esquinas */
+  --recto: 2px;    /* estructura: rejilla de servicios, tablas, chips */
+  --boton: 12px;   /* botones, indicador de estado, caja de emergencias */
+  --suave: 16px;   /* objetos: tarjetas, paneles, ilustración, mapa, filas de contacto */
+
   --alto-cabecera: 64px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--alto-cabecera) + 20px); }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--alto-cabecera) + 16px + env(safe-area-inset-top, 0px)); }
 body {
   margin: 0;
-  background: var(--crema);
-  color: var(--tinta);
+  background: var(--blanco);
+  color: var(--marino);
   font-family: var(--f-texto);
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
 /* Pinta la franja de la barra de estado en teléfonos con muesca. */
 body::before {
   content: ""; position: fixed; inset: 0 0 auto; z-index: 30;
-  height: env(safe-area-inset-top, 0px); background: var(--crema);
+  height: env(safe-area-inset-top, 0px); background: var(--blanco);
 }
 img, svg { display: block; max-width: 100%; }
 a { color: inherit; }
-h1, h2, h3, p, ul, table { margin: 0; }
+h1, h2, h3, p, ul, table, figure { margin: 0; }
 ul { padding: 0; list-style: none; }
-:focus-visible { outline: 3px solid var(--coral-hondo); outline-offset: 3px; border-radius: 6px; }
+:focus-visible { outline: 2px solid var(--azul); outline-offset: 3px; border-radius: var(--recto); }
+.panel--horario :focus-visible, .pie :focus-visible { outline-color: var(--celeste); }
 
 .solo-lectores {
   position: absolute; width: 1px; height: 1px; overflow: hidden;
@@ -200,331 +196,243 @@ ul { padding: 0; list-style: none; }
 }
 .saltar {
   position: absolute; left: 16px; top: -80px; z-index: 50;
-  background: var(--pino); color: var(--papel); padding: 10px 16px; border-radius: 10px;
+  background: var(--marino); color: var(--blanco); padding: 10px 16px; border-radius: var(--boton);
 }
 .saltar:focus { top: calc(env(safe-area-inset-top, 0px) + 12px); }
 
 .envoltura {
-  width: 100%; max-width: 1160px; margin-inline: auto;
+  width: 100%; max-width: 1208px; margin-inline: auto;   /* 1168 px de contenido + 20 px por lado */
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
 }
-.seccion { padding-block: clamp(44px, 6.5vw, 84px); }
+.seccion { padding-block: clamp(52px, 7.5vw, 92px); }
+.banda--niebla { background: var(--niebla); }
+.banda--cielo { background: var(--cielo); }
 
 /* ── Tipografía ── */
 .titulo {
-  font-family: var(--f-titulo);
-  font-variation-settings: "SOFT" 100;
-  font-weight: 500;
-  font-size: clamp(1.9rem, 4.2vw, 2.6rem);
-  line-height: 1.1;
-  letter-spacing: -.015em;
-  color: var(--pino);
+  font-family: var(--f-serif); font-weight: 400;
+  font-size: clamp(2.5rem, 6.4vw, 3.75rem); line-height: 1; letter-spacing: -.01em;
   text-wrap: balance;
 }
-.intro { color: var(--tinta-suave); max-width: 46ch; margin-top: 10px; }
-.icono { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.etiqueta {
+  font: 600 .72rem/1.4 var(--f-texto); text-transform: uppercase; letter-spacing: .14em; color: var(--azul);
+}
+.intro { color: var(--tinta-suave); max-width: 48ch; margin-top: 12px; }
+.icono { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Encabezado de sección: regla, número en itálica y título */
+.cab { border-top: 1px solid var(--marino); padding-top: 18px; display: grid; gap: 6px; grid-template-columns: minmax(0, 1fr); }
+.cab-num { font: italic 400 2.2rem/1 var(--f-serif); color: var(--azul); font-variant-numeric: lining-nums; }
+@media (min-width: 940px) { .cab { grid-template-columns: 128px minmax(0, 1fr); gap: 0; padding-top: 22px; } .cab-num { padding-top: 6px; } }
+.cab--panel { border-top: 0; padding-top: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.cab--panel .cab-num { padding-top: 0; }
 
 /* ── Botones ── */
 .boton {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 54px; padding: 0 26px;
-  border: 1.5px solid transparent; border-radius: 999px;
-  font: 600 1rem/1 var(--f-texto); text-decoration: none; white-space: nowrap;
-  cursor: pointer;
-  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+  min-height: 52px; padding: 0 24px;
+  border: 1px solid var(--marino); border-radius: var(--boton);
+  font: 700 .9375rem/1 var(--f-texto); text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
 }
-.boton:hover { transform: translateY(-2px); }
-.boton:active { transform: translateY(0); }
-.boton--coral { background: var(--coral); color: var(--tinta); box-shadow: 0 8px 20px -10px rgba(169, 63, 39, .55); }
-.boton--coral:hover { background: var(--coral-vivo); box-shadow: 0 14px 26px -12px rgba(169, 63, 39, .6); }
-.boton--pino { background: var(--pino); color: var(--papel); }
-.boton--pino:hover { background: var(--pino-hondo); box-shadow: var(--sombra-alta); }
-.boton--linea { border-color: var(--pino); color: var(--pino); background: transparent; }
-.boton--linea:hover { background: var(--pino); color: var(--papel); }
-.boton--chico { min-height: 44px; padding: 0 20px; font-size: .9375rem; }
-.boton .flecha { transition: transform .2s ease; }
-.boton:hover .flecha { transform: translate(2px, -2px); }
+.boton--celeste { background: var(--celeste); color: var(--marino); }
+.boton--celeste:hover { background: var(--marino); color: var(--blanco); }
+.boton--linea { background: transparent; color: var(--marino); }
+.boton--linea:hover { background: var(--marino); color: var(--blanco); }
+.boton--marino { background: var(--marino); color: var(--blanco); }
+.boton--marino:hover { background: var(--azul); border-color: var(--azul); }
+.boton--chico { min-height: 42px; padding: 0 18px; font-size: .875rem; }
 
-/* ── 1. Encabezado ── */
+/* ── Cabecera ── */
 .cabecera {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-  background: rgba(246, 239, 226, .86);
-  -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
-  border-bottom: 1px solid transparent;
-  transition: border-color .3s ease, box-shadow .3s ease;
+  background: var(--blanco); border-bottom: 1px solid var(--marino);
 }
-.cabecera.con-borde { border-bottom-color: var(--linea); box-shadow: 0 10px 30px -24px rgba(28, 43, 39, .5); }
-.cabecera .envoltura { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: var(--alto-cabecera); }
-.logo {
-  display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
-  font-family: var(--f-titulo); font-variation-settings: "SOFT" 100; font-weight: 600;
-  font-size: 1.3rem; letter-spacing: -.01em; color: var(--pino);
-}
-.logo-marca { width: 34px; height: 34px; border-radius: 11px; background: var(--pino); display: grid; place-items: center; transition: transform .3s ease; }
-.logo-marca svg { width: 20px; height: 20px; fill: var(--crema); }
-.logo:hover .logo-marca { transform: rotate(-10deg); }
+.cabecera .envoltura { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: var(--alto-cabecera); }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 400 1.6rem/1 var(--f-serif); color: var(--marino); }
+.logo .icono { width: 24px; height: 24px; color: var(--azul); stroke-width: 1.5; }
 .nav { display: none; }
-.nav ul { display: flex; gap: 6px; }
-.nav a {
-  display: inline-block; padding: 10px 12px; border-radius: 10px;
-  font-size: .9375rem; font-weight: 500; color: var(--tinta-suave); text-decoration: none;
-  background: linear-gradient(var(--coral), var(--coral)) no-repeat 12px calc(100% - 6px) / 0 2px;
-  transition: color .2s ease, background-size .25s ease;
-}
-.nav a:hover { color: var(--tinta); background-size: calc(100% - 24px) 2px; }
-@media (min-width: 900px) { .nav { display: block; } }
+.nav ul { display: flex; gap: 26px; }
+.nav a { display: inline-flex; align-items: baseline; gap: 7px; padding: 8px 0; font-size: .9375rem; font-weight: 500; text-decoration: none; background: linear-gradient(var(--marino), var(--marino)) no-repeat 0 calc(100% - 4px) / 0 1px; }
+.nav a:hover { background-size: 100% 1px; }
+.nav i { font: italic 400 1.05rem/1 var(--f-serif); color: var(--azul); font-variant-numeric: lining-nums; }
+@media (min-width: 940px) { .nav { display: block; } }
 
-/* ── 2. Hero ── */
-.hero { position: relative; overflow: hidden; overflow: clip; padding-block: clamp(24px, 4.5vw, 52px) clamp(36px, 5vw, 60px); }
-.hero::before, .hero::after { content: ""; position: absolute; z-index: 0; pointer-events: none; }
-.hero::before { /* forma orgánica salvia detrás de la ilustración */
-  width: min(92vw, 640px); aspect-ratio: 1; right: -12%; top: -6%;
-  background: var(--salvia-niebla); border-radius: 58% 42% 55% 45% / 48% 56% 44% 52%;
-}
-.hero::after { /* forma orgánica arena, abajo a la izquierda */
-  width: min(64vw, 400px); aspect-ratio: 1.25; left: -12%; bottom: 3%;
-  background: var(--arena); border-radius: 45% 55% 40% 60% / 55% 45% 55% 45%; opacity: .7;
-}
-.hero-rejilla {
-  position: relative; z-index: 1;
-  display: grid; gap: 30px; grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "texto" "arte" "datos";
-}
-.hero-texto { grid-area: texto; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; min-width: 0; }
-.hero-arte { grid-area: arte; position: relative; }
+/* ── Hero ── */
+.hero { background: var(--hielo); padding-block: clamp(32px, 5vw, 64px) clamp(36px, 5vw, 60px); border-bottom: 1px solid var(--regla-suave); }
+.hero-rejilla { display: grid; gap: 36px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "texto" "arte" "datos"; }
+.hero-texto { grid-area: texto; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; min-width: 0; }
+.lamina { grid-area: arte; min-width: 0; }
 .datos { grid-area: datos; }
 
 .estado {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 7px 14px 7px 12px; border-radius: 999px;
-  font-size: .875rem; font-weight: 600; line-height: 1.3;
-  background: var(--salvia-clara); color: var(--pino-hondo);
+  display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 12px;
+  background: var(--blanco); color: var(--marino); border: 1px solid var(--marino); border-radius: var(--boton);
+  font-size: .875rem; font-weight: 600; line-height: 1.35;
 }
-.estado .punto { position: relative; width: 9px; height: 9px; border-radius: 50%; background: #2E7D5B; flex: none; }
-.estado .punto::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: latido 2.2s ease-out infinite; }
-.estado .detalle { font-weight: 500; }
-.estado.cerrado { background: var(--coral-claro); color: #7C2A17; }
-.estado.cerrado .punto { background: var(--coral-hondo); }
-.estado.cerrado .punto::after { animation: none; }
-@keyframes latido { from { transform: scale(1); opacity: .6; } to { transform: scale(3); opacity: 0; } }
+.estado .punto { position: relative; width: 9px; height: 9px; border-radius: 50%; background: var(--azul); flex: none; }
+.estado .punto::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--celeste); animation: latido 2.2s ease-out infinite; }
+.estado .detalle { font-weight: 500; color: var(--tinta-suave); }
+.estado.cerrado .punto { background: transparent; border: 1.5px solid var(--marino); }
+.estado.cerrado .punto::after { animation: none; background: transparent; }
+@keyframes latido { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
 
-.nombre { display: flex; flex-direction: column; gap: 2px; color: var(--pino); font-family: var(--f-titulo); font-variation-settings: "SOFT" 100; }
-.nombre-linea { font-size: clamp(1.3rem, 2.8vw, 1.8rem); font-weight: 400; letter-spacing: -.005em; line-height: 1.2; }
-.nombre-marca {
-  font-size: clamp(3.4rem, 17vw, 7.25rem); font-weight: 500; font-style: italic;
-  line-height: .95; letter-spacing: -.035em; overflow-wrap: anywhere; padding-bottom: .08em;
-}
-.nombre-marca--largo { font-size: clamp(2.4rem, 8vw, 4.4rem); font-style: normal; line-height: 1.02; }
-.frase { font-size: clamp(1.1rem, 2.1vw, 1.3rem); line-height: 1.45; color: var(--tinta-suave); max-width: 30ch; text-wrap: balance; }
-.hero-botones { display: flex; flex-wrap: wrap; gap: 12px; width: 100%; margin-top: 6px; }
+.nombre { display: flex; flex-direction: column; gap: 6px; font-family: var(--f-serif); font-weight: 400; }
+.nombre-linea { font-style: italic; font-size: clamp(1.45rem, 3.4vw, 2rem); line-height: 1.1; color: var(--azul); }
+.nombre-marca { font-size: clamp(4.4rem, 19.5vw, 10rem); line-height: .86; letter-spacing: -.025em; overflow-wrap: anywhere; padding-bottom: .06em; }
+.nombre-marca--largo { font-size: clamp(2.8rem, 9vw, 5rem); line-height: .95; }
+.frase { border-left: 1px solid var(--marino); padding-left: 16px; font-size: clamp(1.05rem, 2vw, 1.2rem); line-height: 1.5; color: var(--tinta-suave); max-width: 32ch; text-wrap: balance; }
+.hero-botones { display: flex; flex-wrap: wrap; gap: 12px; width: 100%; }
 .hero-botones .boton { flex: 1 1 200px; }
 
-/* Marco en arco: aquí va la foto principal (proporción 4:5). */
-.marco {
-  width: min(70%, 290px); aspect-ratio: 4 / 5; margin-inline: auto;
-  border-radius: 50% 50% 30px 30px / 40% 40% 30px 30px; overflow: hidden;
-  background: var(--salvia-clara); box-shadow: var(--sombra-alta);
-}
+/* Lámina: marco 4:5 donde va la foto principal */
+.marco { aspect-ratio: 4 / 5; width: 100%; max-width: 100%; overflow: hidden; background: var(--cielo); border: 1px solid var(--marino); border-radius: var(--suave); }
 .marco > svg, .marco > img { width: 100%; height: 100%; object-fit: cover; }
-.rastro { position: absolute; inset: 0; pointer-events: none; }
-.rastro svg { position: absolute; width: 30px; height: 30px; fill: var(--salvia); opacity: .5; }
-.rastro svg:nth-child(1) { left: 2%;  bottom: 6%;  transform: rotate(38deg); }
-.rastro svg:nth-child(2) { left: 9%;  bottom: 24%; transform: rotate(22deg); }
-.rastro svg:nth-child(3) { left: 1%;  bottom: 42%; transform: rotate(30deg); opacity: .32; }
-.rastro svg:nth-child(4) { right: 3%; top: 8%;     transform: rotate(-24deg); opacity: .32; }
+.lamina figcaption { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--regla-suave); }
+.lamina figcaption i { font: italic 400 1.05rem/1.3 var(--f-serif); color: var(--tinta-suave); }
+/* Trazos de la ilustración: 2 px para contornos, 1 px para detalles, guías en azul al 45 % */
+.l-forma { fill: var(--cielo); stroke: var(--marino); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.l-detalle { fill: none; stroke: var(--marino); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.l-lleno { fill: var(--marino); }
+.l-guia { fill: none; stroke: var(--azul); stroke-width: 1; opacity: .45; vector-effect: non-scaling-stroke; }
+.l-guia--trazos { stroke-dasharray: 4 5; }
+.l-letra { font: italic 400 15px var(--f-serif); fill: var(--azul); opacity: .8; }
 
-/* Ilustración de relleno */
-.i-cielo { fill: var(--salvia-clara); } .i-sol { fill: var(--coral); } .i-suelo { fill: var(--salvia); }
-.i-hoja { fill: #6F957F; } .i-pino { fill: var(--pino); } .i-pino-hondo { fill: var(--pino-hondo); }
-.i-crema { fill: var(--papel); } .i-arena { fill: var(--arena); } .i-tinta { fill: var(--tinta); } .i-coral { fill: var(--coral); }
-.i-trazo-tinta { fill: none; stroke: var(--tinta); stroke-width: 2.6; stroke-linecap: round; }
-.i-trazo-crema { fill: none; stroke: var(--papel); stroke-linecap: round; }
-.i-trazo-pino { fill: none; stroke: var(--pino); stroke-linecap: round; }
-.i-collar { fill: none; stroke: var(--coral); stroke-width: 11; stroke-linecap: round; }
-
-/* Datos rápidos: lo que el cliente quiere saber, en una franja. */
-.datos {
-  display: grid; grid-template-columns: minmax(0, 1fr);
-  background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio); box-shadow: var(--sombra);
-  overflow: hidden;
-}
+/* Datos rápidos */
+.datos { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
 .dato {
-  display: flex; align-items: center; gap: 14px; padding: 16px 20px; min-width: 0;
-  text-decoration: none; transition: background-color .2s ease;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 2px 14px; padding: 16px 18px 14px; min-width: 0;
+  background: var(--blanco); border: 1px solid var(--regla-suave); border-radius: var(--suave); text-decoration: none;
+  transition: background-color .15s ease, border-color .15s ease;
 }
-.dato + .dato { border-top: 1px solid var(--linea); }
-.dato:hover { background: var(--salvia-niebla); }
-.dato-icono { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--salvia-niebla); color: var(--pino); transition: background-color .2s ease; }
-.dato:hover .dato-icono { background: var(--papel); }
-.dato-texto { display: flex; flex-direction: column; min-width: 0; }
-.dato-etiqueta { font-size: .8125rem; font-weight: 500; color: var(--tinta-suave); }
-.dato-valor { font-weight: 600; color: var(--tinta); line-height: 1.3; font-variant-numeric: tabular-nums; }
-.dato .flecha { margin-left: auto; color: var(--salvia); transition: transform .2s ease, color .2s ease; }
-.dato:hover .flecha { transform: translate(2px, -2px); color: var(--pino); }
+.dato:hover { background: var(--niebla); border-color: var(--marino); }
+.dato-valor { grid-column: 1; font: 400 1.5rem/1.2 var(--f-serif); font-variant-numeric: lining-nums; min-width: 0; }
+.dato .icono { grid-column: 2; grid-row: 1 / span 2; color: var(--azul); margin-top: 2px; }
 
-@media (min-width: 620px) {
+@media (min-width: 640px) {
   .hero-botones .boton { flex: 0 1 auto; }
   .datos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .dato + .dato { border-top: 0; border-left: 1px solid var(--linea); }
+  .lamina { max-width: 380px; }
 }
-@media (min-width: 900px) {
-  .hero-rejilla { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); grid-template-areas: "texto arte" "datos datos"; align-items: center; gap: 40px 56px; }
-  .hero-texto { gap: 22px; }
-  .marco { width: min(100%, 352px); }
-  .rastro svg { width: 34px; height: 34px; }
-  .rastro svg:nth-child(1) { left: -16%; bottom: 2%; }
-  .rastro svg:nth-child(2) { left: -7%;  bottom: 17%; }
-  .rastro svg:nth-child(3) { left: -15%; bottom: 33%; }
+@media (min-width: 940px) {
+  .hero-rejilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: "texto arte" "datos datos"; align-items: center; gap: 44px 56px; }
+  .hero-texto { gap: 28px; }
+  .lamina { max-width: 400px; justify-self: end; width: 100%; }
 }
 
-/* ── 3. Servicios ── */
-.servicios { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); margin-top: 30px; }
-.servicio {
-  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; row-gap: 2px; align-items: center;
-  padding: 18px 20px; background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio);
-  box-shadow: var(--sombra);
-  transition: transform .3s cubic-bezier(.2, .7, .2, 1), box-shadow .3s ease, border-color .3s ease;
+/* ── 01 Servicios: rejilla unida por líneas de 1 px ── */
+.servicios {
+  display: grid; gap: 1px; grid-template-columns: minmax(0, 1fr); margin-top: clamp(28px, 4vw, 44px);
+  background: var(--marino); border: 1px solid var(--marino); border-radius: var(--recto); overflow: hidden;
 }
-.servicio:hover { transform: translateY(-5px); box-shadow: var(--sombra-alta); border-color: transparent; }
-.servicio-icono {
-  grid-row: span 2; width: 52px; height: 52px; border-radius: 18px; display: grid; place-items: center;
-  background: var(--salvia-niebla); color: var(--pino);
-  transition: background-color .3s ease, color .3s ease, transform .3s cubic-bezier(.2, .7, .2, 1);
-}
-.servicio-icono .icono { width: 26px; height: 26px; }
-.servicio:hover .servicio-icono { background: var(--pino); color: var(--papel); transform: rotate(-6deg) scale(1.04); }
-.servicio h3 { font: 600 1.0625rem/1.3 var(--f-texto); color: var(--tinta); align-self: end; }
-.servicio p { font-size: .9375rem; line-height: 1.5; color: var(--tinta-suave); align-self: start; }
-.servicio--emergencia .servicio-icono { background: var(--coral-claro); color: var(--coral-hondo); }
-.servicio--emergencia:hover .servicio-icono { background: var(--coral); color: var(--tinta); }
-@media (min-width: 620px) { .servicios { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 980px) {
-  .servicios { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
-  .servicio { grid-template-columns: minmax(0, 1fr); row-gap: 8px; padding: 26px 24px 28px; align-content: start; }
-  .servicio-icono { grid-row: auto; margin-bottom: 10px; }
-}
+.servicio { display: flex; flex-direction: column; gap: 10px; padding: 24px 22px 28px; background: var(--blanco); min-width: 0; }
+.servicio:nth-child(2) { background: var(--niebla); }
+.servicio:nth-child(3) { background: var(--hielo); }
+.servicio:nth-child(n+4) { background: var(--cielo); }
+.servicio-cima { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--azul); }
+.servicio h3 { font: 400 1.75rem/1.1 var(--f-serif); margin-top: clamp(14px, 3vw, 40px); }
+.servicio p { font-size: .9375rem; line-height: 1.6; color: var(--tinta-suave); }
+.servicio.servicio--emergencia { background: var(--marino); color: var(--blanco); }
+.servicio--emergencia .servicio-cima, .servicio--emergencia .etiqueta { color: var(--celeste); }
+.servicio--emergencia p { color: var(--sobre-marino); }
+@media (min-width: 640px) { .servicios { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1040px) { .servicios { grid-template-columns: repeat(4, minmax(0, 1fr)); } .servicio { padding: 26px 26px 34px; } }
 
-/* ── 4 y 5. Precios + Horario ── */
-.duo { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 900px) { .duo { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: 22px; } }
-.panel { border-radius: calc(var(--radio) + 6px); padding: clamp(24px, 4vw, 40px); min-width: 0; display: flex; flex-direction: column; }
-.panel--precios { background: var(--papel); border: 1px solid var(--linea); box-shadow: var(--sombra); }
-.panel--horario { background: var(--pino); color: var(--salvia-clara); position: relative; overflow: hidden; }
-.panel--horario .titulo { color: var(--papel); }
+/* ── 02 Precios + 03 Horario ── */
+.duo { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 940px) { .duo { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; } }
+.panel { border-radius: var(--suave); padding: clamp(22px, 4vw, 40px); min-width: 0; display: flex; flex-direction: column; }
+.panel--precios { background: var(--hielo); border: 1px solid var(--regla-suave); }
+.panel--horario { background: var(--marino); color: var(--blanco); border: 1px solid var(--marino); }
+.panel--horario .cab-num { color: var(--celeste); }
 
-.destacado { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; margin-top: 34px; }
-.destacado-texto { flex: 1 1 200px; min-width: 0; }
-.destacado-texto h3 { font: 500 1.5rem/1.2 var(--f-titulo); font-variation-settings: "SOFT" 100; color: var(--pino); }
-.destacado-texto p { font-size: .9375rem; color: var(--tinta-suave); margin-top: 6px; max-width: 32ch; }
-/* Placa de collar con el precio destacado */
-.placa {
-  position: relative; flex: none; width: 138px; height: 138px; border-radius: 50%; margin-top: 14px;
-  display: grid; place-items: center;
-  background: var(--coral); color: var(--tinta);
-  box-shadow: inset 0 -6px 0 rgba(169, 63, 39, .22), 0 14px 26px -14px rgba(169, 63, 39, .7);
-  transform: rotate(-7deg); transform-origin: 50% -10px;
-}
-.placa::before { /* orificio */ content: ""; position: absolute; top: 11px; left: 50%; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; background: var(--papel); box-shadow: inset 0 2px 0 rgba(28, 43, 39, .18); }
-.placa::after { /* argolla */ content: ""; position: absolute; top: -17px; left: 50%; width: 30px; height: 36px; margin-left: -15px; border-radius: 50%; border: 3.5px solid var(--pino); border-bottom-color: transparent; }
-.placa-precio { font: 600 3.1rem/1 var(--f-titulo); font-variation-settings: "SOFT" 100; letter-spacing: -.03em; padding-top: 12px; font-variant-numeric: lining-nums; }
-.panel--precios:hover .placa { animation: balanceo 1.5s ease-in-out; }
-@keyframes balanceo { 0%, 100% { transform: rotate(-7deg); } 22% { transform: rotate(7deg); } 46% { transform: rotate(-11deg); } 70% { transform: rotate(-3deg); } }
-
-.lista-precios { margin-top: 30px; border-top: 1px solid var(--linea); }
-.lista-precios li { display: flex; align-items: baseline; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+.destacado { margin-top: clamp(22px, 3vw, 34px); display: flex; flex-direction: column; }
+.destacado-cifra { font: 400 clamp(4.8rem, 15vw, 7rem)/.9 var(--f-serif); letter-spacing: -.02em; font-variant-numeric: lining-nums; margin-top: 6px; }
+.destacado p { font-size: .9375rem; color: var(--tinta-suave); max-width: 36ch; margin-top: 12px; }
+.lista-precios { margin-top: 26px; border-top: 1px solid var(--marino); }
+.lista-precios li { display: flex; align-items: baseline; gap: 10px; padding: 12px 0 10px; border-bottom: 1px solid var(--regla-suave); }
 .lista-precios .concepto { font-weight: 500; }
-.lista-precios .puntos { flex: 1; min-width: 16px; border-bottom: 2px dotted var(--salvia); transform: translateY(-4px); }
-.lista-precios .monto { white-space: nowrap; font-variant-numeric: tabular-nums; }
-.lista-precios .monto small { font-size: .875rem; color: var(--tinta-suave); margin-right: 4px; }
-.lista-precios .monto b { font: 600 1.3rem/1 var(--f-titulo); font-variation-settings: "SOFT" 100; color: var(--pino); }
-.nota { margin-top: auto; padding-top: 20px; font-size: .875rem; line-height: 1.5; color: var(--tinta-suave); }
+.lista-precios .puntos { flex: 1; min-width: 16px; border-bottom: 1px dotted var(--azul); transform: translateY(-5px); }
+.lista-precios .monto { white-space: nowrap; }
+.lista-precios .monto small { font-size: .8125rem; color: var(--tinta-suave); margin-right: 6px; }
+.lista-precios .monto b { font: 400 1.65rem/1 var(--f-serif); font-variant-numeric: lining-nums; }
+.nota { margin-top: auto; padding-top: 20px; font-size: .8125rem; line-height: 1.6; color: var(--tinta-suave); }
 
 .horario-cabeza { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; }
-.horario-detalle { margin-top: 8px; min-height: 1.6em; font-size: .9375rem; color: var(--salvia-clara); }
-.tabla-horario { width: 100%; margin-top: 18px; border-collapse: separate; border-spacing: 0 2px; font-variant-numeric: tabular-nums; }
-.tabla-horario th, .tabla-horario td { padding: 9px 12px; font-size: clamp(.9375rem, 3.9vw, 1rem); line-height: 1.4; }
-.tabla-horario th { text-align: left; font-weight: 500; border-radius: 12px 0 0 12px; white-space: nowrap; }
-.tabla-horario td { text-align: right; border-radius: 0 12px 12px 0; white-space: nowrap; }
-.tabla-horario .dia-cerrado td { font-style: italic; }
-.tabla-horario .hoy th, .tabla-horario .hoy td { background: var(--velo); color: var(--papel); font-weight: 600; }
-.chip-hoy { display: inline-block; margin-left: 7px; padding: 2px 8px; border-radius: 999px; background: var(--coral); color: var(--tinta); font-size: .75rem; font-weight: 600; letter-spacing: .02em; vertical-align: 2px; }
-.guardia { display: flex; gap: 14px; align-items: flex-start; margin-top: auto; padding-top: 22px; }
-.guardia-cuerpo { border-top: 1px solid var(--velo-linea); padding-top: 18px; display: flex; gap: 14px; align-items: flex-start; width: 100%; font-size: .9375rem; line-height: 1.5; }
-.guardia .icono { color: var(--coral); margin-top: 2px; }
-.guardia a { display: inline-block; color: var(--papel); font-weight: 600; white-space: nowrap; text-decoration: underline; text-decoration-color: var(--coral); text-decoration-thickness: 2px; text-underline-offset: 4px; padding-block: 4px; }
-.guardia a:hover { color: var(--coral); }
-.panel--horario .huella-fondo { position: absolute; right: -34px; bottom: -40px; width: 190px; height: 190px; fill: var(--papel); opacity: .045; transform: rotate(-18deg); pointer-events: none; }
-.panel--horario > *:not(.huella-fondo) { position: relative; }
+.horario-detalle { margin-top: 10px; min-height: 1.65em; font-size: .9375rem; color: var(--sobre-marino); }
+.tabla-horario { width: 100%; margin-top: 16px; border-collapse: collapse; font-variant-numeric: tabular-nums lining-nums; border-top: 1px solid var(--regla-clara); }
+.tabla-horario th, .tabla-horario td { padding: 10px 10px; font-size: clamp(.9rem, 3.8vw, 1rem); line-height: 1.4; border-bottom: 1px solid var(--regla-clara); }
+.tabla-horario th { text-align: left; font-weight: 500; white-space: nowrap; }
+.tabla-horario td { text-align: right; white-space: nowrap; color: var(--sobre-marino); }
+.tabla-horario .dia-cerrado td { font: italic 400 1.2rem/1.2 var(--f-serif); }
+.tabla-horario .hoy th, .tabla-horario .hoy td { background: var(--celeste); color: var(--marino); font-weight: 700; }
+.tabla-horario .hoy th { border-radius: var(--recto) 0 0 var(--recto); }
+.tabla-horario .hoy td { border-radius: 0 var(--recto) var(--recto) 0; }
+.chip-hoy { display: inline-block; margin-left: 8px; padding: 2px 6px 1px; border-radius: var(--recto); background: var(--marino); color: var(--blanco); font: 700 .62rem/1.5 var(--f-texto); text-transform: uppercase; letter-spacing: .14em; vertical-align: 2px; }
+.guardia { margin-top: auto; padding-top: 22px; }
+.guardia-caja { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--regla-clara); border-radius: var(--boton); font-size: .9375rem; line-height: 1.55; color: var(--sobre-marino); }
+.guardia .icono { color: var(--celeste); margin-top: 3px; }
+.guardia a { display: inline-block; color: var(--blanco); font-weight: 700; white-space: nowrap; text-decoration: underline; text-decoration-color: var(--celeste); text-decoration-thickness: 1px; text-underline-offset: 4px; padding-block: 3px; }
+.guardia a:hover { color: var(--celeste); }
 
-/* ── 6. Ubicación ── */
-.ubicacion { display: grid; gap: 26px; grid-template-columns: minmax(0, 1fr); align-items: center; }
-.direccion { font-style: normal; margin-top: 18px; font-size: 1.125rem; line-height: 1.5; }
-.direccion strong { display: block; font-weight: 600; }
-.direccion .referencia { display: block; margin-top: 6px; font-size: .9375rem; color: var(--tinta-suave); }
+/* ── 04 Ubicación ── */
+.ubicacion { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr); align-items: start; margin-top: clamp(26px, 4vw, 44px); }
+.direccion { font-style: normal; display: flex; flex-direction: column; gap: 6px; }
+.direccion strong { font: 400 clamp(1.7rem, 4vw, 2.1rem)/1.15 var(--f-serif); text-wrap: balance; }
+.direccion .referencia { font-size: .9375rem; color: var(--tinta-suave); }
 .ubicacion .boton { margin-top: 24px; }
-.mapa {
-  position: relative; aspect-ratio: 4 / 3; width: 100%; max-width: 100%;
-  border-radius: calc(var(--radio) + 6px); overflow: hidden;
-  background: var(--arena); border: 1px solid var(--linea); box-shadow: var(--sombra);
-}
+.mapa { position: relative; aspect-ratio: 4 / 3; width: 100%; max-width: 100%; overflow: hidden; background: var(--hielo); border: 1px solid var(--marino); border-radius: var(--suave); }
 .mapa > iframe, .mapa > svg, .mapa > img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
-.m-base { fill: var(--arena); } .m-manzana { fill: var(--crema); } .m-parque { fill: var(--salvia-clara); } .m-agua { fill: #C9DCD8; }
-.m-calle { fill: none; stroke: var(--papel); stroke-linecap: round; } .m-pin { fill: var(--coral); } .m-pin-centro { fill: var(--papel); } .m-sombra { fill: rgba(28, 43, 39, .16); }
-.m-pulso { fill: none; stroke: var(--coral); stroke-width: 2; opacity: .5; transform-origin: 330px 232px; animation: onda 2.8s ease-out infinite; }
-@keyframes onda { from { transform: scale(.5); opacity: .7; } to { transform: scale(2.4); opacity: 0; } }
-@media (min-width: 900px) {
-  .ubicacion { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 56px; }
+.m-fondo { fill: var(--hielo); } .m-manzana { fill: var(--niebla); stroke: var(--regla-suave); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.m-parque { fill: var(--cielo); stroke: var(--acero); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.m-calle { fill: none; stroke: var(--acero); stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.m-pin { fill: var(--celeste); stroke: var(--marino); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.m-pin-centro { fill: var(--blanco); stroke: var(--marino); stroke-width: 1; vector-effect: non-scaling-stroke; }
+@media (min-width: 940px) {
+  .ubicacion { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: center; }
   .mapa { aspect-ratio: 16 / 10; }
 }
 
-/* ── 7. Contacto y pie ── */
-.cierre { position: relative; background: var(--salvia-niebla); margin-top: clamp(40px, 6vw, 64px); }
-.cierre-onda { position: absolute; left: 0; bottom: calc(100% - 1px); width: 100%; height: clamp(28px, 5vw, 56px); fill: var(--salvia-niebla); }
-.cierre .seccion { padding-top: clamp(28px, 4vw, 48px); padding-bottom: clamp(36px, 5vw, 56px); }
-.contactos { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); margin-top: 28px; }
-.contactos li { display: flex; min-width: 0; }
+/* ── 05 Contacto ── */
+.contactos { display: grid; gap: 10px; margin-top: clamp(26px, 4vw, 44px); }
 .contacto {
-  display: flex; flex: 1; align-items: center; gap: 14px; min-height: 84px; padding: 16px 18px; min-width: 0;
-  background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio); text-decoration: none;
-  transition: transform .3s cubic-bezier(.2, .7, .2, 1), box-shadow .3s ease, border-color .3s ease;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 16px; min-height: 76px; padding: 14px 20px;
+  background: var(--blanco); border: 1px solid transparent; border-radius: var(--suave); text-decoration: none;
+  transition: border-color .15s ease;
 }
-.contacto:hover { transform: translateY(-4px); box-shadow: var(--sombra-alta); border-color: transparent; }
-.contacto-icono { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--pino); color: var(--papel); transition: background-color .3s ease, color .3s ease; }
-.contacto:hover .contacto-icono { background: var(--coral); color: var(--tinta); }
-.contacto-texto { display: flex; flex-direction: column; min-width: 0; }
-.contacto-etiqueta { font-size: .8125rem; font-weight: 500; color: var(--tinta-suave); }
-.contacto-valor { font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
-@media (min-width: 620px) { .contactos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
-@media (min-width: 1040px) { .contactos { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.contacto:hover { border-color: var(--marino); }
+.contacto .etiqueta { grid-column: 1; }
+.contacto-valor { grid-column: 1; font: 400 clamp(1.45rem, 4.6vw, 2.2rem)/1.15 var(--f-serif); font-variant-numeric: lining-nums; overflow-wrap: anywhere; min-width: 0; }
+.contacto .icono { grid-column: 2; grid-row: 1 / span 2; color: var(--azul); width: 24px; height: 24px; }
+@media (min-width: 720px) {
+  .contacto { grid-template-columns: 128px minmax(0, 1fr) auto; padding: 16px 28px; }
+  .contacto .etiqueta { grid-column: 1; grid-row: 1; }
+  .contacto-valor { grid-column: 2; grid-row: 1; }
+  .contacto .icono { grid-column: 3; grid-row: 1; }
+}
 
-.pie { border-top: 1px solid var(--linea); }
-.pie .envoltura { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; padding-block: 22px; font-size: .875rem; color: var(--tinta-suave); }
-.pie .logo { font-size: 1.1rem; }
-.pie .logo-marca { width: 28px; height: 28px; border-radius: 9px; }
-.pie .logo-marca svg { width: 16px; height: 16px; }
+/* ── Pie ── */
+.pie { background: var(--marino); color: var(--sobre-marino); }
+.pie .envoltura { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; padding-block: 26px; font-size: .875rem; }
+.pie .logo { color: var(--blanco); }
+.pie .logo .icono { color: var(--celeste); }
 
-/* ── Barra fija en móvil: WhatsApp y Llamar a un toque ── */
+/* ── Barra fija en móvil ── */
 .barra-movil {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
   display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
   padding: 10px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));
-  background: rgba(255, 251, 244, .92);
-  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  border-top: 1px solid var(--linea); box-shadow: 0 -12px 30px -20px rgba(28, 43, 39, .45);
+  background: var(--blanco); border-top: 1px solid var(--marino);
 }
-.barra-movil .boton { min-height: 52px; padding: 0 12px; }
-@media (max-width: 719.98px) { .pie .envoltura { padding-bottom: calc(22px + 76px + env(safe-area-inset-bottom, 0px)); } }
+.barra-movil .boton { min-height: 50px; height: 50px; padding: 0 12px; }
+@media (max-width: 719.98px) { .pie .envoltura { padding-bottom: calc(26px + 72px + env(safe-area-inset-bottom, 0px)); } }
 @media (min-width: 720px) { .barra-movil { display: none; } }
 
-/* ── Movimiento ── */
+/* ── Movimiento: solo la entrada del hero (y el latido del indicador) ── */
 @media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
-  .entra { animation: entrar .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
-  @keyframes entrar { from { opacity: 0; transform: translateY(16px); } }
-  /* Aparición al hacer scroll: el JS solo oculta lo que está fuera de pantalla al cargar. */
-  .pendiente { opacity: 0; transform: translateY(24px); }
-  .pendiente.visible { opacity: 1; transform: none; transition: opacity .8s ease, transform .8s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 80ms); }
+  .entra { animation: entrar .7s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+  @keyframes entrar { from { opacity: 0; transform: translateY(14px); } }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -535,46 +443,42 @@ ul { padding: 0; list-style: none; }
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 
-<!-- Símbolos SVG reutilizables (iconos y huella). No se ven: se usan con <use>. -->
+<!-- Símbolos SVG reutilizables (iconos de trazo fino). No se ven: se usan con <use>. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <symbol id="huella" viewBox="0 0 64 64"><path d="M32 30c-9 0-17 8-17 16 0 6 5 9 10 8 3-.6 5-1.6 7-1.6s4 1 7 1.6c5 1 10-2 10-8 0-8-8-16-17-16z"/><ellipse cx="14" cy="25" rx="5.5" ry="7.5" transform="rotate(-25 14 25)"/><ellipse cx="25" cy="14" rx="5.5" ry="8" transform="rotate(-8 25 14)"/><ellipse cx="39" cy="14" rx="5.5" ry="8" transform="rotate(8 39 14)"/><ellipse cx="50" cy="25" rx="5.5" ry="7.5" transform="rotate(25 50 25)"/></symbol>
+  <symbol id="i-huella" viewBox="0 0 24 24"><path d="M12 11.2c-3.4 0-6.4 3-6.4 6 0 2.3 1.9 3.4 3.8 3 1.1-.2 1.9-.6 2.6-.6s1.5.4 2.6.6c1.9.4 3.8-.7 3.8-3 0-3-3-6-6.4-6z"/><ellipse cx="5.2" cy="9.4" rx="1.9" ry="2.6" transform="rotate(-25 5.2 9.4)"/><ellipse cx="9.4" cy="5.3" rx="1.9" ry="2.8" transform="rotate(-8 9.4 5.3)"/><ellipse cx="14.6" cy="5.3" rx="1.9" ry="2.8" transform="rotate(8 14.6 5.3)"/><ellipse cx="18.8" cy="9.4" rx="1.9" ry="2.6" transform="rotate(25 18.8 9.4)"/></symbol>
   <symbol id="i-consulta" viewBox="0 0 24 24"><path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M5 3h2M13 3h2"/><path d="M10 13v2a5 5 0 0 0 10 0v-1.5"/><circle cx="20" cy="11.5" r="2"/></symbol>
   <symbol id="i-vacuna" viewBox="0 0 24 24"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></symbol>
   <symbol id="i-desparasitacion" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></symbol>
   <symbol id="i-emergencia" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></symbol>
   <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M9.2 9.3c.2 2.6 2.4 4.9 5.2 5.4l1.1-1.4"/></symbol>
   <symbol id="i-telefono" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
-  <symbol id="i-correo" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="3"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
-  <symbol id="i-instagram" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5.5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
-  <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
-  <symbol id="i-precio" viewBox="0 0 24 24"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.2"/></symbol>
   <symbol id="i-flecha" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
 </svg>
 
-<!-- ═════════ 1. ENCABEZADO ═════════ -->
-<header class="cabecera" id="cabecera">
+<!-- ═════════ CABECERA ═════════ -->
+<header class="cabecera">
   <div class="envoltura">
     <a class="logo" href="#inicio" aria-label="Ir al inicio">
-      <span class="logo-marca" aria-hidden="true"><svg><use href="#huella"/></svg></span>
+      <svg class="icono" aria-hidden="true"><use href="#i-huella"/></svg>
       <span data-t="marca"></span>
     </a>
     <nav class="nav" aria-label="Secciones">
       <ul>
-        <li><a href="#servicios" data-t="textos.servicios.titulo"></a></li>
-        <li><a href="#precios" data-t="textos.precios.titulo"></a></li>
-        <li><a href="#horario" data-t="textos.horario.titulo"></a></li>
-        <li><a href="#ubicacion" data-t="textos.ubicacion.titulo"></a></li>
-        <li><a href="#contacto" data-t="textos.contacto.titulo"></a></li>
+        <li><a href="#servicios"><i aria-hidden="true">01</i><span data-t="textos.servicios.titulo"></span></a></li>
+        <li><a href="#precios"><i aria-hidden="true">02</i><span data-t="textos.precios.titulo"></span></a></li>
+        <li><a href="#horario"><i aria-hidden="true">03</i><span data-t="textos.horario.titulo"></span></a></li>
+        <li><a href="#ubicacion"><i aria-hidden="true">04</i><span data-t="textos.ubicacion.titulo"></span></a></li>
+        <li><a href="#contacto"><i aria-hidden="true">05</i><span data-t="textos.contacto.titulo"></span></a></li>
       </ul>
     </nav>
-    <a class="boton boton--coral boton--chico" data-enlace="whatsapp" data-t="textos.botonCita"></a>
+    <a class="boton boton--marino boton--chico" data-enlace="whatsapp" data-t="textos.botonCita"></a>
   </div>
 </header>
 
 <main id="contenido">
 
-  <!-- ═════════ 2. HERO ═════════ -->
+  <!-- ═════════ HERO ═════════ -->
   <section class="hero" id="inicio" aria-labelledby="nombre">
     <div class="envoltura hero-rejilla">
       <div class="hero-texto">
@@ -582,99 +486,104 @@ ul { padding: 0; list-style: none; }
         <h1 class="nombre entra" style="--i:1" id="nombre"></h1>
         <p class="frase entra" style="--i:2" data-t="frase"></p>
         <div class="hero-botones entra" style="--i:3">
-          <a class="boton boton--coral" data-enlace="whatsapp"><svg class="icono" aria-hidden="true"><use href="#i-whatsapp"/></svg><span data-t="textos.botonWhatsapp"></span></a>
+          <a class="boton boton--celeste" data-enlace="whatsapp"><svg class="icono" aria-hidden="true"><use href="#i-whatsapp"/></svg><span data-t="textos.botonWhatsapp"></span></a>
           <a class="boton boton--linea" data-enlace="telefono"><svg class="icono" aria-hidden="true"><use href="#i-telefono"/></svg><span data-t="textos.botonLlamar"></span></a>
         </div>
       </div>
 
-      <div class="hero-arte entra" style="--i:2">
-        <div class="rastro" aria-hidden="true">
-          <svg><use href="#huella"/></svg><svg><use href="#huella"/></svg><svg><use href="#huella"/></svg><svg><use href="#huella"/></svg>
-        </div>
-        <!-- ┌──────────────────────────────────────────────────────────────────────┐
-             │ IMAGEN 1 · FOTO PRINCIPAL · proporción 4:5 (vertical), 960 × 1200 px │
-             │ Para usar la foto real, escribe su ruta en CONFIG.imagenes.hero      │
-             │ (el JS cambia esta ilustración por un <img> que rellena el arco).    │
-             └──────────────────────────────────────────────────────────────────────┘ -->
+      <!-- ┌──────────────────────────────────────────────────────────────────────┐
+           │ IMAGEN 1 · FOTO PRINCIPAL · proporción 4:5 (vertical), 960 × 1200 px │
+           │ Para usar la foto real, escribe su ruta en CONFIG.imagenes.hero      │
+           │ (el JS cambia esta ilustración por un <img> que rellena el marco).   │
+           │ El pie de figura muestra CONFIG.imagenes.heroAlt.                    │
+           └──────────────────────────────────────────────────────────────────────┘ -->
+      <figure class="lamina entra" style="--i:2">
         <div class="marco" id="marco-hero">
           <svg viewBox="0 0 400 500" role="img" aria-labelledby="titulo-ilustracion" preserveAspectRatio="xMidYMid slice">
-            <title id="titulo-ilustracion">Ilustración de un perro y un gato sentados juntos</title>
-            <rect class="i-cielo" width="400" height="500"/>
-            <circle class="i-sol" cx="292" cy="150" r="74"/>
-            <!-- hojas -->
-            <g class="i-hoja">
-              <path d="M34 446c-8-52 4-96 30-128 10 44 4 88-18 128z"/>
-              <path d="M56 446c2-40 20-72 50-92-2 40-18 70-42 92z"/>
-              <path d="M26 446c-18-26-24-54-18-84 20 22 28 50 26 84z"/>
-            </g>
-            <path class="i-suelo" d="M0 432c110-26 290-26 400 0v68H0z"/>
+            <title id="titulo-ilustracion">Dibujo a línea de un perro y un gato sentados juntos</title>
+            <!-- guías de lámina -->
+            <circle class="l-guia" cx="300" cy="120" r="58"/>
+            <path class="l-guia" d="M300 50v140M230 120h140"/>
+            <path class="l-guia l-guia--trazos" d="M158 150v320M286 250v220"/>
+            <circle class="l-guia l-guia--trazos" cx="158" cy="246" r="78"/>
+            <path class="l-guia" d="M40 470h320M40 464v12M360 464v12M158 464v12M286 464v12"/>
+            <path class="l-guia" d="M372 196v244M366 196h12M366 440h12"/>
+            <text class="l-letra" x="68" y="212">a.</text>
+            <text class="l-letra" x="330" y="296">b.</text>
+            <!-- suelo y hojas -->
+            <path class="l-detalle" d="M20 440h360"/>
+            <path class="l-detalle" d="M52 440c-8-48 2-88 24-118 10 40 6 82-12 118M70 440c4-34 20-62 46-80-2 34-16 60-36 80M46 440c-16-22-22-48-16-76 18 20 26 46 24 76"/>
             <!-- perro -->
             <g transform="translate(158 248)">
-              <path class="i-trazo-pino" stroke-width="15" d="M-56 178c-34-2-46-34-36-56"/>
-              <path class="i-pino" d="M-64 194C-74 112-54 38 0 38s74 74 64 156z"/>
-              <path class="i-pino-hondo" d="M-20 194v-66a8 8 0 0 1 16 0v66zM4 194v-66a8 8 0 0 1 16 0v66z" opacity=".55"/>
-              <path class="i-pino-hondo" d="M-46-30c-36-6-50 46-30 80 14-10 24-40 30-80zM46-30c36-6 50 46 30 80-14-10-24-40-30-80z"/>
-              <ellipse class="i-pino" cx="0" cy="-2" rx="54" ry="51"/>
-              <ellipse class="i-crema" cx="0" cy="17" rx="27" ry="21"/>
-              <ellipse class="i-tinta" cx="0" cy="7" rx="9.5" ry="7"/>
-              <path class="i-trazo-tinta" d="M0 14v9M0 23c-4 7-13 7-15 1M0 23c4 7 13 7 15 1"/>
-              <circle class="i-crema" cx="-21" cy="-13" r="5.2"/><circle class="i-crema" cx="21" cy="-13" r="5.2"/>
-              <path class="i-collar" d="M-37 47c22 12 52 12 74 0"/>
-              <circle class="i-crema" cx="0" cy="66" r="9.5"/>
+              <path class="l-forma" d="M-56 186c-40-2-56-40-44-68 4-9 17-6 15 4-5 22 7 44 31 48z"/>
+              <path class="l-forma" d="M-64 192C-74 112-54 38 0 38s74 74 64 154z"/>
+              <path class="l-detalle" d="M-20 192v-62a8 8 0 0 1 16 0v62M4 192v-62a8 8 0 0 1 16 0v62"/>
+              <path class="l-forma" d="M-46-30c-36-6-50 46-30 80 14-10 24-40 30-80zM46-30c36-6 50 46 30 80-14-10-24-40-30-80z"/>
+              <ellipse class="l-forma" cx="0" cy="-2" rx="54" ry="51"/>
+              <ellipse class="l-detalle" cx="0" cy="17" rx="27" ry="21"/>
+              <ellipse class="l-lleno" cx="0" cy="7" rx="9" ry="6.5"/>
+              <path class="l-detalle" d="M0 14v9M0 23c-4 7-13 7-15 1M0 23c4 7 13 7 15 1"/>
+              <circle class="l-lleno" cx="-21" cy="-13" r="4"/><circle class="l-lleno" cx="21" cy="-13" r="4"/>
+              <path class="l-detalle" d="M-41 42c24 13 58 13 82 0M-37 52c22 11 52 11 74 0"/>
+              <circle class="l-forma" cx="0" cy="70" r="9"/>
             </g>
             <!-- gato -->
             <g transform="translate(286 334)">
-              <path class="i-trazo-crema" stroke-width="12" d="M36 96c36 2 44-34 26-50"/>
-              <path class="i-crema" d="M-41 108C-48 54-34 20 0 20s48 34 41 88z"/>
-              <path class="i-crema" d="M-32-12-29-52-4-30zM32-12 29-52 4-30z"/>
-              <path class="i-coral" d="M-26-22-25-42-12-30zM26-22 25-42 12-30z" opacity=".75"/>
-              <circle class="i-crema" cx="0" cy="0" r="35"/>
-              <ellipse class="i-pino" cx="-13" cy="-3" rx="4.2" ry="5.6"/><ellipse class="i-pino" cx="13" cy="-3" rx="4.2" ry="5.6"/>
-              <path class="i-coral" d="M-4 8h8l-4 5z"/>
-              <path class="i-trazo-pino" stroke-width="1.6" d="M-18 10-36 7M-18 15-35 19M18 10 36 7M18 15 35 19" opacity=".55"/>
+              <path class="l-forma" d="M34 104c44 4 58-40 36-60-7-6-17 2-10 9 10 12 4 36-24 37z"/>
+              <path class="l-forma" d="M-41 106C-48 54-34 20 0 20s48 34 41 86z"/>
+              <path class="l-forma" d="M-32-12-29-52-4-30zM32-12 29-52 4-30z"/>
+              <circle class="l-forma" cx="0" cy="0" r="35"/>
+              <path class="l-detalle" d="M-26-22-25-40-13-29M26-22 25-40 13-29"/>
+              <ellipse class="l-lleno" cx="-13" cy="-3" rx="3.4" ry="4.8"/><ellipse class="l-lleno" cx="13" cy="-3" rx="3.4" ry="4.8"/>
+              <path class="l-lleno" d="M-4 8h8l-4 5z"/>
+              <path class="l-detalle" d="M0 13v4M0 17c-2 4-7 4-8 1M0 17c2 4 7 4 8 1M-18 10-38 7M-18 15-37 19M18 10 38 7M18 15 37 19M-12 106V78M12 106V78"/>
             </g>
           </svg>
         </div>
-      </div>
+        <figcaption><span class="etiqueta">Fig. 01</span><i data-t="imagenes.heroAlt"></i></figcaption>
+      </figure>
 
       <!-- Datos rápidos: precio, horario de hoy y dirección (se rellenan desde CONFIG). -->
       <nav class="datos entra" style="--i:4" id="datos" aria-label="Datos rápidos"></nav>
     </div>
   </section>
 
-  <!-- ═════════ 3. SERVICIOS ═════════ -->
+  <!-- ═════════ 01 SERVICIOS ═════════ -->
   <section class="seccion" id="servicios" aria-labelledby="t-servicios">
     <div class="envoltura">
-      <div data-aparece>
-        <h2 class="titulo" id="t-servicios" data-t="textos.servicios.titulo"></h2>
-        <p class="intro" data-t="textos.servicios.intro"></p>
-      </div>
+      <header class="cab">
+        <span class="cab-num" aria-hidden="true">01</span>
+        <div><h2 class="titulo" id="t-servicios" data-t="textos.servicios.titulo"></h2><p class="intro" data-t="textos.servicios.intro"></p></div>
+      </header>
       <ul class="servicios" id="lista-servicios"></ul>
     </div>
   </section>
 
-  <!-- ═════════ 4. PRECIOS  +  5. HORARIO ═════════ -->
+  <!-- ═════════ 02 PRECIOS  +  03 HORARIO ═════════ -->
   <div class="seccion" style="padding-top:0">
     <div class="envoltura duo">
 
-      <section class="panel panel--precios" id="precios" aria-labelledby="t-precios" data-aparece>
-        <h2 class="titulo" id="t-precios" data-t="textos.precios.titulo"></h2>
+      <section class="panel panel--precios" id="precios" aria-labelledby="t-precios">
+        <header class="cab cab--panel">
+          <span class="cab-num" aria-hidden="true">02</span>
+          <h2 class="titulo" id="t-precios" data-t="textos.precios.titulo"></h2>
+        </header>
         <p class="intro" data-t="textos.precios.intro"></p>
         <div class="destacado">
-          <div class="placa" aria-hidden="true"><span class="placa-precio" data-t="precios.destacado.precio"></span></div>
-          <div class="destacado-texto">
-            <h3><span data-t="precios.destacado.nombre"></span><span class="solo-lectores">: <span data-t="precios.destacado.precio"></span></span></h3>
-            <p data-t="precios.destacado.detalle"></p>
-          </div>
+          <h3 class="etiqueta" data-t="precios.destacado.nombre"></h3>
+          <span class="destacado-cifra" data-t="precios.destacado.precio"></span>
+          <p data-t="precios.destacado.detalle"></p>
         </div>
         <ul class="lista-precios" id="lista-precios"></ul>
         <p class="nota" data-t="precios.nota"></p>
       </section>
 
-      <section class="panel panel--horario" id="horario" aria-labelledby="t-horario" data-aparece style="--i:1">
-        <svg class="huella-fondo" aria-hidden="true"><use href="#huella"/></svg>
+      <section class="panel panel--horario" id="horario" aria-labelledby="t-horario">
         <div class="horario-cabeza">
-          <h2 class="titulo" id="t-horario" data-t="textos.horario.titulo"></h2>
+          <header class="cab cab--panel">
+            <span class="cab-num" aria-hidden="true">03</span>
+            <h2 class="titulo" id="t-horario" data-t="textos.horario.titulo"></h2>
+          </header>
           <p class="estado" data-estado="corto"></p>
         </div>
         <p class="horario-detalle" data-estado-detalle></p>
@@ -683,7 +592,7 @@ ul { padding: 0; list-style: none; }
           <tbody id="tabla-horario"></tbody>
         </table>
         <div class="guardia">
-          <div class="guardia-cuerpo">
+          <div class="guardia-caja">
             <svg class="icono" aria-hidden="true"><use href="#i-emergencia"/></svg>
             <p><span data-t="emergencias.texto"></span> <a data-enlace="guardia" data-t="emergencias.telefono"></a></p>
           </div>
@@ -693,74 +602,75 @@ ul { padding: 0; list-style: none; }
     </div>
   </div>
 
-  <!-- ═════════ 6. UBICACIÓN ═════════ -->
-  <section class="seccion" id="ubicacion" aria-labelledby="t-ubicacion" style="padding-top:0">
-    <div class="envoltura ubicacion">
-      <div data-aparece>
-        <h2 class="titulo" id="t-ubicacion" data-t="textos.ubicacion.titulo"></h2>
-        <p class="intro" data-t="textos.ubicacion.intro"></p>
-        <address class="direccion" id="direccion"></address>
-        <a class="boton boton--pino" data-enlace="comoLlegar"><svg class="icono" aria-hidden="true"><use href="#i-pin"/></svg><span data-t="textos.botonMapa"></span><svg class="icono flecha" aria-hidden="true"><use href="#i-flecha"/></svg></a>
-      </div>
-      <!-- ┌────────────────────────────────────────────────────────────────────────┐
-           │ MAPA · con CONFIG.mapa.modo = "iframe" aquí se inserta Google Maps.    │
-           │ IMAGEN 2 · FACHADA (solo en modo "tarjeta") · proporción 16:10,        │
-           │ 1280 × 800 px. Escribe su ruta en CONFIG.imagenes.ubicacion para       │
-           │ reemplazar este mapa ilustrado de relleno.                             │
-           └────────────────────────────────────────────────────────────────────────┘ -->
-      <div class="mapa" id="mapa" data-aparece style="--i:1">
-        <svg viewBox="0 0 640 400" role="img" aria-label="Mapa ilustrado con un marcador en la ubicación de la clínica" preserveAspectRatio="xMidYMid slice">
-          <rect class="m-base" width="640" height="400"/>
-          <path class="m-agua" d="M-10 330c90-30 150 20 250-6s170-70 410-40v130H-10z"/>
-          <path class="m-parque" d="M418 44c50-18 128-8 150 36s-14 92-70 98-104-18-116-58 6-66 36-76z"/>
-          <g class="m-manzana">
-            <rect x="36" y="30" width="120" height="78" rx="14"/><rect x="184" y="30" width="170" height="78" rx="14"/>
-            <rect x="36" y="136" width="120" height="110" rx="14"/><rect x="184" y="136" width="96" height="110" rx="14"/>
-            <rect x="420" y="214" width="180" height="60" rx="14"/><rect x="36" y="274" width="244" height="30" rx="12"/>
-          </g>
-          <g class="m-calle">
-            <path stroke-width="16" d="M-10 122h660"/><path stroke-width="16" d="M170-10v330"/>
-            <path stroke-width="22" d="M-10 262c160-6 250 0 330-28s150-110 330-130"/>
-            <path stroke-width="12" d="M368-10c-6 90 10 170-40 246"/><path stroke-width="12" d="M400 196h250"/>
-          </g>
-          <circle class="m-pulso" cx="330" cy="232" r="22"/>
-          <ellipse class="m-sombra" cx="330" cy="234" rx="20" ry="7"/>
-          <path class="m-pin" d="M330 232c-22-28-40-48-40-72a40 40 0 0 1 80 0c0 24-18 44-40 72z"/>
-          <circle class="m-pin-centro" cx="330" cy="160" r="15"/>
-        </svg>
+  <!-- ═════════ 04 UBICACIÓN ═════════ -->
+  <section class="seccion banda--niebla" id="ubicacion" aria-labelledby="t-ubicacion">
+    <div class="envoltura">
+      <header class="cab">
+        <span class="cab-num" aria-hidden="true">04</span>
+        <div><h2 class="titulo" id="t-ubicacion" data-t="textos.ubicacion.titulo"></h2><p class="intro" data-t="textos.ubicacion.intro"></p></div>
+      </header>
+      <div class="ubicacion">
+        <div>
+          <address class="direccion" id="direccion"></address>
+          <a class="boton boton--marino" data-enlace="comoLlegar"><svg class="icono" aria-hidden="true"><use href="#i-pin"/></svg><span data-t="textos.botonMapa"></span><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg></a>
+        </div>
+        <!-- ┌────────────────────────────────────────────────────────────────────────┐
+             │ MAPA · con CONFIG.mapa.modo = "iframe" aquí se inserta Google Maps.    │
+             │ IMAGEN 2 · FACHADA (solo en modo "tarjeta") · proporción 16:10,        │
+             │ 1280 × 800 px. Escribe su ruta en CONFIG.imagenes.ubicacion para       │
+             │ reemplazar este plano de relleno.                                      │
+             └────────────────────────────────────────────────────────────────────────┘ -->
+        <div class="mapa" id="mapa">
+          <svg viewBox="0 0 640 400" role="img" aria-label="Plano ilustrado con un marcador en la ubicación de la clínica" preserveAspectRatio="xMidYMid slice">
+            <rect class="m-fondo" width="640" height="400"/>
+            <path class="m-parque" d="M430 40c50-18 128-8 150 36s-14 92-70 98-104-18-116-58 6-66 36-76z"/>
+            <g class="m-manzana">
+              <rect x="36" y="30" width="112" height="72" rx="2"/><rect x="192" y="30" width="150" height="72" rx="2"/>
+              <rect x="36" y="142" width="112" height="96" rx="2"/><rect x="192" y="142" width="96" height="84" rx="2"/>
+              <rect x="428" y="222" width="176" height="56" rx="2"/><rect x="36" y="296" width="230" height="70" rx="2"/><rect x="330" y="310" width="130" height="56" rx="2"/>
+            </g>
+            <g class="m-calle">
+              <path d="M-10 114h660M-10 130h660"/><path d="M162-10v420M178-10v420"/>
+              <path d="M-10 258c160-6 250 0 330-28s150-110 330-130M-10 280c160-6 256 0 338-30s150-108 322-128"/>
+              <path d="M374-10c-6 90 10 170-40 246M500 200h150M300 290v120"/>
+            </g>
+            <path class="l-guia" d="M330 60v300M180 232h300"/>
+            <circle class="l-guia l-guia--trazos" cx="330" cy="232" r="46"/>
+            <path class="m-pin" d="M330 232c-22-28-40-48-40-72a40 40 0 0 1 80 0c0 24-18 44-40 72z"/>
+            <circle class="m-pin-centro" cx="330" cy="160" r="14"/>
+          </svg>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ═════════ 7. CONTACTO ═════════ -->
-  <div class="cierre">
-    <svg class="cierre-onda" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path d="M0 56V30C180 4 380-4 620 14s420 34 820 4v38z"/></svg>
-    <section class="seccion" id="contacto" aria-labelledby="t-contacto">
-      <div class="envoltura">
-        <div data-aparece>
-          <h2 class="titulo" id="t-contacto" data-t="textos.contacto.titulo"></h2>
-          <p class="intro" data-t="textos.contacto.intro"></p>
-        </div>
-        <ul class="contactos" id="lista-contactos"></ul>
-      </div>
-    </section>
-
-    <footer class="pie">
-      <div class="envoltura">
-        <a class="logo" href="#inicio" aria-label="Volver al inicio">
-          <span class="logo-marca" aria-hidden="true"><svg><use href="#huella"/></svg></span>
-          <span data-t="marca"></span>
-        </a>
-        <p id="copyright"></p>
-      </div>
-    </footer>
-  </div>
+  <!-- ═════════ 05 CONTACTO ═════════ -->
+  <section class="seccion banda--cielo" id="contacto" aria-labelledby="t-contacto">
+    <div class="envoltura">
+      <header class="cab">
+        <span class="cab-num" aria-hidden="true">05</span>
+        <div><h2 class="titulo" id="t-contacto" data-t="textos.contacto.titulo"></h2><p class="intro" data-t="textos.contacto.intro"></p></div>
+      </header>
+      <ul class="contactos" id="lista-contactos"></ul>
+    </div>
+  </section>
 </main>
+
+<!-- ═════════ PIE ═════════ -->
+<footer class="pie">
+  <div class="envoltura">
+    <a class="logo" href="#inicio" aria-label="Volver al inicio">
+      <svg class="icono" aria-hidden="true"><use href="#i-huella"/></svg>
+      <span data-t="marca"></span>
+    </a>
+    <p id="copyright"></p>
+  </div>
+</footer>
 
 <!-- Barra fija (solo móvil): WhatsApp y Llamar siempre a un toque. -->
 <div class="barra-movil" role="group" aria-label="Contacto rápido">
-  <a class="boton boton--coral" data-enlace="whatsapp"><svg class="icono" aria-hidden="true"><use href="#i-whatsapp"/></svg>WhatsApp</a>
-  <a class="boton boton--pino" data-enlace="telefono"><svg class="icono" aria-hidden="true"><use href="#i-telefono"/></svg><span data-t="textos.botonLlamar"></span></a>
+  <a class="boton boton--celeste" data-enlace="whatsapp"><svg class="icono" aria-hidden="true"><use href="#i-whatsapp"/></svg>WhatsApp</a>
+  <a class="boton boton--marino" data-enlace="telefono"><svg class="icono" aria-hidden="true"><use href="#i-telefono"/></svg><span data-t="textos.botonLlamar"></span></a>
 </div>
 
 <noscript><p style="padding:24px;text-align:center">Esta página necesita JavaScript para mostrar la información de la clínica.</p></noscript>
@@ -778,7 +688,7 @@ ul { padding: 0; list-style: none; }
     });
   };
   var digitos = function (s) { return String(s).replace(/\D/g, ""); };
-  var icono = function (id, extra) { return '<svg class="icono ' + (extra || "") + '" aria-hidden="true"><use href="#i-' + id + '"/></svg>'; };
+  var icono = function (id) { return '<svg class="icono" aria-hidden="true"><use href="#i-' + id + '"/></svg>'; };
 
   /* ── Enlaces que se arman desde CONFIG ── */
   var E = {
@@ -813,8 +723,8 @@ ul { padding: 0; list-style: none; }
 
   /* ── Servicios ── */
   $("#lista-servicios").innerHTML = C.servicios.map(function (s, i) {
-    return '<li class="servicio' + (s.icono === "emergencia" ? " servicio--emergencia" : "") + '" data-aparece style="--i:' + i + '">' +
-      '<span class="servicio-icono">' + icono(s.icono) + "</span>" +
+    return '<li class="servicio' + (s.icono === "emergencia" ? " servicio--emergencia" : "") + '">' +
+      '<div class="servicio-cima"><span class="etiqueta">Servicio ' + (i + 1) + "</span>" + icono(s.icono) + "</div>" +
       "<h3>" + esc(s.titulo) + "</h3><p>" + esc(s.texto) + "</p></li>";
   }).join("");
 
@@ -905,23 +815,22 @@ ul { padding: 0; list-style: none; }
 
   /* ── Datos rápidos del hero ── */
   var dirCorta = String(C.direccion.linea1).split(",")[0] + ", " + C.direccion.ciudad;
-  var dato = function (href, ic, etiqueta, valor, idValor) {
-    return '<a class="dato" href="' + href + '"><span class="dato-icono">' + icono(ic) + '</span>' +
-      '<span class="dato-texto"><span class="dato-etiqueta">' + esc(etiqueta) + '</span>' +
-      '<span class="dato-valor"' + (idValor ? ' id="' + idValor + '"' : "") + ">" + esc(valor) + "</span></span>" +
-      icono("flecha", "flecha") + "</a>";
+  var dato = function (href, etiqueta, valor, idValor) {
+    return '<a class="dato" href="' + href + '"><span class="etiqueta">' + esc(etiqueta) + "</span>" +
+      '<span class="dato-valor"' + (idValor ? ' id="' + idValor + '"' : "") + ">" + esc(valor) + "</span>" +
+      icono("flecha") + "</a>";
   };
   $("#datos").innerHTML =
-    dato("#precios", "precio", C.precios.destacado.nombre, C.precios.destacado.precio) +
-    dato("#horario", "reloj", "Horario de hoy", "", "dato-hoy") +
-    dato("#ubicacion", "pin", "Dónde estamos", dirCorta);
+    dato("#precios", C.precios.destacado.nombre, C.precios.destacado.precio) +
+    dato("#horario", "Horario de hoy", "", "dato-hoy") +
+    dato("#ubicacion", "Dónde estamos", dirCorta);
 
   pintarHorario();
   setInterval(pintarHorario, 30000);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) pintarHorario(); });
 
   /* ── Ubicación ── */
-  $("#direccion").innerHTML = "<strong>" + esc(C.direccion.linea1) + "</strong>" + esc(C.direccion.ciudad) +
+  $("#direccion").innerHTML = "<strong>" + esc(C.direccion.linea1) + "</strong><span>" + esc(C.direccion.ciudad) + "</span>" +
     (C.direccion.referencia ? '<span class="referencia">' + esc(C.direccion.referencia) + "</span>" : "");
   var mapa = $("#mapa");
   if (C.mapa.modo === "iframe") {
@@ -933,15 +842,14 @@ ul { padding: 0; list-style: none; }
 
   /* ── Contacto ── */
   var contactos = [
-    { enlace: "whatsapp",  ic: "whatsapp",  etiqueta: "WhatsApp",  valor: C.whatsapp },
-    { enlace: "telefono",  ic: "telefono",  etiqueta: "Teléfono",  valor: C.telefono },
-    { enlace: "correo",    ic: "correo",    etiqueta: "Correo",    valor: C.correo },
-    { enlace: "instagram", ic: "instagram", etiqueta: "Instagram", valor: C.instagram }
+    { enlace: "whatsapp",  etiqueta: "WhatsApp",  valor: C.whatsapp },
+    { enlace: "telefono",  etiqueta: "Teléfono",  valor: C.telefono },
+    { enlace: "correo",    etiqueta: "Correo",    valor: C.correo },
+    { enlace: "instagram", etiqueta: "Instagram", valor: C.instagram }
   ];
-  $("#lista-contactos").innerHTML = contactos.map(function (c, i) {
-    return '<li data-aparece style="--i:' + i + '"><a class="contacto" data-enlace="' + c.enlace + '">' +
-      '<span class="contacto-icono">' + icono(c.ic) + '</span><span class="contacto-texto">' +
-      '<span class="contacto-etiqueta">' + c.etiqueta + '</span><span class="contacto-valor">' + esc(c.valor) + "</span></span></a></li>";
+  $("#lista-contactos").innerHTML = contactos.map(function (c) {
+    return '<li><a class="contacto" data-enlace="' + c.enlace + '"><span class="etiqueta">' + c.etiqueta + "</span>" +
+      '<span class="contacto-valor">' + esc(c.valor) + "</span>" + icono("flecha") + "</a></li>";
   }).join("");
   $("#copyright").textContent = "© " + new Date().getFullYear() + " " + C.nombre + ". " + C.textos.derechos;
 
@@ -956,30 +864,6 @@ ul { padding: 0; list-style: none; }
     a.setAttribute("href", href);
     if (/^https?:/.test(href)) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener"); }
   });
-
-  /* ── Encabezado: línea sutil al hacer scroll ── */
-  var cabecera = $("#cabecera");
-  var alDesplazar = function () { cabecera.classList.toggle("con-borde", window.scrollY > 8); };
-  window.addEventListener("scroll", alDesplazar, { passive: true });
-  alDesplazar();
-
-  /* ── Aparición suave al hacer scroll ──
-     Solo se oculta lo que está por debajo de la pantalla al cargar, así la primera
-     vista siempre está completa. Con "reducir movimiento" no se oculta nada. */
-  var sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!sinMovimiento && "IntersectionObserver" in window) {
-    var observador = new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add("visible"); observador.unobserve(en.target); }
-      });
-    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.06 });
-    $$("[data-aparece]").forEach(function (el) {
-      if (el.getBoundingClientRect().top > window.innerHeight * 0.94) {
-        el.classList.add("pendiente");
-        observador.observe(el);
-      }
-    });
-  }
 })();
 </script>
 </body>
