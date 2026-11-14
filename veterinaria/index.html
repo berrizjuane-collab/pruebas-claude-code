@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Clínica Veterinaria Huellitas</title>
+<title>Veterinaria Berrizbeitia</title>
 
 <script>
 /* ╔══════════════════════════════════════════════════════════════════════╗
@@ -14,20 +14,20 @@
 const CONFIG = {
 
   /* ── 1. IDENTIDAD ─────────────────────────────────────────────────── */
-  nombre: "Clínica Veterinaria Huellitas",   // Nombre completo (título del hero y pie de página).
-  marca:  "Huellitas",                       // Palabra del nombre que se muestra en grande y en el logo.
+  nombre: "Veterinaria Berrizbeitia",         // Nombre completo (título de la página, copyright y hero).
+  marca:  "Berrizbeitia",                      // Palabra del nombre que se muestra en grande en el hero y en el logo. El resto ("Veterinaria") va en la línea pequeña de arriba.
   frase:  "Cuidamos a quienes te cuidan sin pedir nada a cambio.",
-  descripcion: "Consulta veterinaria, vacunación, desparasitación y emergencias en Caracas. Precios claros, horario y ubicación.",
+  descripcion: "Consulta veterinaria, vacunación, desparasitación y emergencias. Precios claros, horario y ubicación.",
   // ↑ La descripción también está escrita a mano en las metaetiquetas del <head>
   //   (description y Open Graph). Si la cambias aquí, cámbiala allí también:
   //   las vistas previas de WhatsApp o Google no ejecutan JavaScript.
 
   /* ── 2. CONTACTO ──────────────────────────────────────────────────── */
-  telefono:  "+58 212 000 0000",             // Se muestra tal cual; el enlace para llamar se arma solo.
-  whatsapp:  "+58 412 000 0000",             // Con código de país. Los espacios no importan.
+  telefono:  "+58 424-181-2977",             // Se muestra tal cual; el enlace para llamar (tel:+584241812977) se arma solo.
+  whatsapp:  "+58 424-181-2977",             // Con código de país. Espacios y guiones no importan (https://wa.me/584241812977).
   mensajeWhatsapp: "Hola, quisiera agendar una cita para mi mascota.",  // Texto que aparece ya escrito al abrir el chat.
-  correo:    "contacto@huellitas.example",
-  instagram: "@huellitas.vet",
+  // Opcionales: si agregas  correo: "nombre@dominio.com"  o  instagram: "@usuario"
+  // aparecen solos como botones en la sección Contacto. Si no existen, no se muestran.
 
   /* ── 3. SERVICIOS ─────────────────────────────────────────────────── */
   // icono: "consulta" | "vacuna" | "desparasitacion" | "emergencia"
@@ -58,12 +58,12 @@ const CONFIG = {
   // Siempre 7 filas, en este orden: de lunes a domingo.
   // Horas en formato de 24 h ("08:00", "18:00"). Día cerrado: abre: null, cierra: null.
   horario: [
-    { dia: "Lunes",     abre: "08:00", cierra: "18:00" },
-    { dia: "Martes",    abre: "08:00", cierra: "18:00" },
-    { dia: "Miércoles", abre: "08:00", cierra: "18:00" },
-    { dia: "Jueves",    abre: "08:00", cierra: "18:00" },
-    { dia: "Viernes",   abre: "08:00", cierra: "18:00" },
-    { dia: "Sábado",    abre: "09:00", cierra: "13:00" },
+    { dia: "Lunes",     abre: "09:00", cierra: "13:00" },
+    { dia: "Martes",    abre: "09:00", cierra: "13:00" },
+    { dia: "Miércoles", abre: "09:00", cierra: "13:00" },
+    { dia: "Jueves",    abre: "09:00", cierra: "13:00" },
+    { dia: "Viernes",   abre: "09:00", cierra: "13:00" },
+    { dia: "Sábado",    abre: null,    cierra: null    },
     { dia: "Domingo",   abre: null,    cierra: null    }
   ],
   // El indicador "Abierto ahora / Cerrado" usa la hora local del dispositivo del visitante.
@@ -71,23 +71,28 @@ const CONFIG = {
   // escribe aquí su zona horaria, por ejemplo "America/Caracas".
   zonaHoraria: "",
   emergencias: {
-    texto:    "Emergencias fuera de horario: llama al teléfono de guardia.",
-    telefono: "+58 212 000 0000"              // Teléfono de guardia (puede ser distinto al principal).
+    texto:    "Emergencias fuera de horario: llámanos al",
+    telefono: "+58 424-181-2977"              // Número para emergencias (aquí es el mismo que el principal).
   },
 
   /* ── 6. UBICACIÓN ─────────────────────────────────────────────────── */
+  // Dirección escrita (opcional). Si linea1 queda vacía, se muestra el texto
+  // textos.ubicacion.sinDireccion y el visitante llega por el enlace de Google Maps.
   direccion: {
-    linea1: "Av. Principal, Edificio Ejemplo, Local 3",
-    ciudad: "Caracas",
+    linea1: "",                               // Ej.: "Av. Principal, Local 3"
+    ciudad: "",                               // Ej.: "Caracas"
     referencia: ""                            // Opcional: "Frente a la plaza…". Vacío = no se muestra.
   },
   mapa: {
-    // Lo que escribirías en el buscador de Google Maps para encontrar la clínica.
-    // Puede ser la dirección completa o el nombre del negocio tal como aparece en Maps.
-    busqueda: "Caracas, Venezuela",
-    // "iframe"  → mapa interactivo de Google Maps embebido.
-    // "tarjeta" → ilustración + botón "Cómo llegar" (para sitios donde no se permiten iframes).
-    modo: "iframe"
+    // Enlace de Google Maps de la clínica. Lo abren, en una pestaña nueva, el botón
+    // "Cómo llegar" y toda la tarjeta del mapa.
+    enlace: "https://maps.app.goo.gl/fKsbucGSvR576T1f8",
+    // "tarjeta" → plano ilustrado que abre el enlace de arriba (los enlaces cortos de Maps no se pueden incrustar).
+    // "iframe"  → mapa interactivo embebido; usa "busqueda" (ver abajo) en lugar del enlace corto.
+    modo: "tarjeta",
+    // Solo para modo "iframe": lo que escribirías en el buscador de Google Maps. Si lo usas,
+    // "Cómo llegar" sigue abriendo "enlace".
+    busqueda: ""
   },
 
   /* ── 7. IMÁGENES REALES (opcional) ────────────────────────────────── */
@@ -108,7 +113,7 @@ const CONFIG = {
     servicios: { titulo: "Servicios", intro: "Lo esencial para que tu mascota esté sana." },
     precios:   { titulo: "Precios",   intro: "Para que sepas cuánto cuesta antes de venir." },
     horario:   { titulo: "Horario" },
-    ubicacion: { titulo: "Ubicación", intro: "Te esperamos aquí." },
+    ubicacion: { titulo: "Ubicación", intro: "Te esperamos aquí.", sinDireccion: "Encuéntranos en Google Maps", abrirMapa: "Abrir en Google Maps" },
     contacto:  { titulo: "Contacto",  intro: "Escríbenos o llámanos. Respondemos en horario de atención." },
     derechos:  "Todos los derechos reservados."
   }
@@ -117,12 +122,12 @@ const CONFIG = {
 </script>
 
 <!-- Metaetiquetas básicas. Recuerda editarlas a mano junto con CONFIG.descripcion. -->
-<meta name="description" content="Consulta veterinaria, vacunación, desparasitación y emergencias en Caracas. Precios claros, horario y ubicación.">
+<meta name="description" content="Consulta veterinaria, vacunación, desparasitación y emergencias. Precios claros, horario y ubicación.">
 <meta name="theme-color" content="#FFFFFF">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_VE">
-<meta property="og:title" content="Clínica Veterinaria Huellitas">
-<meta property="og:description" content="Cuidamos a quienes te cuidan sin pedir nada a cambio. Consulta general desde $25.">
+<meta property="og:title" content="Veterinaria Berrizbeitia">
+<meta property="og:description" content="Cuidamos a quienes te cuidan sin pedir nada a cambio. Atención de lunes a viernes, de 9:00 a. m. a 1:00 p. m.">
 <!-- IMAGEN 3 · VISTA PREVIA AL COMPARTIR · proporción 1.91:1, 1200 × 630 px.
      Debe ser una URL absoluta (https://…). Descomenta la línea cuando la tengas:
 <meta property="og:image" content="https://tu-dominio.com/veterinaria/compartir.jpg"> -->
@@ -382,7 +387,11 @@ ul { padding: 0; list-style: none; }
 .direccion strong { font: 400 clamp(1.7rem, 4vw, 2.1rem)/1.15 var(--f-serif); text-wrap: balance; }
 .direccion .referencia { font-size: .9375rem; color: var(--tinta-suave); }
 .ubicacion .boton { margin-top: 24px; }
-.mapa { position: relative; aspect-ratio: 4 / 3; width: 100%; max-width: 100%; overflow: hidden; background: var(--hielo); border: 1px solid var(--marino); border-radius: var(--suave); }
+.mapa { display: block; position: relative; text-decoration: none; aspect-ratio: 4 / 3; width: 100%; max-width: 100%; overflow: hidden; background: var(--hielo); border: 1px solid var(--marino); border-radius: var(--suave); }
+.mapa-cta { position: absolute; z-index: 1; left: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--blanco); color: var(--marino); border: 1px solid var(--marino); border-radius: var(--boton); font: 600 .72rem/1.3 var(--f-texto); text-transform: uppercase; letter-spacing: .14em; transition: background-color .15s ease, color .15s ease; }
+.mapa-cta .icono { width: 16px; height: 16px; color: var(--azul); }
+a.mapa:hover .mapa-cta { background: var(--marino); color: var(--blanco); }
+a.mapa:hover .mapa-cta .icono { color: var(--celeste); }
 .mapa > iframe, .mapa > svg, .mapa > img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
 .m-fondo { fill: var(--hielo); } .m-manzana { fill: var(--niebla); stroke: var(--regla-suave); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .m-parque { fill: var(--cielo); stroke: var(--acero); stroke-width: 1; vector-effect: non-scaling-stroke; }
@@ -615,12 +624,14 @@ ul { padding: 0; list-style: none; }
           <a class="boton boton--marino" data-enlace="comoLlegar"><svg class="icono" aria-hidden="true"><use href="#i-pin"/></svg><span data-t="textos.botonMapa"></span><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg></a>
         </div>
         <!-- ┌────────────────────────────────────────────────────────────────────────┐
-             │ MAPA · con CONFIG.mapa.modo = "iframe" aquí se inserta Google Maps.    │
+             │ MAPA · con CONFIG.mapa.modo = "iframe" aquí se inserta Google Maps;    │
+             │ con "tarjeta" este plano es un enlace a CONFIG.mapa.enlace.            │
              │ IMAGEN 2 · FACHADA (solo en modo "tarjeta") · proporción 16:10,        │
              │ 1280 × 800 px. Escribe su ruta en CONFIG.imagenes.ubicacion para       │
              │ reemplazar este plano de relleno.                                      │
              └────────────────────────────────────────────────────────────────────────┘ -->
-        <div class="mapa" id="mapa">
+        <a class="mapa" id="mapa" data-enlace="comoLlegar" aria-label="Abrir la ubicación en Google Maps (se abre en una pestaña nueva)">
+          <span class="mapa-cta"><span data-t="textos.ubicacion.abrirMapa"></span><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg></span>
           <svg viewBox="0 0 640 400" role="img" aria-label="Plano ilustrado con un marcador en la ubicación de la clínica" preserveAspectRatio="xMidYMid slice">
             <rect class="m-fondo" width="640" height="400"/>
             <path class="m-parque" d="M430 40c50-18 128-8 150 36s-14 92-70 98-104-18-116-58 6-66 36-76z"/>
@@ -639,7 +650,7 @@ ul { padding: 0; list-style: none; }
             <path class="m-pin" d="M330 232c-22-28-40-48-40-72a40 40 0 0 1 80 0c0 24-18 44-40 72z"/>
             <circle class="m-pin-centro" cx="330" cy="160" r="14"/>
           </svg>
-        </div>
+        </a>
       </div>
     </div>
   </section>
@@ -695,10 +706,11 @@ ul { padding: 0; list-style: none; }
     whatsapp:   "https://wa.me/" + digitos(C.whatsapp) + "?text=" + encodeURIComponent(C.mensajeWhatsapp),
     telefono:   "tel:+" + digitos(C.telefono),
     guardia:    "tel:+" + digitos(C.emergencias.telefono),
-    correo:     "mailto:" + C.correo,
-    instagram:  "https://www.instagram.com/" + encodeURIComponent(String(C.instagram).replace(/^@/, "")) + "/",
-    comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(C.mapa.busqueda),
-    mapaEmbed:  "https://www.google.com/maps?q=" + encodeURIComponent(C.mapa.busqueda) + "&z=15&output=embed"
+    correo:     C.correo ? "mailto:" + C.correo : "",
+    instagram:  C.instagram ? "https://www.instagram.com/" + encodeURIComponent(String(C.instagram).replace(/^@/, "")) + "/" : "",
+    // "Cómo llegar": el enlace de Google Maps de CONFIG.mapa.enlace (si falta, una ruta hacia CONFIG.mapa.busqueda).
+    comoLlegar: C.mapa.enlace || ("https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(C.mapa.busqueda || "")),
+    mapaEmbed:  "https://www.google.com/maps?q=" + encodeURIComponent(C.mapa.busqueda || "") + "&z=15&output=embed"
   };
 
   /* ── Identidad ── */
@@ -814,7 +826,9 @@ ul { padding: 0; list-style: none; }
   }
 
   /* ── Datos rápidos del hero ── */
-  var dirCorta = String(C.direccion.linea1).split(",")[0] + ", " + C.direccion.ciudad;
+  var sinDir = !C.direccion.linea1;
+  var dirCorta = sinDir ? C.textos.ubicacion.sinDireccion :
+    [String(C.direccion.linea1).split(",")[0], C.direccion.ciudad].filter(Boolean).join(", ");
   var dato = function (href, etiqueta, valor, idValor) {
     return '<a class="dato" href="' + href + '"><span class="etiqueta">' + esc(etiqueta) + "</span>" +
       '<span class="dato-valor"' + (idValor ? ' id="' + idValor + '"' : "") + ">" + esc(valor) + "</span>" +
@@ -830,10 +844,12 @@ ul { padding: 0; list-style: none; }
   document.addEventListener("visibilitychange", function () { if (!document.hidden) pintarHorario(); });
 
   /* ── Ubicación ── */
-  $("#direccion").innerHTML = "<strong>" + esc(C.direccion.linea1) + "</strong><span>" + esc(C.direccion.ciudad) + "</span>" +
+  $("#direccion").innerHTML = "<strong>" + esc(sinDir ? C.textos.ubicacion.sinDireccion : C.direccion.linea1) + "</strong>" +
+    (C.direccion.ciudad && !sinDir ? "<span>" + esc(C.direccion.ciudad) + "</span>" : "") +
     (C.direccion.referencia ? '<span class="referencia">' + esc(C.direccion.referencia) + "</span>" : "");
   var mapa = $("#mapa");
   if (C.mapa.modo === "iframe") {
+    mapa.removeAttribute("data-enlace"); mapa.removeAttribute("aria-label");  // el mapa interactivo ya no es un enlace
     mapa.innerHTML = '<iframe src="' + esc(E.mapaEmbed) + '" title="Mapa de Google Maps con la ubicación de ' + esc(C.nombre) +
       '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
   } else if (C.imagenes.ubicacion) {
@@ -847,7 +863,7 @@ ul { padding: 0; list-style: none; }
     { enlace: "correo",    etiqueta: "Correo",    valor: C.correo },
     { enlace: "instagram", etiqueta: "Instagram", valor: C.instagram }
   ];
-  $("#lista-contactos").innerHTML = contactos.map(function (c) {
+  $("#lista-contactos").innerHTML = contactos.filter(function (c) { return c.valor; }).map(function (c) {
     return '<li><a class="contacto" data-enlace="' + c.enlace + '"><span class="etiqueta">' + c.etiqueta + "</span>" +
       '<span class="contacto-valor">' + esc(c.valor) + "</span>" + icono("flecha") + "</a></li>";
   }).join("");
