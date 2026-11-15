@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="es" class="sin-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Annapurna</title>
+<meta name="description" content="El macizo del Annapurna contado a pie: su nombre, sus cumbres, la primera ascensión a un ochomil, la gente que vive a su sombra y el camino al Santuario.">
+<meta name="theme-color" content="#22242F">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/CormorantGaramond-VF.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/TiroDevanagariHindi-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="marca.css">
+<link rel="stylesheet" href="css/annapurna.css">
+<script>document.documentElement.classList.remove('sin-js'); document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- El escenario: las pinturas, siempre detrás de todo. -->
+<div class="escenario" aria-hidden="true">
+  <div class="escenario__capas"></div>
+  <canvas class="escenario__lienzo"></canvas>
+  <canvas class="escenario__aire"></canvas>
+  <div class="escenario__velo"></div>
+</div>
+
+<!-- Telón de carga -->
+<div class="telon grano" id="telon" aria-hidden="true">
+  <div class="telon__marca">
+    <svg viewBox="0 0 64 64" width="72" height="72" aria-hidden="true">
+      <circle cx="32" cy="32" r="29" fill="none" stroke="#505771" stroke-width="1.2"/>
+      <circle class="telon__aro" cx="32" cy="32" r="29" fill="none" stroke="#F0ECE0" stroke-width="1.2" pathLength="1" transform="rotate(-90 32 32)"/>
+    </svg>
+    <span class="telon__letra dev" lang="ne">अ</span>
+  </div>
+</div>
+
+<header class="cabecera" id="cabecera">
+  <a class="cabecera__logo" href="#portada" aria-label="Annapurna, volver a la portada">
+    <span class="dev" lang="ne">अन्नपूर्ण</span><i aria-hidden="true"></i><b>ANNAPURNA</b>
+  </a>
+  <nav class="cabecera__nav" aria-label="Capítulos">
+    <ul class="label">
+      <li><a href="#nombre">El nombre</a></li>
+      <li><a href="#macizo">El macizo</a></li>
+      <li><a href="#cumbre">La cumbre</a></li>
+      <li><a href="#cultura">Cultura</a></li>
+      <li><a href="#ruta">La ruta</a></li>
+    </ul>
+  </nav>
+  <button class="cabecera__menu label" id="abrir-indice" type="button" aria-expanded="false" aria-controls="indice">Índice</button>
+  <div class="cabecera__avance" aria-hidden="true"><span></span></div>
+</header>
+
+<div class="indice grano" id="indice" hidden>
+  <nav aria-label="Índice">
+    <ol>
+      <li><a href="#nombre"><span class="dev" lang="ne">अर्थ</span><b>El nombre</b></a></li>
+      <li><a href="#macizo"><span class="dev" lang="ne">हिमाल</span><b>El macizo</b></a></li>
+      <li><a href="#cumbre"><span class="dev" lang="ne">शिखर</span><b>La cumbre</b></a></li>
+      <li><a href="#pared"><span class="dev" lang="ne">८०९१</span><b>Las vías</b></a></li>
+      <li><a href="#cultura"><span class="dev" lang="ne">संस्कृति</span><b>Cultura</b></a></li>
+      <li><a href="#ruta"><span class="dev" lang="ne">मार्ग</span><b>La ruta</b></a></li>
+      <li><a href="#noche"><span class="dev" lang="ne">रात</span><b>Noche</b></a></li>
+    </ol>
+  </nav>
+</div>
+
+<main id="contenido">
+
+<!-- ═══════════════ PORTADA ═══════════════ -->
+<section class="capitulo capitulo--portada" id="portada" data-titulo="Portada">
+  <div class="bloque bloque--portada" id="b-portada" data-escena="hero">
+    <div class="portada">
+      <div class="logo" id="logo">
+        <div class="d" lang="ne">अन्नपूर्ण</div>
+        <h1 class="w">ANNAPURNA</h1>
+        <div class="s">la diosa de la abundancia</div>
+        <div class="m" lang="ne"><span data-cuenta="8091" data-cifras="ne">८०९१</span> m · NEPAL</div>
+      </div>
+    </div>
+    <a class="portada__bajar label" href="#nombre"><span>Empieza el camino</span><i aria-hidden="true"></i></a>
+  </div>
+</section>
+
+<!-- ═══════════════ EL NOMBRE ═══════════════ -->
+<section class="capitulo" id="nombre" data-titulo="El nombre">
+  <div class="bloque" id="b-etimo" data-escena="hero">
+    <header class="apertura">
+      <div class="apertura__texto">
+        <p class="apertura__dev dev" lang="ne">अर्थ</p>
+        <p class="label">El nombre</p>
+        <h2 class="titulo">Llena de alimento</h2>
+      </div>
+    </header>
+
+    <div class="fijo fijo--etimo" id="etimo" style="--pasos: 2.7">
+      <div class="fijo__marco">
+        <div class="etimo">
+          <p class="label etimo__lengua">Sánscrito</p>
+          <p class="etimo__palabra dev" lang="sa" aria-label="Annapurna">
+            <span class="etimo__mitad etimo__mitad--a">अन्न</span><span class="etimo__mitad etimo__mitad--b">पूर्ण</span>
+          </p>
+          <div class="etimo__glosas">
+            <p><i>anna</i><span>alimento, grano</span></p>
+            <p><i>pūrṇa</i><span>llena, colmada</span></p>
+          </div>
+          <p class="etimo__suma lead">«la que está llena de alimento»</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bloque" id="b-diosa" data-escena="santuario">
+    <div class="relato relato--der">
+      <article class="nota grano">
+        <p class="lead">Annapurna no nació como nombre de montaña. Es el nombre de una diosa y, antes aún, una frase.</p>
+        <p>En sánscrito, <i>anna</i> es el grano, el alimento; <i>pūrṇa</i>, lo que está lleno, colmado. Juntas dicen «la que está llena de alimento»: la que nunca deja el cuenco vacío.</p>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">La diosa</p>
+        <h3>El cuenco y el cucharón</h3>
+        <p>Annapurna es una forma de Parvati, la esposa de Shiva. Se la representa con un cuenco de arroz en una mano y un cucharón de oro en la otra.</p>
+        <p>Cuenta el mito que Shiva llamó ilusión al mundo material, comida incluida. Parvati desapareció, y con ella el alimento: la tierra quedó yerma. Reapareció en Kashi, la actual Benarés, repartiendo arroz, y el propio Shiva tuvo que acercarse con su cuenco de mendigo y admitir que también el cuerpo es sagrado.</p>
+      </article>
+
+      <article class="nota nota--tinta grano">
+        <p class="label">La montaña</p>
+        <h3>Una despensa de nieve</h3>
+        <p>El nombre no es solo devoción. Las nieves del macizo alimentan cuatro ríos, el Kali Gandaki, el Modi, el Seti y el Marsyangdi, que riegan los arrozales y los campos de mijo del centro de Nepal antes de entregarse al Ganges.</p>
+        <p>Para quien vive a sus pies, la montaña es literalmente lo que dice su nombre: un granero que no se agota.</p>
+        <p class="small nota__pie">En Katmandú, en el mercado de Asan, se la venera sin imagen: su templo guarda una vasija llena.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ EL MACIZO ═══════════════ -->
+<section class="capitulo" id="macizo" data-titulo="El macizo">
+  <div class="bloque" id="b-macizo" data-escena="aerial">
+    <header class="apertura">
+      <div class="apertura__texto">
+        <p class="apertura__dev dev" lang="ne">हिमाल</p>
+        <p class="label">El macizo</p>
+        <h2 class="titulo">Cincuenta y cinco kilómetros de hielo</h2>
+      </div>
+    </header>
+
+    <div class="relato relato--izq">
+      <article class="nota grano">
+        <p class="lead">Annapurna es también un plural: bajo ese nombre hay un macizo entero del Himalaya, en el centro de Nepal.</p>
+        <p>Lo cierran tres ríos. Al oeste, el Kali Gandaki lo separa del Dhaulagiri por una de las gargantas más hondas de la Tierra. Al norte y al este corre el Marsyangdi. Al sur se abre el valle de Pokhara.</p>
+        <p>En su extremo occidental las cumbres se curvan en anillo y encierran una cuenca glaciar con una sola entrada: el Santuario.</p>
+      </article>
+
+      <article class="nota nota--tinta nota--cifras grano">
+        <p class="label">El macizo en cifras</p>
+        <dl class="cifras">
+          <div><dt><span data-cuenta="1">1</span></dt><dd>cumbre de más de 8000 m</dd></div>
+          <div><dt><span data-cuenta="13">13</span></dt><dd>de más de 7000 m</dd></div>
+          <div><dt><span data-cuenta="16">16</span></dt><dd>de más de 6000 m</dd></div>
+          <div><dt><span data-cuenta="55">55</span><small> km</small></dt><dd>de arista, de oeste a este</dd></div>
+        </dl>
+      </article>
+    </div>
+
+    <div class="fijo fijo--perfil" id="perfil" style="--pasos: 5.2">
+      <div class="fijo__marco">
+        <div class="perfil nota grano">
+          <div class="perfil__cabeza">
+            <p class="label">Las cumbres, de oeste a este</p>
+            <p class="perfil__cuenta small" aria-hidden="true"><span id="perfil-n">1</span> / 10</p>
+          </div>
+          <div class="perfil__ficha" aria-hidden="true">
+            <h3 class="perfil__nombre" id="perfil-nombre">Pico Tilicho</h3>
+            <p class="perfil__altitud"><span class="perfil__m" id="perfil-m">7134</span><span class="perfil__u"> m</span><span class="perfil__ne dev" lang="ne" id="perfil-ne">७१३४</span></p>
+            <p class="perfil__ano label" id="perfil-ano">Primera ascensión · 1978</p>
+            <p class="perfil__nota" id="perfil-nota"></p>
+          </div>
+          <div class="perfil__grafico" id="perfil-grafico" aria-hidden="true"></div>
+          <ol class="cumbres" id="cumbres">
+            <li data-m="7134" data-ano="1978"><h3>Pico Tilicho</h3><p class="cumbres__dato">7134 m · primera ascensión, 1978</p><p>Vigila el lago Tilicho, a 4919 m, y la Gran Barrera que desconcertó a los franceses en 1950.</p></li>
+            <li data-m="8091" data-ano="1950" data-principal><h3>Annapurna I</h3><p class="cumbres__dato">8091 m · primera ascensión, 1950</p><p>La cumbre principal y la décima montaña más alta de la Tierra.</p></li>
+            <li data-m="7647" data-ano="1980"><h3>Baraha Shikhar</h3><p class="cumbres__dato">7647 m · primera ascensión, 1980</p><p>«El Colmillo»: el hombro afilado que prolonga la cara sur.</p></li>
+            <li data-m="7219" data-ano="1964"><h3>Annapurna Sur</h3><p class="cumbres__dato">7219 m · primera ascensión, 1964</p><p>La que se ve desde Pokhara. Parece la mayor porque es la más cercana.</p></li>
+            <li data-m="6441" data-ano="1971"><h3>Hiunchuli</h3><p class="cumbres__dato">6441 m · primera ascensión, 1971</p><p>Con el Machapuchare forma la única puerta del Santuario.</p></li>
+            <li data-m="7455" data-ano="1965"><h3>Gangapurna</h3><p class="cumbres__dato">7455 m · primera ascensión, 1965</p><p>Su glaciar baja hasta un lago turquesa junto a Manang.</p></li>
+            <li data-m="7555" data-ano="1961"><h3>Annapurna III</h3><p class="cumbres__dato">7555 m · primera ascensión, 1961</p><p>Su arista sureste resistió todos los intentos hasta 2021.</p></li>
+            <li data-m="6993" data-ano=""><h3>Machapuchare</h3><p class="cumbres__dato">6993 m · sin ascensión</p><p>«Cola de pez». Sagrada para Shiva: en 1957 una cordada se detuvo a unos cincuenta metros de la cima y desde entonces nadie tiene permiso para pisarla.</p></li>
+            <li data-m="7525" data-ano="1955"><h3>Annapurna IV</h3><p class="cumbres__dato">7525 m · primera ascensión, 1955</p><p>La más accesible de las grandes, hombro con hombro con la II.</p></li>
+            <li data-m="7937" data-ano="1960"><h3>Annapurna II</h3><p class="cumbres__dato">7937 m · primera ascensión, 1960</p><p>Le faltan 63 m para ser un ochomil. Cierra el macizo por el este.</p></li>
+          </ol>
+          <p class="perfil__pie small">Esquema: las alturas están a escala; las distancias, no.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ LA CUMBRE ═══════════════ -->
+<section class="capitulo" id="cumbre" data-titulo="La cumbre">
+  <div class="bloque" id="b-cumbre" data-escena="north">
+    <header class="apertura apertura--cifra">
+      <div class="apertura__texto">
+        <p class="apertura__dev dev" lang="ne">शिखर</p>
+        <p class="label">La cumbre principal</p>
+        <h2 class="titulo titulo--cifra"><span data-cuenta="8091">8091</span><small> m</small></h2>
+        <p class="apertura__sub">Annapurna I · décima montaña de la Tierra</p>
+      </div>
+    </header>
+
+    <div class="relato relato--der">
+      <article class="nota grano">
+        <p class="label">3 de junio de 1950</p>
+        <h3>La primera cumbre de ocho mil</h3>
+        <p>Maurice Herzog y Louis Lachenal pisaron la cima por la cara norte. Ningún ser humano había subido antes a una montaña de más de 8000 metros.</p>
+        <p>Lo hicieron sin oxígeno embotellado y con mapas equivocados: la expedición francesa gastó casi un mes solo en encontrar un camino hasta la montaña.</p>
+      </article>
+
+      <ol class="cronica" id="cronica">
+        <li class="nota grano">
+          <p class="cronica__ano"><span>1950</span><span class="dev" lang="ne">१९५०</span></p>
+          <h3>El precio</h3>
+          <p>La bajada fue peor que la subida. Herzog perdió los guantes cerca de la cima; después vinieron un alud, una noche en una grieta y la ceguera de la nieve. El médico de la expedición fue amputándoles dedos de pies y manos durante la retirada.</p>
+          <p>El libro que Herzog dictó en el hospital, <i>Annapurna, primer ochomil</i>, sigue siendo el más vendido de la historia del alpinismo.</p>
+        </li>
+        <li class="nota grano">
+          <p class="cronica__ano"><span>1970</span><span class="dev" lang="ne">१९७०</span></p>
+          <h3>La cara sur</h3>
+          <p>Una expedición británica dirigida por Chris Bonington escala la pared sur: tres kilómetros de roca y hielo. Don Whillans y Dougal Haston llegan a la cima el 27 de mayo.</p>
+          <p>Es la primera gran pared de un ochomil. Con ella empieza el himalayismo de dificultad.</p>
+        </li>
+        <li class="nota grano">
+          <p class="cronica__ano"><span>1978</span><span class="dev" lang="ne">१९७८</span></p>
+          <h3>Un lugar en la cima</h3>
+          <p>La expedición femenina estadounidense de Arlene Blum se financia vendiendo camisetas con un lema: «El lugar de una mujer está en la cima».</p>
+          <p>El 15 de octubre, Vera Komarkova e Irene Miller hacen cumbre con los sherpas Mingma Tsering y Chewang Ringjing. Dos días después mueren en la montaña Alison Chadwick-Onyszkiewicz y Vera Watson.</p>
+        </li>
+        <li class="nota grano">
+          <p class="cronica__ano"><span>1987</span><span class="dev" lang="ne">१९८७</span></p>
+          <h3>En invierno</h3>
+          <p>Los polacos Jerzy Kukuczka y Artur Hajzer alcanzan la cima el 3 de febrero. Es la primera ascensión invernal.</p>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ LAS VÍAS ═══════════════ -->
+<section class="capitulo" id="pared" data-titulo="Las vías">
+  <div class="bloque" id="b-pared" data-escena="ridge">
+    <header class="apertura">
+      <div class="apertura__texto">
+        <p class="label">Las vías</p>
+        <h2 class="titulo">Tres maneras de subir, ninguna fácil</h2>
+      </div>
+    </header>
+
+    <div class="relato relato--izq">
+      <article class="nota grano">
+        <p class="lead">No es el ochomil más alto ni el más técnico. Es el que menos perdona.</p>
+        <p>Sus laderas cargan mucha nieve y la sueltan sobre las mismas vías por las que se sube. En el Annapurna, el peligro no depende tanto de lo bien que escales como de la hora a la que pases.</p>
+      </article>
+
+      <article class="nota nota--tinta nota--riesgo grano">
+        <p class="label">El riesgo, en números</p>
+        <p class="riesgo"><b><span data-cuenta="61">61</span></b><span>muertes por <b>191</b> cumbres hasta 2012: casi una de cada tres.</span></p>
+        <p class="riesgo"><b><span data-cuenta="13">13</span><small> %</small></b><span>a comienzos de 2025: 75 muertes por 559 ascensiones. Sigue siendo la proporción más alta del Himalaya.</span></p>
+        <p class="small nota__pie">Fuente: Himalayan Database.</p>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">Cara norte · 1950</p>
+        <h3>La vía de los franceses</h3>
+        <p>Con variantes, sigue siendo la ruta normal. La escalada es moderada; lo temible es lo que cuelga encima: la Hoz, una barrera de seracs que barre la pared sin avisar.</p>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">Cara sur · 1970</p>
+        <h3>La pared de Bonington</h3>
+        <p>Tres mil metros de desnivel sobre el Santuario, entre las paredes más grandes del Himalaya. Su escalada cambió la pregunta: desde entonces importa la cumbre, pero también por dónde se llega a ella.</p>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">Arista este · 1984</p>
+        <h3>La travesía de los suizos</h3>
+        <p>Erhard Loretan y Norbert Joos recorren siete kilómetros y medio de arista por encima de los 7000 m, pasan por las cimas Este y Central y bajan por la cara norte. Cruzaron la montaña entera.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CULTURA ═══════════════ -->
+<section class="capitulo" id="cultura" data-titulo="Cultura">
+  <div class="bloque" id="b-cultura" data-escena="kali">
+    <header class="apertura">
+      <div class="apertura__texto">
+        <p class="apertura__dev dev" lang="ne">संस्कृति</p>
+        <p class="label">Cultura</p>
+        <h2 class="titulo">La montaña tiene vecinos</h2>
+      </div>
+    </header>
+
+    <div class="relato relato--der">
+      <article class="nota grano">
+        <p class="lead">Unas cien mil personas viven a la sombra del macizo.</p>
+        <p>Para ellas el Annapurna no es un reto deportivo. Es el paisaje de casa, el origen del agua y la morada de los dioses.</p>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">Tres pueblos, tres vertientes</p>
+        <dl class="pueblos">
+          <div><dt>Gurung y magar</dt><dd>Al sur, aldeas de piedra y pizarra sobre bancales de arroz: Ghandruk, Chhomrong, Landruk. De aquí salieron durante dos siglos muchos de los soldados gurkhas.</dd></div>
+          <div><dt>Thakali</dt><dd>En el Kali Gandaki, antiguos señores de la ruta de la sal entre el Tíbet y la India. Hoy cultivan manzanos en Marpha y cocinan el <i>dal bhat</i> más celebrado del país.</dd></div>
+          <div><dt>Manangi</dt><dd>Al norte, en el valle alto del Marsyangdi, budistas de tradición tibetana: monasterios, muros de mani y banderas de oración.</dd></div>
+        </dl>
+      </article>
+
+      <article class="nota nota--tinta nota--banderas grano">
+        <p class="label">Lungta · el caballo de viento</p>
+        <div class="banderas" aria-hidden="true">
+          <svg viewBox="0 0 600 150" preserveAspectRatio="xMidYMid meet" role="presentation">
+            <path class="banderas__cuerda" d="M0 22 Q300 74 600 22" fill="none" stroke="#C1C1BF" stroke-width="1.5"/>
+            <g class="banderas__tira"></g>
+          </svg>
+        </div>
+        <ul class="colores">
+          <li style="--c:#3F5F9E">cielo</li>
+          <li style="--c:#F0ECE0">aire</li>
+          <li style="--c:#B8343F">fuego</li>
+          <li style="--c:#4E8055">agua</li>
+          <li style="--c:#E2B13C">tierra</li>
+        </ul>
+        <p>Cinco colores en orden fijo, uno por cada elemento. Las banderas no se rezan: se cuelgan, y el viento hace el resto. Que se deshilachen forma parte del rito.</p>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">El Santuario</p>
+        <h3>Una casa de dioses</h3>
+        <p>Para los gurung, la cuenca interior es terreno sagrado. Durante generaciones no se podía entrar con carne ni huevos, y la tradición todavía pide no subir ciertas carnes valle arriba.</p>
+        <p>El nombre «Santuario» se lo dio en 1956 el coronel Jimmy Roberts, el primer forastero que lo exploró. Nadie ha encontrado uno mejor.</p>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">Muktinath · 3710 m</p>
+        <h3>Un templo, dos religiones</h3>
+        <p>Al otro lado del macizo, hindúes y budistas veneran el mismo lugar: 108 caños de agua helada y una llama que arde sobre un manantial.</p>
+      </article>
+
+      <article class="nota nota--musgo grano">
+        <p class="label">Desde 1986</p>
+        <h3>Un parque con gente dentro</h3>
+        <p>El Área de Conservación del Annapurna protege 7629 km², la mayor de Nepal. No expulsó a nadie: se gestiona con las propias aldeas, y la entrada que paga cada caminante mantiene senderos, escuelas y bosques.</p>
+        <p>Aquí viven el leopardo de las nieves y el baral, la oveja azul del Himalaya. Y en marzo y abril los bosques de Ghorepani se vuelven rojos: florece el rododendro, la flor nacional.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ LA RUTA ═══════════════ -->
+<section class="capitulo" id="ruta" data-titulo="La ruta">
+  <div class="bloque" id="b-ruta" data-escena="poon">
+    <header class="apertura">
+      <div class="apertura__texto">
+        <p class="apertura__dev dev" lang="ne">मार्ग</p>
+        <p class="label">La ruta</p>
+        <h2 class="titulo">El camino al Santuario</h2>
+      </div>
+    </header>
+
+    <div class="relato relato--der">
+      <article class="nota grano">
+        <p class="lead">Para llegar al pie del Annapurna no hace falta ser alpinista. Hace falta una semana y buenas piernas.</p>
+        <p>El camino sube de los arrozales a los glaciares de aldea en aldea, por escaleras de piedra que los vecinos mantienen desde hace siglos. Se duerme en refugios familiares y se come <i>dal bhat</i>.</p>
+      </article>
+
+      <article class="nota nota--tinta grano">
+        <p class="label">El trekking, de un vistazo</p>
+        <dl class="ficha">
+          <div><dt>Duración</dt><dd>de 7 a 10 días</dd></div>
+          <div><dt>Distancia</dt><dd>unos 110 km, ida y vuelta</dd></div>
+          <div><dt>Desnivel</dt><dd>de 1070 a 4130 m</dd></div>
+          <div><dt>Cuándo</dt><dd>octubre y noviembre; marzo y abril</dd></div>
+        </dl>
+      </article>
+
+      <article class="nota grano">
+        <p class="label">Poon Hill · 3210 m</p>
+        <h3>Antes de que amanezca</h3>
+        <p>Se sale de Ghorepani a las cinco, con linterna, por una escalera entre rododendros. Arriba, el sol enciende una a una las cumbres, del Dhaulagiri al Machapuchare: primero rosa, luego oro, luego blanco.</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="bloque bloque--mapa" id="b-mapa" data-escena="mapa">
+    <div class="fijo fijo--mapa" id="mapa" style="--pasos: 6.6">
+      <div class="fijo__marco">
+        <div class="mapa" id="mapa-capa" aria-hidden="true"></div>
+        <div class="mapa__titulo">
+          <p class="label">De Nayapul al campo base</p>
+        </div>
+        <div class="tramo nota grano" aria-hidden="true">
+          <div class="tramo__cabeza">
+            <p class="label" id="tramo-dia">Día 1</p>
+            <p class="tramo__alt"><span id="tramo-m">1070</span><small> m</small><span class="dev" lang="ne" id="tramo-ne">१०७०</span></p>
+          </div>
+          <h3 class="tramo__nombre" id="tramo-nombre">Nayapul</h3>
+          <p class="tramo__nota" id="tramo-nota"></p>
+          <div class="tramo__perfil" id="tramo-perfil"></div>
+        </div>
+        <ol class="etapas" id="etapas">
+          <li data-m="1070" data-dia="1" data-km="0" data-lon="83.775" data-lat="28.305"><h3>Nayapul</h3><p class="etapas__dato">Día 1 · 1070 m</p><p>Fin de la carretera. Aquí se sella el permiso y empieza el camino, entre arrozales, junto al Modi Khola.</p></li>
+          <li data-m="1960" data-dia="1" data-km="10" data-lon="83.735" data-lat="28.358"><h3>Ulleri</h3><p class="etapas__dato">Día 1 · 1960 m</p><p>Más de tres mil escalones de piedra, seguidos. La primera prueba de piernas.</p></li>
+          <li data-m="2874" data-dia="2" data-km="18" data-lon="83.700" data-lat="28.400"><h3>Ghorepani</h3><p class="etapas__dato">Día 2 · 2874 m</p><p>Aldea magar en un collado, rodeada de un bosque de rododendros que florece en marzo y abril.</p></li>
+          <li data-m="3210" data-dia="3" data-km="19.5" data-lon="83.690" data-lat="28.400"><h3>Poon Hill</h3><p class="etapas__dato">Día 3 · 3210 m</p><p>El mirador del amanecer: del Dhaulagiri al Machapuchare en una sola vuelta de cabeza.</p></li>
+          <li data-m="2630" data-dia="3" data-km="30" data-lon="83.770" data-lat="28.400"><h3>Tadapani</h3><p class="etapas__dato">Día 3 · 2630 m</p><p>«Agua lejana». Bosque cerrado, musgo y monos langures.</p></li>
+          <li data-m="2170" data-dia="4" data-km="39" data-lon="83.817" data-lat="28.415"><h3>Chhomrong</h3><p class="etapas__dato">Día 4 · 2170 m</p><p>La última aldea gurung habitada todo el año. De aquí en adelante solo hay refugios.</p></li>
+          <li data-m="2310" data-dia="5" data-km="47" data-lon="83.850" data-lat="28.445"><h3>Bamboo</h3><p class="etapas__dato">Día 5 · 2310 m</p><p>El valle se cierra en garganta: bambú, humedad y cascadas.</p></li>
+          <li data-m="3230" data-dia="6" data-km="55" data-lon="83.888" data-lat="28.495"><h3>Deurali</h3><p class="etapas__dato">Día 6 · 3230 m</p><p>Se acaba el bosque. Tramo de aludes: se cruza temprano y sin pararse.</p></li>
+          <li data-m="3700" data-dia="7" data-km="59" data-lon="83.900" data-lat="28.523"><h3>Campo base del Machapuchare</h3><p class="etapas__dato">Día 7 · 3700 m</p><p>La puerta del Santuario, entre el Hiunchuli y la Cola de pez.</p></li>
+          <li data-m="4130" data-dia="7" data-km="63" data-lon="83.878" data-lat="28.530"><h3>Campo base del Annapurna</h3><p class="etapas__dato">Día 7 · 4130 m</p><p>Un anfiteatro de hielo: cumbres de seis, siete y ocho mil metros en círculo completo.</p></li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="relato relato--izq relato--tras-mapa">
+      <article class="nota grano">
+        <p class="label">La otra gran ruta</p>
+        <h3>El Circuito</h3>
+        <p>Rodea el macizo entero en dos o tres semanas. Sube por el valle del Marsyangdi, cruza el collado de Thorong La a 5416 m y baja por el Kali Gandaki: de la selva al desierto de altura.</p>
+      </article>
+      <article class="nota nota--tinta grano">
+        <p class="label">Antes de ir</p>
+        <p>Hace falta el permiso del Área de Conservación, y la norma sobre guías cambia a menudo: compruébala. Por encima de 3000 m manda la altitud: sube despacio.</p>
+        <p>La montaña no entiende de categorías. En octubre de 2014, una nevada repentina mató a 43 personas en torno al Thorong La: caminantes, guías, porteadores y pastores.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ NOCHE ═══════════════ -->
+<section class="capitulo capitulo--noche" id="noche" data-titulo="Noche">
+  <div class="bloque bloque--noche" id="b-noche" data-escena="night">
+    <header class="apertura apertura--cita">
+      <div class="apertura__texto">
+        <p class="apertura__dev dev" lang="ne">रात</p>
+        <p class="label">Noche en el Santuario</p>
+        <blockquote class="cita">
+          <p class="titulo">«Hay otros Annapurnas en la vida de los hombres.»</p>
+          <footer class="small">Maurice Herzog, <cite>Annapurna, primer ochomil</cite>, 1951</footer>
+        </blockquote>
+      </div>
+    </header>
+
+    <footer class="pie">
+      <div class="pie__panel grano">
+        <div class="logo logo--pie">
+          <div class="d" lang="ne">अन्नपूर्ण</div>
+          <div class="w">ANNAPURNA</div>
+          <div class="s">la diosa de la abundancia</div>
+          <div class="m" lang="ne">८०९१ m · NEPAL</div>
+        </div>
+        <a class="btn btn-contorno pie__subir" href="#portada">Volver a la cumbre</a>
+        <div class="pie__notas">
+          <p class="small">Página informativa: no es una guía de montaña. Alturas y fechas según la Himalayan Database, el Departamento de Parques Nacionales de Nepal y las crónicas de las expediciones.</p>
+          <p class="small">Ilustraciones de la identidad visual Annapurna. El mapa de la ruta se pintó por código para esta página y no sirve para navegar. Tipografías Cormorant Garamond y Tiro Devanagari Hindi, bajo licencia SIL OFL 1.1.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</section>
+
+</main>
+
+<script src="js/datos.js"></script>
+<script src="js/escenario.js"></script>
+<script src="js/aire.js"></script>
+<script src="js/annapurna.js"></script>
+</body>
+</html>
