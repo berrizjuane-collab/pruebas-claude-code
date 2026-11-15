@@ -5,11 +5,14 @@
 
    Disposición: las pinturas llenan siempre la pantalla (.escenario, fijo) y la
    página pasa por delante. El texto vive en el cielo de cada pintura (títulos)
-   o en hojas de papel opacas (.nota); nunca directamente sobre la montaña. */
+   o en pergaminos (.nota); nunca directamente sobre la montaña. */
 
 :root {
   --margen: clamp(16px, 5.5vw, 96px);
   --ancho-nota: 30em;
+  --hoja-b: 48px;      /* franja del pergamino donde vive el desgaste */
+  --hoja-aire: 16px;   /* lo que esa franja tiene de hueco, de media */
+  --raya: rgb(34 36 47 / .22);
   --alto: 100vh;
   --suave: cubic-bezier(.2, .7, .2, 1);
   --barra: 62px;
@@ -42,6 +45,9 @@ img, svg { max-width: 100%; }
 /* El velo de la marca: Tinta de noche arriba, nada a la altura de la cumbre. */
 .escenario__velo { background: var(--velo); opacity: var(--velo-o, 0); transition: opacity 1s ease; }
 .js .escenario__velo { opacity: calc(var(--velo, 1) * 1); }
+/* La cabecera va sin caja, directamente sobre la pintura: esto le da un poco de noche debajo. */
+.escenario::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 170px;
+  background: linear-gradient(180deg, rgb(20 22 32 / .62), rgb(20 22 32 / .3) 45%, rgb(20 22 32 / 0)); }
 
 main { position: relative; z-index: 1; }
 
@@ -84,8 +90,8 @@ main { position: relative; z-index: 1; }
 .cabecera { position: fixed; z-index: 30; top: 0; left: 0; right: 0; display: flex; align-items: center;
   justify-content: space-between; gap: 24px; min-height: var(--barra);
   padding: calc(10px + env(safe-area-inset-top, 0px)) max(var(--margen), env(safe-area-inset-right, 0px)) 10px max(var(--margen), env(safe-area-inset-left, 0px));
-  color: var(--nieve); transition: transform .55s var(--suave), background-color .4s ease; }
-.cabecera--solida, .con-indice .cabecera { background: var(--tinta); }
+  color: var(--nieve); background: none; transition: transform .55s var(--suave);
+  text-shadow: 0 0 14px rgb(20 22 32 / .9), 0 0 4px rgb(20 22 32 / .6), 0 1px 2px rgb(20 22 32 / .5); }
 .cabecera--oculta { transform: translateY(-102%); }
 .con-indice .cabecera { transform: none; }
 .cabecera__logo { display: flex; align-items: center; gap: 14px; color: inherit; text-decoration: none; min-height: 32px; }
@@ -99,8 +105,10 @@ main { position: relative; z-index: 1; }
 .cabecera__nav a:hover::after, .cabecera__nav a[aria-current]::after { transform: scaleX(1); }
 .cabecera__nav a[aria-current] { color: var(--amanecer); }
 .cabecera__menu { display: none; background: none; border: 1px solid currentColor; color: inherit; border-radius: 2px;
-  padding: 11px 14px 10px 16px; cursor: pointer; font-family: var(--serif); }
-.cabecera__avance { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; opacity: 0; transition: opacity .4s; }
+  padding: 11px 14px 10px 16px; cursor: pointer; font-family: var(--serif); text-shadow: inherit;
+  box-shadow: 0 0 10px rgb(20 22 32 / .3), inset 0 0 10px rgb(20 22 32 / .18); }
+.cabecera__logo i { box-shadow: 0 0 6px rgb(20 22 32 / .6); }
+.cabecera__avance { position: absolute; left: 0; right: 0; top: 0; height: 2px; opacity: 0; transition: opacity .4s; }
 .cabecera--solida .cabecera__avance { opacity: 1; }
 .cabecera__avance span { display: block; height: 100%; background: var(--amanecer); transform-origin: left;
   transform: scaleX(var(--avance, 0)); }
@@ -167,27 +175,47 @@ main { position: relative; z-index: 1; }
 
 /* El relato: hojas de papel que suben por delante de la pintura. */
 .relato { display: grid; gap: calc(var(--alto) * .4); justify-items: start;
-  padding-left: max(var(--margen), env(safe-area-inset-left, 0px)); padding-right: max(var(--margen), env(safe-area-inset-right, 0px)); }
+  padding-left: max(calc(var(--margen) - var(--hoja-aire)), env(safe-area-inset-left, 0px));
+  padding-right: max(calc(var(--margen) - var(--hoja-aire)), env(safe-area-inset-right, 0px)); }
 .relato--der { justify-items: end; }
 
-.nota { position: relative; width: min(100%, var(--ancho-nota)); background: var(--nieve); color: var(--tinta);
-  border: 1px solid var(--bruma); border-radius: 2px;
-  padding: clamp(22px, 2.6vw, 36px) clamp(20px, 2.8vw, 40px) clamp(24px, 2.8vw, 40px); }
-.nota.grano::after { z-index: 0; border-radius: inherit; }
-.nota > * { position: relative; z-index: 1; margin: 0; }
+/* Cada carta es un pergamino: una de las hojas de tools/pintar_pergaminos.py puesta como
+   border-image de nueve piezas. Las esquinas y los cantos gastados se pintan tal cual; el
+   centro se estira hasta donde llegue el texto. La caja incluye el canto roto, así que
+   la hoja que se ve es algo menor que la caja (--hoja-aire, de media). */
+.nota { position: relative; width: min(100%, calc(var(--ancho-nota) + 2 * var(--hoja-aire))); color: var(--tinta);
+  border: var(--hoja-b) solid transparent;
+  border-image: url(../img/pergamino-viejo.webp) 150 fill / var(--hoja-b) stretch;
+  background: #E6DBBD padding-box;                /* solo se ve mientras llega la hoja */
+  padding: 2px 10px 8px; }
+.hoja-quemado { border-image-source: url(../img/pergamino-quemado.webp); }
+.hoja-rasgado { border-image-source: url(../img/pergamino-rasgado.webp); }
+.hoja-plegado { border-image-source: url(../img/pergamino-plegado.webp); }
+.hoja-roido   { border-image-source: url(../img/pergamino-roido.webp); }
+.hoja-tostado { border-image-source: url(../img/pergamino-tostado.webp); }
+.hoja-indigo  { border-image-source: url(../img/pergamino-indigo.webp); }
+.hoja-noche   { border-image-source: url(../img/pergamino-noche.webp); }
+.hoja-musgo   { border-image-source: url(../img/pergamino-musgo.webp); }
+.nota > * { margin: 0; }
 .nota > * + * { margin-top: .75em; }
 .nota p { max-width: none; }
-.nota .label { color: var(--azul); }
+.nota .label { color: #434A66; }
 .nota > .label + h3 { margin-top: .45em; }
 .nota h3 { font-size: var(--fs-h2); font-weight: 400; line-height: 1.12; text-wrap: balance; }
 .nota .lead { text-wrap: pretty; }
-.nota__pie { padding-top: .85em; border-top: 1px solid var(--bruma); margin-top: 1.1em !important; }
+.nota__pie { padding-top: .85em; border-top: 1px solid var(--raya); margin-top: 1.1em !important; }
 
-.nota--tinta { background: var(--tinta); color: var(--nieve); border-color: rgb(240 236 224 / .2); }
+/* papeles teñidos, para los datos */
+.nota--tinta { background-color: var(--tinta); color: var(--nieve); }
 .nota--tinta .label { color: var(--amanecer); }
 .nota--tinta .nota__pie { border-color: rgb(240 236 224 / .2); }
-.nota--musgo { background: var(--musgo); color: var(--nieve); border-color: rgb(240 236 224 / .22); }
+.nota--musgo { background-color: var(--musgo); color: var(--nieve); }
 .nota--musgo .label { color: var(--nieve); }
+
+/* Al llegar arriba, la hoja se deshace antes de tocar la cabecera (--corte lo pone el guion). */
+.nota.se-va {
+  -webkit-mask-image: linear-gradient(to bottom, transparent var(--corte, 0px), #000 calc(var(--corte, 0px) + 68px));
+  mask-image: linear-gradient(to bottom, transparent var(--corte, 0px), #000 calc(var(--corte, 0px) + 68px)); }
 
 .js .nota { opacity: 0; transform: translate3d(0, 56px, 0); transition: opacity .9s ease, transform 1.2s var(--suave); }
 .js .nota.es-visible { opacity: 1; transform: none; }
@@ -218,7 +246,7 @@ main { position: relative; z-index: 1; }
 
 /* pueblos y ficha */
 .pueblos { display: grid; gap: 1em; }
-.pueblos > div { border-top: 1px solid var(--bruma); padding-top: .7em; }
+.pueblos > div { border-top: 1px solid var(--raya); padding-top: .7em; }
 .pueblos dt { font-weight: 600; font-size: var(--fs-h3); line-height: 1.25; }
 .pueblos dd { margin: .2em 0 0; }
 .ficha { display: grid; gap: 0; }
@@ -283,7 +311,7 @@ main { position: relative; z-index: 1; }
 .js.listo .portada .logo .m { transition-delay: 1.4s; }
 .js .portada__bajar, .js .cabecera { opacity: 0; transition: opacity 1.2s ease 1.9s, background .3s, color .3s, transform .55s var(--suave); }
 .js.listo .portada__bajar, .js.listo .cabecera { opacity: 1; }
-.js.listo .cabecera { transition: opacity 1.2s ease 1.9s, transform .55s var(--suave), background-color .4s ease; }
+.js.listo .cabecera { transition: opacity 1.2s ease 1.9s, transform .55s var(--suave); }
 
 /* ───────────── piezas fijadas ───────────── */
 .fijo { position: relative; height: calc(var(--pasos, 3) * var(--alto)); }
@@ -312,13 +340,13 @@ main { position: relative; z-index: 1; }
 .sin-js .etimo__glosas, .sin-js .etimo__suma { opacity: 1; grid-row: auto; transform: none; }
 
 /* perfil de cumbres */
-.perfil { position: absolute; left: var(--margen); right: var(--margen); top: calc(var(--barra) + var(--alto) * .05);
-  width: auto; max-width: 1180px; margin-inline: auto; display: grid;
+.perfil { position: absolute; left: calc(var(--margen) - var(--hoja-aire)); right: calc(var(--margen) - var(--hoja-aire)); top: calc(var(--barra) + var(--alto) * .03);
+  width: auto; max-width: 1212px; margin-inline: auto; display: grid;
   grid-template-columns: minmax(0, 20em) minmax(0, 1fr); grid-template-areas: "cabeza cabeza" "ficha grafico" "pie pie";
   gap: 12px clamp(20px, 3.5vw, 56px); align-items: end; }
 .perfil > * + * { margin-top: 0; }
 .perfil__cabeza { grid-area: cabeza; display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
-  padding-bottom: 10px; border-bottom: 1px solid var(--bruma); }
+  padding-bottom: 10px; border-bottom: 1px solid var(--raya); }
 .perfil__cabeza p { margin: 0; }
 .perfil__cuenta { color: var(--azul); font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
 .perfil__ficha { grid-area: ficha; align-self: start; min-height: 11.6em; }
@@ -337,15 +365,15 @@ main { position: relative; z-index: 1; }
 @keyframes relevo { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .perfil__grafico { grid-area: grafico; min-width: 0; }
 .perfil__grafico svg { display: block; overflow: visible; }
-.perfil__pie { grid-area: pie; color: var(--roca); padding-top: 8px; border-top: 1px solid var(--bruma); }
-.perfil__cota { stroke: var(--bruma); stroke-width: 1; }
-.perfil__cota-n { font: 600 15px/1 var(--serif); letter-spacing: .08em; fill: var(--roca); font-variant-numeric: lining-nums; }
-.perfil__resto { fill: rgb(193 193 191 / .28); }
-.perfil__resto-l { fill: none; stroke: var(--bruma); stroke-width: 1.2; stroke-linejoin: round; }
+.perfil__pie { grid-area: pie; color: #6f625a; padding-top: 8px; border-top: 1px solid var(--raya); }
+.perfil__cota { stroke: rgb(34 36 47 / .16); stroke-width: 1; }
+.perfil__cota-n { font: 600 15px/1 var(--serif); letter-spacing: .08em; fill: #6f625a; font-variant-numeric: lining-nums; }
+.perfil__resto { fill: rgb(34 36 47 / .07); }
+.perfil__resto-l { fill: none; stroke: rgb(34 36 47 / .3); stroke-width: 1.2; stroke-linejoin: round; }
 .perfil__area { fill: rgb(80 87 113 / .2); }
 .perfil__linea { fill: none; stroke: var(--tinta); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
 .perfil__guia { stroke: var(--rododendro); stroke-width: 1; stroke-dasharray: 2 4; }
-.perfil__punto { fill: var(--bruma); transition: fill .3s, r .3s; }
+.perfil__punto { fill: rgb(34 36 47 / .3); transition: fill .3s, r .3s; }
 .perfil__punto.es-pasada { fill: var(--tinta); }
 .perfil__punto.es-activa { fill: var(--rododendro); }
 
@@ -361,7 +389,7 @@ main { position: relative; z-index: 1; }
 
 @media (max-width: 860px) {
   .perfil { grid-template-columns: minmax(0, 1fr); grid-template-areas: "cabeza" "ficha" "grafico"; gap: 8px;
-    padding: 16px 18px 14px; top: calc(var(--barra) + 6px); left: 12px; right: 12px; }
+    padding: 0 4px 2px; top: calc(var(--barra) - 4px); left: 2px; right: 2px; }
   .perfil__pie { display: none; }
   .perfil__ficha { min-height: 0; height: 212px; overflow: hidden; }
   .perfil__nombre { font-size: 30px !important; }
@@ -369,6 +397,8 @@ main { position: relative; z-index: 1; }
   .perfil__ano { margin-top: .25em !important; }
   .perfil__nota { margin-top: .35em !important; }
 }
+
+@media (min-width: 641px) and (max-width: 860px) { .perfil__ficha { height: 150px; } }
 
 /* mapa de la ruta */
 .bloque--mapa { padding-top: 0; }
@@ -397,7 +427,7 @@ main { position: relative; z-index: 1; }
 .mapa__titulo { position: absolute; left: var(--margen); top: calc(var(--barra) + 8px); margin: 0; }
 .mapa__titulo .label { display: inline-block; margin: 0; background: var(--tinta); color: var(--nieve); padding: 9px 12px 8px 14px;
   border-radius: 2px; }
-.tramo { position: absolute; right: var(--margen); top: 50%; width: min(23em, 34vw); margin-top: calc(var(--alto) * -.26); }
+.tramo { position: absolute; right: calc(var(--margen) - var(--hoja-aire)); top: 50%; width: min(26em, 38vw); margin-top: calc(var(--alto) * -.29); }
 .tramo > * + * { margin-top: 0; }
 .tramo__cabeza { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .tramo__cabeza p { margin: 0; }
@@ -406,18 +436,18 @@ main { position: relative; z-index: 1; }
 .tramo__alt .dev { font-size: .36em; color: var(--azul); letter-spacing: .1em; margin-left: .8em; }
 .tramo__nombre { margin-top: .5em !important; text-wrap: balance; }
 .tramo__nota { margin-top: .45em !important; font-size: var(--fs-small); line-height: 1.45; min-height: 4.35em; }
-.tramo__perfil { margin-top: .7em !important; padding-top: .7em; border-top: 1px solid var(--bruma); }
+.tramo__perfil { margin-top: .7em !important; padding-top: .7em; border-top: 1px solid var(--raya); }
 .tramo__perfil svg { display: block; overflow: visible; }
 .tramo__l-resto, .tramo__l { fill: none; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
-.tramo__l-resto { stroke: var(--bruma); }
+.tramo__l-resto { stroke: rgb(34 36 47 / .3); }
 .tramo__l { stroke: var(--rododendro); stroke-width: 2.2; }
 .tramo__p { fill: var(--rododendro); stroke: var(--nieve); stroke-width: 2; }
 .tramo.cambia .tramo__nombre, .tramo.cambia .tramo__nota { animation: relevo .6s var(--suave) both; }
 .tramo.cambia .tramo__nota { animation-delay: .06s; }
 
 @media (max-width: 860px), (orientation: portrait) {
-  .tramo { left: 12px; right: 12px; top: auto; bottom: max(12px, env(safe-area-inset-bottom, 0px)); width: auto; margin-top: 0;
-    padding: 16px 18px 14px; }
+  .tramo { left: 2px; right: 2px; top: auto; bottom: max(2px, env(safe-area-inset-bottom, 0px)); width: auto; margin-top: 0;
+    padding: 0 4px; }
   .tramo__alt { font-size: 34px; }
   .tramo__nombre { font-size: 28px !important; margin-top: .3em !important; }
   .tramo__nota { min-height: 4.4em; }
@@ -447,8 +477,10 @@ main { position: relative; z-index: 1; }
 
 /* ───────────── móvil ───────────── */
 @media (max-width: 640px) {
-  :root { --barra: 56px; }
-  .relato { gap: calc(var(--alto) * .42); }
+  :root { --barra: 56px; --hoja-b: 40px; --hoja-aire: 12px; }
+  .relato { gap: calc(var(--alto) * .42); padding-left: max(2px, env(safe-area-inset-left, 0px));
+    padding-right: max(2px, env(safe-area-inset-right, 0px)); }
+  .nota { padding: 0 4px 4px; }
   .nota h3 { font-size: 30px; }
   .apertura__texto { padding-top: calc(var(--barra) + var(--alto) * .035); }
   .cifras dt { font-size: 44px; }

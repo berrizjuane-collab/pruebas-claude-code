@@ -43,6 +43,13 @@ sencilla, con fundidos en lugar de pinceladas.
   pinturas no hay fundido: la nueva entra por pasadas de brocha con el borde
   roto del pincel seco (una textura de cerdas decide qué píxeles «cubre ya» la
   pintura). Las pinturas no se filtran ni se desenfocan nunca; solo se encuadran.
+- **Las cartas** — cada bloque de texto va sobre un pergamino: una de las nueve
+  hojas de `tools/pintar_pergaminos.py` (amarillenta, quemada, rasgada, plegada,
+  roída, tostada y tres papeles teñidos para los datos) puesta como
+  `border-image` de nueve piezas, de modo que el canto gastado no se deforma y
+  el centro crece con el texto. La clase `hoja-*` de cada carta en el HTML dice
+  cuál le toca. La cabecera no tiene caja: flota sobre la pintura, y las cartas
+  se deshacen al llegar a ella para no pasarle por debajo.
 - **`js/aire.js`** — motas por delante de la pintura: polen, nieve, ventisca,
   pétalos de rododendro. Pocas y pequeñas, para que parezcan grano que se mueve.
 - **`js/annapurna.js`** — el guion. Un solo bucle lee la posición de la página y
@@ -82,6 +89,20 @@ pinceladas orientadas ladera abajo, con el grano de papel oscuro de las
 pinturas. Es un dibujo para orientarse en la página; no sirve para caminar. El
 sendero, las paradas y los rótulos no están en la imagen: los dibuja la página
 encima, en SVG, con el mismo encuadre (`MAPA` en `js/datos.js`).
+
+## Los pergaminos
+
+También pintados por código, con el mismo taller de ruido que el mapa:
+
+```bash
+python3 tools/pintar_pergaminos.py            # las nueve hojas, en img/pergamino-*.webp
+python3 tools/pintar_pergaminos.py quemado    # solo una
+```
+
+Cada modelo es una lista de parámetros en `MODELOS` (color, ondas del canto,
+mordiscos, rasgones, esquinas arrancadas, quemado, pliegues, cercos de humedad,
+pecas de óxido). Todo el desgaste vive en la franja exterior de la hoja; el
+centro es papel entero, así que el texto nunca cae sobre un agujero.
 
 ## Datos
 

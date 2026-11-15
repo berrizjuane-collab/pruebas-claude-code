@@ -15,6 +15,11 @@
   function suave(t) { t = acotar(t, 0, 1); return t * t * (3 - 2 * t); }
   function mezclar(a, b, t) { return a + (b - a) * t; }
   function arriba(el) { return el.getBoundingClientRect().top + window.scrollY; }
+  function arribaSinMover(el) {                  // como `arriba`, pero sin contar las transformaciones
+    var y = 0;
+    while (el) { y += el.offsetTop; el = el.offsetParent; }
+    return y;
+  }
   function poner(el, nombre, valor) {           // escribe una variable CSS solo si cambia
     var k = '_' + nombre;
     if (el[k] === valor) return;
@@ -499,7 +504,29 @@
     };
   })();
 
-  var piezas = [Portada, Aperturas, Etimo, Perfil, Ruta];
+  /* Hojas: la cabecera va sin caja, así que ninguna carta puede pasarle por debajo.
+     Cada pergamino se deshace de arriba abajo conforme llega a ella. */
+  var Hojas = (function () {
+    var lista = [], Z = 62;
+    return {
+      medir: function () {
+        Z = $('#cabecera').offsetHeight;
+        lista = $$('.relato .nota').map(function (el) {
+          return { el: el, top: arribaSinMover(el), alto: el.offsetHeight, on: el.classList.contains('se-va') };
+        });
+      },
+      actualizar: function () {
+        var y0 = window.scrollY;                    // la página real, no la suavizada: la carta va con ella
+        for (var i = 0; i < lista.length; i++) {
+          var h = lista[i], y = h.top - y0, on = y < Z + 16 && y + h.alto > -16;
+          if (on) poner(h.el, '--corte', Math.round(Z - y) + 'px');
+          if (on !== h.on) { h.on = on; h.el.classList.toggle('se-va', on); }
+        }
+      }
+    };
+  })();
+
+  var piezas = [Portada, Aperturas, Etimo, Perfil, Ruta, Hojas];
 
   /* ───────────── el bucle ───────────── */
   var antes = performance.now(), ysAntes = -1, vivo = true, TAU = tactil ? 0.05 : 0.11;
