@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+masters/
+salida/
+.DS_Store
