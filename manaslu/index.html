@@ -1,0 +1,1176 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>Manaslu, la montaña del espíritu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Un ascenso ilustrado al Manaslu (8 163 m): nombre, cultura nubri, picos del macizo, ruta normal, historia, hazañas y la cumbre verdadera.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Marcellus&family=Noto+Serif+Tibetan:wght@400&display=swap">
+<style>
+/* Layout: una pintura fija a sangre (WebGL) bajo una sola columna de nubes-contenedor que sube con el scroll;
+   un altímetro en el borde derecho convierte la lectura en un ascenso de 3 520 a 8 163 m. Identidad «Mani», cerrada. */
+:root{
+  --pizarra:#3B4250; --piedra:#A8A196; --liquen:#C9A646; --bandera:#A8432F; --nieve:#EEF0F2;
+  --nube:#F7F8F9; --nube-sombra:#D3D8DE; --nube-linea:#8E96A3;
+  --pizarra-90:rgba(59,66,80,.9); --pizarra-55:rgba(59,66,80,.55);
+  --font-titulo:'Marcellus','Trajan Pro','Times New Roman',serif;
+  --font-texto:'Alegreya Sans','Segoe UI',system-ui,sans-serif;
+  --font-tibetano:'Noto Serif Tibetan','Jomolhari',serif;
+  --t-hero:clamp(3rem,7vw,6.5rem); --t-h1:clamp(2.2rem,4.2vw,3.55rem); --t-h2:clamp(1.7rem,3vw,2.66rem);
+  --t-h3:1.5rem; --t-texto:1.125rem; --t-nota:.9rem; --tracking-titulo:.14em;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --rail:0px;
+  color-scheme:dark;
+}
+@media (min-width:900px){ :root{ --rail:170px } }
+*{box-sizing:border-box}
+html{background:var(--pizarra);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--pizarra);color:var(--pizarra);font-family:var(--font-texto);font-size:var(--t-texto);line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,.titulo{font-family:var(--font-titulo);font-weight:400;letter-spacing:.04em;margin:0;text-wrap:balance;line-height:1.15}
+p{margin:0}
+p+p{margin-top:.6em}
+em{font-style:italic}
+strong{font-weight:500}
+a{color:inherit}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tibetano{font-family:var(--font-tibetano);color:var(--liquen);font-weight:400}
+
+/* ---------------------------------------------------------------- escenario fijo */
+#stage,#fallback{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;background:var(--pizarra)}
+#fallback{overflow:hidden}
+#fallback img{position:absolute;max-width:none;will-change:transform,opacity;user-select:none}
+#overlay{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+#paso{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+#paso .jiron{position:absolute;width:min(78vw,1100px);aspect-ratio:1200/300;background:url('nubes/nube_jirones_blanca.svg') center/100% 100% no-repeat;opacity:0;will-change:transform,opacity}
+#paso .j1{top:16%;left:50%}
+#paso .j2{top:58%;left:50%;width:min(64vw,900px)}
+
+/* ---------------------------------------------------------------- nubes (identidad) */
+/* el área segura de cada plantilla se mide sobre el ancho de la propia nube (--cw), no sobre su contenedor */
+.nube{position:relative;isolation:isolate;color:var(--pizarra);width:var(--cw,100%);max-width:100%;
+  padding:calc(var(--cw,100%) * var(--pt)) calc(var(--cw,100%) * var(--pr)) calc(var(--cw,100%) * var(--pb)) calc(var(--cw,100%) * var(--pl))}
+.nube::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--img) center/100% 100% no-repeat}
+.t-hero{--img:url('nubes/nube_hero_blanca.svg');aspect-ratio:1600/560;--pt:.1712;--pr:.1638;--pb:.05;--pl:.1688}
+.t-bloque{--img:url('nubes/nube_bloque_blanca.svg');aspect-ratio:1400/760;--pt:.1693;--pr:.1371;--pb:.0843;--pl:.1436}
+.t-columna{--img:url('nubes/nube_columna_blanca.svg');aspect-ratio:640/1060;--pt:.40;--pr:.25;--pb:.2266;--pl:.2578}
+.t-tarjeta{--img:url('nubes/nube_tarjeta_blanca.svg');aspect-ratio:1/1;--pt:.3293;--pr:.2122;--pb:.1732;--pl:.2183}
+.t-etiqueta{--img:url('nubes/nube_etiqueta_blanca.svg');aspect-ratio:560/240;--pt:.2125;--pr:.1661;--pb:.0821;--pl:.1732}
+.t-cita{--img:url('nubes/nube_cita_blanca.svg');aspect-ratio:1100/640;--pt:.19;--pr:.1845;--pb:.1727;--pl:.2291}
+.t-dato{--img:url('nubes/nube_dato_blanca.svg');aspect-ratio:620/600;--pt:.3871;--pr:.2823;--pb:.2661;--pl:.3306}
+.t-torre{--img:url('nubes/nube_torre_blanca.svg');aspect-ratio:760/1000;--pt:.8184;--pr:.2592;--pb:.1421;--pl:.2539}
+.t-movil{--img:url('nubes/nube_movil_blanca.svg');aspect-ratio:780/1340;--pt:.4167;--pr:.1846;--pb:.2346;--pl:.1859}
+.t-lenticular{--img:url('nubes/nube_lenticular_blanca.svg');aspect-ratio:1400/460;--pt:.1836;--pr:.1857;--pb:.0736;--pl:.1857}
+.t-estandarte{--img:url('nubes/nube_estandarte_blanca.svg');aspect-ratio:1600/520;--pt:.1525;--pr:.2344;--pb:.085;--pl:.1719}
+.t-pie{--img:url('nubes/nube_banco_pie_blanca.svg');aspect-ratio:1920/560;--pt:.175;--pr:.1281;--pb:.0573;--pl:.1474}
+/* plantillas apaisadas → sus equivalentes verticales en pantallas estrechas (nunca estirar más de ±25 %) */
+@media (max-width:1099px){
+  .t-bloque{--img:url('nubes/nube_movil_blanca.svg');aspect-ratio:780/1340;--pt:.4167;--pr:.1846;--pb:.2346;--pl:.1859}
+}
+@media (max-width:699px){
+  .t-hero,.t-cita,.t-estandarte{--img:url('nubes/nube_tarjeta_blanca.svg');aspect-ratio:1/1;--pt:.3293;--pr:.2122;--pb:.1732;--pl:.2183}
+}
+
+/* tipografía dentro de nubes: siempre pizarra */
+.ceja{display:block;font-family:var(--font-texto);font-weight:500;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;line-height:1.3;margin-bottom:.35em}
+.nube h2{font-size:clamp(1.6rem,2.6vw,2.4rem)}
+.nube h3{font-family:var(--font-titulo);font-size:1.45rem;letter-spacing:.04em;margin-bottom:.3em;line-height:1.2}
+.sub{font-weight:500;font-size:1.12rem;line-height:1.35;margin-top:.25em}
+.nota{font-style:italic;font-size:var(--t-nota);line-height:1.45}
+.cifra{font-weight:700;font-variant-numeric:tabular-nums lining-nums;letter-spacing:.01em}
+.t-bloque{font-size:clamp(.98rem,.75rem + .35vw,1.0625rem);line-height:1.55}
+.t-bloque h3{margin-bottom:.35em}
+.t-tarjeta{font-size:.98rem;line-height:1.45}
+.t-tarjeta h3{font-size:1.3rem}
+@media (max-width:699px){
+  .t-bloque,.t-tarjeta{font-size:.95rem;line-height:1.48}
+  .t-bloque h3{font-size:1.25rem}
+  .nube h2{font-size:1.65rem}
+  .sub{font-size:1rem}
+}
+
+/* ---------------------------------------------------------------- historia: capítulos y beats */
+main{position:relative;z-index:3}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ch{position:relative}
+.beat{min-height:100vh;min-height:100svh;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;gap:clamp(20px,4vh,48px);
+  padding-block:12vh;max-width:1320px;margin:0 auto;padding-right:var(--rail)}
+.beat.corto{min-height:72vh;min-height:72svh}
+.beat.aire{min-height:70vh;min-height:70svh}
+.fila{display:flex;flex-wrap:wrap;gap:clamp(16px,3vw,40px);align-items:center}
+.izq{justify-self:start}
+.der{justify-self:end}
+.cen{justify-self:center}
+.w-bloque{--cw:min(940px,100%)}
+@media (max-width:1099px){ .w-bloque{--cw:min(520px,100%)} }
+.w-hero{--cw:min(820px,100%)}
+.w-tarjeta{--cw:min(420px,100%)}
+.w-columna{--cw:min(340px,100%)}
+.w-dato{--cw:min(340px,100%)}
+.w-cita{--cw:min(640px,100%)}
+.w-torre{--cw:min(460px,100%)}
+.w-lenti{--cw:min(760px,100%)}
+.w-estandarte{--cw:min(900px,100%)}
+@media (max-width:699px){
+  .w-tarjeta,.w-hero,.w-cita,.w-estandarte{--cw:min(380px,100%)}
+  .w-dato{--cw:min(300px,86%)}
+  .w-columna{--cw:min(320px,92%)}
+  .w-torre{--cw:min(340px,92%)}
+  .izq,.der{justify-self:center}
+}
+
+/* revelado (sólo con JS y movimiento permitido) */
+.js.anim .rv{opacity:0;transform:translate3d(0,46px,0) scale(.965);transition:opacity 1.1s var(--ease),transform 1.3s var(--ease)}
+.js.anim .rv.in{opacity:1;transform:none}
+.js.anim .rv.d1{transition-delay:.12s}.js.anim .rv.d2{transition-delay:.24s}.js.anim .rv.d3{transition-delay:.36s}
+.js.anim .flota{animation:flota 9s ease-in-out infinite}
+@keyframes flota{0%,100%{translate:0 0}50%{translate:0 -6px}}
+
+/* ---------------------------------------------------------------- portada */
+#portada .beat{min-height:100vh;min-height:100svh;align-content:space-between;justify-items:center;padding-block:6vh 4vh;gap:2vh}
+.portada-bajo{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0}
+.portada-bajo .portada-extra{margin-top:-26px;position:relative;z-index:1}
+.mantra,.final-mantra{text-shadow:1.5px 0 0 var(--pizarra),-1.5px 0 0 var(--pizarra),0 1.5px 0 var(--pizarra),0 -1.5px 0 var(--pizarra),1px 1px 0 var(--pizarra),-1px -1px 0 var(--pizarra),1px -1px 0 var(--pizarra),-1px 1px 0 var(--pizarra)}
+.mantra{font-size:clamp(1.4rem,2.6vw,2.2rem);line-height:1.9;letter-spacing:.06em;text-align:center}
+.mantra small{display:block;font-family:var(--font-texto);font-style:italic;font-size:.9rem;letter-spacing:.08em;color:var(--nieve);opacity:.9;line-height:1.2}
+.portada-nube{--cw:min(900px,100%)}
+.portada-nube .hero-titulo{font-family:var(--font-titulo);font-size:clamp(3rem,6.2vw,5.6rem);letter-spacing:var(--tracking-titulo);text-transform:uppercase;line-height:1;text-align:center;margin-right:-.14em}
+.portada-nube .sub{text-align:center;margin-top:.45em;font-size:clamp(1rem,1.6vw,1.3rem)}
+.hero-titulo .l{display:inline-block}
+.js.anim .hero-titulo .l{opacity:0;transform:translateY(.45em);transition:opacity .9s var(--ease),transform 1.1s var(--ease)}
+.js.anim .lista .hero-titulo .l{opacity:1;transform:none}
+.js.anim .portada-nube{opacity:0;transform:scale(.94) translateY(18px);transition:opacity 1.2s var(--ease),transform 1.6s var(--ease)}
+.js.anim .lista .portada-nube{opacity:1;transform:none}
+.js.anim .portada-extra{opacity:0;transition:opacity 1.2s var(--ease) .9s}
+.js.anim .lista .portada-extra{opacity:1}
+.portada-extra{display:grid;justify-items:center;gap:18px}
+@media (max-width:699px){
+  .portada-nube{--img:url('nubes/nube_hero_blanca.svg');aspect-ratio:1600/560;--pt:.1712;--pr:.12;--pb:.05;--pl:.12;--cw:100%}
+  .portada-nube .hero-titulo{font-size:clamp(2rem,10.4vw,3rem)}
+  .portada-nube .sub{font-size:.85rem;margin-top:.3em}
+  .portada-bajo .portada-extra{margin-top:14px}
+  #portada .beat{padding-block:max(64px,8vh) 5vh}
+  #ascensiones .pin-stage{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 36px),transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 36px),transparent 100%)}
+  .campo:not(.actual) .t-etiqueta{display:none}
+}
+
+/* CTA bandera: el único acento rojo de cada pantalla. Doble contorno como las nubes */
+.cta{appearance:none;border:0;cursor:pointer;font:500 .92rem/1 var(--font-texto);letter-spacing:.16em;text-transform:uppercase;color:var(--nieve);
+  background:var(--bandera);padding:1em 1.7em;border-radius:999px;box-shadow:0 0 0 3px var(--pizarra),0 0 0 8px var(--nube);
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease);text-decoration:none;display:inline-flex;align-items:center;gap:.7em}
+.cta:hover{transform:translateY(-2px);box-shadow:0 0 0 3px var(--pizarra),0 0 0 11px var(--nube)}
+.cta:focus-visible{outline:3px solid var(--liquen);outline-offset:12px}
+.cta svg{width:14px;height:14px}
+
+/* ---------------------------------------------------------------- piezas */
+.ficha dl{margin:.6em 0 0;display:grid;gap:.55em}
+.ficha dt{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;line-height:1.2}
+.ficha dd{margin:0;font-size:1rem;line-height:1.3}
+.ficha h3{font-size:1.35rem}
+.t-dato{text-align:center;display:grid;align-content:center}
+.t-dato .cifra{font-size:clamp(1.9rem,3.2vw,2.5rem);line-height:1.05;display:block}
+.t-dato .nota{font-size:.84rem;margin-top:.35em;line-height:1.3;font-style:normal}
+.t-dato .nota em{font-style:italic}
+@media (max-width:699px){ .t-dato .cifra{font-size:1.75rem} .t-dato .nota{font-size:.78rem} }
+.t-cita blockquote{margin:0;font-style:italic;font-size:1.12rem;line-height:1.5}
+.t-cita cite{display:block;margin-top:.6em;font-style:normal;font-size:.82rem;letter-spacing:.06em}
+@media (max-width:699px){ .t-cita blockquote{font-size:.98rem} }
+.t-torre{text-align:left}
+.t-torre .cifra{font-family:var(--font-titulo);font-weight:400;font-size:clamp(2.4rem,4vw,3.2rem);line-height:1;letter-spacing:.06em;display:block}
+.t-torre p{font-size:.95rem;line-height:1.4;margin-top:.35em}
+@media (max-width:699px){ .t-torre p{font-size:.86rem} }
+.t-lenticular{text-align:center;display:grid;align-content:center}
+.t-lenticular h2{font-size:clamp(1.3rem,2.4vw,2rem)}
+.lungta{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:.8em 0 0;padding:0}
+.lungta li{list-style:none;display:grid;gap:4px;font-size:.78rem;line-height:1.2;text-align:center}
+.lungta i{display:block;height:30px;border:2px solid var(--pizarra);clip-path:polygon(0 0,100% 0,100% 100%,0 86%)}
+@media (max-width:699px){ .lungta{grid-template-columns:repeat(5,1fr);gap:4px} .lungta li{font-size:.66rem} .lungta i{height:22px} }
+
+/* ---------------------------------------------------------------- secciones fijadas (ruta, línea del tiempo) */
+.pin{position:relative}
+.pin-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.marcas{position:absolute;inset:0;pointer-events:none}
+.marcas .beat{position:absolute;left:0;right:0;min-height:0;height:100vh;padding:0}
+#ruta{height:calc(var(--n) * 100vh)}
+.ruta-tarjetas{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);width:min(420px,calc(100vw - 32px))}
+.ruta-tarjetas .t-tarjeta{position:absolute;inset:auto 0 auto 0;--cw:100%;top:50%;transform:translateY(-50%) translateX(-14px);opacity:0;transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.ruta-tarjetas .t-tarjeta.on{opacity:1;transform:translateY(-50%)}
+@media (min-width:1100px){ .ruta-tarjetas{left:max(4vw,16px)} }
+@media (max-width:699px){
+  .ruta-tarjetas{top:auto;bottom:max(14px,env(safe-area-inset-bottom,0px));transform:none;left:50%;margin-left:min(-170px,calc(-50vw + 16px));width:min(340px,calc(100vw - 32px));height:min(340px,calc(100vw - 32px))}
+  .ruta-tarjetas .t-tarjeta{top:auto;bottom:0;transform:translateX(-10px)}
+  .ruta-tarjetas .t-tarjeta.on{transform:none}
+}
+#ascensiones{height:calc(var(--n) * 100vh)}
+#ascensiones .pin-stage{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 5vw,#000 calc(100% - var(--rail) - 140px),transparent calc(100% - var(--rail) + 10px));
+  mask-image:linear-gradient(90deg,transparent 0,#000 5vw,#000 calc(100% - var(--rail) - 140px),transparent calc(100% - var(--rail) + 10px))}
+.pista-h{position:absolute;top:50%;left:0;display:flex;gap:clamp(18px,3vw,48px);align-items:center;padding-inline:max(6vw,16px) calc(var(--rail) + 10vw);
+  transform:translate3d(0,-50%,0);will-change:transform}
+.pista-h .w-tarjeta{flex:0 0 auto;--cw:min(420px,78vw)}
+.pista-h .anio{display:block;font-family:var(--font-titulo);font-size:2.2rem;letter-spacing:.06em;line-height:1}
+.pista-h .t-tarjeta h3{font-family:var(--font-texto);font-weight:500;font-size:1.05rem;letter-spacing:.12em;text-transform:uppercase;margin:.3em 0 .35em}
+.pista-h .intro{flex:0 0 auto}
+.hilo{position:absolute;left:0;right:0;top:50%;height:2px;background:repeating-linear-gradient(90deg,var(--nube) 0 10px,transparent 10px 18px);opacity:.7}
+
+/* ---------------------------------------------------------------- superposiciones ancladas a la pintura */
+.pin-pico{position:absolute;left:0;top:0;opacity:0;transition:opacity .5s var(--ease);will-change:transform,opacity}
+.pin-pico .punto{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:var(--liquen);box-shadow:0 0 0 3px var(--pizarra),0 0 0 6px var(--nube)}
+.pin-pico .tallo{position:absolute;left:-1px;bottom:12px;width:2px;height:var(--h,54px);background:var(--nube);outline:1px solid var(--pizarra)}
+.pin-pico .t-etiqueta{position:absolute;bottom:calc(var(--h,54px) + 8px);left:0;transform:translateX(calc(-50% + var(--dx,0px)));--cw:var(--w,236px);max-width:none;text-align:center;
+  font-size:.88rem;line-height:1.15;white-space:nowrap}
+.pin-pico .t-etiqueta b{font-family:var(--font-titulo);font-weight:400;letter-spacing:.03em;font-size:1rem}
+.pin-pico .t-etiqueta span{font-weight:700;font-variant-numeric:tabular-nums}
+.pin-pico.abajo .tallo{bottom:auto;top:12px}
+.pin-pico.abajo .t-etiqueta{bottom:auto;top:calc(var(--h,54px) + 8px)}
+@media (max-width:699px){ .pin-pico .t-etiqueta{--w:196px;font-size:.76rem} .pin-pico .t-etiqueta b{font-size:.86rem} }
+#ruta-svg{position:absolute;left:0;top:0;overflow:visible;opacity:0;transition:opacity .6s var(--ease)}
+#ruta-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.campo{position:absolute;left:0;top:0;opacity:0;transition:opacity .5s var(--ease)}
+.campo .punto{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;background:var(--nube);box-shadow:0 0 0 3px var(--pizarra)}
+.campo .t-etiqueta{position:absolute;left:14px;top:-48px;--cw:176px;max-width:none;font-size:.84rem;line-height:1.1;white-space:nowrap}
+.campo .t-etiqueta b{font-weight:700;font-variant-numeric:tabular-nums}
+.campo.izq .t-etiqueta{left:auto;right:14px}
+.punta{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,#fff 0 30%,rgba(255,236,190,.85) 42%,rgba(255,236,190,0) 72%)}
+@media (max-width:699px){ .campo .t-etiqueta{--cw:150px;font-size:.74rem;top:-42px} }
+
+/* ---------------------------------------------------------------- altímetro */
+#altimetro{position:fixed;z-index:5;right:calc(18px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);height:min(58vh,520px);width:62px;
+  display:none;color:var(--nieve);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+@media (min-width:900px){ #altimetro{display:block} }
+#altimetro .riel{position:absolute;right:30px;top:0;bottom:0;width:3px;background:var(--nube);border-radius:3px;box-shadow:0 0 0 2px var(--pizarra)}
+#altimetro .lleno{position:absolute;right:30px;bottom:0;width:3px;background:var(--liquen);border-radius:3px;height:0}
+#altimetro button{position:absolute;right:20px;width:23px;height:23px;margin-bottom:-11.5px;padding:0;border:0;background:transparent;cursor:pointer;display:grid;place-items:center}
+#altimetro button i{display:block;width:9px;height:9px;border-radius:50%;background:var(--nube);box-shadow:0 0 0 2px var(--pizarra);transition:transform .3s var(--ease),background .3s}
+#altimetro button.pasado i{background:var(--liquen)}
+#altimetro button:hover i,#altimetro button:focus-visible i{transform:scale(1.5)}
+#altimetro button:focus-visible{outline:2px solid var(--liquen);outline-offset:2px;border-radius:50%}
+#altimetro button span{position:absolute;right:30px;top:50%;transform:translate(6px,-50%);opacity:0;pointer-events:none;white-space:nowrap;
+  font-weight:500;background:var(--pizarra-90);color:var(--nieve);padding:.35em .7em;border-radius:999px;transition:opacity .25s,transform .25s var(--ease)}
+#altimetro button:hover span,#altimetro button:focus-visible span{opacity:1;transform:translate(0,-50%)}
+#altimetro .marcador{position:absolute;right:23px;width:17px;height:17px;margin-bottom:-8.5px;bottom:0;border-radius:50%;background:var(--bandera);
+  box-shadow:0 0 0 3px var(--pizarra),0 0 0 6px var(--nube);will-change:bottom}
+#lectura{position:fixed;z-index:5;--cw:150px;max-width:none;text-align:center;right:calc(56px + env(safe-area-inset-right,0px));top:50%;margin-top:-37px;
+  font-size:1.1rem;line-height:1;pointer-events:none;will-change:transform;margin-top:-32px}
+#lectura .cifra{font-size:1.32rem}
+@media (max-width:899px){
+  #lectura{right:calc(10px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));margin-top:0;--cw:136px;transform:none!important}
+  #lectura .cifra{font-size:1.1rem}
+}
+
+/* ---------------------------------------------------------------- cargador */
+#cargador{position:fixed;inset:0;z-index:10;background:var(--pizarra);display:none;place-items:center;transition:opacity .8s var(--ease),visibility .8s}
+#cargador.fuera{opacity:0;visibility:hidden}
+#cargador .tibetano{font-size:clamp(1.5rem,3vw,2.3rem);text-align:center;line-height:2}
+#cargador .barra{width:min(240px,60vw);height:2px;background:rgba(238,240,242,.18);margin:18px auto 0;overflow:hidden}
+#cargador .barra i{display:block;height:100%;width:100%;background:var(--liquen);transform-origin:left;transform:scaleX(0);transition:transform .4s var(--ease)}
+#cargador p{color:var(--piedra);font-style:italic;font-size:.9rem;text-align:center;margin-top:14px}
+.js #cargador{display:grid}
+
+/* ---------------------------------------------------------------- final */
+.fuentes{font-size:.86rem;line-height:1.45}
+.fuentes ul{margin:.4em 0 0;padding-left:1.1em;columns:2;column-gap:1.6em}
+.fuentes li{break-inside:avoid;margin-bottom:.25em}
+.fuentes a{text-decoration-thickness:1px;text-underline-offset:2px}
+.fuentes a:focus-visible{outline:2px solid var(--bandera);outline-offset:2px}
+@media (max-width:699px){ .fuentes ul{columns:1} .fuentes{font-size:.74rem;line-height:1.32} }
+.pie{--cw:min(1320px,100%);margin:0 auto;font-size:.9rem;line-height:1.4;text-align:center}
+@media (max-width:699px){ .pie{font-size:.7rem;line-height:1.2} }
+.final-mantra{font-size:clamp(1.8rem,4vw,3.2rem);text-align:center;line-height:1.8}
+
+@media (prefers-reduced-motion:reduce){
+  .flota{animation:none!important}
+}
+</style>
+<script>document.documentElement.classList.add('js');setTimeout(function(){if(window.__manaslu)return;var p=document.getElementById('portada');p&&p.classList.add('lista');var c=document.getElementById('cargador');c&&c.classList.add('fuera');document.querySelectorAll('.rv').forEach(function(e){e.classList.add('in')});},7000);</script>
+
+<div id="cargador" aria-hidden="true">
+  <div>
+    <div class="tibetano">ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ</div>
+    <div class="barra"><i></i></div>
+    <p>Preparando el ascenso</p>
+  </div>
+</div>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<div id="overlay" aria-hidden="true">
+  <svg id="ruta-svg" viewBox="0 0 3840 2160" preserveAspectRatio="none">
+    <defs>
+      <mask id="revela" maskUnits="userSpaceOnUse" x="-200" y="-200" width="4240" height="2560">
+        <path id="ruta-mascara" d="" pathLength="1" stroke="#fff" stroke-width="60" stroke-dasharray="1 1" stroke-dashoffset="1"/>
+      </mask>
+    </defs>
+    <path id="ruta-fantasma" d="" stroke="#F7F8F9" stroke-width="2" stroke-opacity=".55" stroke-dasharray="2 7" vector-effect="non-scaling-stroke"/>
+    <g mask="url(#revela)">
+      <path id="ruta-halo" d="" stroke="#F7F8F9" stroke-width="9" vector-effect="non-scaling-stroke"/>
+      <path id="ruta-linea" d="" stroke="#A8432F" stroke-width="4" vector-effect="non-scaling-stroke"/>
+    </g>
+  </svg>
+  <i class="punta" id="punta"></i>
+</div>
+<div id="paso" aria-hidden="true"><i class="jiron j1"></i><i class="jiron j2"></i></div>
+
+<nav id="altimetro" aria-label="Altímetro: saltar a cada campo">
+  <div class="riel"></div><div class="lleno" id="lleno"></div>
+  <div class="marcador" id="marcador"></div>
+</nav>
+<div id="lectura" class="nube t-etiqueta" aria-hidden="true"><span class="cifra" id="lectura-n">3&#8239;520 m</span></div>
+
+<main>
+<!-- ============================================================ 0 · PORTADA -->
+<section class="ch wrap" id="portada" data-img="samagaon" data-snow="0">
+  <div class="beat" data-shot="0.5 0.45 1.0 0.5" data-alt="3520" data-lugar="Samagaon">
+    <div class="mantra tibetano portada-extra" lang="bo">ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ<small lang="sa-Latn">Om mani padme hum</small></div>
+    <div class="portada-bajo">
+      <header class="nube t-hero portada-nube">
+        <h1 class="hero-titulo" aria-label="Manaslu">MANASLU</h1>
+        <p class="sub">La montaña del espíritu · <span class="cifra">8&#8239;163 m</span></p>
+      </header>
+      <div class="portada-extra">
+        <a class="cta" href="#nombre" data-salto="nombre">Comenzar el ascenso
+          <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1v12M2 8l5 5 5-5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 1 · EL NOMBRE -->
+<section class="ch wrap" id="nombre" data-img="samagaon" data-snow="0">
+  <div class="beat aire" data-shot="0.5 0.47 1.04 0.5" data-alt="3520" data-pins="ngadi manaslu norte" data-lugar="Samagaon">
+    <p class="sr">Desde Samagaon se ven, de izquierda a derecha, el Ngadi Chuli, el Manaslu y el Manaslu Norte.</p>
+  </div>
+  <div class="beat" data-shot="0.52 0.36 1.18 0.74" data-alt="3520" data-lugar="Samagaon">
+    <header class="nube t-hero w-hero izq rv">
+      <span class="ceja">Samagaon · 3&#8239;520 m</span>
+      <h2>El nombre</h2>
+      <p class="sub">Lo que significa la montaña antes de escalarla</p>
+    </header>
+    <article class="nube t-bloque w-bloque izq rv d1">
+      <h3>La montaña del espíritu</h3>
+      <p>Manaslu viene del sánscrito <em>manasa</em>: intelecto, alma. Los nubri, el pueblo de lengua y tradición tibetanas que vive a sus pies, la llaman <strong>Kutang</strong> y la tienen por morada de <strong>Pungyen</strong>, su deidad protectora; el monasterio que lleva su nombre, a unos 4&#8239;000 m, mira de frente a sus glaciares. Es la octava montaña más alta de la Tierra y la cumbre mayor del Mansiri Himal, en el distrito nepalí de Gorkha.</p>
+    </article>
+  </div>
+  <div class="beat" data-shot="0.52 0.40 1.0 0.5" data-alt="3520" data-pins="manaslu" data-lugar="Samagaon">
+    <div class="fila" style="justify-content:space-between;align-items:end">
+      <aside class="nube t-columna w-columna ficha rv">
+        <h3>Ficha</h3>
+        <dl>
+          <div><dt>Altitud</dt><dd><span class="cifra">8&#8239;163 m</span>, la 8.ª del mundo</dd></div>
+          <div><dt>Prominencia</dt><dd><span class="cifra">3&#8239;092 m</span></dd></div>
+          <div><dt>Macizo</dt><dd>Mansiri Himal, Nepal</dd></div>
+          <div><dt>Coordenadas</dt><dd>28°33′ N · 84°33′ E</dd></div>
+          <div><dt>Primera ascensión</dt><dd>9 de mayo de 1956</dd></div>
+          <div><dt>Ruta normal</dt><dd>Cara noreste</dd></div>
+        </dl>
+      </aside>
+      <figure class="nube t-cita w-cita rv d2 flota" style="margin:0">
+        <blockquote>«Manasa: en sánscrito, la mente, el espíritu. La montaña lleva el nombre de lo que no se ve.»</blockquote>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 2 · CULTURA -->
+<section class="ch wrap" id="cultura" data-img="samagaon" data-snow="0">
+  <div class="beat" data-shot="0.27 0.80 1.5 0.66" data-alt="3520" data-lugar="Samagaon">
+    <header class="nube t-hero w-hero izq rv">
+      <span class="ceja">El valle de Nubri</span>
+      <h2>Piedras que rezan</h2>
+      <p class="sub">Muros mani, chorten y la regla del lado derecho</p>
+    </header>
+    <article class="nube t-bloque w-bloque izq rv d1">
+      <h3>Los muros mani</h3>
+      <p>Antes de ver la montaña se ven las piedras. Los muros mani recorren el valle: lajas talladas una a una con el mantra <em>Om mani padme hum</em>, a veces pintadas, gastadas por el viento. La costumbre manda dejarlos siempre a la derecha y caminar en el sentido de las agujas del reloj, igual que se rodea un chorten o un monasterio. Así se acumula mérito sin decir una palabra.</p>
+    </article>
+  </div>
+  <div class="beat" data-shot="0.80 0.79 1.45 0.34" data-alt="3520" data-lugar="Samagaon">
+    <article class="nube t-bloque w-bloque der rv">
+      <h3>Samagaon, 3&#8239;520 m</h3>
+      <p>Es el último gran pueblo antes del campo base: casas de piedra con tejados de tablillas sujetos con piedras, leña apilada en los bordes, campos de cebada y alforfón, yaks en las terrazas. Aquí se contratan porteadores y animales de carga. El valle es zona restringida y exige un permiso especial; el circuito de trekking que rodea el macizo cruza el paso de Larkya, a unos 5&#8239;100 m.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ 3 · CAMPO BASE · PUJA -->
+<section class="ch wrap" id="puja" data-img="campo-base" data-snow="0.08" data-wind="0.6">
+  <div class="beat" data-shot="0.5 0.5 1.0 0.5" data-alt="4850" data-pins="manaslu norte" data-lugar="Campo Base">
+    <header class="nube t-hero w-hero der rv">
+      <span class="ceja">Campo Base · 4&#8239;850 m</span>
+      <h2>Pedir permiso a la montaña</h2>
+      <p class="sub">La puja, antes de pisar el glaciar</p>
+    </header>
+  </div>
+  <div class="beat" data-shot="0.19 0.74 1.55 0.3" data-alt="4850" data-lugar="Campo Base">
+    <article class="nube t-bloque w-bloque der rv">
+      <h3>La puja</h3>
+      <p>Ninguna expedición sube sin ella. Un lama recita oraciones frente a un altar de piedras levantado en el campo base; se quema enebro, se ofrecen arroz, cebada y alcohol, y se bendicen piolets, crampones y botas. Del mástil central parten cuerdas de banderas hacia los cuatro lados. Para los sherpas es la forma de pedir permiso para subir y protección para volver.</p>
+    </article>
+    <article class="nube t-bloque w-bloque der rv d1">
+      <h3>Lungta, los caballos del viento</h3>
+      <p>Las banderas de oración siguen siempre el mismo orden de colores. Cada vez que el viento las agita, se dice, esparce las plegarias impresas en ellas.</p>
+      <ul class="lungta" aria-label="Los cinco colores de las banderas">
+        <li><i style="background:#345CC4"></i>Cielo</li>
+        <li><i style="background:#F0F0EC"></i>Aire</li>
+        <li><i style="background:#CE342E"></i>Fuego</li>
+        <li><i style="background:#369652"></i>Agua</li>
+        <li><i style="background:#F0CC34"></i>Tierra</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ 4 · EL MACIZO -->
+<section class="ch wrap" id="macizo" data-img="macizo" data-snow="0">
+  <div class="beat" data-shot="0.5 0.42 1.0 0.5" data-alt="4850" data-lugar="Vista aérea">
+    <header class="nube t-hero w-hero izq rv" style="align-self:end">
+      <span class="ceja">Vista aérea desde el noreste</span>
+      <h2>El macizo</h2>
+      <p class="sub">Una corona de hielo entre dos ríos</p>
+    </header>
+    <article class="nube t-bloque w-bloque izq rv d1">
+      <p>Visto desde el aire, el Manaslu no está solo. Forma con sus vecinos el Mansiri Himal, un macizo de hielo entre el valle del Budhi Gandaki, al este, y el del Marsyangdi, al oeste. Abajo, a la derecha de la imagen, quedan Samagaon y el campo base; los valles bajos duermen bajo ríos de nube. El relieve de esta vista es real: sale de un modelo de elevación ASTER.</p>
+    </article>
+  </div>
+  <div class="beat corto" data-shot="0.643 0.42 1.32 0.64" data-alt="4850" data-pins="manaslu" data-lugar="Vista aérea">
+    <article class="nube t-tarjeta w-tarjeta izq rv">
+      <span class="ceja">Cumbre principal</span>
+      <h3>Manaslu · <span class="cifra">8&#8239;163</span></h3>
+      <p>Una pirámide de roca y hielo sobre una larga meseta helada. En su arista este se alza el Pináculo Este, de 7&#8239;992 m, sin ascensiones registradas a su punta.</p>
+    </article>
+  </div>
+  <div class="beat corto" data-shot="0.80 0.44 1.36 0.64" data-alt="4850" data-pins="norte" data-lugar="Vista aérea">
+    <article class="nube t-tarjeta w-tarjeta izq rv">
+      <span class="ceja">Al norte del collado</span>
+      <h3>Manaslu Norte · <span class="cifra">7&#8239;157</span></h3>
+      <p>Hermano menor, al otro lado del Collado Norte. Primera ascensión el 25 de octubre de 1964, aún discutida. Su altura cambia según el mapa: la Himalayan Database le da 6&#8239;994 m.</p>
+    </article>
+  </div>
+  <div class="beat corto" data-shot="0.46 0.42 1.36 0.7" data-alt="4850" data-pins="ngadi" data-lugar="Vista aérea">
+    <article class="nube t-tarjeta w-tarjeta izq rv">
+      <span class="ceja">También llamado Peak 29</span>
+      <h3>Ngadi Chuli · <span class="cifra">7&#8239;871</span></h3>
+      <p>Una probable primera ascensión japonesa en 1970 nunca se confirmó: sus dos alpinistas murieron en el descenso. La primera segura fue polaca, en 1979, por el contrafuerte oeste.</p>
+    </article>
+  </div>
+  <div class="beat corto" data-shot="0.12 0.42 1.36 0.7" data-alt="4850" data-pins="himalchuli" data-lugar="Vista aérea">
+    <article class="nube t-tarjeta w-tarjeta der rv">
+      <span class="ceja">El gigante del sur</span>
+      <h3>Himalchuli · <span class="cifra">7&#8239;893</span></h3>
+      <p>Primera ascensión el 24 de mayo de 1960, por los japoneses Hisashi Tanabe y Masahiro Harada, por la arista de la Hoz. Usaron oxígeno embotellado, algo raro en un sietemil.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ 5 · LA RUTA (fijada) -->
+<section class="ch wrap" id="ruta-intro" data-img="macizo" data-snow="0">
+  <div class="beat corto" data-shot="0.66 0.50 1.25 0.62" data-alt="4850" data-lugar="La ruta normal">
+    <header class="nube t-hero w-hero izq rv">
+      <span class="ceja">Cara noreste · 3&#8239;313 m de desnivel</span>
+      <h2>La ruta normal</h2>
+      <p class="sub">Del campo base a la cumbre en cuatro campamentos</p>
+    </header>
+    <article class="nube t-bloque w-bloque izq rv d1">
+      <p>Es, en esencia, el camino de los japoneses de 1956: la morrena, el glaciar del Manaslu, la cascada de hielo, el Collado Norte, la gran meseta y la arista final. La línea roja sigue el relieve real entre las posiciones de los campos. Sigue bajando y la verás subir.</p>
+    </article>
+  </div>
+</section>
+<section class="ch pin" id="ruta" data-img="macizo" data-snow="0" data-sy-movil="0.3" style="--n:7">
+  <div class="pin-stage">
+    <div class="ruta-tarjetas">
+      <article class="nube t-tarjeta" data-campo="cb"><span class="ceja">Paso 1 de 6</span><h3>Campo Base · <span class="cifra">4&#8239;850</span></h3><p>Sobre la morrena, a unas horas de Samagaon. Puja, aclimatación y rotaciones antes del primer ataque.</p></article>
+      <article class="nube t-tarjeta" data-campo="c1"><span class="ceja">Paso 2 de 6</span><h3>Campo 1 · <span class="cifra">5&#8239;700</span></h3><p>Al pie de la pared, sobre el glaciar. Desde aquí la cumbre queda a unos 3 km y 40° por encima del horizonte.</p></article>
+      <article class="nube t-tarjeta" data-campo="c2"><span class="ceja">Paso 3 de 6</span><h3>Campo 2 · <span class="cifra">6&#8239;400</span></h3><p>Tras la cascada de hielo: seracs, grietas, escaleras y cuerda fija. Es el tramo más técnico de la ruta.</p></article>
+      <article class="nube t-tarjeta" data-campo="c3"><span class="ceja">Paso 4 de 6</span><h3>Campo 3 · <span class="cifra">6&#8239;800</span></h3><p>Junto al Collado Norte, con el Manaslu Norte enfrente al amanecer y el mar de nubes abajo.</p></article>
+      <article class="nube t-tarjeta" data-campo="c4"><span class="ceja">Paso 5 de 6</span><h3>Campo 4 · <span class="cifra">7&#8239;400</span></h3><p>Al borde de la meseta. Se sale hacia medianoche, con frontales, para volver antes de que cambie el tiempo.</p></article>
+      <article class="nube t-tarjeta" data-campo="cumbre"><span class="ceja">Paso 6 de 6</span><h3>Cumbre · <span class="cifra">8&#8239;163</span></h3><p>Rampas hasta la meseta cimera y una arista estrecha y cornisada. La cima verdadera se esconde tras una antecima.</p></article>
+    </div>
+  </div>
+  <div class="marcas">
+    <i class="beat" data-shot="0.655 0.62 1.45 0.62" data-alt="4850" data-route="cb" data-lugar="Campo Base"></i>
+    <i class="beat" data-shot="0.69 0.57 1.5 0.62" data-alt="5700" data-route="c1" data-lugar="Campo 1"></i>
+    <i class="beat" data-shot="0.70 0.50 1.55 0.62" data-alt="6400" data-route="c2" data-lugar="Campo 2"></i>
+    <i class="beat" data-shot="0.69 0.46 1.58 0.62" data-alt="6800" data-route="c3" data-lugar="Campo 3"></i>
+    <i class="beat" data-shot="0.675 0.42 1.6 0.62" data-alt="7400" data-route="c4" data-lugar="Campo 4"></i>
+    <i class="beat" data-shot="0.66 0.40 1.6 0.62" data-alt="8163" data-route="cumbre" data-lugar="Cumbre"></i>
+    <i class="beat" data-shot="0.62 0.45 1.12 0.6" data-alt="8163" data-route="cumbre" data-lugar="La ruta normal"></i>
+  </div>
+</section>
+
+<!-- ============================================================ 6 · CAMPO 1 · LA MONTAÑA DE JAPÓN -->
+<section class="ch wrap" id="historia" data-img="campo-1" data-snow="0.12" data-wind="0.4">
+  <div class="beat" data-shot="0.40 0.40 1.08 0.5" data-alt="5700" data-lugar="Campo 1">
+    <header class="nube t-hero w-hero der rv">
+      <span class="ceja">Campo 1 · 5&#8239;700 m</span>
+      <h2>La montaña de Japón</h2>
+      <p class="sub">Seis años, una aldea en contra y una cumbre</p>
+    </header>
+    <article class="nube t-bloque w-bloque der rv d1">
+      <h3>1950–1955</h3>
+      <p>En 1950 el británico H.&#8239;W. Tilman la vio de cerca mientras exploraba la zona del Annapurna y juzgó que había ruta. Japón la hizo suya: un reconocimiento en 1952 y, en 1953, una expedición que llegó a 7&#8239;750 m. En 1954 los vecinos de Sama y sus lamas les cerraron el paso: culpaban a la expedición anterior de una avalancha y de epidemias de viruela. Una misión de 1955 negoció la paz.</p>
+    </article>
+  </div>
+  <div class="beat" data-shot="0.33 0.30 1.22 0.66" data-alt="5700" data-lugar="Campo 1">
+    <div class="fila" style="justify-content:flex-start;align-items:end">
+      <article class="nube t-torre w-torre rv">
+        <span class="cifra">1956</span>
+        <p>9 de mayo. Toshio Imanishi y el sirdar Gyalzen Norbu pisan la cumbre.</p>
+      </article>
+      <figure class="nube t-cita w-cita rv d2 flota" style="margin:0">
+        <blockquote>La ascensión dio valor y esperanza a un Japón desmoralizado por la derrota en la Segunda Guerra Mundial.</blockquote>
+        <figcaption><cite>The Japan Times, 2016, en el homenaje a Minoru Higeta, de la segunda cordada</cite></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 7 · CAMPO 2 · ASCENSIONES (fijada, horizontal) -->
+<section class="ch wrap" id="ascensiones-intro" data-img="campo-2" data-snow="0.15" data-wind="0.8">
+  <div class="beat corto" data-shot="0.32 0.55 1.12 0.5" data-alt="6400" data-lugar="Campo 2">
+    <header class="nube t-hero w-hero izq rv">
+      <span class="ceja">Campo 2 · 6&#8239;400 m</span>
+      <h2>Ascensiones que hicieron historia</h2>
+      <p class="sub">Cinco fechas que cambiaron la montaña</p>
+    </header>
+  </div>
+</section>
+<section class="ch pin" id="ascensiones" data-img="campo-2" data-snow="0.15" data-wind="0.8" style="--n:5">
+  <div class="pin-stage">
+    <div class="hilo"></div>
+    <div class="pista-h" id="pista-h">
+      <article class="nube t-tarjeta w-tarjeta"><span class="anio">1956</span><h3>Primera ascensión</h3><p>Toshio Imanishi y Gyalzen Norbu, el 9 de mayo, por el norte. El 11 repiten Kiichiro Kato y Minoru Higeta. La expedición la dirige Yūkō Maki.</p></article>
+      <article class="nube t-tarjeta w-tarjeta"><span class="anio">1972</span><h3>La cara sur</h3><p>Reinhold Messner abre una vía nueva por la cara sur y llega solo a la cumbre el 25 de abril, sin oxígeno embotellado.</p></article>
+      <article class="nube t-tarjeta w-tarjeta"><span class="anio">1974</span><h3>Primeras mujeres</h3><p>El 4 de mayo, Naoko Nakaseko, Masako Uchida y Mieko Mori, de una expedición femenina japonesa: por primera vez, mujeres en la cima de un ochomil.</p></article>
+      <article class="nube t-tarjeta w-tarjeta"><span class="anio">1984</span><h3>Primera invernal</h3><p>12 de enero: Maciej Berbeka y Ryszard Gajewski, por la cara sur, con viento muy fuerte. Primera invernal de un ochomil sin oxígeno embotellado.</p></article>
+      <article class="nube t-tarjeta w-tarjeta"><span class="anio">2021</span><h3>La cumbre verdadera</h3><p>Equipos nepalíes fijan cuerda hasta el punto más alto y un dron fotografía la diferencia con la antecima. Desde 2022 solo cuenta la cima verdadera.</p></article>
+    </div>
+  </div>
+  <div class="marcas">
+    <i class="beat" data-shot="0.30 0.58 1.18 0.5" data-alt="6400" data-h="0" data-lugar="Campo 2"></i>
+    <i class="beat" data-shot="0.40 0.58 1.18 0.5" data-alt="6400" data-h="0.25" data-lugar="Campo 2"></i>
+    <i class="beat" data-shot="0.50 0.58 1.18 0.5" data-alt="6400" data-h="0.5" data-lugar="Campo 2"></i>
+    <i class="beat" data-shot="0.60 0.58 1.18 0.5" data-alt="6400" data-h="0.75" data-lugar="Campo 2"></i>
+    <i class="beat" data-shot="0.70 0.58 1.18 0.5" data-alt="6400" data-h="1" data-lugar="Campo 2"></i>
+  </div>
+</section>
+
+<!-- ============================================================ 8 · CAMPO 3 · HAZAÑAS -->
+<section class="ch wrap" id="hazanas" data-img="campo-3" data-snow="0.18" data-wind="1.2">
+  <div class="beat" data-shot="0.42 0.42 1.06 0.62" data-alt="6800" data-lugar="Campo 3">
+    <header class="nube t-hero w-hero izq rv">
+      <span class="ceja">Campo 3 · 6&#8239;800 m</span>
+      <h2>Hazañas en cifras</h2>
+      <p class="sub">Velocidad, esquís y un sirdar irrepetible</p>
+    </header>
+    <div class="fila" style="justify-content:flex-start">
+      <div class="nube t-dato w-dato rv d1"><span class="cifra">2</span><p class="nota">ochomiles: Gyalzen Norbu, el primero en escalar dos <em>(Makalu 1955 y Manaslu 1956)</em></p></div>
+      <div class="nube t-dato w-dato rv d2"><span class="cifra">14 h 05</span><p class="nota">del campo base a la cumbre: Andrzej Bargiel, 2014</p></div>
+      <div class="nube t-dato w-dato rv d3"><span class="cifra">21 h 14</span><p class="nota">ida y vuelta al campo base, bajando con esquís</p></div>
+    </div>
+  </div>
+  <div class="beat corto" data-shot="0.5 0.6 1.25 0.5" data-alt="6800" data-lugar="Campo 3">
+    <article class="nube t-bloque w-bloque der rv">
+      <h3>Una montaña para esquiadores</h3>
+      <p>Sus largas pendientes de nieve hacen del Manaslu un ochomil buscado por el esquí de montaña. Bargiel batió en 2014 la marca anterior, del alemán Benedikt Böhm (15 horas de subida, 23 h 30 min ida y vuelta). La misma nieve que permite esquiar es la que se desprende en avalancha.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ 9 · CAMPO 4 · ANÉCDOTAS (noche) -->
+<section class="ch wrap" id="anecdotas" data-img="campo-4" data-snow="0.42" data-wind="0.35">
+  <div class="beat" data-shot="0.5 0.5 1.04 0.5" data-alt="7400" data-lugar="Campo 4">
+    <header class="nube t-hero w-hero izq rv">
+      <span class="ceja">Campo 4 · 7&#8239;400 m · medianoche</span>
+      <h2>Historias de la noche</h2>
+      <p class="sub">Lo que se cuenta en las tiendas antes del ataque</p>
+    </header>
+    <article class="nube t-bloque w-bloque izq rv d1">
+      <h3>La tormenta de 1972</h3>
+      <p>Messner llegó a la cumbre a las dos de la tarde del 25 de abril; su compañero Franz Jäger se había dado la vuelta. En el descenso estalló una ventisca. Jäger nunca apareció, y Andi Schlick, que salió a buscarlo, murió esa noche de frío y agotamiento. Messner lo llevó al cine décadas después en <em>Sturm am Manaslu</em>.</p>
+    </article>
+  </div>
+  <div class="beat" data-shot="0.58 0.62 1.3 0.4" data-alt="7400" data-lugar="Campo 4">
+    <article class="nube t-bloque w-bloque der rv">
+      <h3>Leyendo cuando cayó el serac</h3>
+      <p>Hacia las 4:45 del 23 de septiembre de 2012 un serac se desprendió sobre el Campo 3 y murieron once personas. El esquiador Glen Plake estaba despierto, leyendo la Biblia con el frontal, cuando la avalancha lo arrastró unos 300 metros. Se detuvo dentro del saco, dentro de la tienda y con el frontal encendido. Su compañero de tienda, Greg Costa, nunca apareció.</p>
+    </article>
+  </div>
+  <div class="beat" data-shot="0.42 0.55 1.16 0.6" data-alt="7400" data-lugar="Campo 4">
+    <div class="fila" style="justify-content:space-between;align-items:center">
+      <article class="nube t-tarjeta w-tarjeta rv">
+        <span class="ceja">Abril de 1972</span>
+        <h3>El peor año</h3>
+        <p>Una avalancha sepultó el campamento de una expedición coreana a unos 6&#8239;500 m en la cara noreste. Sigue siendo la peor tragedia registrada en la montaña.</p>
+      </article>
+      <article class="nube t-tarjeta w-tarjeta rv d2">
+        <span class="ceja">26 de septiembre de 2022</span>
+        <h3>Hilaree Nelson</h3>
+        <p>La esquiadora empezó a bajar desde la cumbre con su compañero Jim Morrison. Una avalancha la arrastró hacia la cara sur; la encontraron dos días después.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 10 · CUMBRE -->
+<section class="ch wrap" id="cumbre" data-img="cumbre" data-snow="0.55" data-wind="2.6">
+  <div class="beat corto" data-shot="0.5 0.5 1.06 0.5" data-alt="8163" data-lugar="Cumbre">
+    <header class="nube t-estandarte w-estandarte izq rv">
+      <span class="ceja">Cumbre · 8&#8239;163 m</span>
+      <h2>La cumbre verdadera</h2>
+    </header>
+  </div>
+  <div class="beat aire" data-shot="0.45 0.47 1.0 0.5" data-alt="8163" data-pins="himalchuli ngadi" data-lugar="Cumbre">
+    <p class="sr">Desde la cima, el Himalchuli a 15 km y el Ngadi Chuli a 6 km asoman sobre el mar de nubes.</p>
+  </div>
+  <div class="beat" data-shot="0.5 0.56 1.14 0.5" data-alt="8163" data-lugar="Cumbre">
+    <article class="nube t-bloque w-bloque izq rv">
+      <h3>La cima escondida</h3>
+      <p>Durante décadas, casi todos se detuvieron en una antecima, donde terminaban las cuerdas fijas, a unas decenas de metros del punto más alto y con una arista afilada y cornisada de por medio. Eberhard Jurgalski empezó a sospecharlo en 2007 comparando fotos de cumbre. En 2021, las imágenes con dron del equipo de Mingma G mostraron la diferencia de altura sin dejar dudas.</p>
+    </article>
+    <div class="fila" style="justify-content:flex-end">
+      <div class="nube t-dato w-dato rv d1"><span class="cifra">6 de 35</span><p class="nota">alpinistas de los catorce ochomiles estudiados por Jurgalski pisaron la cima verdadera</p></div>
+      <div class="nube t-dato w-dato rv d2"><span class="cifra">2022</span><p class="nota">desde ese año la Himalayan Database solo cuenta la cumbre verdadera</p></div>
+    </div>
+  </div>
+  <div class="beat" data-shot="0.5 0.42 1.0 0.5" data-alt="8163" data-lugar="Cumbre">
+    <div class="final-mantra tibetano rv" lang="bo">ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ</div>
+    <div class="nube t-lenticular w-lenti cen rv d1"><h2>Bajar también es parte de la ruta</h2></div>
+    <div class="cen rv d2"><a class="cta" href="#portada" data-salto="portada">Volver a Samagaon
+      <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13V1M2 6l5-5 5 5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></a></div>
+  </div>
+  <div class="beat corto" data-shot="0.5 0.62 1.18 0.5" data-alt="8163" data-lugar="Cumbre" style="align-content:end;padding-bottom:4vh">
+    <article class="nube t-bloque w-bloque cen fuentes rv">
+      <h3>Fuentes y créditos</h3>
+      <ul>
+        <li><a href="https://www.himalayanclub.org/hj/20/2/the-ascent-of-manaslu/" target="_blank" rel="noopener">Himalayan Journal: «The Ascent of Manaslu»</a></li>
+        <li><a href="https://himalayan-database.climbing-history.org/expedition/MANA54101/1954" target="_blank" rel="noopener">Himalayan Database: expedición de 1954</a></li>
+        <li><a href="https://publications.americanalpineclub.org/articles/12195517502/Asia-Nepal-Himalayas-Manaslu" target="_blank" rel="noopener">American Alpine Journal: 1954–1955</a></li>
+        <li><a href="https://www.japantimes.co.jp/news/2016/04/30/national/japanese-mountain-climber-higeta-honored-in-nepal-for-1956-conquering-of-mount-manaslu/" target="_blank" rel="noopener">The Japan Times: homenaje a Higeta (2016)</a></li>
+        <li><a href="https://abenteuer-berg.de/en/40-years-ago-berbeka-and-gajewski-achieve-the-first-winter-ascent-of-manaslu" target="_blank" rel="noopener">Abenteuer Berg: la invernal de 1984</a></li>
+        <li><a href="https://andrzejbargiel.com/en/manaslu/" target="_blank" rel="noopener">Andrzej Bargiel: Manaslu Ski Challenge</a></li>
+        <li><a href="https://explorersweb.com/revisiting-manaslus-two-worst-avalanches-1972-and-2012/" target="_blank" rel="noopener">Explorersweb: las avalanchas de 1972 y 2012</a></li>
+        <li><a href="https://www.markhorrell.com/blog/2021/amazing-drone-photos-of-the-summit-of-manaslu-help-to-set-the-record-straight/" target="_blank" rel="noopener">Mark Horrell: el dron y la cima verdadera</a></li>
+        <li><a href="https://ntnc.org.np/sites/default/files/doc_publication/2026-08/Pungyen_Gumba_En_0.pdf" target="_blank" rel="noopener">NTNC: Pungyen Gumba</a></li>
+      </ul>
+      <p class="nota" style="margin-top:.6em">Ilustraciones «pincel seco» pintadas sobre el modelo de elevación ASTER GDEM v3 (NASA/METI) desde la posición real de cada campo. Identidad «Mani».</p>
+    </article>
+  </div>
+</section>
+
+<footer class="wrap" style="position:relative;padding-block:0 3vh;padding-right:var(--rail)">
+  <div class="nube t-pie pie">
+    <p>Manaslu · <span class="cifra">8&#8239;163 m</span> · la montaña del espíritu</p>
+  </div>
+</footer>
+</main>
+
+<script>
+(() => {
+'use strict';
+const root = document.documentElement;
+root.classList.add('js');
+window.__manaslu = true;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!REDUCED) root.classList.add('anim');
+
+/* ------------------------------------------------------------------ datos */
+const IMG_W = 3840, IMG_H = 2160;
+const ORDER = ['samagaon', 'campo-base', 'macizo', 'campo-1', 'campo-2', 'campo-3', 'campo-4', 'cumbre'];
+// puntos de interés proyectados con la misma cámara que pintó cada escena (u, v en 0..1)
+const PINS = {
+  samagaon: { manaslu: [0.5193, 0.3335], norte: [0.8808, 0.4626], ngadi: [0.0541, 0.4631] },
+  'campo-base': { manaslu: [0.3342, 0.0903], norte: [0.9081, 0.2516] },
+  macizo: { manaslu: [0.6426, 0.3312], norte: [0.8034, 0.407], ngadi: [0.4601, 0.3658], himalchuli: [0.12, 0.3674] },
+  'campo-3': { norte: [0.4135, 0.3179] },
+  cumbre: { ngadi: [0.585, 0.4796], himalchuli: [0.2728, 0.4285] },
+};
+const PEAKS = {
+  manaslu: ['Manaslu', '8 163 m', 70], norte: ['Manaslu Norte', '7 157 m', 46],
+  ngadi: ['Ngadi Chuli', '7 871 m', 58], himalchuli: ['Himalchuli', '7 893 m', 50],
+};
+const CAMPS = { cb: ['Campo Base', 4850, 0], c1: ['Campo 1', 5700, 56], c2: ['Campo 2', 6400, 98], c3: ['Campo 3', 6800, 126],
+  c4: ['Campo 4', 7400, 154], cumbre: ['Cumbre', 8163, 182] };
+const ROUTE = '2492,1450;2500,1446;2508,1441;2515,1437;2522,1432;2530,1428;2537,1422;2545,1417;2552,1411;2559,1406;2566,1401;2573,1397;2580,1393;2587,1390;2594,1385;2601,1379;2607,1372;2614,1364;2620,1356;2626,1348;2633,1342;2639,1337;2645,1331;2651,1325;2657,1320;2663,1316;2669,1312;2675,1309;2681,1305;2685,1303;2689,1300;2693,1298;2697,1296;2701,1295;2705,1293;2709,1291;2713,1288;2716,1285;2720,1282;2724,1278;2728,1273;2732,1269;2736,1264;2738,1260;2741,1256;2743,1253;2746,1250;2749,1248;2751,1245;2754,1244;2756,1242;2759,1240;2761,1238;2764,1236;2766,1233;2769,1229;2771,1226;2771,1223;2771,1220;2771,1218;2771,1215;2771,1212;2772,1209;2772,1207;2772,1205;2772,1202;2772,1200;2772,1197;2772,1194;2772,1192;2772,1189;2773,1185;2774,1181;2775,1176;2776,1170;2776,1163;2777,1155;2778,1147;2779,1139;2779,1131;2780,1125;2781,1119;2782,1112;2782,1103;2783,1094;2783,1087;2784,1080;2784,1074;2784,1069;2784,1065;2784,1061;2784,1057;2784,1053;2784,1049;2784,1045;2784,1040;2784,1036;2784,1031;2784,1028;2781,1025;2777,1022;2774,1019;2771,1016;2767,1014;2764,1010;2761,1007;2757,1004;2754,1001;2751,998;2748,996;2744,993;2741,991;2738,988;2734,985;2730,982;2726,979;2722,977;2718,974;2714,971;2711,968;2707,964;2703,961;2700,957;2696,954;2692,950;2688,947;2685,943;2681,940;2678,937;2675,934;2672,931;2669,929;2666,926;2663,923;2660,920;2657,916;2654,913;2651,910;2648,907;2645,904;2642,901;2638,897;2635,893;2631,890;2628,886;2624,882;2620,877;2617,873;2613,868;2610,864;2606,859;2603,853;2599,848;2595,842;2592,836;2589,834;2585,831;2582,829;2578,826;2575,824;2571,822;2567,819;2564,816;2561,814;2557,811;2554,808;2550,806;2547,803;2543,800;2538,796;2532,790;2527,786;2521,780;2516,775;2511,769;2505,762;2500,755;2494,747;2489,740;2484,732;2478,725;2473,719;2468,715'.split(';').map(s => s.split(',').map(Number));
+const RAIL = [['Samagaon', 3520, 'nombre'], ['Campo Base', 4850, 'puja'], ['Campo 1', 5700, 'historia'], ['Campo 2', 6400, 'ascensiones-intro'],
+  ['Campo 3', 6800, 'hazanas'], ['Campo 4', 7400, 'anecdotas'], ['Cumbre', 8163, 'cumbre']];
+const ALT_MIN = 3520, ALT_MAX = 8163;
+
+const nf = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+/* ------------------------------------------------------------------ ruta: longitudes */
+const segLen = [0];
+for (let i = 1; i < ROUTE.length; i++) segLen.push(segLen[i - 1] + Math.hypot(ROUTE[i][0] - ROUTE[i - 1][0], ROUTE[i][1] - ROUTE[i - 1][1]));
+const TOTAL = segLen[segLen.length - 1];
+const campFrac = k => segLen[CAMPS[k][2]] / TOTAL;
+function routeAt(f) {
+  const L = clamp(f, 0, 1) * TOTAL;
+  let i = 1; while (i < segLen.length - 1 && segLen[i] < L) i++;
+  const t = (L - segLen[i - 1]) / Math.max(1e-6, segLen[i] - segLen[i - 1]);
+  return [lerp(ROUTE[i - 1][0], ROUTE[i][0], t), lerp(ROUTE[i - 1][1], ROUTE[i][1], t)];
+}
+function altOnRoute(f) {
+  const ks = Object.keys(CAMPS);
+  for (let i = 1; i < ks.length; i++) {
+    const f0 = campFrac(ks[i - 1]), f1 = campFrac(ks[i]);
+    if (f <= f1) return lerp(CAMPS[ks[i - 1]][1], CAMPS[ks[i]][1], clamp((f - f0) / Math.max(1e-6, f1 - f0), 0, 1));
+  }
+  return CAMPS.cumbre[1];
+}
+const dPath = 'M' + ROUTE.map(p => p[0] + ' ' + p[1]).join('L');
+['ruta-mascara', 'ruta-fantasma', 'ruta-halo', 'ruta-linea'].forEach(id => document.getElementById(id).setAttribute('d', dPath));
+// tramos: discontinua roja como la cuerda de las ilustraciones
+document.getElementById('ruta-linea').setAttribute('stroke-dasharray', '14 9');
+
+/* ------------------------------------------------------------------ superposiciones */
+const overlay = document.getElementById('overlay');
+const pinEls = {};
+for (const img in PINS) for (const k in PINS[img]) {
+  const [name, alt, h] = PEAKS[k];
+  const el = document.createElement('div');
+  el.className = 'pin-pico';
+  el.style.setProperty('--h', h + 'px');
+  el.innerHTML = `<i class="tallo"></i><i class="punto"></i><div class="nube t-etiqueta"><b>${name}</b> · <span>${alt.replace(' ', ' ')}</span></div>`;
+  overlay.appendChild(el);
+  pinEls[img + ':' + k] = { el, img, uv: PINS[img][k], w: 0 };
+}
+const campEls = {};
+for (const k in CAMPS) {
+  const el = document.createElement('div');
+  el.className = 'campo';
+  el.innerHTML = `<i class="punto"></i><div class="nube t-etiqueta">${CAMPS[k][0]} · <b>${nf(CAMPS[k][1])}</b></div>`;
+  overlay.appendChild(el);
+  const p = ROUTE[CAMPS[k][2]];
+  campEls[k] = { el, x: p[0], y: p[1], f: campFrac(k) };
+}
+const svg = document.getElementById('ruta-svg'), mask = document.getElementById('ruta-mascara'), tip = document.getElementById('punta');
+
+/* altímetro */
+const alti = document.getElementById('altimetro');
+const railBtns = RAIL.map(([name, alt, target]) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.style.bottom = ((alt - ALT_MIN) / (ALT_MAX - ALT_MIN) * 100) + '%';
+  b.innerHTML = `<i></i><span>${name} · ${nf(alt)} m</span>`;
+  b.setAttribute('aria-label', `${name}, ${nf(alt)} metros`);
+  b.addEventListener('click', () => go(target));
+  alti.appendChild(b);
+  return { b, alt };
+});
+const marcador = document.getElementById('marcador'), lleno = document.getElementById('lleno');
+const lectura = document.getElementById('lectura'), lecturaN = document.getElementById('lectura-n');
+
+function go(id) {
+  const el = document.getElementById(id); if (!el) return;
+  const y = el.getBoundingClientRect().top + scrollY + (id === 'portada' ? 0 : 2);
+  window.scrollTo({ top: y, behavior: REDUCED ? 'auto' : 'smooth' });
+}
+document.querySelectorAll('[data-salto]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); go(a.dataset.salto); }));
+
+/* ------------------------------------------------------------------ anclas (beats) */
+let anchors = [], VW = innerWidth, VH = innerHeight, MOBILE = VW < 700;
+const routeCards = [...document.querySelectorAll('.ruta-tarjetas [data-campo]')];
+const pistaH = document.getElementById('pista-h');
+const secAsc = document.getElementById('ascensiones');
+let pistaMax = 0, railH = 0, measuredW = 0, measuredH = 0;
+function measure() {
+  VW = innerWidth; VH = innerHeight; MOBILE = VW < 700; measuredW = VW; measuredH = VH;
+  // las marcas de las secciones fijadas ocupan una pantalla cada una
+  document.querySelectorAll('.pin').forEach(sec => {
+    sec.querySelectorAll('.marcas .beat').forEach((b, i) => { b.style.top = (i * VH) + 'px'; b.style.height = VH + 'px'; });
+    sec.style.height = (sec.querySelectorAll('.marcas .beat').length * VH) + 'px';
+  });
+  anchors = [...document.querySelectorAll('.beat')].map(b => {
+    const sec = b.closest('.ch');
+    const r = b.getBoundingClientRect();
+    const s = (b.dataset.shot || '0.5 0.5 1 0.5').split(/\s+/).map(Number);
+    return {
+      y: r.top + scrollY + r.height / 2,
+      img: sec.dataset.img,
+      cam: { u: s[0], v: s[1], z: s[2], sx: s[3] ?? 0.5, sy: +(sec.dataset.syMovil || 0.5) },
+      alt: +b.dataset.alt || 0,
+      lugar: b.dataset.lugar || '',
+      pins: (b.dataset.pins || '').split(/\s+/).filter(Boolean),
+      route: b.dataset.route || null,
+      h: b.dataset.h != null ? +b.dataset.h : null,
+      snow: +(sec.dataset.snow || 0), wind: +(sec.dataset.wind || 0),
+    };
+  }).sort((a, b) => a.y - b.y);
+  pistaMax = Math.max(0, pistaH.scrollWidth - VW);
+  railH = alti.getBoundingClientRect().height;
+  lastAltShown = -1;
+}
+
+/* ------------------------------------------------------------------ cámara y estado */
+function rectFor(cam, W, H) {
+  const base = Math.max(W / IMG_W, H / IMG_H);
+  const z = REDUCED ? Math.min(cam.z, 1.12) : cam.z;
+  const dw = IMG_W * base * z, dh = IMG_H * base * z;
+  const sx = MOBILE ? 0.5 : cam.sx, sy = MOBILE ? (cam.sy ?? 0.5) : 0.5;
+  let x = sx * W - cam.u * dw, y = sy * H - cam.v * dh;
+  x = clamp(x, W - dw, 0); y = clamp(y, H - dh, 0);
+  return [x, y, dw, dh];
+}
+function lerpCam(a, b, t) { return { u: lerp(a.u, b.u, t), v: lerp(a.v, b.v, t), z: lerp(a.z, b.z, t), sx: lerp(a.sx, b.sx, t), sy: lerp(a.sy, b.sy, t) }; }
+
+function computeState(s) {
+  let i = 0;
+  while (i < anchors.length - 1 && anchors[i + 1].y <= s) i++;
+  const a = anchors[i], b = anchors[Math.min(i + 1, anchors.length - 1)];
+  const t = b === a ? 0 : clamp((s - a.y) / (b.y - a.y), 0, 1);
+  const e = easeIO(t);
+  const st = { a, b, t, e, A: a.img, B: null, mix: 0, camA: a.cam, camB: null };
+  if (a.img === b.img) {
+    st.camA = lerpCam(a.cam, b.cam, e);
+  } else {
+    st.B = b.img;
+    st.mix = REDUCED ? sstep(0.4, 0.6, t) : easeIO(clamp((t - 0.18) / 0.64, 0, 1));
+    st.camA = { ...a.cam, z: a.cam.z * (1 + 0.06 * st.mix) };
+    st.camB = { ...b.cam, z: b.cam.z * (1 + 0.08 * (1 - st.mix)) };
+  }
+  st.alt = lerp(a.alt, b.alt, e);
+  st.lugar = t < 0.5 ? a.lugar : b.lugar;
+  st.snow = lerp(a.snow, b.snow, e); st.wind = lerp(a.wind, b.wind, e);
+  // ruta
+  const fa = a.route ? campFrac(a.route) : null, fb = b.route ? campFrac(b.route) : null;
+  if (fa != null && fb != null) { st.route = lerp(fa, fb, e); st.routeVis = 1; }
+  else if (fa != null) { st.route = fa; st.routeVis = 1 - sstep(0.15, 0.55, t); }
+  else if (fb != null) { st.route = 0; st.routeVis = sstep(0.45, 0.85, t); }
+  else { st.route = 0; st.routeVis = 0; }
+  // línea del tiempo horizontal
+  st.h = (a.h != null && b.h != null) ? lerp(a.h, b.h, t) : (a.h != null ? a.h : (b.h != null ? b.h : null));
+  return st;
+}
+
+/* ------------------------------------------------------------------ WebGL */
+const canvas = document.getElementById('stage');
+let gl = null;
+try { gl = canvas.getContext('webgl', { antialias: false, alpha: false, premultipliedAlpha: false, powerPreference: 'high-performance' }); } catch (_) {}
+const images = {};
+const big = Math.max(screen.width || VW, screen.height || VH) * Math.min(devicePixelRatio || 1, 2) > 1700;
+const srcOf = k => `img/${k}-${big ? 2560 : 1600}.webp`;
+function loadImage(k) {
+  if (images[k]) return images[k].p;
+  const rec = images[k] = { img: new Image(), ok: false, tex: null };
+  rec.img.decoding = 'async';
+  rec.p = new Promise(res => {
+    rec.img.onload = () => { (rec.img.decode ? rec.img.decode() : Promise.resolve()).catch(() => {}).then(() => { rec.ok = true; dirty = true; res(rec); }); };
+    rec.img.onerror = () => res(rec);
+  });
+  rec.img.src = srcOf(k);
+  return rec.p;
+}
+
+const VS = `attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
+const FS = `precision highp float;
+uniform sampler2D uA,uB;uniform vec4 uRA,uRB;uniform vec2 uRes;
+uniform float uMix,uTime,uSnow,uWind,uSeed,uBlankA,uDpr;
+float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+ return mix(mix(h21(i),h21(i+vec2(1,0)),u.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),u.x),u.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*vn(p);p=p*2.03+17.1;a*=.5;}return s;}
+vec3 tex(sampler2D t,vec4 r,vec2 f){vec2 uv=clamp((f-r.xy)/r.zw,vec2(.0004),vec2(.9996));return texture2D(t,uv).rgb;}
+const vec3 PIZ=vec3(.231,.259,.314);
+const vec3 NIEVE=vec3(.933,.941,.949);
+float snowL(vec2 f,float sc,float sp,float sz,float dens){
+ vec2 q=f/(uRes.y)*sc; float tt=uTime*sp;
+ q+=vec2(-uWind*tt*1.6,-tt);
+ vec2 c=floor(q),g=fract(q);float r=h21(c+uSeed);
+ if(r>dens)return 0.;
+ vec2 o=vec2(h21(c+3.1),h21(c+7.7))*.7+.15;
+ o.x+=.12*sin(uTime*1.3+r*40.);
+ vec2 d=(g-o)*vec2(1./(1.+abs(uWind)*1.1),1.);
+ float l=length(d);
+ return smoothstep(sz,sz*.25,l)*(.45+.55*h21(c+11.));
+}
+void main(){
+ vec2 f=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);
+ vec2 p=f/uRes;
+ vec3 col;
+ if(uMix<=0.0005){col=uBlankA>.5?PIZ:tex(uA,uRA,f);}
+ else if(uMix>=0.9995){col=tex(uB,uRB,f);}
+ else{
+  float an=-.33;mat2 R=mat2(cos(an),-sin(an),sin(an),cos(an));
+  vec2 q=R*((p-.5)*vec2(uRes.x/uRes.y,1.));
+  float strokes=fbm(q*vec2(2.4,15.)+uSeed);
+  float big=fbm(q*1.5+uSeed*1.7+3.);
+  float field=.42*strokes+.36*big+.34*(1.-p.y)+.02;
+  float m=mix(-.12,1.02,uMix);
+  float w=.045;
+  float k=1.-smoothstep(m-w,m+w,field);
+  float s=sin(3.14159*uMix);
+  vec2 disp=(vec2(fbm(q*3.+3.1),fbm(q*3.+7.7))-.5)*.05*s*uRes.y;
+  vec3 ca=uBlankA>.5?PIZ:tex(uA,uRA,f+disp*k);
+  vec3 cb=tex(uB,uRB,f-disp*(1.-k));
+  col=mix(ca,cb,k);
+  float edge=1.-smoothstep(0.,w*1.8,abs(field-m));
+  float chalk=step(.42,vn(f*.42/uDpr))*.6+step(.6,vn(f*.13/uDpr))*.4;
+  col=mix(col,NIEVE,edge*(.35+.45*chalk)*s);
+ }
+ if(uSnow>.001){
+  float sn=snowL(f,7.,.050,.11,uSnow*.55)*.55+snowL(f,12.,.034,.10,uSnow*.7)*.42+snowL(f,20.,.022,.09,uSnow*.85)*.3;
+  col=mix(col,vec3(.97,.975,.98),clamp(sn,0.,1.)*.85);
+ }
+ float vig=smoothstep(1.3,.32,length((p-.5)*vec2(1.,1.15)));
+ col*=mix(.78,1.,vig);
+ col+=(h21(f/uDpr+fract(uTime*7.)*97.)-.5)*.03;
+ gl_FragColor=vec4(col,1.);
+}`;
+
+let prog, loc = {}, dpr = 1, dirty = true, dummy = null;
+function sh(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+function initGL() {
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const pl = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(pl); gl.vertexAttribPointer(pl, 2, gl.FLOAT, false, 0, 0);
+  ['uA', 'uB', 'uRA', 'uRB', 'uRes', 'uMix', 'uTime', 'uSnow', 'uWind', 'uSeed', 'uBlankA', 'uDpr'].forEach(n => loc[n] = gl.getUniformLocation(prog, n));
+  gl.uniform1i(loc.uA, 0); gl.uniform1i(loc.uB, 1);
+  dummy = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, dummy);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([59, 66, 80]));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+}
+function makeTex(rec) {
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, rec.img);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  rec.tex = t;
+}
+let uploadsThisFrame = 0;
+function texOf(k) {
+  const rec = images[k];
+  if (!rec || !rec.ok) return null;
+  if (!rec.tex) { if (uploadsThisFrame > 0) return null; makeTex(rec); uploadsThisFrame++; }
+  return rec.tex;
+}
+function releaseFar(keep) {
+  for (const k in images) {
+    const rec = images[k];
+    if (rec.tex && !keep.has(k)) { gl.deleteTexture(rec.tex); rec.tex = null; }
+  }
+}
+function resize(force) {
+  const w = innerWidth, h = innerHeight;
+  const minor = !force && w === measuredW && Math.abs(h - measuredH) < 160;
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  if (w * h * dpr * dpr > 4.4e6) dpr = Math.sqrt(4.4e6 / (w * h));
+  if (gl) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); gl.viewport(0, 0, canvas.width, canvas.height); }
+  if (minor) { VH = h; } else measure();
+  dirty = true;
+}
+
+/* fallback sin WebGL: dos <img> con la misma cámara */
+let fbA, fbB;
+function initFallback() {
+  canvas.remove();
+  const box = document.createElement('div'); box.id = 'fallback'; box.setAttribute('aria-hidden', 'true');
+  fbA = new Image(); fbB = new Image(); fbA.alt = fbB.alt = ''; box.append(fbA, fbB);
+  document.body.prepend(box);
+}
+function placeImg(el, k, r, op) {
+  if (!k) { el.style.opacity = 0; return; }
+  const src = srcOf(k);
+  if (el.dataset.k !== k) { el.dataset.k = k; el.src = src; }
+  el.style.cssText = `left:0;top:0;width:${r[2]}px;height:${r[3]}px;transform:translate3d(${r[0]}px,${r[1]}px,0);opacity:${op}`;
+}
+
+/* ------------------------------------------------------------------ intro */
+let introT0 = 0, introOn = false;
+const INTRO_MS = REDUCED ? 600 : 2600;
+const portada = document.getElementById('portada');
+
+/* ------------------------------------------------------------------ bucle */
+let sv = scrollY, lastT = performance.now(), seed = Math.random() * 50;
+const jir1 = document.querySelector('#paso .j1'), jir2 = document.querySelector('#paso .j2');
+let lastAltShown = -1, lastLugar = '', lastCard = '', lastNewest = null;
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (document.hidden) return;
+  const dt = Math.min(64, now - lastT) / 1000; lastT = now;
+  const target = scrollY;
+  sv = REDUCED ? target : sv + (target - sv) * (1 - Math.exp(-dt * 9));
+  if (Math.abs(target - sv) < 0.3) sv = target;
+  const st = computeState(sv + VH / 2);
+  const W = VW, H = VH;
+  const rA = rectFor(st.camA, W, H), rB = st.B ? rectFor(st.camB, W, H) : null;
+
+  // intro: la primera pintura se pinta sobre la pizarra
+  let blankA = 0, mix = st.mix, A = st.A, B = st.B, RA = rA, RB = rB;
+  if (introOn) {
+    const k = clamp((now - introT0) / INTRO_MS, 0, 1);
+    if (k < 1) { blankA = 1; B = A; RB = rA; mix = easeIO(k); if (!st.B) A = st.A; }
+    else introOn = false;
+  }
+
+  if (gl) {
+    uploadsThisFrame = 0;
+    let tA = blankA ? null : texOf(A), tB = B ? texOf(B) : null;
+    if (!blankA && !tA) { blankA = 1; }
+    if (B && !tB) { mix = blankA ? 0 : 0; B = null; }
+    // precarga de vecinos
+    const ia = ORDER.indexOf(st.A);
+    const keep = new Set([st.A, st.B, ORDER[ia - 1], ORDER[ia + 1], ORDER[ia + 2]].filter(Boolean));
+    for (const k of keep) if (images[k] && images[k].ok && !images[k].tex && uploadsThisFrame === 0) texOf(k);
+    releaseFar(keep);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tA || tB || dummy);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tB || tA || dummy);
+    const d = dpr;
+    gl.uniform4f(loc.uRA, RA[0] * d, RA[1] * d, RA[2] * d, RA[3] * d);
+    const rb = RB || RA;
+    gl.uniform4f(loc.uRB, rb[0] * d, rb[1] * d, rb[2] * d, rb[3] * d);
+    gl.uniform2f(loc.uRes, canvas.width, canvas.height);
+    gl.uniform1f(loc.uMix, B ? mix : 0);
+    gl.uniform1f(loc.uBlankA, blankA);
+    gl.uniform1f(loc.uTime, now / 1000);
+    gl.uniform1f(loc.uSnow, REDUCED ? 0 : st.snow);
+    gl.uniform1f(loc.uWind, st.wind);
+    gl.uniform1f(loc.uSeed, seed + (st.a.y % 97));
+    gl.uniform1f(loc.uDpr, d);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  } else if (fbA) {
+    placeImg(fbA, st.A, rA, 1);
+    placeImg(fbB, st.B, rB || rA, st.B ? st.mix : 0);
+  }
+
+  // nubes de paso entre pinturas
+  const pm = st.B ? st.mix : 0;
+  if (!REDUCED) {
+    // dos bancos de jirones cruzan la pantalla en sentidos opuestos: opacos, entran y salen por los bordes
+    const inT = pm > 0.001 && pm < 0.999;
+    const w1 = Math.min(VW * 0.78, 1100), w2 = Math.min(VW * 0.64, 900);
+    jir1.style.opacity = inT ? 1 : 0;
+    jir1.style.transform = `translate3d(${lerp(VW * 0.52, -VW * 0.52 - w1, pm)}px,0,0)`;
+    jir2.style.opacity = inT ? 1 : 0;
+    jir2.style.transform = `translate3d(${lerp(-VW * 0.52 - w2, VW * 0.52, easeIO(pm))}px,0,0)`;
+  }
+
+  // picos anclados
+  const stable = !st.B || st.mix < 0.02;
+  for (const id in pinEls) {
+    const P = pinEls[id];
+    let w = 0;
+    if (stable && P.img === st.A) {
+      const key = id.split(':')[1];
+      const wa = st.a.pins.includes(key) ? 1 - sstep(0.2, 0.55, st.t) : 0;
+      const wb = (st.b.pins.includes(key) && st.b.img === st.A) ? sstep(0.45, 0.8, st.t) : 0;
+      w = Math.max(wa, wb);
+    }
+    if (P.img === st.A) {
+      const x = rA[0] + P.uv[0] * rA[2], y = rA[1] + P.uv[1] * rA[3];
+      P.el.style.transform = `translate3d(${x}px,${y}px,0)`;
+      const flip = y < 170;
+      if (flip !== P.flip) { P.el.classList.toggle('abajo', flip); P.flip = flip; }
+      const lw = VW < 700 ? 196 : 236, left = x - lw / 2;
+      const dx = Math.round(clamp(left, 10, VW - lw - (VW >= 900 ? 200 : 10)) - left);
+      if (dx !== P.dx) { P.el.style.setProperty('--dx', dx + 'px'); P.dx = dx; }
+    }
+    const o = w > 0.5 ? 1 : 0;
+    if (P.w !== o) { P.el.style.opacity = o; P.w = o; }
+  }
+
+  // ruta
+  const rv = st.routeVis * (st.A === 'macizo' && stable ? 1 : 0);
+  svg.style.opacity = rv > 0.5 ? 1 : 0;
+  if (rv > 0.01) {
+    svg.style.width = rA[2] + 'px'; svg.style.height = rA[3] + 'px';
+    svg.style.transform = `translate3d(${rA[0]}px,${rA[1]}px,0)`;
+    mask.setAttribute('stroke-dashoffset', String(1 - st.route));
+    const [tx, ty] = routeAt(st.route);
+    const sx = rA[2] / IMG_W;
+    tip.style.opacity = st.route > 0.002 && st.route < 0.998 ? 1 : 0;
+    tip.style.transform = `translate3d(${rA[0] + tx * sx}px,${rA[1] + ty * sx}px,0)`;
+  } else tip.style.opacity = 0;
+  let newest = null;
+  for (const k in campEls) {
+    const c = campEls[k];
+    const on = rv > 0.5 && st.route >= c.f - 0.004;
+    if (on) {
+      newest = k;
+      const sx = rA[2] / IMG_W, px = rA[0] + c.x * sx;
+      c.el.style.transform = `translate3d(${px}px,${rA[1] + c.y * sx}px,0)`;
+      const lw = VW < 700 ? 150 : 176, room = VW - (VW >= 900 ? 200 : 8);
+      const left = px + 14 + lw > room;
+      if (left !== c.left) { c.el.classList.toggle('izq', left); c.left = left; }
+    }
+    const o = on ? '1' : '0';
+    if (c.el.style.opacity !== o) c.el.style.opacity = o;
+  }
+  if (newest !== lastNewest) { for (const k in campEls) campEls[k].el.classList.toggle('actual', k === newest); lastNewest = newest; }
+  // tarjeta activa de la ruta
+  let best = '';
+  if (st.routeVis > 0.5) { let bd = 9; for (const k in CAMPS) { const dd = Math.abs(campFrac(k) - st.route); if (dd < bd) { bd = dd; best = k; } } }
+  if (best !== lastCard) { routeCards.forEach(c => c.classList.toggle('on', c.dataset.campo === best)); lastCard = best; }
+
+  // línea del tiempo horizontal
+  if (st.h != null) {
+    pistaH.style.transform = `translate3d(${-st.h * pistaMax}px,-50%,0)`;
+  }
+
+  // altímetro
+  const alt = st.routeVis > 0.5 && st.A === 'macizo' && !st.B ? altOnRoute(st.route) : st.alt;
+  const shown = Math.round(alt);
+  if (shown !== lastAltShown) {
+    lastAltShown = shown;
+    lecturaN.textContent = nf(shown) + ' m';
+    const f = clamp((alt - ALT_MIN) / (ALT_MAX - ALT_MIN), 0, 1);
+    marcador.style.bottom = (f * 100) + '%';
+    lleno.style.height = (f * 100) + '%';
+    if (VW >= 900) lectura.style.transform = `translate3d(0,${(0.5 - f) * railH}px,0)`;
+    railBtns.forEach(r => r.b.classList.toggle('pasado', r.alt <= alt + 1));
+  }
+  if (st.lugar !== lastLugar) { lastLugar = st.lugar; alti.setAttribute('aria-label', `Altímetro, ahora en ${st.lugar}: saltar a cada campo`); }
+}
+
+/* ------------------------------------------------------------------ revelado */
+function setupReveal() {
+  const els = document.querySelectorAll('.rv');
+  if (REDUCED || !('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
+  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }),
+    { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+  els.forEach(e => io.observe(e));
+}
+
+/* ------------------------------------------------------------------ arranque */
+const title = document.querySelector('.hero-titulo');
+title.innerHTML = [...title.textContent].map((c, i) => `<span class="l" aria-hidden="true" style="transition-delay:${0.35 + i * 0.07}s">${c}</span>`).join('');
+const barra = document.querySelector('#cargador .barra i');
+const cargador = document.getElementById('cargador');
+
+async function start() {
+  if (gl) { try { initGL(); } catch (err) { console.warn(err); gl = null; } }
+  if (!gl) initFallback();
+  resize(true);
+  setupReveal();
+  addEventListener('resize', () => resize(false), { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measure(); dirty = true; });
+  // primera pintura: la del lugar donde está el lector
+  const st0 = computeState(scrollY + VH / 2);
+  const first = st0.A;
+  barra.style.transform = 'scaleX(.35)';
+  const timeout = new Promise(r => setTimeout(r, 4500));
+  await Promise.race([loadImage(first), timeout]);
+  barra.style.transform = 'scaleX(1)';
+  if (st0.B) loadImage(st0.B);
+  requestAnimationFrame(frame);
+  setTimeout(() => {
+    cargador.classList.add('fuera');
+    introT0 = performance.now(); introOn = !!gl;
+    setTimeout(() => portada.classList.add('lista'), REDUCED ? 0 : 900);
+  }, 250);
+  // resto de pinturas, en orden de ascenso
+  for (const k of ORDER) { if (k !== first) await loadImage(k); }
+}
+start();
+})();
+</script>
+</body></html>
