@@ -85,6 +85,13 @@ adjunto (`pdfdetach -saveall`), que es procedural y determinista:
 Los scripts de `herramientas/` importan el código del manual: se ejecutan con
 la carpeta de ese código como primer argumento (ver la cabecera de cada uno).
 
+## Versión en un solo archivo
+
+`herramientas/build_single.py` empaqueta todo (imágenes, tipografías, CSS, JS y datos) en un único
+HTML que se abre con doble clic, sin servidor ni red (`dist/nanga-parbat.html`, unos 11 MB; `dist/`
+no se versiona). Las láminas se reducen a 1800 px (`--ancho`). La cabecera del script explica los
+requisitos.
+
 ## Fuentes y prudencia
 
 Datos históricos contrastados con el *American Alpine Journal*, el
