@@ -35,7 +35,7 @@ p{margin:0}
 /* ---------------------------------------------------------------- nubes (nuevo sistema)
    La plantilla es una imagen RGBA volumétrica. --op = densidad de la nube; detrás, un velo
    con desenfoque recortado con la misma silueta (mask) para las variantes translúcidas.  */
-.nb{position:relative;isolation:isolate;color:var(--pizarra);width:var(--cw,100%);max-width:100%;aspect-ratio:var(--ar);display:grid;align-content:center;
+.nb{position:relative;isolation:isolate;color:var(--pizarra);width:var(--cw,100%);max-width:100%;aspect-ratio:var(--ar);
   padding:calc(var(--cw,100%) * var(--pt)) calc(var(--cw,100%) * var(--pr)) calc(var(--cw,100%) * var(--pb)) calc(var(--cw,100%) * var(--pl))}
 .nb::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--img) center/100% 100% no-repeat;opacity:var(--op,1);
   filter:var(--tinte,none);transition:opacity .5s var(--ease),filter .6s var(--ease)}
@@ -176,12 +176,13 @@ p{margin:0}
   <header class="cab">
     <span class="ceja">Identidad «Mani» · propuesta de nubes</span>
     <h1>Nubes de verdad</h1>
-    <p>Las plantillas pasan de dibujo con contorno a cúmulos volumétricos: cuerpo iluminado desde arriba a la izquierda, base en sombra, bordes deshilachados y jirones. El texto siempre cae en la cara iluminada, casi blanca, y sigue en pizarra.</p>
+    <p>Las plantillas pasan de dibujo con contorno a cúmulos volumétricos: cuerpo iluminado desde arriba a la izquierda, base en sombra, bordes deshilachados y jirones. El texto siempre cae en la cara iluminada, casi blanca, y sigue en pizarra. Encima llevan el acabado de las ilustraciones: diente de papel, trazos de tiza y algún hueco del pincel seco.</p>
     <ul class="cambios">
       <li>Sin contorno ni halo</li>
       <li>Tres densidades: densa, velo y translúcida</li>
       <li>La nube toma la luz de cada pintura</li>
       <li>Diez plantillas con tipos de nube reales</li>
+      <li>Grano de tiza, el mismo de las pinturas</li>
     </ul>
   </header>
 
