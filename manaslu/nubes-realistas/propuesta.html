@@ -1,0 +1,344 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>Nubes de Manaslu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Marcellus&display=swap">
+<style>
+/* Layout: hoja de aprobación sobre pizarra. Escenario vivo (pintura + nubes nuevas) con controles,
+   comparativa de densidades y catálogo de plantillas; misma identidad «Mani», sin contornos. */
+:root{
+  --pizarra:#3B4250; --pizarra-2:#323845; --piedra:#A8A196; --liquen:#C9A646; --bandera:#A8432F; --nieve:#EEF0F2;
+  --linea:rgba(238,240,242,.16);
+  --font-titulo:'Marcellus','Trajan Pro','Times New Roman',serif;
+  --font-texto:'Alegreya Sans','Segoe UI',system-ui,sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--pizarra)}
+body{margin:0;color:var(--nieve);font-family:var(--font-texto);font-size:1.0625rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-titulo);font-weight:400;letter-spacing:.04em;margin:0;line-height:1.15;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ceja{display:block;font-weight:500;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;line-height:1.3}
+.cifra{font-weight:700;font-variant-numeric:tabular-nums lining-nums}
+
+/* ---------------------------------------------------------------- cabecera */
+.cab{padding-block:clamp(36px,7vh,72px) 28px;display:grid;gap:14px;max-width:780px}
+.cab .ceja{color:var(--liquen)}
+.cab h1{font-size:clamp(2.2rem,5vw,3.6rem)}
+.cab p{color:#D9DCE1;max-width:62ch}
+.cambios{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:6px;padding:0;list-style:none;font-size:.95rem;color:#D9DCE1}
+.cambios li{display:flex;gap:8px;align-items:baseline}
+.cambios li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--liquen);flex:none;transform:translateY(-2px)}
+
+/* ---------------------------------------------------------------- nubes (nuevo sistema)
+   La plantilla es una imagen RGBA volumétrica. --op = densidad de la nube; detrás, un velo
+   con desenfoque recortado con la misma silueta (mask) para las variantes translúcidas.  */
+.nb{position:relative;isolation:isolate;color:var(--pizarra);width:var(--cw,100%);max-width:100%;aspect-ratio:var(--ar);display:grid;align-content:center;
+  padding:calc(var(--cw,100%) * var(--pt)) calc(var(--cw,100%) * var(--pr)) calc(var(--cw,100%) * var(--pb)) calc(var(--cw,100%) * var(--pl))}
+.nb::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--img) center/100% 100% no-repeat;opacity:var(--op,1);
+  filter:var(--tinte,none);transition:opacity .5s var(--ease),filter .6s var(--ease)}
+.nb::after{content:'';position:absolute;inset:0;z-index:-2;pointer-events:none;
+  -webkit-backdrop-filter:blur(var(--blur,0px)) brightness(var(--br,1));backdrop-filter:blur(var(--blur,0px)) brightness(var(--br,1));
+  -webkit-mask:var(--img) center/100% 100% no-repeat;mask:var(--img) center/100% 100% no-repeat}
+[data-t=hero]{--img:url('nubes/nube_hero.webp');--ar:1700/780;--pt:0.2248;--pr:0.1900;--pb:0.0780;--pl:0.1900}
+[data-t=bloque]{--img:url('nubes/nube_bloque.webp');--ar:1800/1140;--pt:0.2217;--pr:0.1550;--pb:0.1330;--pl:0.1550}
+[data-t=movil]{--img:url('nubes/nube_movil.webp');--ar:1200/1900;--pt:0.4275;--pr:0.1800;--pb:0.2533;--pl:0.1800}
+[data-t=tarjeta]{--img:url('nubes/nube_tarjeta.webp');--ar:1150/1150;--pt:0.3500;--pr:0.1900;--pb:0.2100;--pl:0.1900}
+[data-t=dato]{--img:url('nubes/nube_dato.webp');--ar:940/900;--pt:0.3638;--pr:0.2600;--pb:0.2681;--pl:0.2600}
+[data-t=etiqueta]{--img:url('nubes/nube_etiqueta.webp');--ar:800/360;--pt:0.1800;--pr:0.1900;--pb:0.1260;--pl:0.1900}
+[data-t=torre]{--img:url('nubes/nube_torre.webp');--ar:1000/1400;--pt:0.8960;--pr:0.1900;--pb:0.1680;--pl:0.1900}
+[data-t=lenticular]{--img:url('nubes/nube_lenticular.webp');--ar:1700/620;--pt:0.1605;--pr:0.3000;--pb:0.1240;--pl:0.3000}
+[data-t=estandarte]{--img:url('nubes/nube_estandarte.webp');--ar:1900/680;--pt:0.1360;--pr:0.4700;--pb:0.0859;--pl:0.1100}
+[data-t=banco]{--img:url('nubes/nube_banco.webp');--ar:2400/660;--pt:0.1430;--pr:0.1400;--pb:0.0440;--pl:0.1400}
+/* en pantallas estrechas el encabezado usa la tarjeta y el bloque la vertical */
+@media (max-width:699px){
+  .esc [data-t=hero]{--img:url('nubes/nube_tarjeta.webp');--ar:1150/1150;--pt:0.3500;--pr:0.1900;--pb:0.2100;--pl:0.1900}
+  .esc [data-t=bloque]{--img:url('nubes/nube_movil.webp');--ar:1200/1900;--pt:0.4400;--pr:0.2100;--pb:0.2650;--pl:0.2100}
+}
+/* el estilo anterior, para comparar */
+.antes [data-t=hero]{--img:url('viejas/nube_hero_blanca.svg');--ar:1600/560;--pt:.1712;--pr:.1638;--pb:.05;--pl:.1688}
+.antes [data-t=bloque]{--img:url('viejas/nube_bloque_blanca.svg');--ar:1400/760;--pt:.1693;--pr:.1371;--pb:.0843;--pl:.1436}
+.antes [data-t=tarjeta]{--img:url('viejas/nube_tarjeta_blanca.svg');--ar:1/1;--pt:.3293;--pr:.2122;--pb:.1732;--pl:.2183}
+.antes [data-t=dato]{--img:url('viejas/nube_dato_blanca.svg');--ar:620/600;--pt:.3871;--pr:.2823;--pb:.2661;--pl:.3306}
+.antes [data-t=etiqueta]{--img:url('viejas/nube_etiqueta_blanca.svg');--ar:560/240;--pt:.2125;--pr:.1661;--pb:.0821;--pl:.1732}
+@media (max-width:699px){
+  .antes .esc [data-t=hero],.antes.esc [data-t=hero]{--img:url('viejas/nube_tarjeta_blanca.svg');--ar:1/1;--pt:.3293;--pr:.2122;--pb:.1732;--pl:.2183}
+  .antes .esc [data-t=bloque],.antes.esc [data-t=bloque]{--img:url('viejas/nube_movil_blanca.svg');--ar:780/1340;--pt:.4167;--pr:.1846;--pb:.2346;--pl:.1859}
+}
+.antes .nb{--op:1!important;--blur:0px!important;--br:1!important;--tinte:none!important}
+
+/* densidades */
+[data-d=densa]{--op:1;--blur:0px;--br:1}
+[data-d=velo]{--op:.80;--blur:5px;--br:1.06}
+[data-d=translucida]{--op:.50;--blur:13px;--br:1.14}
+[data-d=translucida] .nb{font-weight:500}
+/* la nube toma la luz de cada pintura */
+[data-luz=alba]{--tinte:sepia(.30) saturate(1.45) hue-rotate(-12deg) brightness(1.01)}
+[data-luz=noche]{--tinte:brightness(.86) sepia(.22) hue-rotate(178deg) saturate(1.15)}
+
+/* ---------------------------------------------------------------- escenario */
+.controles{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-bottom:14px}
+.grupo{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.grupo>span{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--piedra);margin-right:4px;font-weight:500}
+.chip{appearance:none;border:1px solid var(--linea);background:transparent;color:var(--nieve);font:500 .9rem/1 var(--font-texto);
+  padding:.55em .95em;border-radius:999px;cursor:pointer;transition:background .25s,border-color .25s,color .25s}
+.chip:hover{border-color:rgba(238,240,242,.4)}
+.chip[aria-pressed=true]{background:var(--nieve);color:var(--pizarra);border-color:var(--nieve)}
+.chip:focus-visible{outline:2px solid var(--liquen);outline-offset:2px}
+.chip.ab[aria-pressed=true]{background:var(--bandera);border-color:var(--bandera);color:var(--nieve)}
+
+.esc{position:relative;overflow:hidden;border-radius:6px;background:var(--pizarra-2) var(--bg) var(--pos,50%) 50%/cover no-repeat;
+  aspect-ratio:16/9;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:2%;padding:2.2% 3%;transition:background-image .4s}
+.esc .col{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;min-width:0}
+.esc .der{align-items:flex-end;justify-content:space-between}
+.esc [data-t=hero]{--cw:min(560px,100%)}
+.esc [data-t=bloque]{--cw:min(620px,100%)}
+.esc [data-t=dato]{--cw:min(250px,60%)}
+.esc [data-t=etiqueta].lectura{--cw:min(176px,40%)}
+.esc .nb h2{font-size:clamp(1.3rem,2.2vw,2.1rem)}
+.esc .nb .sub{font-weight:500;font-size:clamp(.82rem,1.1vw,1.02rem);line-height:1.3;margin-top:.2em}
+.esc [data-t=bloque] p{font-size:clamp(.82rem,1.05vw,1rem);line-height:1.5}
+.esc [data-t=dato]{text-align:center;display:grid;align-content:center}
+.esc [data-t=dato] .cifra{font-size:clamp(1.3rem,2.1vw,2rem);line-height:1}
+.esc [data-t=dato] small{display:block;font-size:.78rem;line-height:1.2;margin-top:.2em}
+.lectura{text-align:center;font-size:1.02rem;line-height:1;display:grid;align-content:center}
+.pin{position:absolute;left:0;top:0;pointer-events:none;transition:opacity .4s}
+.pin i{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;background:var(--liquen);box-shadow:0 0 0 2px rgba(59,66,80,.7)}
+.pin b{position:absolute;left:-1px;bottom:10px;width:2px;height:46px;background:linear-gradient(rgba(247,248,249,0),rgba(247,248,249,.95))}
+.pin .nb{position:absolute;left:0;bottom:52px;transform:translateX(-50%);--cw:236px;max-width:none;text-align:center;white-space:nowrap;font-size:.86rem;line-height:1.15}
+.pin .nb strong{font-family:var(--font-titulo);font-weight:400;font-size:.98rem}
+@media (max-width:699px){
+  .esc{aspect-ratio:auto;grid-template-columns:minmax(0,1fr);gap:14px;padding:58px 12px 16px;min-height:120vw}
+  .esc .col{align-items:center;gap:12px}
+  .esc .der{position:absolute;inset:10px 10px auto auto;display:block}
+  .esc [data-t=dato]{display:none}
+  .esc [data-t=etiqueta].lectura{--cw:136px}
+  .esc [data-t=hero]{--cw:min(330px,100%)}
+  .esc [data-t=bloque]{--cw:min(366px,100%)}
+  .esc [data-t=bloque] p{font-size:.92rem}
+  .esc .nb h2{font-size:1.5rem}
+  .pin .nb{--cw:196px;font-size:.76rem}
+  .pin .nb strong{font-size:.86rem}
+}
+.nota{color:var(--piedra);font-style:italic;font-size:.9rem;margin-top:10px}
+
+/* ---------------------------------------------------------------- secciones */
+.sec{padding-block:clamp(44px,8vh,80px) 0;display:grid;gap:18px}
+.sec>header{display:grid;gap:8px;max-width:760px}
+.sec>header .ceja{color:var(--liquen)}
+.sec>header h2{font-size:clamp(1.7rem,3vw,2.5rem)}
+.sec>header p{color:#D9DCE1}
+.densidades{background:var(--pizarra-2) url('../img/macizo-2560.webp') 62% 40%/cover;border-radius:6px;padding:clamp(18px,3vw,40px);
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,2vw,28px);align-items:center}
+.densidades figure{margin:0;display:grid;justify-items:center;gap:6px}
+.densidades .nb{--cw:min(330px,100%)}
+.densidades .nb h3{font-size:clamp(1.05rem,1.6vw,1.35rem)}
+.densidades .nb p{font-size:clamp(.78rem,1vw,.95rem);line-height:1.4;margin-top:.3em}
+@media (max-width:760px){ .densidades{grid-template-columns:minmax(0,1fr)} .densidades .nb{--cw:min(320px,100%)} }
+
+.catalogo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,2vw,24px)}
+.ficha{margin:0;display:grid;gap:10px;min-width:0}
+.lienzo{position:relative;aspect-ratio:16/10;border-radius:6px;overflow:hidden;background:var(--pizarra-2) var(--bg) var(--pos,50%) 50%/cover no-repeat;
+  display:grid;place-items:center;padding:3%}
+.ficha figcaption{display:grid;gap:2px}
+.ficha figcaption strong{font-family:var(--font-titulo);font-weight:400;font-size:1.25rem;letter-spacing:.04em}
+.ficha figcaption span{color:#C9CDD4;font-size:.92rem}
+.ficha figcaption em{color:var(--piedra);font-size:.85rem}
+.lienzo .nb h3{font-size:clamp(1rem,1.6vw,1.35rem)}
+.lienzo .nb p{font-size:clamp(.72rem,.95vw,.9rem);line-height:1.4;margin-top:.25em}
+.lienzo .nb .ceja{font-size:.62rem}
+.lienzo [data-t=hero]{--cw:min(540px,96%)}
+.lienzo [data-t=bloque]{--cw:min(520px,92%)}
+.lienzo [data-t=movil]{--cw:min(220px,44%)}
+.lienzo [data-t=tarjeta]{--cw:min(330px,62%)}
+.lienzo [data-t=dato]{--cw:min(250px,50%);text-align:center;display:grid;align-content:center}
+.lienzo [data-t=dato] .cifra{font-size:clamp(1.2rem,2vw,1.9rem);line-height:1}
+.lienzo [data-t=dato] small{display:block;font-size:.7rem;line-height:1.2}
+.lienzo [data-t=etiqueta]{--cw:min(280px,62%);text-align:center;font-size:.9rem;line-height:1.1;white-space:nowrap}
+.lienzo [data-t=torre]{--cw:min(250px,46%)}
+.lienzo [data-t=torre] .cifra{font-family:var(--font-titulo);font-weight:400;font-size:clamp(1.4rem,2.4vw,2.2rem);line-height:1;display:block}
+.lienzo [data-t=lenticular]{--cw:min(560px,98%);text-align:center}
+.lienzo [data-t=estandarte]{--cw:min(580px,98%)}
+.lienzo [data-t=banco]{--cw:min(600px,98%);text-align:center;font-size:.8rem;line-height:1.3}
+.lienzo [data-t=movil] p{font-size:.72rem}
+@media (max-width:760px){ .catalogo{grid-template-columns:minmax(0,1fr)} }
+
+.siguiente{margin-block:clamp(40px,7vh,72px) clamp(40px,7vh,72px);padding:clamp(18px,3vw,32px);border:1px solid var(--linea);border-radius:6px;display:grid;gap:12px;max-width:900px}
+.siguiente h2{font-size:clamp(1.4rem,2.4vw,1.9rem)}
+.siguiente ol{margin:0;padding-left:1.2em;display:grid;gap:6px;color:#D9DCE1}
+.siguiente ol strong{color:var(--nieve);font-weight:500}
+</style>
+
+<main>
+<div class="wrap">
+  <header class="cab">
+    <span class="ceja">Identidad «Mani» · propuesta de nubes</span>
+    <h1>Nubes de verdad</h1>
+    <p>Las plantillas pasan de dibujo con contorno a cúmulos volumétricos: cuerpo iluminado desde arriba a la izquierda, base en sombra, bordes deshilachados y jirones. El texto siempre cae en la cara iluminada, casi blanca, y sigue en pizarra.</p>
+    <ul class="cambios">
+      <li>Sin contorno ni halo</li>
+      <li>Tres densidades: densa, velo y translúcida</li>
+      <li>La nube toma la luz de cada pintura</li>
+      <li>Diez plantillas con tipos de nube reales</li>
+    </ul>
+  </header>
+
+  <section aria-labelledby="t-vivo">
+    <h2 id="t-vivo" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Prueba en la web</h2>
+    <div class="controles">
+      <div class="grupo" role="group" aria-label="Escena"><span>Escena</span>
+        <button class="chip" data-esc="macizo" aria-pressed="true">El macizo</button>
+        <button class="chip" data-esc="samagaon" aria-pressed="false">Samagaon</button>
+        <button class="chip" data-esc="campo-1" aria-pressed="false">Campo 1</button>
+        <button class="chip" data-esc="campo-3" aria-pressed="false">Campo 3 · alba</button>
+        <button class="chip" data-esc="campo-4" aria-pressed="false">Campo 4 · noche</button>
+        <button class="chip" data-esc="cumbre" aria-pressed="false">Cumbre</button>
+      </div>
+      <div class="grupo" role="group" aria-label="Densidad"><span>Densidad</span>
+        <button class="chip" data-den="densa" aria-pressed="true">Densa</button>
+        <button class="chip" data-den="velo" aria-pressed="false">Velo</button>
+        <button class="chip" data-den="translucida" aria-pressed="false">Translúcida</button>
+      </div>
+      <div class="grupo" role="group" aria-label="Comparar"><span>Comparar</span>
+        <button class="chip ab" id="ab" aria-pressed="false">Ver el estilo anterior</button>
+      </div>
+    </div>
+
+    <div class="esc" id="esc" data-d="densa" data-luz="dia">
+      <div class="col">
+        <header class="nb" data-t="hero">
+          <span class="ceja">Vista aérea desde el noreste</span>
+          <h2>El macizo</h2>
+          <p class="sub">Una corona de hielo entre dos ríos</p>
+        </header>
+        <article class="nb" data-t="bloque">
+          <p>Visto desde el aire, el Manaslu no está solo. Forma con sus vecinos el Mansiri Himal, un macizo de hielo entre el valle del Budhi Gandaki, al este, y el del Marsyangdi, al oeste. Abajo quedan Samagaon y el campo base; los valles bajos duermen bajo ríos de nube.</p>
+        </article>
+      </div>
+      <div class="col der">
+        <div class="nb lectura" data-t="etiqueta"><span class="cifra" id="alt">4&#8239;850 m</span></div>
+        <div class="nb" data-t="dato"><span class="cifra">8&#8239;163</span><small>metros, la 8.ª del mundo</small></div>
+      </div>
+      <div class="pin" id="pin"><b></b><i></i><div class="nb" data-t="etiqueta"><strong id="pin-n">Manaslu</strong> · <span class="cifra" id="pin-a">8&#8239;163 m</span></div></div>
+    </div>
+    <p class="nota">La misma sección de tu captura, con su texto real. Cambia de escena para ver cómo cambia la luz de la nube: blanca de día, cálida al alba, azulada bajo la luna.</p>
+  </section>
+
+  <section class="sec" aria-labelledby="t-den">
+    <header>
+      <span class="ceja">Transparencia</span>
+      <h2 id="t-den">Tres densidades</h2>
+      <p>La misma nube con más o menos cuerpo. Detrás de las translúcidas, la pintura se ve desenfocada a través de la niebla.</p>
+    </header>
+    <div class="densidades">
+      <figure data-d="densa"><div class="nb" data-t="tarjeta"><h3>Densa</h3><p>Para los textos largos. Máxima legibilidad sobre cualquier pintura.</p></div></figure>
+      <figure data-d="velo"><div class="nb" data-t="tarjeta"><h3>Velo</h3><p>Para encabezados y citas. La pintura asoma por los bordes.</p></div></figure>
+      <figure data-d="translucida"><div class="nb" data-t="tarjeta"><h3>Translúcida</h3><p>Para etiquetas, el altímetro y textos cortos.</p></div></figure>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="t-cat">
+    <header>
+      <span class="ceja">Catálogo</span>
+      <h2 id="t-cat">Diez plantillas, diez nubes reales</h2>
+      <p>Cada plantilla es un tipo de nube que se ve de verdad en un ochomil. El área de texto queda siempre dentro de la parte densa.</p>
+    </header>
+    <div class="catalogo">
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/samagaon-2560.webp')"><header class="nb" data-t="hero"><span class="ceja">Cara noreste · 3&#8239;313 m de desnivel</span><h3>La ruta normal</h3></header></div>
+        <figcaption><strong>Encabezado</strong><span>Cúmulo con copos: portada y títulos de capítulo.</span><em>Cumulus humilis</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/campo-1-2560.webp')"><article class="nb" data-t="bloque"><h3>La montaña del espíritu</h3><p>Manaslu viene del sánscrito <em>manasa</em>: intelecto, alma. Los nubri la llaman Kutang.</p></article></div>
+        <figcaption><strong>Bloque</strong><span>Texto largo, varios párrafos.</span><em>Cumulus mediocris</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/cumbre-2560.webp')"><article class="nb" data-t="movil" data-luz="alba"><p>En el móvil, el bloque pasa a esta nube vertical: más alta que ancha, con el texto en su cara iluminada.</p></article></div>
+        <figcaption><strong>Móvil</strong><span>Bloque de texto en pantallas estrechas.</span><em>Cumulus congestus, joven</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/macizo-2560.webp');--pos:64%"><article class="nb" data-t="tarjeta"><span class="ceja">Paso 3 de 6</span><h3>Campo 2 · <span class="cifra">6&#8239;400</span></h3><p>Tras la cascada de hielo: el tramo más técnico.</p></article></div>
+        <figcaption><strong>Tarjeta</strong><span>Un campo, un hito, un pico.</span><em>Cumulus</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/campo-3-2560.webp')"><div class="nb" data-t="dato" data-luz="alba"><span class="cifra">14 h 05</span><small>del campo base a la cumbre</small></div></div>
+        <figcaption><strong>Dato</strong><span>Una cifra destacada.</span><em>Cumulus, copo aislado</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/macizo-2560.webp');--pos:30%"><div class="nb" data-t="etiqueta" data-d="velo"><strong style="font-family:var(--font-titulo);font-weight:400">Ngadi Chuli</strong> · <span class="cifra">7&#8239;871 m</span></div></div>
+        <figcaption><strong>Etiqueta</strong><span>Nombre de pico, altitud, altímetro.</span><em>Stratocumulus fractus</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/campo-1-2560.webp');--pos:30%"><article class="nb" data-t="torre"><span class="cifra">1956</span><p>9 de mayo. Imanishi y Gyalzen Norbu, en la cumbre.</p></article></div>
+        <figcaption><strong>Torre</strong><span>Titular en el aire y texto en la base.</span><em>Cumulus congestus</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/cumbre-2560.webp')"><div class="nb" data-t="lenticular" data-luz="alba"><h3>Bajar también es parte de la ruta</h3></div></div>
+        <figcaption><strong>Lenticular</strong><span>Titular o cita breve, la nube típica de los ochomiles.</span><em>Altocumulus lenticularis</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/cumbre-2560.webp');--pos:40%"><header class="nb" data-t="estandarte" data-luz="alba"><span class="ceja">Cumbre · 8&#8239;163 m</span><h3>La cumbre verdadera</h3></header></div>
+        <figcaption><strong>Estandarte</strong><span>La nube-bandera que flamea en la cima: capítulo de la cumbre.</span><em>Nube de bandera</em></figcaption></figure>
+      <figure class="ficha"><div class="lienzo" style="--bg:url('../img/samagaon-2560.webp');--pos:50%"><div class="nb" data-t="banco">Manaslu · <span class="cifra">8&#8239;163 m</span> · la montaña del espíritu</div></div>
+        <figcaption><strong>Banco</strong><span>Pie de página.</span><em>Stratocumulus en banco</em></figcaption></figure>
+    </div>
+  </section>
+
+  <aside class="siguiente" aria-labelledby="t-sig">
+    <h2 id="t-sig">Si das el visto bueno, en la web cambiaría esto</h2>
+    <ol>
+      <li><strong>Todas las nubes de texto</strong> pasan a estas plantillas, con la densidad que mejor lea en cada sitio: densa para los textos largos, velo para encabezados y citas, translúcida para etiquetas de picos, campos y el altímetro.</li>
+      <li><strong>La luz de la nube sigue a la pintura</strong>: neutra de día, cálida en el Campo 3 y la cumbre, azulada en la noche del Campo 4.</li>
+      <li><strong>Las nubes que cruzan entre pinturas</strong> también pasan a ser jirones realistas.</li>
+      <li><strong>El botón rojo</strong> pierde el halo blanco que imitaba el contorno de las nubes.</li>
+    </ol>
+  </aside>
+</div>
+</main>
+
+<script>
+(() => {
+  const ESC = {
+    'macizo':  { luz: 'dia',   pos: '64%', pin: ['Manaslu', '8 163 m', .6426, .3312], alt: '4 850 m' },
+    'samagaon':{ luz: 'dia',   pos: '52%', pin: ['Manaslu', '8 163 m', .5193, .3335], alt: '3 520 m' },
+    'campo-1': { luz: 'dia',   pos: '32%', pin: ['Cumbre', '8 163 m', .3241, .1408], alt: '5 700 m' },
+    'campo-3': { luz: 'alba',  pos: '42%', pin: ['Manaslu Norte', '7 157 m', .4135, .3179], alt: '6 800 m' },
+    'campo-4': { luz: 'noche', pos: '50%', pin: null, alt: '7 400 m' },
+    'cumbre':  { luz: 'alba',  pos: '58%', pin: ['Ngadi Chuli', '7 871 m', .585, .4796], alt: '8 163 m' },
+  };
+  const esc = document.getElementById('esc'), pin = document.getElementById('pin');
+  const pinN = document.getElementById('pin-n'), pinA = document.getElementById('pin-a'), alt = document.getElementById('alt');
+  const nb = s => s.replace(' ', ' ');
+  let cur = 'macizo';
+  // precarga de las pinturas
+  Object.keys(ESC).forEach(k => { const i = new Image(); i.src = `../img/${k}-2560.webp`; });
+  function place() {
+    const e = ESC[cur]; if (!e.pin) { pin.style.opacity = 0; return; }
+    const W = esc.clientWidth, H = esc.clientHeight, s = Math.max(W / 3840, H / 2160);
+    const dw = 3840 * s, dh = 2160 * s;
+    const px = parseFloat(e.pos) / 100;
+    const x = (W - dw) * px + e.pin[2] * dw, y = (H - dh) * 0.5 + e.pin[3] * dh;
+    // la etiqueta no puede pisar ningún texto
+    const er = esc.getBoundingClientRect();
+    const lab = { l: x - 118, r: x + 118, t: y - 150, b: y };
+    const choca = [...esc.querySelectorAll('.col > .nb')].some(n => {
+      const r = n.getBoundingClientRect(), L = r.left - er.left, T = r.top - er.top;
+      return !(lab.r < L || lab.l > L + r.width || lab.b < T || lab.t > T + r.height);
+    });
+    pin.style.opacity = (x > 30 && x < W - 30 && y > 120 && !choca) ? 1 : 0;
+    pin.style.transform = `translate(${x}px,${y}px)`;
+  }
+  function set(k) {
+    cur = k; const e = ESC[k];
+    esc.style.setProperty('--bg', `url('../img/${k}-2560.webp')`);
+    esc.style.setProperty('--pos', e.pos);
+    esc.dataset.luz = e.luz;
+    alt.textContent = nb(e.alt);
+    if (e.pin) { pinN.textContent = e.pin[0]; pinA.textContent = nb(e.pin[1]); }
+    document.querySelectorAll('[data-esc]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.esc === k)));
+    place();
+  }
+  document.querySelectorAll('[data-esc]').forEach(b => b.addEventListener('click', () => set(b.dataset.esc)));
+  document.querySelectorAll('[data-den]').forEach(b => b.addEventListener('click', () => {
+    esc.dataset.d = b.dataset.den;
+    document.querySelectorAll('[data-den]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  }));
+  const ab = document.getElementById('ab');
+  ab.addEventListener('click', () => {
+    const on = ab.getAttribute('aria-pressed') !== 'true';
+    ab.setAttribute('aria-pressed', String(on));
+    esc.classList.toggle('antes', on);
+    ab.textContent = on ? 'Volver al estilo nuevo' : 'Ver el estilo anterior';
+    requestAnimationFrame(place);
+  });
+  addEventListener('resize', place);
+  if ('ResizeObserver' in window) new ResizeObserver(place).observe(esc);
+  set('macizo');
+})();
+</script>
+</body></html>

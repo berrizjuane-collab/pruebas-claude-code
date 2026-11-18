@@ -1,0 +1,72 @@
+{
+ "hero": {
+  "top": 0.2248,
+  "right": 0.19,
+  "bottom": 0.078,
+  "left": 0.19,
+  "aspect": "1700/780"
+ },
+ "bloque": {
+  "top": 0.2217,
+  "right": 0.155,
+  "bottom": 0.133,
+  "left": 0.155,
+  "aspect": "1800/1140"
+ },
+ "movil": {
+  "top": 0.4275,
+  "right": 0.18,
+  "bottom": 0.2533,
+  "left": 0.18,
+  "aspect": "1200/1900"
+ },
+ "tarjeta": {
+  "top": 0.35,
+  "right": 0.19,
+  "bottom": 0.21,
+  "left": 0.19,
+  "aspect": "1150/1150"
+ },
+ "dato": {
+  "top": 0.3638,
+  "right": 0.26,
+  "bottom": 0.2681,
+  "left": 0.26,
+  "aspect": "940/900"
+ },
+ "etiqueta": {
+  "top": 0.18,
+  "right": 0.19,
+  "bottom": 0.126,
+  "left": 0.19,
+  "aspect": "800/360"
+ },
+ "torre": {
+  "top": 0.896,
+  "right": 0.19,
+  "bottom": 0.168,
+  "left": 0.19,
+  "aspect": "1000/1400"
+ },
+ "lenticular": {
+  "top": 0.1605,
+  "right": 0.24,
+  "bottom": 0.124,
+  "left": 0.24,
+  "aspect": "1700/620"
+ },
+ "estandarte": {
+  "top": 0.136,
+  "right": 0.45,
+  "bottom": 0.0859,
+  "left": 0.07,
+  "aspect": "1900/680"
+ },
+ "banco": {
+  "top": 0.143,
+  "right": 0.1,
+  "bottom": 0.044,
+  "left": 0.1,
+  "aspect": "2400/660"
+ }
+}
