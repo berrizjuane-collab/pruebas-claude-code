@@ -17,11 +17,13 @@ cd manaslu && python3 -m http.server 8000   # y visita http://localhost:8000
   trazos de pincel con borde de tiza, más dos bancos de jirones de la identidad que cruzan
   la pantalla. Nieve procedural en los campos altos y ventisca en la cumbre. Sin WebGL,
   respaldo con dos `<img>` y fundido.
-- **Nubes como contenedores.** Todas las plantillas de la identidad (hero, bloque,
-  columna, tarjeta, etiqueta, cita, dato, torre, móvil, lenticular, estandarte, banco de
-  pie, jirones). El área segura se calcula sobre el ancho de cada nube (`--cw`), no sobre
-  su contenedor; en pantallas estrechas las plantillas apaisadas pasan a sus equivalentes
-  verticales.
+- **Nubes a medida del texto.** Una familia de 36 nubes volumétricas con acabado de tiza
+  (`nubes2/`, generada con `nubes-realistas/familia.py`), cada una construida alrededor de un
+  área de texto de proporción distinta (de 0,5 a 7,8). La web mide cada texto con la tipografía
+  ya cargada, elige la nube de proporción más parecida y la escala para que su área densa
+  coincida con la caja del texto: el texto queda centrado y la nube no sobra ni falta. La luz de
+  las nubes sigue a la pintura (cálida al alba, azulada de noche) y las etiquetas de los picos
+  solo aparecen si no pisan una nube de texto.
 - **Anclajes reales.** Picos y campos están proyectados con la misma cámara que pintó cada
   escena sobre el DEM ASTER, así que las etiquetas caen sobre la cima correcta y la ruta
   normal se dibuja siguiendo el relieve.

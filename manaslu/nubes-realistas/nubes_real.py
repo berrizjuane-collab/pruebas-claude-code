@@ -657,7 +657,8 @@ def vol5(W, H, core, seed=1, light=(-0.55, -0.83), noise=1.0, lift=0.7, wispy=0.
     qx, qy = xx + 0.10 * S * wx, yy + 0.10 * S * wy
     # garantía de legibilidad: el área de texto queda dentro de un cuerpo denso, redondeado y deformado
     e = 0.040 * S
-    sdc = rounded_box_sd(qx, qy, (x0 - e, y0 - 0.6 * e, x1 + e, y1 + 0.6 * e), 0.5 * min(x1 - x0, y1 - y0) + e)
+    sdc = rounded_box_sd(xx + 0.025 * S * wx, yy + 0.025 * S * wy, (x0 - e, y0 - 0.6 * e, x1 + e, y1 + 0.6 * e),
+                         0.14 * min(x1 - x0, y1 - y0) + e)   # esquinas casi rectas: las esquinas del texto quedan en lo denso
     Df = np.maximum(Df, 1.0 * smooth(0.065 * S, -0.035 * S, sdc))
     if lens:   # lenticular: estrías horizontales, sin coliflor
         N = fbmc(qx * 0.25, qy * 3.0, 0.10 * S, 6, seed + 3)

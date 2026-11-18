@@ -40,34 +40,25 @@ a{color:inherit}
 #fallback img{position:absolute;max-width:none;will-change:transform,opacity;user-select:none}
 #overlay{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 #paso{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
-#paso .jiron{position:absolute;width:min(78vw,1100px);aspect-ratio:1200/300;background:url('nubes/nube_jirones_blanca.svg') center/100% 100% no-repeat;opacity:0;will-change:transform,opacity}
+#paso .jiron{position:absolute;width:min(84vw,1200px);aspect-ratio:2200/520;background:url('nubes2/jiron_0.webp') center/100% 100% no-repeat;opacity:0;will-change:transform,opacity}
 #paso .j1{top:16%;left:50%}
-#paso .j2{top:58%;left:50%;width:min(64vw,900px)}
+#paso .j2{top:58%;left:50%;width:min(70vw,980px);background-image:url('nubes2/jiron_1.webp')}
 
 /* ---------------------------------------------------------------- nubes (identidad) */
-/* el área segura de cada plantilla se mide sobre el ancho de la propia nube (--cw), no sobre su contenedor */
-.nube{position:relative;isolation:isolate;color:var(--pizarra);width:var(--cw,100%);max-width:100%;
-  padding:calc(var(--cw,100%) * var(--pt)) calc(var(--cw,100%) * var(--pr)) calc(var(--cw,100%) * var(--pb)) calc(var(--cw,100%) * var(--pl))}
-.nube::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--img) center/100% 100% no-repeat}
-.t-hero{--img:url('nubes/nube_hero_blanca.svg');aspect-ratio:1600/560;--pt:.1712;--pr:.1638;--pb:.05;--pl:.1688}
-.t-bloque{--img:url('nubes/nube_bloque_blanca.svg');aspect-ratio:1400/760;--pt:.1693;--pr:.1371;--pb:.0843;--pl:.1436}
-.t-columna{--img:url('nubes/nube_columna_blanca.svg');aspect-ratio:640/1060;--pt:.40;--pr:.25;--pb:.2266;--pl:.2578}
-.t-tarjeta{--img:url('nubes/nube_tarjeta_blanca.svg');aspect-ratio:1/1;--pt:.3293;--pr:.2122;--pb:.1732;--pl:.2183}
-.t-etiqueta{--img:url('nubes/nube_etiqueta_blanca.svg');aspect-ratio:560/240;--pt:.2125;--pr:.1661;--pb:.0821;--pl:.1732}
-.t-cita{--img:url('nubes/nube_cita_blanca.svg');aspect-ratio:1100/640;--pt:.19;--pr:.1845;--pb:.1727;--pl:.2291}
-.t-dato{--img:url('nubes/nube_dato_blanca.svg');aspect-ratio:620/600;--pt:.3871;--pr:.2823;--pb:.2661;--pl:.3306}
-.t-torre{--img:url('nubes/nube_torre_blanca.svg');aspect-ratio:760/1000;--pt:.8184;--pr:.2592;--pb:.1421;--pl:.2539}
-.t-movil{--img:url('nubes/nube_movil_blanca.svg');aspect-ratio:780/1340;--pt:.4167;--pr:.1846;--pb:.2346;--pl:.1859}
-.t-lenticular{--img:url('nubes/nube_lenticular_blanca.svg');aspect-ratio:1400/460;--pt:.1836;--pr:.1857;--pb:.0736;--pl:.1857}
-.t-estandarte{--img:url('nubes/nube_estandarte_blanca.svg');aspect-ratio:1600/520;--pt:.1525;--pr:.2344;--pb:.085;--pl:.1719}
-.t-pie{--img:url('nubes/nube_banco_pie_blanca.svg');aspect-ratio:1920/560;--pt:.175;--pr:.1281;--pb:.0573;--pl:.1474}
-/* plantillas apaisadas → sus equivalentes verticales en pantallas estrechas (nunca estirar más de ±25 %) */
-@media (max-width:1099px){
-  .t-bloque{--img:url('nubes/nube_movil_blanca.svg');aspect-ratio:780/1340;--pt:.4167;--pr:.1846;--pb:.2346;--pl:.1859}
-}
-@media (max-width:699px){
-  .t-hero,.t-cita,.t-estandarte{--img:url('nubes/nube_tarjeta_blanca.svg');aspect-ratio:1/1;--pt:.3293;--pr:.2122;--pb:.1732;--pl:.2183}
-}
+/* Nubes a medida del texto: el script mide cada texto, elige de la familia la nube cuya área densa
+   tiene la proporción más parecida y la escala para que esa área coincida con la caja del texto.
+   El padding del elemento es la parte de nube que rodea al texto (copos, base, flancos). */
+.nube{position:relative;isolation:isolate;color:var(--pizarra);box-sizing:border-box;max-width:none}
+.nube::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--img,none) center/100% 100% no-repeat;
+  opacity:var(--op,1);filter:var(--tinte,none);transition:filter .9s var(--ease)}
+.nube>.nt{position:relative;box-sizing:border-box}
+.nube[data-d=velo]{--op:.9}
+.nube[data-d=translucida]{--op:.78}
+/* la nube toma la luz de la pintura que hay detrás */
+:root[data-luz=alba] .nube{--tinte:sepia(.30) saturate(1.45) hue-rotate(-12deg) brightness(1.01)}
+:root[data-luz=noche] .nube{--tinte:brightness(.86) sepia(.22) hue-rotate(178deg) saturate(1.15)}
+/* hasta que el script coloca las nubes (o si no hay script): un fondo sobrio para que todo se lea */
+html:not(.nubes-ok) .nube{background:rgba(247,248,249,.94);border-radius:24px;padding:1em 1.3em;max-width:min(620px,100%)}
 
 /* tipografía dentro de nubes: siempre pizarra */
 .ceja{display:block;font-family:var(--font-texto);font-weight:500;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;line-height:1.3;margin-bottom:.35em}
@@ -88,11 +79,11 @@ a{color:inherit}
 }
 
 /* ---------------------------------------------------------------- historia: capítulos y beats */
-main{position:relative;z-index:3}
+main{position:relative;z-index:3;overflow-x:clip}
 .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .ch{position:relative}
 .beat{min-height:100vh;min-height:100svh;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;gap:clamp(20px,4vh,48px);
-  padding-block:12vh;max-width:1320px;margin:0 auto;padding-right:var(--rail)}
+  padding-block:12vh;max-width:1320px;margin:0 auto;padding-right:var(--rail);gap:clamp(4px,1.6vh,18px)}
 .beat.corto{min-height:72vh;min-height:72svh}
 .beat.aire{min-height:70vh;min-height:70svh}
 .fila{display:flex;flex-wrap:wrap;gap:clamp(16px,3vw,40px);align-items:center}
@@ -127,7 +118,7 @@ main{position:relative;z-index:3}
 /* ---------------------------------------------------------------- portada */
 #portada .beat{min-height:100vh;min-height:100svh;align-content:space-between;justify-items:center;padding-block:6vh 4vh;gap:2vh}
 .portada-bajo{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0}
-.portada-bajo .portada-extra{margin-top:-26px;position:relative;z-index:1}
+.portada-bajo .portada-extra{margin-top:-6px;position:relative;z-index:1}
 .mantra,.final-mantra{text-shadow:1.5px 0 0 var(--pizarra),-1.5px 0 0 var(--pizarra),0 1.5px 0 var(--pizarra),0 -1.5px 0 var(--pizarra),1px 1px 0 var(--pizarra),-1px -1px 0 var(--pizarra),1px -1px 0 var(--pizarra),-1px 1px 0 var(--pizarra)}
 .mantra{font-size:clamp(1.4rem,2.6vw,2.2rem);line-height:1.9;letter-spacing:.06em;text-align:center}
 .mantra small{display:block;font-family:var(--font-texto);font-style:italic;font-size:.9rem;letter-spacing:.08em;color:var(--nieve);opacity:.9;line-height:1.2}
@@ -143,7 +134,6 @@ main{position:relative;z-index:3}
 .js.anim .lista .portada-extra{opacity:1}
 .portada-extra{display:grid;justify-items:center;gap:18px}
 @media (max-width:699px){
-  .portada-nube{--img:url('nubes/nube_hero_blanca.svg');aspect-ratio:1600/560;--pt:.1712;--pr:.12;--pb:.05;--pl:.12;--cw:100%}
   .portada-nube .hero-titulo{font-size:clamp(2rem,10.4vw,3rem)}
   .portada-nube .sub{font-size:.85rem;margin-top:.3em}
   .portada-bajo .portada-extra{margin-top:14px}
@@ -155,10 +145,10 @@ main{position:relative;z-index:3}
 
 /* CTA bandera: el único acento rojo de cada pantalla. Doble contorno como las nubes */
 .cta{appearance:none;border:0;cursor:pointer;font:500 .92rem/1 var(--font-texto);letter-spacing:.16em;text-transform:uppercase;color:var(--nieve);
-  background:var(--bandera);padding:1em 1.7em;border-radius:999px;box-shadow:0 0 0 3px var(--pizarra),0 0 0 8px var(--nube);
+  background:var(--bandera);padding:1em 1.7em;border-radius:999px;box-shadow:0 12px 26px -12px rgba(16,18,26,.75);
   transition:transform .4s var(--ease),box-shadow .4s var(--ease);text-decoration:none;display:inline-flex;align-items:center;gap:.7em}
-.cta:hover{transform:translateY(-2px);box-shadow:0 0 0 3px var(--pizarra),0 0 0 11px var(--nube)}
-.cta:focus-visible{outline:3px solid var(--liquen);outline-offset:12px}
+.cta:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(16,18,26,.8)}
+.cta:focus-visible{outline:3px solid var(--liquen);outline-offset:5px}
 .cta svg{width:14px;height:14px}
 
 /* ---------------------------------------------------------------- piezas */
@@ -226,12 +216,12 @@ main{position:relative;z-index:3}
 #ruta-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round}
 .campo{position:absolute;left:0;top:0;opacity:0;transition:opacity .5s var(--ease)}
 .campo .punto{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;background:var(--nube);box-shadow:0 0 0 3px var(--pizarra)}
-.campo .t-etiqueta{position:absolute;left:14px;top:-48px;--cw:176px;max-width:none;font-size:.84rem;line-height:1.1;white-space:nowrap}
+.campo .t-etiqueta{position:absolute;left:10px;top:0;transform:translateY(-50%);--cw:176px;max-width:none;font-size:.84rem;line-height:1.1;white-space:nowrap}
 .campo .t-etiqueta b{font-weight:700;font-variant-numeric:tabular-nums}
-.campo.izq .t-etiqueta{left:auto;right:14px}
+.campo.izq .t-etiqueta{left:auto;right:10px}
 .punta{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;opacity:0;
   background:radial-gradient(circle,#fff 0 30%,rgba(255,236,190,.85) 42%,rgba(255,236,190,0) 72%)}
-@media (max-width:699px){ .campo .t-etiqueta{--cw:150px;font-size:.74rem;top:-42px} }
+@media (max-width:699px){ .campo .t-etiqueta{font-size:.74rem} }
 
 /* ---------------------------------------------------------------- altímetro */
 #altimetro{position:fixed;z-index:5;right:calc(18px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);height:min(58vh,520px);width:62px;
@@ -249,8 +239,8 @@ main{position:relative;z-index:3}
 #altimetro button:hover span,#altimetro button:focus-visible span{opacity:1;transform:translate(0,-50%)}
 #altimetro .marcador{position:absolute;right:23px;width:17px;height:17px;margin-bottom:-8.5px;bottom:0;border-radius:50%;background:var(--bandera);
   box-shadow:0 0 0 3px var(--pizarra),0 0 0 6px var(--nube);will-change:bottom}
-#lectura{position:fixed;z-index:5;--cw:150px;max-width:none;text-align:center;right:calc(56px + env(safe-area-inset-right,0px));top:50%;margin-top:-37px;
-  font-size:1.1rem;line-height:1;pointer-events:none;will-change:transform;margin-top:-32px}
+#lectura{position:fixed;z-index:5;--cw:150px;max-width:none;text-align:center;right:calc(56px + env(safe-area-inset-right,0px));top:50%;
+  font-size:1.1rem;line-height:1;pointer-events:none;will-change:transform;margin-top:calc(var(--mh,30px) * -1)}
 #lectura .cifra{font-size:1.32rem}
 @media (max-width:899px){
   #lectura{right:calc(10px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));margin-top:0;--cw:136px;transform:none!important}
@@ -699,6 +689,88 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
+
+/* ------------------------------------------------------------------ nubes a medida del texto */
+const NUBES = [{"f":"cumulo","n":"cumulo_0_5_0","a":0.5,"w":751,"h":1374,"c":[0.19526,0.20678,0.80546,0.87382]},{"f":"cumulo","n":"cumulo_0_5_1","a":0.5,"w":751,"h":1374,"c":[0.19526,0.20678,0.80546,0.87382]},{"f":"cumulo","n":"cumulo_0_65_0","a":0.65,"w":840,"h":1309,"c":[0.189,0.23826,0.81101,0.85235]},{"f":"cumulo","n":"cumulo_0_65_1","a":0.65,"w":840,"h":1309,"c":[0.189,0.23826,0.81101,0.85235]},{"f":"cumulo","n":"cumulo_0_8_0","a":0.8,"w":920,"h":1273,"c":[0.18508,0.26524,0.81514,0.83442]},{"f":"cumulo","n":"cumulo_0_8_1","a":0.8,"w":920,"h":1273,"c":[0.18508,0.26524,0.81514,0.83442]},{"f":"cumulo","n":"cumulo_1_0_0","a":1.0,"w":1224,"h":1367,"c":[0.23562,0.32712,0.76509,0.8012]},{"f":"cumulo","n":"cumulo_1_0_1","a":1.0,"w":1224,"h":1367,"c":[0.23562,0.32712,0.76509,0.8012]},{"f":"cumulo","n":"cumulo_1_25_0","a":1.25,"w":1253,"h":1230,"c":[0.21107,0.32871,0.78933,0.79997]},{"f":"cumulo","n":"cumulo_1_25_1","a":1.25,"w":1253,"h":1230,"c":[0.21107,0.32871,0.78933,0.79997]},{"f":"cumulo","n":"cumulo_1_55_0","a":1.55,"w":1295,"h":1112,"c":[0.18882,0.33072,0.81187,0.79884]},{"f":"cumulo","n":"cumulo_1_55_1","a":1.55,"w":1295,"h":1112,"c":[0.18882,0.33072,0.81187,0.79884]},{"f":"cumulo","n":"cumulo_1_95_0","a":1.95,"w":1357,"h":1001,"c":[0.16681,0.33312,0.83371,0.79675]},{"f":"cumulo","n":"cumulo_1_95_1","a":1.95,"w":1357,"h":1001,"c":[0.16681,0.33312,0.83371,0.79675]},{"f":"cumulo","n":"cumulo_2_45_0","a":2.45,"w":1436,"h":903,"c":[0.14712,0.33632,0.85352,0.79484]},{"f":"cumulo","n":"cumulo_2_45_1","a":2.45,"w":1436,"h":903,"c":[0.14712,0.33632,0.85352,0.79484]},{"f":"cumulo","n":"cumulo_3_1_0","a":3.1,"w":1538,"h":815,"c":[0.12912,0.34008,0.87102,0.79171]},{"f":"cumulo","n":"cumulo_3_1_1","a":3.1,"w":1538,"h":815,"c":[0.12912,0.34008,0.87102,0.79171]},{"f":"cumulo","n":"cumulo_3_9_0","a":3.9,"w":1657,"h":740,"c":[0.11398,0.34457,0.88636,0.78804]},{"f":"cumulo","n":"cumulo_3_9_1","a":3.9,"w":1657,"h":740,"c":[0.11398,0.34457,0.88636,0.78804]},{"f":"cumulo","n":"cumulo_4_9_0","a":4.9,"w":1414,"h":530,"c":[0.10108,0.35074,0.89933,0.78536]},{"f":"cumulo","n":"cumulo_4_9_1","a":4.9,"w":1414,"h":530,"c":[0.10108,0.35074,0.89933,0.78536]},{"f":"cumulo","n":"cumulo_6_2_0","a":6.2,"w":1547,"h":485,"c":[0.08988,0.35721,0.9106,0.77944]},{"f":"cumulo","n":"cumulo_6_2_1","a":6.2,"w":1547,"h":485,"c":[0.08988,0.35721,0.9106,0.77944]},{"f":"cumulo","n":"cumulo_7_8_0","a":7.8,"w":1698,"h":447,"c":[0.08075,0.36515,0.91943,0.77359]},{"f":"cumulo","n":"cumulo_7_8_1","a":7.8,"w":1698,"h":447,"c":[0.08075,0.36515,0.91943,0.77359]},{"f":"estandarte","n":"estandarte_2_2_0","a":2.2,"w":2001,"h":900,"c":[0.11136,0.32042,0.59175,0.8059]},{"f":"estandarte","n":"estandarte_3_4_0","a":3.4,"w":2411,"h":724,"c":[0.08309,0.3204,0.57873,0.80585]},{"f":"jiron","n":"jiron_0","w":2000,"h":560},{"f":"jiron","n":"jiron_1","w":2000,"h":560},{"f":"lenticular","n":"lenticular_3_2_0","a":3.2,"w":1669,"h":1286,"c":[0.15281,0.40849,0.84743,0.6902]},{"f":"lenticular","n":"lenticular_3_2_1","a":3.2,"w":1669,"h":1286,"c":[0.15281,0.40849,0.84743,0.6902]},{"f":"lenticular","n":"lenticular_4_6_0","a":4.6,"w":1574,"h":843,"c":[0.15286,0.40893,0.84766,0.69095]},{"f":"lenticular","n":"lenticular_4_6_1","a":4.6,"w":1574,"h":843,"c":[0.15286,0.40893,0.84766,0.69095]},{"f":"lenticular","n":"lenticular_6_4_0","a":6.4,"w":1857,"h":715,"c":[0.15282,0.40875,0.84747,0.69065]},{"f":"lenticular","n":"lenticular_6_4_1","a":6.4,"w":1857,"h":715,"c":[0.15282,0.40875,0.84747,0.69065]}].filter(n => n.f !== 'jiron');
+NUBES.forEach(n => { n.ca = ((n.c[2] - n.c[0]) * n.w) / ((n.c[3] - n.c[1]) * n.h); });
+const FAMILIA = {};
+NUBES.forEach(n => (FAMILIA[n.f] = FAMILIA[n.f] || []).push(n));
+for (const f in FAMILIA) { const as = FAMILIA[f].map(n => n.ca); FAMILIA[f].min = Math.min(...as); FAMILIA[f].max = Math.max(...as); }
+// [clase, familia, ancho máximo del texto en px, densidad]
+const TIPOS = [
+  ['portada-nube', 'cumulo', 900, 'densa'], ['fuentes', 'cumulo', 820, 'densa'], ['t-hero', 'cumulo', 600, 'velo'],
+  ['t-bloque', 'cumulo', 560, 'densa'], ['t-columna', 'cumulo', 240, 'densa'], ['t-cita', 'cumulo', 420, 'velo'],
+  ['t-tarjeta', 'cumulo', 300, 'densa'], ['t-dato', 'cumulo', 210, 'densa'], ['t-torre', 'cumulo', 270, 'densa'],
+  ['t-lenticular', 'lenticular', 560, 'velo'], ['t-estandarte', 'estandarte', 560, 'velo'], ['t-pie', 'cumulo', 900, 'velo'],
+  ['t-etiqueta', 'cumulo', 9999, 'velo'],
+];
+function elegir(fam, a, i) {
+  const L = FAMILIA[fam];
+  let best = Infinity, bestA = 0;
+  for (const n of L) { const d = Math.abs(Math.log(n.ca / a)); if (d < best - 1e-9) { best = d; bestA = n.ca; } }
+  const iguales = L.filter(n => Math.abs(n.ca - bestA) < 1e-6);
+  return iguales[i % iguales.length];
+}
+function ajustarNube(el, i, vw) {
+  const tipo = TIPOS.find(t => el.classList.contains(t[0])) || TIPOS[3];
+  const [, fam, twMax, dens] = tipo;
+  if (!el.dataset.d) el.dataset.d = dens;
+  let nt = el.firstElementChild && el.firstElementChild.classList.contains('nt') && el.children.length === 1 ? el.firstElementChild : null;
+  if (!nt) { nt = document.createElement('div'); nt.className = 'nt'; while (el.firstChild) nt.appendChild(el.firstChild); el.appendChild(nt); }
+  el.style.padding = '0'; el.style.width = 'auto'; el.style.marginLeft = el.style.marginRight = '';
+  nt.style.padding = '0';
+  const fs = parseFloat(getComputedStyle(el).fontSize) || 16;
+  const padX = 0.55 * fs, padY = 0.3 * fs;                 // aire mínimo entre el texto y el borde del área densa
+  const etiqueta = el.classList.contains('t-etiqueta');
+  let avail;
+  if (etiqueta) avail = vw - 24;
+  else {
+    const p = el.parentElement, cs = getComputedStyle(p);
+    avail = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    if (!(avail > 0) || avail > vw - 32) avail = vw - 32;
+  }
+  const bleed = vw < 700 && !etiqueta ? Math.min(46, 0.12 * vw) : 0;   // en el móvil los flancos pueden salir de pantalla
+  nt.style.width = 'max-content';
+  const maxc = nt.offsetWidth + 2;            // tamaño de maquetación: no le afectan las animaciones de entrada
+  let tw = Math.min(twMax, maxc), r = null;
+  const F = FAMILIA[fam];
+  for (let it = 0; it < 6; it++) {
+    nt.style.width = tw + 'px';
+    const h = nt.offsetHeight;
+    let cw = tw + 2 * padX, ch = h + 2 * padY;
+    // una sola línea muy larga en una plantilla que no admite tanto: se reparte en dos líneas
+    if (!etiqueta && cw / ch > F.max * 1.3 && tw > 220) { tw = Math.round(tw * 0.62); continue; }
+    if (cw / ch > F.max) ch = cw / F.max;                   // más aire arriba y abajo, el texto sigue centrado
+    if (cw / ch < F.min) cw = ch * F.min;                   // más aire a los lados
+    const n = elegir(fam, cw / ch, i);
+    const cwPx = (n.c[2] - n.c[0]) * n.w, chPx = (n.c[3] - n.c[1]) * n.h;
+    const sx = cw / cwPx, sy = ch / chPx;
+    const L = n.c[0] * n.w * sx, R = (1 - n.c[2]) * n.w * sx, T = n.c[1] * n.h * sy, B = (1 - n.c[3]) * n.h * sy;
+    r = { n, cw, ch, h, tw, L, R, T, B, total: cw + L + R };
+    if (r.total <= avail + 2 * bleed + 0.5 || tw <= 120) break;
+    tw = Math.max(120, Math.floor(tw * (avail + 2 * bleed) / r.total) - 2);
+  }
+  nt.style.width = r.cw + 'px';
+  nt.style.padding = `${(r.ch - r.h) / 2}px ${(r.cw - r.tw) / 2}px`;
+  el.style.padding = `${r.T}px ${r.R}px ${r.B}px ${r.L}px`;
+  el.style.width = r.total + 'px';
+  if (!etiqueta && r.total > avail) { const o = -(r.total - avail) / 2 + 'px'; el.style.marginLeft = o; el.style.marginRight = o; }
+  el.style.setProperty('--img', `url('nubes2/${r.n.n}.webp')`);
+}
+let fitW = -1;
+function ajustarNubes(force) {
+  const vw = innerWidth;
+  if (!force && vw === fitW) return;
+  fitW = vw;
+  document.querySelectorAll('.nube').forEach((el, i) => ajustarNube(el, i, vw));
+  for (const id in pinEls) pinEls[id].lw = pinEls[id].el.querySelector('.nube').offsetWidth;
+  for (const k in campEls) campEls[k].lw = campEls[k].el.querySelector('.nube').offsetWidth;
+  lectura.style.setProperty('--mh', lectura.offsetHeight / 2 + 'px');
+  root.classList.add('nubes-ok');
+}
+const LUZ = { 'campo-3': 'alba', cumbre: 'alba', 'campo-4': 'noche' };
+let luzActual = '';
+
 /* ------------------------------------------------------------------ ruta: longitudes */
 const segLen = [0];
 for (let i = 1; i < ROUTE.length; i++) segLen.push(segLen[i - 1] + Math.hypot(ROUTE[i][0] - ROUTE[i - 1][0], ROUTE[i][1] - ROUTE[i - 1][1]));
@@ -774,8 +846,9 @@ const routeCards = [...document.querySelectorAll('.ruta-tarjetas [data-campo]')]
 const pistaH = document.getElementById('pista-h');
 const secAsc = document.getElementById('ascensiones');
 let pistaMax = 0, railH = 0, measuredW = 0, measuredH = 0;
-function measure() {
+function measure(forceFit) {
   VW = innerWidth; VH = innerHeight; MOBILE = VW < 700; measuredW = VW; measuredH = VH;
+  ajustarNubes(forceFit);
   // las marcas de las secciones fijadas ocupan una pantalla cada una
   document.querySelectorAll('.pin').forEach(sec => {
     sec.querySelectorAll('.marcas .beat').forEach((b, i) => { b.style.top = (i * VH) + 'px'; b.style.height = VH + 'px'; });
@@ -791,6 +864,7 @@ function measure() {
       cam: { u: s[0], v: s[1], z: s[2], sx: s[3] ?? 0.5, sy: +(sec.dataset.syMovil || 0.5) },
       alt: +b.dataset.alt || 0,
       lugar: b.dataset.lugar || '',
+      el: b,
       pins: (b.dataset.pins || '').split(/\s+/).filter(Boolean),
       route: b.dataset.route || null,
       h: b.dataset.h != null ? +b.dataset.h : null,
@@ -1056,6 +1130,7 @@ function frame(now) {
 
   // picos anclados
   const stable = !st.B || st.mix < 0.02;
+  let textos = null;
   for (const id in pinEls) {
     const P = pinEls[id];
     let w = 0;
@@ -1070,11 +1145,20 @@ function frame(now) {
       P.el.style.transform = `translate3d(${x}px,${y}px,0)`;
       const flip = y < 170;
       if (flip !== P.flip) { P.el.classList.toggle('abajo', flip); P.flip = flip; }
-      const lw = VW < 700 ? 196 : 236, left = x - lw / 2;
+      const lw = P.lw || 220, left = x - lw / 2;
       const dx = Math.round(clamp(left, 10, VW - lw - (VW >= 900 ? 200 : 10)) - left);
       if (dx !== P.dx) { P.el.style.setProperty('--dx', dx + 'px'); P.dx = dx; }
     }
-    const o = w > 0.5 ? 1 : 0;
+    let o = w > 0.5 ? 1 : 0;
+    if (o) {   // una etiqueta de pico nunca pisa un texto
+      if (!textos) textos = [st.a.el, st.b.el].flatMap(b => b ? [...b.querySelectorAll('.nube')] : []).map(n => {
+        const r = n.getBoundingClientRect(), ix = r.width * 0.12, iy = r.height * 0.10;   // el cuerpo visible, sin el borde transparente
+        return { left: r.left + ix, right: r.right - ix, top: r.top + iy, bottom: r.bottom - iy, width: r.width };
+      });
+      const lab = P.lab || (P.lab = P.el.querySelector('.nube .nt'));
+      const lr = lab.getBoundingClientRect();
+      if (textos.some(t => t.width && !(lr.right < t.left - 6 || lr.left > t.right + 6 || lr.bottom < t.top - 6 || lr.top > t.bottom + 6))) o = 0;
+    }
     if (P.w !== o) { P.el.style.opacity = o; P.w = o; }
   }
 
@@ -1098,7 +1182,7 @@ function frame(now) {
       newest = k;
       const sx = rA[2] / IMG_W, px = rA[0] + c.x * sx;
       c.el.style.transform = `translate3d(${px}px,${rA[1] + c.y * sx}px,0)`;
-      const lw = VW < 700 ? 150 : 176, room = VW - (VW >= 900 ? 200 : 8);
+      const lw = c.lw || 170, room = VW - (VW >= 900 ? 200 : 8);
       const left = px + 14 + lw > room;
       if (left !== c.left) { c.el.classList.toggle('izq', left); c.left = left; }
     }
@@ -1128,6 +1212,8 @@ function frame(now) {
     if (VW >= 900) lectura.style.transform = `translate3d(0,${(0.5 - f) * railH}px,0)`;
     railBtns.forEach(r => r.b.classList.toggle('pasado', r.alt <= alt + 1));
   }
+  const luz = LUZ[st.B && st.mix > 0.5 ? st.B : st.A] || 'dia';
+  if (luz !== luzActual) { luzActual = luz; root.dataset.luz = luz; }
   if (st.lugar !== lastLugar) { lastLugar = st.lugar; alti.setAttribute('aria-label', `Altímetro, ahora en ${st.lugar}: saltar a cada campo`); }
 }
 
@@ -1152,7 +1238,7 @@ async function start() {
   resize(true);
   setupReveal();
   addEventListener('resize', () => resize(false), { passive: true });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measure(); dirty = true; });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measure(true); dirty = true; });
   // primera pintura: la del lugar donde está el lector
   const st0 = computeState(scrollY + VH / 2);
   const first = st0.A;
