@@ -1,0 +1,1450 @@
+<title>Makalu, el gran negro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="El Makalu (8 485 m) en una ascensión por scroll: significado, cultura del Barun, la ruta normal, la cumbre principal, los primeros, las grandes líneas, los picos del macizo y la cumbre.">
+<style>
+@font-face { font-family: "Rozha One"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url(data:font/woff2;base64,{{ROZHA}}) format("woff2"); }
+@font-face { font-family: "Karla"; font-style: normal; font-weight: 200 800; font-display: swap;
+  src: url(data:font/woff2;base64,{{KARLA}}) format("woff2"); }
+@font-face { font-family: "Karla"; font-style: italic; font-weight: 200 800; font-display: swap;
+  src: url(data:font/woff2;base64,{{KARLA_I}}) format("woff2"); }
+
+/* Concepto: la página es la ascensión. Un escenario fijo pinta las láminas a sangre (WebGL, transición
+   de pincel seco que sube desde abajo); el texto vive sobre piedras o sobre la noche; un altímetro marca
+   la altura del capítulo. Identidad «Mahakala»: tokens exactos de makalu-tokens.css. Diseño de un solo
+   tema, oscuro por decisión del manual («fondo siempre noche»). */
+:root {
+  --mk-noche: #12121A;  --mk-indigo: #232A4F;  --mk-hueso: #EAE3D4;  --mk-oro: #C9A04A;  --mk-llama: #C8452C;
+  --mk-superficie: #191C2F;  --mk-filete: #353338;  --mk-hueso-70: #A9A49C;  --mk-oro-claro: #D5B77A;
+  --noche-rgb: 18 18 26;  --hueso-rgb: 234 227 212;  --oro-rgb: 201 160 74;  --llama-rgb: 200 69 44;  --indigo-rgb: 35 42 79;
+  --mk-font-display: "Rozha One", "Tiro Devanagari Hindi", Georgia, "Times New Roman", serif;
+  --mk-font-text: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mk-fs-display: clamp(3rem, 2rem + 4.5vw, 4.75rem);
+  --mk-fs-h1: clamp(2.375rem, 1.6rem + 3vw, 3.5rem);
+  --mk-fs-h2: 2.375rem;  --mk-fs-h3: 1.625rem;  --mk-fs-cifra: 4rem;
+  --mk-fs-lead: 1.375rem;  --mk-fs-body: 1.125rem;  --mk-fs-small: 0.9375rem;  --mk-fs-label: 0.8125rem;
+  --mk-measure: 62ch;  --mk-radius: 2px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --alti-w: 118px;
+  --top-h: 64px;
+  --gut-l: max(16px, env(safe-area-inset-left, 0px));
+  --gut-r: max(16px, env(safe-area-inset-right, 0px));
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--mk-noche); -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--mk-noche); color: var(--mk-hueso); font-family: var(--mk-font-text);
+  font-size: var(--mk-fs-body); line-height: 1.65; font-weight: 400; -webkit-font-smoothing: antialiased;
+  overflow-x: clip; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--mk-noche); }
+img { max-width: 100%; }
+a { color: var(--mk-oro); text-underline-offset: .2em; }
+a:hover { color: var(--mk-oro-claro); }
+:focus-visible { outline: 2px solid var(--mk-oro); outline-offset: 3px; }
+::selection { background: rgb(var(--oro-rgb) / .35); color: var(--mk-hueso); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ————— etiquetas y tipografía de la identidad ————— */
+.lbl { margin: 0; font: 700 var(--mk-fs-label)/1.3 var(--mk-font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--mk-oro); }
+.cifra { font-family: var(--mk-font-display); font-weight: 400; color: var(--mk-oro); line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.mk-btn { display: inline-flex; align-items: center; gap: .6em; font: 700 var(--mk-fs-label)/1 var(--mk-font-text); letter-spacing: .16em;
+  text-transform: uppercase; padding: 1.05em 1.6em; border-radius: var(--mk-radius); background: var(--mk-oro); color: var(--mk-noche);
+  text-decoration: none; border: 0; cursor: pointer; transition: background .3s var(--ease), transform .3s var(--ease); }
+.mk-btn:hover { background: var(--mk-oro-claro); color: var(--mk-noche); transform: translateY(-1px); }
+.mk-btn span { transition: transform .3s var(--ease); }
+.mk-btn:hover span { transform: translateX(3px); }
+
+/* ————— escenario fijo ————— */
+.stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: var(--mk-noche); }
+.stage__fallback { position: absolute; inset: 0; }
+.stage__fallback img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 30%;
+  opacity: 0; transition: opacity 1s ease; transform-origin: 0 0; }
+.stage__fallback img.is-on { opacity: 1; }
+.stage--placed .stage__fallback img { object-fit: fill; }
+.stage__gl { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+.stage--gl .stage__gl { opacity: 1; }
+.stage--gl-ready .stage__fallback { visibility: hidden; }
+.veil { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.1s ease; }
+.veil--base { opacity: 1;
+  background: linear-gradient(180deg, rgb(var(--noche-rgb) / .78) 0, rgb(var(--noche-rgb) / .28) 11%, rgb(var(--noche-rgb) / 0) 22%),
+              linear-gradient(0deg, rgb(var(--noche-rgb) / .9) 0, rgb(var(--noche-rgb) / .35) 14%, rgb(var(--noche-rgb) / 0) 30%); }
+.veil--left { background: linear-gradient(90deg, rgb(var(--noche-rgb) / .94) 0, rgb(var(--noche-rgb) / .82) 30%, rgb(var(--noche-rgb) / .42) 50%, rgb(var(--noche-rgb) / 0) 66%); }
+.veil--right { background: linear-gradient(270deg, rgb(var(--noche-rgb) / .94) 0, rgb(var(--noche-rgb) / .82) 30%, rgb(var(--noche-rgb) / .42) 50%, rgb(var(--noche-rgb) / 0) 66%); }
+.veil--center { background: radial-gradient(ellipse 40% 62% at 50% 56%, rgb(var(--noche-rgb) / .74), rgb(var(--noche-rgb) / .38) 62%, rgb(var(--noche-rgb) / 0) 100%); }
+.veil--hero { background: radial-gradient(ellipse 85% 70% at 0% 100%, rgb(var(--noche-rgb) / .95), rgb(var(--noche-rgb) / .62) 45%, rgb(var(--noche-rgb) / 0) 75%); }
+.side-left .veil--left, .side-right .veil--right, .side-center .veil--center, .side-hero .veil--hero { opacity: 1; }
+.veil--curtain { background: var(--mk-noche); opacity: 1; transition: opacity 1.6s ease .15s; }
+.stage--awake .veil--curtain { opacity: 0; }
+.stage__snow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.route { position: absolute; left: 0; top: 0; width: 3200px; height: 1800px; transform-origin: 0 0; overflow: visible; pointer-events: none; opacity: 0; }
+.route path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.route .r-plan { stroke: rgb(var(--hueso-rgb) / .38); }
+.route .r-vis { stroke: var(--mk-oro); }
+.route .r-hid { stroke: rgb(var(--oro-rgb) / .75); }
+.route .r-glow { stroke: rgb(var(--noche-rgb) / .55); }
+.route .r-head { fill: var(--mk-hueso); }
+.marks { position: absolute; inset: 0; pointer-events: none; }
+
+/* cimas y campos sobre la lámina */
+.peak, .camp { position: absolute; left: 0; top: 0; will-change: transform; }
+.peak { opacity: 0; transition: opacity .7s ease; }
+.peak.is-on { opacity: 1; }
+.peak__dot { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--mk-oro); box-shadow: 0 0 0 3px rgb(var(--noche-rgb) / .5); }
+.peak__line { position: absolute; left: -.5px; bottom: 5px; width: 1px; height: var(--h, 56px); transform-origin: 50% 100%; transform: scaleY(0);
+  background: linear-gradient(to top, var(--mk-oro), rgb(var(--oro-rgb) / .25)); transition: transform .9s var(--ease); }
+.peak.is-on .peak__line { transform: scaleY(1); }
+.peak__tag { position: absolute; left: 0; bottom: calc(var(--h, 56px) + 9px); transform: translateX(var(--tx, -50%)); white-space: nowrap; padding: .4em .75em .45em;
+  background: rgb(var(--noche-rgb) / .8); border: 1px solid rgb(var(--oro-rgb) / .35); border-radius: var(--mk-radius);
+  font: 700 12px/1.25 var(--mk-font-text); letter-spacing: .14em; text-transform: uppercase; color: var(--mk-hueso); }
+.peak__tag small { display: block; margin-top: .15em; font-weight: 400; font-size: 12px; letter-spacing: .03em; text-transform: none; color: var(--mk-hueso-70); }
+.camp { opacity: 0; transition: opacity .5s ease; }
+.camp.is-seen { opacity: 1; }
+.camp__dot { position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; transform: rotate(45deg); border: 1.5px solid var(--mk-hueso); background: rgb(var(--noche-rgb) / .7); transition: background .4s, border-color .4s; }
+.camp.is-past .camp__dot { background: var(--mk-oro); border-color: var(--mk-oro); }
+.camp.is-now .camp__dot { background: var(--mk-llama); border-color: var(--mk-hueso); }
+.camp.is-now .camp__dot::after { content: ""; position: absolute; inset: -7px; border: 1px solid rgb(var(--llama-rgb) / .8); animation: pulse 2.2s ease-out infinite; }
+@keyframes pulse { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.9); opacity: 0; } }
+.camp__tag { position: absolute; top: -11px; left: 16px; white-space: nowrap; padding: .3em .6em; background: rgb(var(--noche-rgb) / .82); border-radius: var(--mk-radius);
+  font: 700 12px/1.3 var(--mk-font-text); letter-spacing: .12em; text-transform: uppercase; color: var(--mk-hueso); opacity: 0; transform: translateX(-4px); transition: opacity .4s, transform .4s var(--ease); }
+.camp--l .camp__tag { left: auto; right: 16px; transform: translateX(4px); }
+.camp.is-now .camp__tag, .camp--always.is-seen .camp__tag { opacity: 1; transform: none; }
+.camp__tag b { color: var(--mk-oro); font-weight: 700; }
+
+/* ————— cabecera ————— */
+.top { position: fixed; z-index: 40; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: var(--top-h); display: flex; align-items: center; gap: 28px;
+  padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); pointer-events: none;
+  background: linear-gradient(180deg, rgb(var(--noche-rgb) / .9) 0, rgb(var(--noche-rgb) / .72) 62%, rgb(var(--noche-rgb) / 0) 100%); }
+.top > * { pointer-events: auto; }
+.brand { font-family: var(--mk-font-display); font-size: 1.5rem; line-height: 1; letter-spacing: .06em; text-transform: uppercase; color: var(--mk-hueso); text-decoration: none; display: flex; align-items: baseline; gap: .5em; }
+.brand:hover { color: var(--mk-hueso); }
+.brand i { font-style: normal; color: var(--mk-oro); }
+.nav { margin-left: auto; display: flex; gap: 22px; }
+.nav a { font: 700 12px/1 var(--mk-font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--mk-hueso-70); text-decoration: none; padding: 8px 0; position: relative; transition: color .3s; }
+.nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--mk-oro); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease); }
+.nav a:hover, .nav a.is-on { color: var(--mk-hueso); }
+.nav a.is-on::after { transform: scaleX(1); }
+.top__now { display: none; margin-left: auto; font: 700 12px/1 var(--mk-font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--mk-hueso-70); }
+.top__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: rgb(var(--hueso-rgb) / .08); }
+.top__bar i { position: absolute; inset: 0; background: var(--mk-oro); transform-origin: left; transform: scaleX(0); }
+
+/* ————— altímetro ————— */
+.alti { position: fixed; z-index: 30; left: max(28px, calc(env(safe-area-inset-left, 0px) + 12px)); top: 50%; transform: translateY(-46%); width: var(--alti-w);
+  pointer-events: none; display: grid; gap: 14px; }
+.alti::before { content: ""; position: absolute; z-index: -1; inset: -90px -110px -90px -60px; pointer-events: none;
+  background: radial-gradient(closest-side, rgb(var(--noche-rgb) / .62), rgb(var(--noche-rgb) / .34) 60%, rgb(var(--noche-rgb) / 0)); }
+.alti__read { display: flex; align-items: baseline; gap: 6px; }
+.alti__num { font-family: var(--mk-font-display); font-size: 2rem; line-height: 1; color: var(--mk-oro); font-variant-numeric: lining-nums tabular-nums; }
+.alti__unit { font: 700 13px/1 var(--mk-font-text); letter-spacing: .1em; color: var(--mk-hueso-70); }
+.alti__air { margin-top: -8px; font: 400 12px/1.35 var(--mk-font-text); color: var(--mk-hueso-70); }
+.alti__air b { color: var(--mk-hueso); font-weight: 700; }
+.alti__scale { position: relative; height: 42vh; min-height: 260px; max-height: 420px; margin-left: 5px; }
+.alti__rail { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: rgb(var(--hueso-rgb) / .22); }
+.alti__fill { position: absolute; left: 0; bottom: 0; width: 1px; height: 100%; background: var(--mk-oro); transform-origin: bottom; transform: scaleY(0); }
+.alti__tick { position: absolute; left: 0; bottom: calc(var(--p) * 100%); display: flex; align-items: center; gap: 8px; transform: translateY(50%);
+  font: 700 11px/1 var(--mk-font-text); letter-spacing: .12em; text-transform: uppercase; color: var(--mk-hueso-70); transition: color .4s; }
+.alti__tick::before { content: ""; width: 7px; height: 1px; background: currentColor; }
+.alti__tick.is-past { color: var(--mk-hueso); }
+.alti__zone { position: absolute; left: -5px; right: 26px; bottom: calc(var(--p) * 100%); border-top: 1px dashed rgb(var(--hueso-rgb) / .35); }
+.alti__zone span { position: absolute; right: -26px; top: -7px; font: 400 11px/1 var(--mk-font-text); color: var(--mk-hueso-70); }
+.alti__mark { position: absolute; left: -5px; bottom: 0; width: 11px; height: 11px; transform: translateY(50%) rotate(45deg); background: var(--mk-oro); box-shadow: 0 0 0 3px rgb(var(--noche-rgb) / .6); }
+.alti__ghost { position: absolute; left: -5px; bottom: 0; width: 11px; height: 11px; transform: translateY(50%) rotate(45deg); border: 1.5px solid var(--mk-hueso); opacity: 0; transition: opacity .5s; }
+.alti--ghost .alti__ghost { opacity: 1; }
+
+/* ————— pie de lámina ————— */
+.plate { position: fixed; z-index: 30; right: max(28px, calc(env(safe-area-inset-right, 0px) + 12px)); bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+  max-width: min(440px, 38vw); text-align: right; pointer-events: none; transition: opacity .45s ease, transform .45s var(--ease); }
+.plate.is-swap { opacity: 0; transform: translateY(6px); }
+.plate--left { right: auto; left: max(28px, calc(env(safe-area-inset-left, 0px) + 12px)); text-align: left; }
+.plate__name { display: block; margin: 6px 0 4px; font-family: var(--mk-font-display); font-size: 1.625rem; line-height: 1.1; color: var(--mk-hueso); }
+.plate__name em { font-style: normal; color: var(--mk-oro); }
+.plate__where { display: block; font: 400 13px/1.45 var(--mk-font-text); color: var(--mk-hueso-70); }
+
+/* ————— contenido ————— */
+main { position: relative; z-index: 10; }
+.chapter { position: relative; padding-left: var(--gut-l); padding-right: var(--gut-r); overflow-x: clip; }
+.col { position: relative; width: min(640px, 46vw); }
+.side-col-left .col, .chapter[data-side="left"] .col, .chapter[data-side="hero"] .col { margin-left: calc(var(--alti-w) + 7vw); }
+.chapter[data-side="right"] .col { margin-left: auto; margin-right: 6vw; }
+.chapter[data-side="center"] .col { margin-inline: auto; width: min(620px, 52vw); }
+.step { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding-block: 14vh; }
+.step--tight { min-height: 72vh; padding-block: 8vh; }
+.step--hito { min-height: 64vh; padding-block: 6vh; }
+
+/* portada */
+.hero { min-height: 100vh; justify-content: flex-end; padding-block: 18vh 13vh; }
+.hero .lbl { animation: fadeUp 1.2s var(--ease) .25s both; }
+.hero__title { margin: 14px 0 0; font-family: var(--mk-font-display); font-weight: 400; text-transform: uppercase; letter-spacing: .015em;
+  font-size: clamp(4.25rem, 1.4rem + 11vw, 12.5rem); line-height: .84; color: var(--mk-hueso); white-space: nowrap; }
+.hero__title .ch { display: inline-block; animation: rise 1.5s var(--ease) both; animation-delay: calc(.35s + var(--i) * .085s); }
+.hero__deva { margin: 6px 0 0; font-family: var(--mk-font-display); font-size: clamp(2.6rem, 1rem + 5vw, 5.2rem); line-height: 1.15; color: var(--mk-oro);
+  background: linear-gradient(100deg, var(--mk-oro) 0 38%, var(--mk-oro-claro) 48%, #F0DDB0 50%, var(--mk-oro-claro) 52%, var(--mk-oro) 62% 100%);
+  background-size: 320% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: fadeUp 1.3s var(--ease) 1s both, shimmer 2.6s ease-in-out 1.4s both; }
+.hero__lead { max-width: 30ch; margin: 22px 0 0; font-size: var(--mk-fs-lead); line-height: 1.55; color: var(--mk-hueso); animation: fadeUp 1.2s var(--ease) 1.25s both; }
+.hero__lead b { font-weight: 700; color: var(--mk-oro); }
+.hero__cta { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 28px; animation: fadeUp 1.2s var(--ease) 1.5s both; }
+.hint { display: inline-flex; align-items: center; gap: 12px; font: 700 12px/1 var(--mk-font-text); letter-spacing: .16em; text-transform: uppercase; color: var(--mk-hueso-70); }
+.hint i { position: relative; width: 1px; height: 38px; background: rgb(var(--hueso-rgb) / .2); overflow: hidden; }
+.hint i::after { content: ""; position: absolute; left: 0; width: 1px; height: 14px; background: var(--mk-oro); animation: drip 2.2s var(--ease) infinite; }
+@keyframes rise { from { opacity: 0; transform: translateY(.42em); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@keyframes drip { from { top: -14px; } to { top: 38px; } }
+
+/* ————— piedras ————— */
+.piedra { position: relative; width: 100%; color: var(--mk-hueso); background: center / 100% 100% no-repeat;
+  filter: drop-shadow(0 14px 26px rgb(0 0 0 / .5)); container-type: inline-size;
+  display: flex; flex-direction: column; justify-content: center; gap: .72em;
+  font-size: 16px; font-size: clamp(15px, 2.95cqi, 18px); line-height: 1.56; }
+.piedra > * { margin: 0; }
+.piedra p { max-width: var(--mk-measure); }
+.piedra h2 { font-family: var(--mk-font-display); font-weight: 400; font-size: clamp(30px, 6.2cqi, 46px); line-height: 1.04; text-wrap: balance; }
+.piedra h3 { font-family: var(--mk-font-display); font-weight: 400; font-size: clamp(24px, 4.5cqi, 30px); line-height: 1.12; text-wrap: balance; }
+.piedra .lbl + h2, .piedra .lbl + h3 { margin-top: -.2em; }
+.piedra--losa { aspect-ratio: 820 / 520; padding: 9.51% 11%;
+  background-image: url("assets/piedras/piedra_losa.webp");
+  background-image: image-set(url("assets/piedras/piedra_losa.webp") 1x, url("assets/piedras/piedra_losa@2x.webp") 2x); }
+.piedra--cuarteada { aspect-ratio: 960 / 400; padding: 8.33% 8%;
+  background-image: url("assets/piedras/piedra_cuarteada.webp");
+  background-image: image-set(url("assets/piedras/piedra_cuarteada.webp") 1x, url("assets/piedras/piedra_cuarteada@2x.webp") 2x); }
+.piedra--estela { aspect-ratio: 540 / 780; padding: 37.56% 17% 20.22%; max-width: 400px; text-align: center; align-items: center;
+  background-image: url("assets/piedras/piedra_estela.webp");
+  background-image: image-set(url("assets/piedras/piedra_estela.webp") 1x, url("assets/piedras/piedra_estela@2x.webp") 2x); }
+.piedra--laja { aspect-ratio: 780 / 560; padding: 14.36% 20% 17.23% 16%; max-width: 600px;
+  background-image: url("assets/piedras/piedra_laja.webp");
+  background-image: image-set(url("assets/piedras/piedra_laja.webp") 1x, url("assets/piedras/piedra_laja@2x.webp") 2x); }
+.piedra--veta { aspect-ratio: 1 / 1; padding: 13%; max-width: 560px;
+  background-image: url("assets/piedras/piedra_veta.webp");
+  background-image: image-set(url("assets/piedras/piedra_veta.webp") 1x, url("assets/piedras/piedra_veta@2x.webp") 2x); }
+.piedra--escarcha { aspect-ratio: 840 / 480; padding: 13.71% 10% 9.14%;
+  background-image: url("assets/piedras/piedra_escarcha.webp");
+  background-image: image-set(url("assets/piedras/piedra_escarcha.webp") 1x, url("assets/piedras/piedra_escarcha@2x.webp") 2x); }
+.piedra--brasa { aspect-ratio: 920 / 340; padding: 8.13% 7%;
+  background-image: url("assets/piedras/piedra_brasa.webp");
+  background-image: image-set(url("assets/piedras/piedra_brasa.webp") 1x, url("assets/piedras/piedra_brasa@2x.webp") 2x); }
+.piedra--antigua { aspect-ratio: 780 / 560; padding: 12.92% 14%;
+  background-image: url("assets/piedras/piedra_antigua.webp");
+  background-image: image-set(url("assets/piedras/piedra_antigua.webp") 1x, url("assets/piedras/piedra_antigua@2x.webp") 2x); }
+.chapter[data-side="right"] .piedra--estela, .chapter[data-side="right"] .piedra--laja, .chapter[data-side="right"] .piedra--veta { margin-left: auto; }
+.chapter[data-side="center"] .piedra--estela, .chapter[data-side="center"] .piedra--laja, .chapter[data-side="center"] .piedra--veta { margin-inline: auto; }
+
+/* contenidos de piedra */
+.deva { font-family: var(--mk-font-display); font-size: clamp(28px, 9cqi, 40px); line-height: 1.3; color: var(--mk-hueso); }
+.quote { font-family: var(--mk-font-display); font-size: clamp(26px, 8cqi, 36px); line-height: 1.15; color: var(--mk-hueso); text-wrap: balance; }
+.translit { font-style: italic; color: var(--mk-oro-claro); }
+.cap { font-size: .86em; line-height: 1.5; color: var(--mk-hueso-70); }
+.swatches { display: flex; flex-wrap: wrap; gap: .55em 1.1em; padding: 0; list-style: none; font-size: .8em; color: var(--mk-hueso-70); }
+.swatches li { display: flex; align-items: center; gap: .5em; }
+.swatches i { width: 14px; height: 14px; border-radius: 1px; background: var(--c); box-shadow: inset 0 0 0 1px rgb(var(--hueso-rgb) / .28); }
+.ficha .cifra { font-size: clamp(44px, 12cqi, 72px); }
+.ficha__sub { margin-top: -.35em !important; color: var(--mk-hueso-70); }
+.ficha dl { display: grid; gap: 0; font-size: .9em; }
+.ficha dl div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1em; padding: .42em 0; border-top: 1px solid rgb(var(--hueso-rgb) / .13); }
+.ficha dt { color: var(--mk-hueso-70); }
+.ficha dd { margin: 0; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ruta-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+.ruta-nums .cifra { font-size: clamp(32px, 9.5cqi, 54px); }
+.ruta-nums span:not(.cifra) { display: block; margin-top: .3em; font-size: .82em; color: var(--mk-hueso-70); line-height: 1.3; }
+.perfil { width: 100%; height: auto; overflow: visible; }
+.perfil text { font: 400 11px var(--mk-font-text); fill: var(--mk-hueso-70); }
+.perfil .p-grid { stroke: rgb(var(--hueso-rgb) / .12); stroke-width: 1; }
+.perfil .p-area { fill: url(#pgrad); }
+.perfil .p-line { fill: none; stroke: var(--mk-oro); stroke-width: 2; stroke-linejoin: round; }
+.perfil .p-dot { fill: var(--mk-noche); stroke: var(--mk-hueso); stroke-width: 1.5; }
+.perfil .p-camp { font-weight: 700; fill: var(--mk-hueso); letter-spacing: .06em; }
+.small { font-size: .82em; line-height: 1.45; color: var(--mk-hueso-70); }
+
+/* cronología */
+.hitos { position: relative; }
+.hitos::before { content: ""; position: absolute; z-index: 0; left: 50%; top: 32vh; bottom: 32vh; width: 1px; background: rgb(var(--hueso-rgb) / .14); }
+.hitos > .step { position: relative; z-index: 1; }
+.hitos::after { content: ""; position: absolute; z-index: 0; left: 50%; top: 32vh; bottom: 32vh; width: 1px; background: var(--mk-oro); transform-origin: top; transform: scaleY(var(--rope, 0)); }
+.hito { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 1.1em; }
+.hito__year { font-size: clamp(38px, 9cqi, 58px); }
+.hito__body { display: grid; gap: .35em; }
+.hito__body p { font-size: .94em; line-height: 1.5; }
+
+/* texto sobre la noche */
+.nota { position: relative; max-width: 520px; padding: 6px 4px; }
+.nota::before { content: ""; position: absolute; inset: -64px -96px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgb(var(--noche-rgb) / .92) 0, rgb(var(--noche-rgb) / .86) 60%, rgb(var(--noche-rgb) / .4) 82%, rgb(var(--noche-rgb) / 0) 100%); }
+.nota > * { margin: 0; }
+.nota .cifra { margin-top: 12px; font-size: clamp(3rem, 2rem + 2.6vw, 4rem); }
+.nota h3 { margin-top: 10px; font-family: var(--mk-font-display); font-weight: 400; font-size: var(--mk-fs-h3); line-height: 1.15; }
+.nota p:not(.lbl) { margin-top: 12px; color: var(--mk-hueso); }
+
+/* pie */
+.foot { position: relative; z-index: 10; background: var(--mk-noche); padding-block: 72px 56px; padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px));
+  border-top: 1px solid var(--mk-filete); }
+.foot__in { max-width: 1120px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 48px; }
+.foot__brand { font-family: var(--mk-font-display); font-size: 2.375rem; line-height: 1.1; }
+.foot__brand i { font-style: normal; color: var(--mk-oro); }
+.foot p { margin: 14px 0 0; font-size: var(--mk-fs-small); line-height: 1.6; color: var(--mk-hueso-70); max-width: 62ch; }
+.foot ul { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: var(--mk-fs-small); }
+
+/* revelado (solo con JS; sin JS todo está a la vista) */
+.js .is-pending { opacity: 0; transform: translateY(34px) scale(.985); filter: blur(5px) drop-shadow(0 14px 26px rgb(0 0 0 / .5)); }
+.js .is-pending > * { opacity: 0; transform: translateY(10px); }
+.js .is-shown { transition: opacity 1.1s var(--ease), transform 1.2s var(--ease), filter 1.2s var(--ease); }
+.js .is-shown > * { transition: opacity .9s var(--ease) calc(.18s + var(--k, 0) * 80ms), transform .9s var(--ease) calc(.18s + var(--k, 0) * 80ms); }
+
+/* ————— pantallas medianas y estrechas ————— */
+@media (max-width: 1180px) {
+  .nav { display: none; }
+  .top__now { display: block; }
+}
+@media (max-width: 1000px) {
+  :root { --alti-w: 0px; }
+  .alti { display: none; }
+  .plate { display: none; }
+  .col, .chapter[data-side] .col { width: min(640px, 100%); margin-inline: auto; }
+  .chapter[data-side="hero"] .col { margin-left: 0; }
+  .veil--left, .veil--right, .veil--center { background: linear-gradient(180deg, rgb(var(--noche-rgb) / .1) 0, rgb(var(--noche-rgb) / .25) 40%, rgb(var(--noche-rgb) / .72) 100%); }
+  .top__now { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+  .top__now > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .veil--hero { background: linear-gradient(0deg, rgb(var(--noche-rgb) / .96) 0, rgb(var(--noche-rgb) / .9) 34%, rgb(var(--noche-rgb) / .55) 52%, rgb(var(--noche-rgb) / 0) 68%); }
+  .top__alt { font-family: var(--mk-font-display); font-size: 1.5rem; letter-spacing: 0; text-transform: none; color: var(--mk-oro); }
+}
+@media (min-width: 1001px) { .top__alt { display: none; } }
+@media (max-width: 640px) {
+  :root { --top-h: 56px; }
+  body { font-size: 1rem; }
+  .step { min-height: 100svh; padding-block: 12svh; }
+  .step--tight { min-height: 80svh; }
+  .step--hito { min-height: 70svh; padding-block: 6svh; }
+  .hero { padding-block: 16svh 11svh; }
+  .hero__lead { font-size: 1.1875rem; }
+  .brand { font-size: 1.5rem; }
+  .brand i, .hide-s { display: none; }
+  .top__now { letter-spacing: .12em; }
+  .piedra--losa { aspect-ratio: 480 / 640; padding: 12% 11%; background-image: url("assets/piedras/piedra_losa-m@2x.webp"); }
+  .piedra--cuarteada { aspect-ratio: 480 / 420; padding: 13.13% 8%; background-image: url("assets/piedras/piedra_cuarteada-m@2x.webp"); }
+  .piedra--laja { aspect-ratio: 480 / 620; padding: 19.38% 18% 23.25% 15%; background-image: url("assets/piedras/piedra_laja-m@2x.webp"); }
+  .piedra--veta { aspect-ratio: 480 / 600; padding: 12.5% 12%; background-image: url("assets/piedras/piedra_veta-m@2x.webp"); }
+  .piedra--escarcha { aspect-ratio: 480 / 600; padding: 23.75% 10% 12.5%; background-image: url("assets/piedras/piedra_escarcha-m@2x.webp"); }
+  .piedra--brasa { aspect-ratio: 480 / 300; padding: 12.5% 8%; background-image: url("assets/piedras/piedra_brasa-m@2x.webp"); }
+  .piedra--antigua { aspect-ratio: 480 / 640; padding: 14.67% 13%; background-image: url("assets/piedras/piedra_antigua-m@2x.webp"); }
+  .piedra--estela { max-width: 340px; margin-inline: auto; }
+  .hito { grid-template-columns: minmax(0, 1fr); row-gap: .3em; }
+  .nota::before { inset: -70px -60px; }
+  .foot__in { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .peak__tag { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .js .is-pending, .js .is-pending > * { opacity: 1; transform: none; filter: none; }
+}
+</style>
+
+<div class="stage side-hero" id="stage" aria-hidden="true">
+  <div class="stage__fallback" id="fallback">
+    <img class="is-on" id="fb0" src="assets/laminas/01_campo_base-1280.webp" srcset="assets/laminas/01_campo_base-1280.webp 1280w, assets/laminas/01_campo_base-2560.webp 2560w" sizes="100vw" alt="" fetchpriority="high">
+  </div>
+  <canvas class="stage__gl" id="gl"></canvas>
+  <svg class="route" id="route" viewBox="0 0 3200 1800" preserveAspectRatio="none"></svg>
+  <div class="veil veil--base"></div>
+  <div class="veil veil--hero"></div>
+  <div class="veil veil--left"></div>
+  <div class="veil veil--right"></div>
+  <div class="veil veil--center"></div>
+  <canvas class="stage__snow" id="snow"></canvas>
+  <div class="marks" id="marks"></div>
+  <div class="veil veil--curtain"></div>
+</div>
+
+<header class="top">
+  <a class="brand" href="#inicio">Makalu <i>महाकाल</i></a>
+  <nav class="nav" id="nav" aria-label="Capítulos">
+    <a href="#significado">Significado</a>
+    <a href="#cultura">Cultura</a>
+    <a href="#ruta">Ruta</a>
+    <a href="#cumbre-principal">Cumbre principal</a>
+    <a href="#historia">Historia</a>
+    <a href="#hazanas">Hazañas</a>
+    <a href="#picos">Picos</a>
+    <a href="#cumbre">Cumbre</a>
+  </nav>
+  <div class="top__now" aria-hidden="true"><span id="nowName">Campo base</span><span class="top__alt" id="topAlt">4 870 m</span></div>
+  <div class="top__bar"><i id="bar"></i></div>
+</header>
+
+<aside class="alti" id="alti" aria-hidden="true">
+  <div class="alti__read"><span class="alti__num" id="altNum">4 870</span><span class="alti__unit">m</span></div>
+  <div class="alti__air" id="altAir">Aire al <b>54 %</b> del nivel del mar</div>
+  <div class="alti__scale" id="altScale">
+    <i class="alti__rail"></i><i class="alti__fill" id="altFill"></i>
+    <span class="alti__zone" style="--p:.8658"><span>8 000</span></span>
+    <span class="alti__tick" style="--p:1">Cima</span>
+    <span class="alti__tick" style="--p:.7663">C4</span>
+    <span class="alti__tick" style="--p:.6971">C3</span>
+    <span class="alti__tick" style="--p:.4896">C2</span>
+    <span class="alti__tick" style="--p:.3651">C1</span>
+    <span class="alti__tick" style="--p:.2224">CBA</span>
+    <span class="alti__tick" style="--p:0">CB</span>
+    <i class="alti__ghost" id="altGhost"></i>
+    <i class="alti__mark" id="altMark"></i>
+  </div>
+</aside>
+
+<div class="plate" id="plate" aria-hidden="true">
+  <span class="lbl" id="plateN">Lámina 01 / 07</span>
+  <span class="plate__name" id="plateName">Campo base <em>4 870 m</em></span>
+  <span class="plate__where" id="plateWhere">27.834° N 87.075° E · valle del Barun · mirando al N (12°) · mañana</span>
+</div>
+
+<main id="contenido">
+
+  <!-- ————————————————————————————— PORTADA -->
+  <section class="chapter" id="inicio" data-scene="0" data-side="hero" data-name="Campo base">
+    <div class="col">
+      <div class="step hero" data-cam="0.4935,0.2659,1" data-at="0.62,0.3" data-alt="4870">
+        <p class="lbl">Valle del Barun · Nepal<span class="hide-s"> · 27.89° N 87.09° E</span></p>
+        <h1 class="hero__title" aria-label="Makalu"><span class="ch" style="--i:0" aria-hidden="true">M</span><span class="ch" style="--i:1" aria-hidden="true">a</span><span class="ch" style="--i:2" aria-hidden="true">k</span><span class="ch" style="--i:3" aria-hidden="true">a</span><span class="ch" style="--i:4" aria-hidden="true">l</span><span class="ch" style="--i:5" aria-hidden="true">u</span></h1>
+        <p class="hero__deva" lang="sa">महाकाल</p>
+        <p class="hero__lead"><b>8 485 m.</b> La quinta montaña de la Tierra: una pirámide de granito oscuro, aislada a 19 km al sureste del Everest.</p>
+        <div class="hero__cta">
+          <a class="mk-btn" href="#significado">Empezar la ascensión <span>›</span></a>
+          <span class="hint"><i></i>Desliza para subir</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— I · SIGNIFICADO -->
+  <section class="chapter" id="significado" data-scene="0" data-side="left" data-name="Significado">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.4935,0.2659,1.08" data-at="0.66,0.3" data-alt="4870">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Campo base · 4 870 m</p>
+          <h2>El gran negro</h2>
+        </header>
+      </div>
+      <div class="step" data-cam="0.4935,0.2659,1.18" data-at="0.68,0.32" data-alt="4870">
+        <article class="piedra piedra--losa">
+          <p class="lbl">El nombre</p>
+          <h3>Negro y tiempo</h3>
+          <p>Makalu se suele derivar del sánscrito <i>Mahā Kāla</i>. <i>Mahā</i> es grande. <i>Kāla</i> es negro, y es también el tiempo que todo lo consume. El nombre guarda las dos lecturas a la vez.</p>
+          <p>La montaña hace honor a la primera. Sus caras son tan empinadas que la nieve resbala y el granito asoma oscuro entre el hielo, visible desde muy lejos.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.4935,0.2659,1.3" data-at="0.7,0.34" data-alt="4870">
+        <figure class="piedra piedra--estela">
+          <p class="deva" lang="bo">ॐ मणि पद्मे हूँ</p>
+          <p class="translit">Om mani padme hum</p>
+          <figcaption class="cap">El mantra que se talla en las piedras mani a lo largo de los senderos del Himalaya.</figcaption>
+        </figure>
+      </div>
+      <div class="step" data-cam="0.47,0.32,1.12" data-at="0.66,0.36" data-alt="4870">
+        <aside class="piedra piedra--laja">
+          <p class="lbl">Dato curioso</p>
+          <h3>Los colores de Mahakala</h3>
+          <p>En el budismo tibetano, Mahakala es un protector del dharma. Se le pinta con la piel azul oscura, una aureola de llamas, ornamentos de oro y una corona de cráneos. De esa imagen salen los colores de esta página.</p>
+          <ul class="swatches" aria-label="Paleta">
+            <li><i style="--c: var(--mk-noche)"></i>Noche</li>
+            <li><i style="--c: var(--mk-indigo)"></i>Índigo</li>
+            <li><i style="--c: var(--mk-hueso)"></i>Hueso</li>
+            <li><i style="--c: var(--mk-oro)"></i>Oro</li>
+            <li><i style="--c: var(--mk-llama)"></i>Llama</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— II · CULTURA -->
+  <section class="chapter" id="cultura" data-scene="0" data-side="right" data-name="Cultura">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.3,0.62,1.15" data-at="0.34,0.52" data-alt="4870">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Valle del Barun</p>
+          <h2>El valle escondido</h2>
+        </header>
+      </div>
+      <div class="step" data-cam="0.18,0.8,1.45" data-at="0.3,0.62" data-alt="4870">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Makalu-Barun</p>
+          <h3>Un beyul en la cabecera</h3>
+          <p>El Makalu cierra la cabecera del valle del Barun, dentro del Parque Nacional Makalu-Barun, creado en 1992. El parque baja desde los glaciares hasta los bosques del río Arun.</p>
+          <p>La tradición budista cuenta el Barun entre los <i>beyul</i>, valles ocultos que Padmasambhava bendijo como refugio para tiempos difíciles.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.12,0.82,1.65" data-at="0.28,0.62" data-alt="4870">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Antes de subir</p>
+          <h3>La puja</h3>
+          <p>Ninguna expedición pisa la montaña sin una puja. Un lama recita, se levanta un chorten de piedras, arde el enebro y se bendicen piolets y crampones para pedir permiso y protección.</p>
+          <p>Del chorten salen las banderas de oración, <i>lungta</i>: azul del cielo, blanco del aire, rojo del fuego, verde del agua y amarillo de la tierra. El viento lleva las oraciones impresas.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— III · RUTA -->
+  <section class="chapter" id="ruta" data-scene="6" data-side="left" data-name="La ruta">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.5,0.52,1" data-at="0.5,0.5" data-alt="4870">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Ruta normal · francesa, 1955</p>
+          <h2>La ruta</h2>
+        </header>
+      </div>
+      <div class="step" data-cam="0.52,0.55,1.06" data-at="0.62,0.52" data-alt="4870">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Sobre el relieve real</p>
+          <h3>Por el Makalu La</h3>
+          <p>La ruta normal es la de la primera ascensión. Rodea la montaña por el oeste, sube al glaciar Chago, cruza el gran collado del Makalu La y alcanza la cumbre por la arista noroeste.</p>
+          <p>Esta lámina se pintó para esta página sobre el modelo de elevación real. La línea dorada sigue el camino de menor esfuerzo entre campos; punteada, pasa detrás de una cresta.</p>
+        </article>
+      </div>
+      <div class="step step--tight" data-camp="0" data-alt="4870" data-ghost="4870">
+        <div class="nota">
+          <p class="lbl">Campo base</p>
+          <p class="cifra">4 870 m</p>
+          <h3>El prado del Barun</h3>
+          <p>Se llega tras más de una semana de marcha desde Tumlingtar, en el valle del Arun, cruzando el paso de Shipton La. Morrena, pasto seco y la cara sur a 6.5 km.</p>
+        </div>
+      </div>
+      <div class="step step--tight" data-camp="1" data-alt="4870" data-ghost="5674">
+        <div class="nota">
+          <p class="lbl">Campo base avanzado · 8.9 km</p>
+          <p class="cifra">5 674 m</p>
+          <h3>Al pie del Chago</h3>
+          <p>Al oeste de la montaña, sobre la morrena. Aquí se aclimata durante semanas: se sube a dormir cada vez más alto y se baja a recuperarse.</p>
+        </div>
+      </div>
+      <div class="step step--tight" data-camp="2" data-alt="4870" data-ghost="6200">
+        <div class="nota">
+          <p class="lbl">Campo 1 · 2.3 km más</p>
+          <p class="cifra">6 200 m</p>
+          <h3>La meseta</h3>
+          <p>Una pared de unos 200 m con cuerda fija sale del campo avanzado. Arriba se abre la meseta del glaciar Chago, con la cara noroeste a 4 km.</p>
+        </div>
+      </div>
+      <div class="step step--tight" data-camp="3" data-alt="4870" data-ghost="6650">
+        <div class="nota">
+          <p class="lbl">Campo 2 · 1.8 km más</p>
+          <p class="cifra">6 650 m</p>
+          <h3>Bajo el collado</h3>
+          <p>Al amanecer, el Lhotse y el Everest se encienden a 15 km, por encima de la arista del Chago, que sigue en sombra.</p>
+        </div>
+      </div>
+      <div class="step step--tight" data-camp="4" data-alt="4870" data-ghost="7400">
+        <div class="nota">
+          <p class="lbl">Campo 3 · 2.8 km más</p>
+          <p class="cifra">7 400 m</p>
+          <h3>Makalu La</h3>
+          <p>El gran collado entre el Makalu y el Kangchungtse, donde la ruta sale al viento del Tíbet. Desde este punto de vista queda oculto tras la arista.</p>
+        </div>
+      </div>
+      <div class="step step--tight" data-camp="5" data-alt="4870" data-ghost="7650">
+        <div class="nota">
+          <p class="lbl">Campo 4 · 1.2 km más</p>
+          <p class="cifra">7 650 m</p>
+          <h3>La última meseta</h3>
+          <p>Sobre la arista noroeste, a la vista del corredor francés. Hacia la cumbre se sale de noche, con frontales.</p>
+        </div>
+      </div>
+      <div class="step step--tight" data-camp="6" data-alt="4870" data-ghost="8485">
+        <div class="nota">
+          <p class="lbl">Cumbre · 2.3 km más</p>
+          <p class="cifra">8 485 m</p>
+          <h3>El corredor francés</h3>
+          <p>Roca y hielo hasta unos 8 200 m. Después, una arista expuesta pasa por una antecima; la cumbre verdadera queda unos 120 m más allá.</p>
+        </div>
+      </div>
+      <div class="step" data-cam="0.5,0.52,1" data-at="0.62,0.5" data-alt="4870" data-ghost="8485" data-route-all="1">
+        <article class="piedra piedra--veta ficha-ruta">
+          <p class="lbl">La ruta en cifras</p>
+          <div class="ruta-nums">
+            <div><p class="cifra">19.3 km</p><span>de recorrido estimado</span></div>
+            <div><p class="cifra">3 615 m</p><span>de desnivel desde el campo base</span></div>
+          </div>
+          <svg class="perfil" id="perfil" viewBox="0 0 420 190" role="img" aria-label="Perfil de altitud de la ruta normal, del campo base a 4 870 m a la cumbre a 8 485 m, a lo largo de 19.3 km"></svg>
+          <p class="small">Medido sobre el relieve real (SRTM3 y ASTER GDEM).</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— IV · CUMBRE PRINCIPAL -->
+  <section class="chapter" id="cumbre-principal" data-scene="1" data-side="left" data-name="Cumbre principal">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.5635,0.25,1.04" data-at="0.64,0.3" data-alt="6200">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Campo 1 · 6 200 m</p>
+          <h2>La cumbre principal</h2>
+        </header>
+      </div>
+      <div class="step" data-cam="0.5635,0.3,1.12" data-at="0.68,0.38" data-alt="6200">
+        <article class="piedra piedra--veta ficha">
+          <p class="lbl">Ficha técnica</p>
+          <p class="cifra">8 485 m</p>
+          <p class="ficha__sub">Quinta montaña de la Tierra</p>
+          <dl>
+            <div><dt>Prominencia</dt><dd>unos 2 380 m</dd></div>
+            <div><dt>Aislamiento</dt><dd>17 km</dd></div>
+            <div><dt>Coordenadas</dt><dd>27.89° N · 87.09° E</dd></div>
+            <div><dt>Cordillera</dt><dd>Mahalangur Himal</dd></div>
+            <div><dt>Frontera</dt><dd>Nepal · China (Tíbet)</dd></div>
+            <div><dt>Primera ascensión</dt><dd>15 de mayo de 1955</dd></div>
+          </dl>
+        </article>
+      </div>
+      <div class="step" data-cam="0.6,0.38,1.22" data-at="0.68,0.45" data-alt="6200">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Cuatro aristas</p>
+          <h3>Una pirámide aislada</h3>
+          <p>Cuatro aristas y cuatro caras dan al Makalu su forma de pirámide. La arista noroeste baja al Makalu La; la sureste mira al Barun; el pilar oeste es una de las grandes vías técnicas del Himalaya.</p>
+          <p>Su aislamiento hace que se vea entera desde muy lejos y que el viento la golpee sin abrigo. En invierno, la corriente en chorro barre la cumbre durante semanas.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.5635,0.2,1.3" data-at="0.7,0.3" data-alt="6200">
+        <aside class="piedra piedra--laja">
+          <p class="lbl">Dato curioso</p>
+          <h3>Una antecima de ocho mil</h3>
+          <p>El pilar suroeste no termina en la cumbre principal. Lleva a la cima sureste, de 8 010 m, y desde allí queda todavía una arista hasta el punto más alto. El Makalu tiene una antecima que, sola, pasa de los ocho mil metros.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— V · HISTORIA -->
+  <section class="chapter" id="historia" data-scene="2" data-side="left" data-name="Historia">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.56,0.42,1.02" data-at="0.62,0.42" data-alt="6650">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Campo 2 · 6 650 m · amanecer</p>
+          <h2>Los primeros</h2>
+        </header>
+      </div>
+      <div class="step" data-cam="0.56,0.4,1.12" data-at="0.66,0.4" data-alt="6650">
+        <article class="piedra piedra--antigua">
+          <p class="lbl">Historia · 1954</p>
+          <h3>Tres expediciones</h3>
+          <p>En la primavera de 1954 llegaron dos. La californiana de William Siri atacó la arista sureste y las tormentas la detuvieron a 7 100 m. La neozelandesa de Edmund Hillary exploró el Barun, frenada por lesiones y enfermedades.</p>
+          <p>En otoño, el reconocimiento francés de Jean Franco encontró el camino por el Makalu La y, de paso, subió por primera vez el Kangchungtse y el Chomo Lonzo.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.6,0.4,1.25" data-at="0.68,0.42" data-alt="6650">
+        <article class="piedra piedra--antigua">
+          <p class="lbl">Historia · 1955</p>
+          <h3>Tres días de cumbre</h3>
+          <p>El 15 de mayo de 1955 Lionel Terray y Jean Couzy pisaron la cima. El 16 subieron Jean Franco, Guido Magnone y el sirdar Gyalzen Norbu; el 17, otros cuatro.</p>
+          <p>Toda la expedición llegó arriba. Era la primera vez que ocurría en un ochomil.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.32,0.76,1.22" data-at="0.62,0.6" data-alt="6650">
+        <aside class="piedra piedra--laja">
+          <p class="lbl">Dato curioso</p>
+          <h3>La montaña feliz</h3>
+          <p>«Makalu, the happy mountain». Así tituló el Himalayan Journal la crónica de aquella expedición, en la que todos subieron y todos volvieron. En una década en la que los ochomiles se cobraban vidas, fue una rareza.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— VI · HAZAÑAS -->
+  <section class="chapter" id="hazanas" data-scene="3" data-side="right" data-name="Hazañas">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.44,0.25,1.04" data-at="0.36,0.3" data-alt="7400">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Campo 3 · Makalu La · 7 400 m</p>
+          <h2>Las grandes líneas</h2>
+        </header>
+      </div>
+      <div class="step step--tight" data-cam="0.44,0.25,1.1" data-at="0.34,0.32" data-alt="7400">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Después de 1955</p>
+          <h3>Cada arista, un problema</h3>
+          <p>Resuelta la ruta normal, las generaciones siguientes buscaron las aristas, los pilares y las caras. Algunas de esas líneas están entre las más duras abiertas en un ochomil. Estas marcaron la historia de la montaña.</p>
+        </article>
+      </div>
+      <div class="hitos" id="hitos">
+        <div class="step step--hito" data-cam="0.44,0.25,1.12" data-at="0.34,0.32" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1970</p>
+            <div class="hito__body"><p class="lbl">Arista sureste</p><p>Una expedición japonesa abre la arista sureste. Ozaki y Tanaka llegan a la cumbre el 23 de mayo.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.15" data-at="0.34,0.32" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1971</p>
+            <div class="hito__body"><p class="lbl">Pilar oeste</p><p>Bernard Mellet y Yannick Seigneur suben el pilar oeste el 23 de mayo. Un clásico técnico que pocas expediciones han completado.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.18" data-at="0.34,0.33" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1975</p>
+            <div class="hito__body"><p class="lbl">Cara sur · sin oxígeno</p><p>La expedición yugoslava de Aleš Kunaver resuelve la cara sur. El 6 de octubre llegan Stane Belak y Marjan Manfreda, este sin oxígeno embotellado: la primera vez en el Makalu.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.21" data-at="0.34,0.33" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1976</p>
+            <div class="hito__body"><p class="lbl">Por el sureste</p><p>Checoslovacos y un español de la expedición de José Montfort llegan juntos a la cumbre el 24 de mayo.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.24" data-at="0.34,0.34" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1980</p>
+            <div class="hito__body"><p class="lbl">Pilar oeste · sin oxígeno</p><p>John Roskelley repite el pilar oeste, esta vez sin oxígeno embotellado.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.27" data-at="0.34,0.34" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1981</p>
+            <div class="hito__body"><p class="lbl">En solitario</p><p>Jerzy Kukuczka abre solo y sin oxígeno una vía nueva por el noroeste y pisa la cumbre el 15 de octubre. Nepal tardó en reconocer la ascensión.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.3" data-at="0.34,0.35" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1986</p>
+            <div class="hito__body"><p class="lbl">Messner</p><p>Messner, Kammerlander y Mutschlechner llegan el 26 de septiembre, al tercer intento. Tres semanas después, Messner cierra sus catorce ochomiles en el Lhotse.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.33" data-at="0.34,0.35" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1988</p>
+            <div class="hito__body"><p class="lbl">Velocidad</p><p>Marc Batard sube el pilar oeste en unas 18 horas desde el campo base, sin oxígeno, y baja por el noroeste. Su marca aguantó hasta 2022.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.36" data-at="0.34,0.36" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1990</p>
+            <div class="hito__body"><p class="lbl">Primera mujer</p><p>Kitty Calhoun llega a la cumbre el 18 de mayo por el pilar oeste, sin oxígeno embotellado.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.4" data-at="0.34,0.36" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">1997</p>
+            <div class="hito__body"><p class="lbl">Cara oeste</p><p>Tras siete intentos fallidos, una expedición rusa resuelve la cara oeste el 21 de mayo. Salavat Khabibullin e Igor Bugachevsky mueren en la montaña.</p></div></article>
+        </div>
+        <div class="step step--hito" data-cam="0.44,0.25,1.44" data-at="0.34,0.37" data-alt="7400">
+          <article class="piedra piedra--cuarteada hito"><p class="cifra hito__year">2009</p>
+            <div class="hito__body"><p class="lbl">Invierno</p><p>Simone Moro y Denis Urubko firman la primera invernal el 9 de febrero. Era el último ochomil de Nepal sin ascensión en invierno.</p></div></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— VII · PICOS -->
+  <section class="chapter" id="picos" data-scene="4" data-side="center" data-name="Picos">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.45,0.5,1" data-at="0.5,0.5" data-alt="7650">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Campo 4 · 7 650 m · medianoche</p>
+          <h2>La última noche</h2>
+        </header>
+      </div>
+      <div class="step" data-cam="0.45,0.5,1" data-at="0.5,0.5" data-alt="7650">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Picos conformantes</p>
+          <h3>Los satélites del norte</h3>
+          <p>Bajo la luna se ven los dos satélites del Makalu sobre el mar de nubes del Tíbet. A la izquierda, el Kangchungtse o Makalu II (7 678 m), que cierra el collado por el norte. A la derecha, el Chomo Lonzo (7 804 m), separado del macizo por el collado de Sakietang La, de unos 7 200 m.</p>
+          <p>Los dos se subieron en octubre de 1954, durante el reconocimiento francés.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.55,0.74,1.28" data-at="0.5,0.62" data-alt="7650">
+        <article class="piedra piedra--escarcha">
+          <p class="lbl">Zona de la muerte</p>
+          <h3>Por encima de 8 000 m</h3>
+          <p>En la cumbre, la presión del aire ronda un tercio de la del nivel del mar. El cuerpo ya no se aclimata. Solo resiste.</p>
+          <p>Se duerme poco, se funde nieve para beber y se sale hacia medianoche. Cada hora arriba se paga en frío, en viento y en falta de oxígeno.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.5,0.55,1.1" data-at="0.5,0.5" data-alt="7650">
+        <aside class="piedra piedra--laja">
+          <p class="lbl">Anécdota · 1961</p>
+          <h3>Sin oxígeno, en 1961</h3>
+          <p>Hillary volvió con la expedición científica Silver Hut para intentar el Makalu sin oxígeno embotellado. El 18 de mayo, en el intento de cumbre, Peter Mulgrew sufrió una embolia pulmonar; la congelación le costó las dos piernas. Hillary, tras un leve ictus, dirigió el resto desde abajo.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ————————————————————————————— VIII · CUMBRE -->
+  <section class="chapter" id="cumbre" data-scene="5" data-side="left" data-name="Cumbre">
+    <div class="col">
+      <div class="step step--tight" data-cam="0.55,0.42,1" data-at="0.6,0.42" data-alt="8485">
+        <header class="piedra piedra--cuarteada">
+          <p class="lbl">Cumbre · 8 485 m</p>
+          <h2>La cumbre</h2>
+        </header>
+      </div>
+      <div class="step" data-cam="0.55,0.4,1.1" data-at="0.64,0.4" data-alt="8485">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Media mañana</p>
+          <h3>Arriba del todo</h3>
+          <p>Desde la arista cimera, el Lhotse a 17 km y el Everest a 19 salen del mar de nubes; el Everest, apenas 0.9° por encima del horizonte. Más lejos, a 48 km, asoma el Cho Oyu.</p>
+          <p>La cima es una punta estrecha de nieve y roca. Se sube de uno en uno y se baja pronto. Arriba no se vive; solo se pasa.</p>
+        </article>
+      </div>
+      <div class="step" data-cam="0.66,0.78,1.32" data-at="0.7,0.62" data-alt="8485">
+        <figure class="piedra piedra--estela">
+          <blockquote class="quote" lang="es">Los conquistadores de lo inútil</blockquote>
+          <p class="translit">Lionel Terray, 1961</p>
+          <figcaption class="cap">Título de las memorias de quien pisó esta cumbre el 15 de mayo de 1955.</figcaption>
+        </figure>
+      </div>
+      <div class="step" data-cam="0.5,0.4,1.15" data-at="0.66,0.42" data-alt="8485">
+        <article class="piedra piedra--losa">
+          <p class="lbl">Kāla</p>
+          <h3>El gran tiempo</h3>
+          <p><i>Kāla</i> es también el tiempo. Abajo, la montaña lo mide en millones de años: su granito nació cuando la India empujaba contra Asia y levantaba el Himalaya. Arriba se mide en horas de luz y en litros de oxígeno.</p>
+          <p>Subir es pasar unos minutos en la cumbre del gran tiempo y volver para contarlo. Terray llamaba inútil a la escalada, y aun así le dedicó la vida.</p>
+        </article>
+      </div>
+      <div class="step step--tight" data-cam="0.5,0.45,1" data-at="0.5,0.45" data-alt="8485">
+        <aside class="piedra piedra--brasa">
+          <h3>Volver al campo base</h3>
+          <p><a class="mk-btn" href="#inicio" id="descend">Descender 3 615 m <span>›</span></a></p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot__in">
+    <div>
+      <p class="foot__brand">Makalu <i>महाकाल</i></p>
+      <p>Las láminas están pintadas en pincel seco sobre el relieve real: SRTM3 de la NASA y ASTER GDEM v3 de NASA/METI, con cada cámara en la posición de su campo. La lámina de la ruta se pintó para esta página con la misma técnica; su línea es el camino de menor esfuerzo entre campos sobre ese relieve.</p>
+      <p>Tipografías Rozha One y Karla, con licencia SIL Open Font License 1.1.</p>
+    </div>
+    <div>
+      <p class="lbl">Fuentes</p>
+      <ul>
+        <li><a href="https://himalayan-database.climbing-history.org/" target="_blank" rel="noopener">The Himalayan Database</a></li>
+        <li><a href="https://publications.americanalpineclub.org/" target="_blank" rel="noopener">American Alpine Journal</a></li>
+        <li><a href="https://www.himalayanclub.org/" target="_blank" rel="noopener">The Himalayan Journal</a></li>
+        <li><a href="https://explorersweb.com/makalu-a-climbers-guide/" target="_blank" rel="noopener">ExplorersWeb · Makalu: A Climbers’ Guide</a></li>
+        <li><a href="https://www.guinnessworldrecords.com/world-records/first-ascent-of-makalu" target="_blank" rel="noopener">Guinness World Records · primeras ascensiones</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+document.documentElement.classList.add('js');
+
+/* ———————————————————————————— utilidades */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const sstep = t => t * t * (3 - 2 * t);
+const NB = ' ';
+const fmt = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, NB);
+const mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
+let REDUCE = mqReduce.matches;
+mqReduce.addEventListener && mqReduce.addEventListener('change', e => { REDUCE = e.matches; });
+const FINE = matchMedia('(pointer: fine)').matches;
+const IR = 16 / 9;                                     // todas las láminas son 16:9
+
+/* ———————————————————————————— láminas */
+const SCENES = [
+  { file: '01_campo_base', w: [1280, 2560], n: '01', name: 'Campo base', alt: '4 870 m', snow: [0, 0, 0],
+    where: '27.834° N 87.075° E · valle del Barun · mirando al N (12°) · mañana',
+    peaks: [['Makalu', '8 485 m · cara sur a 6.5 km', .4935, .2659, 64]] },
+  { file: '02_campo_1', w: [1280, 2560], n: '02', name: 'Campo 1', alt: '6 200 m', snow: [55, .35, .5],
+    where: '27.912° N 87.054° E · meseta del glaciar Chago · mirando al ESE (118°) · mediodía',
+    peaks: [['Makalu', '8 485 m · cara noroeste a 4.1 km', .5635, .1713, 48]] },
+  { file: '03_campo_2', w: [1280, 2560], n: '03', name: 'Campo 2', alt: '6 650 m', snow: [30, .2, .35],
+    where: '27.914° N 87.069° E · bajo el Makalu La · mirando al ONO (292°) · amanecer',
+    peaks: [['Lhotse', '8 516 m · a 15 km', .4911, .3896, 70, '-62%'], ['Everest', '8 849 m · a 16 km', .64, .3769, 54], ['Nuptse', '7 861 m · a 19 km', .4402, .4973, 40, '-38%']] },
+  { file: '04_campo_3', w: [1280, 2560], n: '04', name: 'Campo 3 · Makalu La', alt: '7 400 m', snow: [80, .9, .45],
+    where: '27.910° N 87.086° E · collado Makalu–Kangchungtse · mirando al S (178°) · mañana',
+    peaks: [['Makalu', 'pirámide cimera a 2.1 km', .4393, .2123, 46]] },
+  { file: '05_campo_4', w: [1280, 2560], n: '05', name: 'Campo 4', alt: '7 650 m', snow: [36, .25, .25],
+    where: '27.900° N 87.087° E · arista noroeste · mirando al N (4°) · noche de cumbre',
+    peaks: [['Kangchungtse', '7 678 m · a 1.8 km', .1128, .5147, 60, '-20%'], ['Chomo Lonzo', '7 804 m · a 3.9 km', .8496, .4786, 60, '-80%']] },
+  { file: '06_cumbre', w: [1280, 2560], n: '06', name: 'Cumbre', alt: '8 485 m', snow: [150, 2.4, .2],
+    where: '27.892° N 87.088° E · mirando al ONO (299°) · media mañana',
+    peaks: [['Everest', '8 849 m · a 19 km', .6248, .3547, 60], ['Lhotse', '8 516 m · a 17 km', .4438, .3988, 40, '-70%'], ['Cho Oyu', '8 188 m · a 48 km', .4839, .4245, 104, '-30%'], ['Nuptse', '7 861 m · a 22 km', .3477, .4793, 30, '-60%']] },
+  { file: '07_ruta', w: [1600, 3200], n: '07', name: 'La ruta', alt: 'vista aérea', snow: [0, 0, 0],
+    where: 'Pintada para esta página sobre el relieve real · cámara a 12 400 m, mirando al NNE (23°)',
+    peaks: [] },
+];
+const ROUTE = {{ROUTE}};
+const RS = ROUTE.img[0];                                // 3200 px: espacio de coordenadas de la ruta
+ROUTE.camps.forEach(c => { c.u = c[0] / RS; c.v = c[1] / ROUTE.img[1]; });
+SCENES[6].peaks.push(['Kangchungtse', '7 678 m', ROUTE.peaks.kangchungtse[0] / RS, ROUTE.peaks.kangchungtse[1] / ROUTE.img[1], 58, '-80%']);
+
+/* ———————————————————————————— modelo de scroll */
+const stage = $('#stage');
+let VW = innerWidth, VH = innerHeight, NARROW = VW <= 1000;
+const chapters = $$('.chapter').map(el => ({ el, id: el.id, scene: +el.dataset.scene, side: el.dataset.side, name: el.dataset.name, top: 0, h: 0 }));
+const steps = $$('.step').map(el => {
+  const ch = chapters.find(c => c.el.contains(el));
+  const cam = (el.dataset.cam || '0.5,0.5,1').split(',').map(Number);
+  const at = (el.dataset.at || '0.5,0.5').split(',').map(Number);
+  return { el, ch, scene: ch.scene, cam, at, alt: +(el.dataset.alt || 4870), ghost: el.dataset.ghost ? +el.dataset.ghost : null,
+    camp: el.dataset.camp != null ? +el.dataset.camp : null, all: !!el.dataset.routeAll, top: 0, h: 0 };
+});
+
+function measure() {
+  VW = innerWidth; VH = innerHeight; NARROW = VW <= 1000;
+  const sy = scrollY;
+  for (const c of chapters) { const r = c.el.getBoundingClientRect(); c.top = r.top + sy; c.h = r.height; }
+  for (const s of steps) { const r = s.el.getBoundingClientRect(); s.top = r.top + sy; s.h = r.height; }
+  for (const s of steps) s.target = solveCam(s);
+  docH = document.documentElement.scrollHeight;
+  if (typeof buildProfile === 'function' && ROUTE.campLen) buildProfile();
+}
+let docH = 1;
+
+/* encuadre: punto (u, v) de la lámina en la posición (ax, ay) de la pantalla, con zoom z */
+function visible(z) {
+  const sr = VW / VH;
+  let sx = sr > IR ? 1 : sr / IR, sy = sr > IR ? IR / sr : 1;
+  return [sx / z, sy / z];
+}
+function solveCam(s) {
+  let u, v, z, ax, ay;
+  if (s.camp != null) {
+    const c = ROUTE.camps[s.camp];
+    u = c.u; v = c.v; z = NARROW ? 1.15 : 1.85; ax = .68; ay = .5;
+  } else { [u, v, z] = s.cam; [ax, ay] = s.at; }
+  if (NARROW) { z = 1 + (z - 1) * .55; ax = .5; ay = s.ch.side === 'hero' ? .3 : .3; }
+  const [sx, sy] = visible(z);
+  return { cx: clamp(u - (ax - .5) * sx, sx / 2, 1 - sx / 2), cy: clamp(v - (ay - .5) * sy, sy / 2, 1 - sy / 2), z };
+}
+
+/* estado del encuadre de cada lámina (suavizado) */
+const camNow = SCENES.map(() => null);
+const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+function rectOf(i) {
+  const c = camNow[i] || { cx: .5, cy: .5, z: 1 };
+  const [sx, sy] = visible(c.z);
+  const px = REDUCE ? 0 : pointer.x * sx * .012, py = REDUCE ? 0 : pointer.y * sy * .012;
+  return { cx: clamp(c.cx + px, sx / 2, 1 - sx / 2), cy: clamp(c.cy + py, sy / 2, 1 - sy / 2), sx, sy };
+}
+const toScreen = (r, u, v) => [((u - r.cx) / r.sx + .5) * VW, ((v - r.cy) / r.sy + .5) * VH];
+
+/* muestreo del scroll → qué lámina, qué transición, qué altura */
+function sample() {
+  const y = scrollY, f = y + VH * .58;
+  let si = 0;
+  for (let k = 0; k < steps.length; k++) if (steps[k].top <= f) si = k;
+  let from = chapters[0].scene, to = from, t = 1, chi = 0;
+  const band = VH * .8;
+  for (let k = 0; k < chapters.length; k++) if (chapters[k].top <= f) chi = k;
+  for (let k = 1; k < chapters.length; k++) {
+    const tk = clamp((f - (chapters[k].top - band * .5)) / band, 0, 1);
+    if (tk > 0) { from = chapters[k - 1].scene; to = chapters[k].scene; t = tk; }
+  }
+  if (from === to) t = 1;
+  // altura e hito fantasma: interpolación entre centros de paso
+  const centers = steps.map(s => s.top + s.h * .5);
+  let alt = steps[0].alt, ghost = null;
+  if (f <= centers[0]) alt = steps[0].alt;
+  else if (f >= centers[centers.length - 1]) alt = steps[steps.length - 1].alt;
+  else for (let k = 0; k < steps.length - 1; k++) if (f >= centers[k] && f < centers[k + 1]) {
+    const p = sstep((f - centers[k]) / (centers[k + 1] - centers[k]));
+    alt = lerp(steps[k].alt, steps[k + 1].alt, p);
+    const g0 = steps[k].ghost, g1 = steps[k + 1].ghost;
+    if (g0 != null && g1 != null) ghost = lerp(g0, g1, p);
+    else if (g0 != null) ghost = g0;
+    break;
+  }
+  // recorrido de la ruta (km dibujados) según los pasos de campo
+  const campSteps = steps.filter(s => s.camp != null);
+  let walk = 0;
+  if (campSteps.length) {
+    const c0 = campSteps[0].top + campSteps[0].h * .5;
+    if (f < c0) walk = 0;
+    else {
+      walk = ROUTE.km[ROUTE.km.length - 1];
+      for (let k = 0; k < campSteps.length - 1; k++) {
+        const a = campSteps[k].top + campSteps[k].h * .5, b = campSteps[k + 1].top + campSteps[k + 1].h * .5;
+        if (f >= a && f < b) { walk = lerp(ROUTE.km[campSteps[k].camp], ROUTE.km[campSteps[k + 1].camp], sstep((f - a) / (b - a))); break; }
+      }
+    }
+  }
+  const step = steps[si];
+  const ch = chapters[chi];
+  const chP = clamp((f - ch.top) / Math.max(1, ch.h), 0, 1);
+  return { step, si, from, to, t, chi, ch, chP, alt, ghost, walk, prog: clamp(y / Math.max(1, docH - VH), 0, 1) };
+}
+
+/* ———————————————————————————— WebGL: lámina con transición de pincel seco */
+const canvas = $('#gl');
+let gl = null, GL2 = false, prog = null, U = {};
+const tex = SCENES.map(() => ({ t: null, ready: false, loading: false, img: null }));
+const VS = 'attribute vec2 p;varying vec2 vUv;void main(){vUv=p*.5+.5;gl_Position=vec4(p,0.,1.);}';
+const FS = `precision highp float;
+varying vec2 vUv;
+uniform sampler2D uA, uB;
+uniform vec4 uRA, uRB;
+uniform float uT, uSoft, uAsp;
+float h(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+  return mix(mix(h(i),h(i+vec2(1.,0.)),u.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),u.x),u.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int k=0;k<5;k++){s+=a*n(p);p=p*2.03+vec2(17.1,9.2);a*=.5;}return s;}
+void main(){
+  vec2 st=vec2(vUv.x,1.-vUv.y);
+  vec2 ua=uRA.xy+(st-.5)*uRA.zw;
+  if(uT<=.0005){gl_FragColor=vec4(texture2D(uA,ua).rgb,1.);return;}
+  vec2 ub=uRB.xy+(st-.5)*uRB.zw;
+  if(uT>=.9995){gl_FragColor=vec4(texture2D(uB,ub).rgb,1.);return;}
+  /* máscara de pincel seco: pinceladas largas e inclinadas + cerdas finas; barre de abajo arriba */
+  vec2 q=vec2(st.x*uAsp,st.y);
+  float c=cos(-.16),s=sin(-.16);
+  vec2 r=vec2(c*q.x-s*q.y,s*q.x+c*q.y);
+  float strokes=fbm(vec2(r.x*1.5,r.y*15.));
+  float bristle=fbm(vec2(r.x*.8,r.y*150.));
+  float m=(1.-st.y)*.52+strokes*.33+bristle*.15;
+  float t=mix(-.1,1.08,uT);
+  float rev=1.-smoothstep(t-.022,t+.022,m);
+  rev=mix(rev,uT,uSoft);
+  float front=(1.-smoothstep(0.,.05,abs(m-t)))*(1.-uSoft);
+  vec3 a=texture2D(uA,ua).rgb;
+  vec3 b=texture2D(uB,ub).rgb;
+  vec3 col=mix(a,b,rev);
+  float chalk=front*smoothstep(.55,.82,bristle);
+  col=mix(col,vec3(.918,.89,.831),chalk*.22);
+  col*=1.-front*.07;
+  gl_FragColor=vec4(col,1.);
+}`;
+function initGL() {
+  try {
+    const opts = { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance' };
+    gl = canvas.getContext('webgl2', opts); GL2 = !!gl;
+    if (!gl) gl = canvas.getContext('webgl', opts) || canvas.getContext('experimental-webgl', opts);
+    if (!gl) return false;
+    const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o);
+      if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+    prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    for (const k of ['uA', 'uB', 'uRA', 'uRB', 'uT', 'uSoft', 'uAsp']) U[k] = gl.getUniformLocation(prog, k);
+    gl.uniform1i(U.uA, 0); gl.uniform1i(U.uB, 1);
+    canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); gl = null; stage.classList.remove('stage--gl', 'stage--gl-ready'); useFallback(); }, false);
+    return true;
+  } catch (err) { console.warn('WebGL no disponible:', err.message); gl = null; return false; }
+}
+const BIG = () => Math.max(VW, VH) * Math.min(devicePixelRatio || 1, 2) > 1400 || VH > VW;
+function urlOf(i) { const s = SCENES[i]; return `assets/laminas/${s.file}-${BIG() ? s.w[1] : s.w[0]}.webp`; }
+function newTex() {
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([18, 18, 26, 255]));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  return t;
+}
+const MAX_RES = () => (VW < 1001 || (navigator.deviceMemory && navigator.deviceMemory <= 4)) ? 4 : 7;
+function ensure(list) {
+  for (const i of list) {
+    const T = tex[i];
+    if (T.ready || T.loading) continue;
+    T.loading = true;
+    const img = new Image(); img.decoding = 'async'; img.src = urlOf(i);
+    const done = () => {
+      T.loading = false; T.img = img;
+      if (gl) {
+        if (!T.t) T.t = newTex();
+        gl.bindTexture(gl.TEXTURE_2D, T.t);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        if (GL2) { gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); }
+      }
+      T.ready = true; dirty = true;
+      if (i === 0 && gl) { stage.classList.add('stage--gl'); setTimeout(() => stage.classList.add('stage--gl-ready'), 1300); }
+    };
+    (img.decode ? img.decode() : Promise.reject()).then(done, () => { if (img.complete && img.naturalWidth) done(); else img.onload = done; });
+  }
+  // con poca memoria, liberar las láminas lejanas
+  const res = tex.map((T, i) => T.ready ? i : -1).filter(i => i >= 0);
+  if (gl && res.length > MAX_RES()) for (const i of res) if (!list.includes(i) && res.length > MAX_RES()) {
+    gl.deleteTexture(tex[i].t); tex[i] = { t: null, ready: false, loading: false, img: null }; res.splice(res.indexOf(i), 1);
+  }
+}
+function neighbours(chi) {
+  const out = [];
+  for (const d of [0, 1, -1, 2]) { const c = chapters[chi + d]; if (c && !out.includes(c.scene)) out.push(c.scene); }
+  return out;
+}
+function sizeCanvas() {
+  const dpr = Math.min(devicePixelRatio || 1, VW < 700 ? 1.5 : 1.6);
+  canvas.width = Math.round(VW * dpr); canvas.height = Math.round(VH * dpr);
+  if (gl) gl.viewport(0, 0, canvas.width, canvas.height);
+}
+function drawGL(a, b, t) {
+  const A = tex[a].ready ? a : (tex[b].ready ? b : -1);
+  const B = tex[b].ready ? b : A;
+  if (A < 0) return;
+  const ra = rectOf(A === a ? a : b), rb = rectOf(B === b ? b : A);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[A].t);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[B].t);
+  gl.uniform4f(U.uRA, ra.cx, ra.cy, ra.sx, ra.sy);
+  gl.uniform4f(U.uRB, rb.cx, rb.cy, rb.sx, rb.sy);
+  gl.uniform1f(U.uT, A === B ? 0 : t);
+  gl.uniform1f(U.uSoft, REDUCE ? 1 : 0);
+  gl.uniform1f(U.uAsp, VW / VH);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+/* sin WebGL: las mismas láminas como <img>, con el mismo encuadre */
+let FALLBACK = false;
+const fbImgs = [];
+function useFallback() {
+  FALLBACK = true; stage.classList.add('stage--placed');
+  const fb = $('#fallback');
+  SCENES.forEach((s, i) => {
+    let im = i === 0 ? $('#fb0') : null;
+    if (!im) { im = new Image(); im.alt = ''; im.decoding = 'async'; fb.appendChild(im); }
+    im.removeAttribute('srcset'); im.removeAttribute('sizes');
+    im.dataset.src = urlOf(i); if (i === 0) im.src = urlOf(0);
+    fbImgs[i] = im;
+  });
+}
+function drawFallback(a, b, t) {
+  const show = t < .5 ? a : b;
+  fbImgs.forEach((im, i) => {
+    const on = i === show;
+    if (on && !im.getAttribute('src')) im.src = im.dataset.src;
+    im.classList.toggle('is-on', on);
+    if (on || im.classList.contains('is-on')) {
+      const r = rectOf(i), w = VW / r.sx, h = VH / r.sy;
+      im.style.width = w + 'px'; im.style.height = h + 'px';
+      im.style.transform = `translate3d(${VW / 2 - r.cx * w}px, ${VH / 2 - r.cy * h}px, 0)`;
+    }
+  });
+}
+
+/* ———————————————————————————— cimas y campos */
+const marks = $('#marks');
+const peakEls = SCENES.map(s => s.peaks.map(([name, sub, u, v, h, tx]) => {
+  const el = document.createElement('div');
+  el.className = 'peak';
+  el.style.setProperty('--h', h + 'px'); if (tx) el.style.setProperty('--tx', tx);
+  el.innerHTML = `<i class="peak__dot"></i><i class="peak__line"></i><span class="peak__tag">${name}<small>${sub}</small></span>`;
+  marks.appendChild(el);
+  return { el, u, v, tx, on: false, edge: null };
+}));
+const CAMP_TAGS = ['CB', 'CBA', 'C1', 'C2', 'C3', 'C4', 'Cima'];
+const campEls = ROUTE.camps.map((c, i) => {
+  const el = document.createElement('div');
+  el.className = 'camp' + (i === 4 ? ' camp--l' : '') + (i === 6 ? ' camp--always' : '');
+  el.innerHTML = `<i class="camp__dot"></i><span class="camp__tag">${CAMP_TAGS[i]} · <b>${fmt(c[2])}${NB}m</b></span>`;
+  marks.appendChild(el);
+  return el;
+});
+
+/* ———————————————————————————— ruta en SVG (espacio 3200 × 1800 de la lámina) */
+const svg = $('#route');
+const NS = 'http://www.w3.org/2000/svg';
+const runs = [];         // tramos visibles / ocultos con su posición a lo largo de la ruta
+let routeLen = 0;
+const segStart = [0];    // longitud acumulada (unidades SVG) al inicio de cada tramo entre campos
+(function buildRoute() {
+  const plan = document.createElementNS(NS, 'path'); plan.setAttribute('class', 'r-plan');
+  let dPlan = '';
+  ROUTE.segs.forEach((seg, si) => {
+    let cur = null;
+    seg.forEach((p, k) => {
+      dPlan += (si === 0 && k === 0 ? 'M' : 'L') + p[0] + ' ' + p[1];
+      if (k === 0 && si > 0) return;
+      const vis = p[2] === 1;
+      if (!cur || cur.vis !== vis) {
+        const prev = cur ? cur.pts[cur.pts.length - 1] : (k > 0 ? seg[k - 1] : null);
+        cur = { vis, pts: prev ? [prev] : [], seg: si };
+        runs.push(cur);
+      }
+      cur.pts.push(p);
+    });
+  });
+  plan.setAttribute('d', dPlan);
+  svg.appendChild(plan);
+  const glow = document.createElementNS(NS, 'g'); svg.appendChild(glow);
+  let acc = 0;
+  for (const r of runs) {
+    const d = r.pts.map((p, k) => (k ? 'L' : 'M') + p[0] + ' ' + p[1]).join('');
+    if (r.vis) { const g = document.createElementNS(NS, 'path'); g.setAttribute('class', 'r-glow'); g.setAttribute('d', d); glow.appendChild(g); r.glow = g; }
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('class', r.vis ? 'r-vis' : 'r-hid'); el.setAttribute('d', d);
+    svg.appendChild(el);
+    r.el = el; r.len = el.getTotalLength(); r.start = acc; acc += r.len;
+  }
+  routeLen = acc;
+  // longitud acumulada al llegar a cada campo, para convertir km del relieve en longitud de dibujo
+  const campLen = [0];
+  ROUTE.segs.forEach((seg, si) => { const rs = runs.filter(r => r.seg === si); const end = rs.length ? rs[rs.length - 1].start + rs[rs.length - 1].len : campLen[si]; campLen.push(end); });
+  ROUTE.campLen = campLen;
+  const head = document.createElementNS(NS, 'circle'); head.setAttribute('class', 'r-head'); head.setAttribute('r', '6'); svg.appendChild(head);
+  ROUTE.head = head;
+})();
+function kmToLen(km) {
+  const K = ROUTE.km, L = ROUTE.campLen;
+  if (km <= 0) return 0;
+  for (let i = 0; i < K.length - 1; i++) if (km <= K[i + 1]) return lerp(L[i], L[i + 1], (km - K[i]) / (K[i + 1] - K[i]));
+  return routeLen;
+}
+let lastSW = 0;
+function drawRoute(w, walkLen, r) {
+  const wv = clamp((w - .62) / .3, 0, 1);
+  svg.style.opacity = wv.toFixed(3);
+  if (wv <= .001) return;
+  const scale = VW / (RS * r.sx);
+  svg.style.transform = `translate3d(${VW / 2 - r.cx / r.sx * VW}px, ${VH / 2 - r.cy / r.sy * VH}px, 0) scale(${scale})`;
+  const sw = 1 / scale;
+  if (Math.abs(sw - lastSW) / sw > .02) {
+    lastSW = sw;
+    svg.querySelector('.r-plan').style.cssText = `stroke-width:${1.4 * sw};stroke-dasharray:${1.5 * sw} ${6 * sw}`;
+    for (const q of runs) {
+      q.el.style.strokeWidth = (q.vis ? 2.6 : 1.8) * sw;
+      if (q.glow) q.glow.style.strokeWidth = 7 * sw;
+    }
+    ROUTE.head.setAttribute('r', 4.5 * sw);
+  }
+  for (const q of runs) {
+    const dr = clamp(walkLen - q.start, 0, q.len);
+    if (q.vis) {
+      q.el.style.strokeDasharray = `${dr} ${q.len + 1}`;
+      q.glow.style.strokeDasharray = `${dr} ${q.len + 1}`;
+    } else {
+      q.el.style.strokeDasharray = `${2 * sw} ${5 * sw}`;
+      q.el.style.opacity = dr > 0 ? clamp(dr / q.len * 1.4, 0, 1) : 0;
+    }
+  }
+  const hl = clamp(walkLen, 0, routeLen);
+  let hp = null;
+  for (const q of runs) if (hl >= q.start && hl <= q.start + q.len) { hp = q.el.getPointAtLength(hl - q.start); break; }
+  if (hp) { ROUTE.head.setAttribute('cx', hp.x); ROUTE.head.setAttribute('cy', hp.y); }
+  ROUTE.head.style.opacity = walkLen > 0 && walkLen < routeLen - 1 ? 1 : 0;
+}
+
+/* ———————————————————————————— perfil de altitud (a escala) */
+function buildProfile() {
+  const el = $('#perfil'); if (!el) return;
+  const W = Math.max(260, Math.round(el.getBoundingClientRect().width) || 420), H = Math.round(W * .46);
+  if (+el.dataset.w === W) return;
+  el.dataset.w = W; el.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const L = 40, R = W - 6, T = 12, B = H - 22;
+  const K = ROUTE.km[ROUTE.km.length - 1];
+  const x = km => L + (R - L) * km / 20, y = m => B - (B - T) * (m - 4500) / (8600 - 4500);
+  let s = `<defs><linearGradient id="pgrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#C9A04A" stop-opacity=".32"/><stop offset="1" stop-color="#C9A04A" stop-opacity="0"/></linearGradient></defs>`;
+  for (const m of [5000, 6000, 7000, 8000]) s += `<line class="p-grid" x1="${L}" x2="${R}" y1="${y(m)}" y2="${y(m)}"/><text x="${L - 6}" y="${y(m) + 4}" text-anchor="end">${fmt(m)}</text>`;
+  for (const k of [0, 5, 10, 15, 20]) s += `<text x="${x(k)}" y="${B + 17}" text-anchor="${k === 20 ? 'end' : 'middle'}">${k}${k === 20 ? NB + 'km' : ''}</text>`;
+  const d = ROUTE.profile.map((p, i) => (i ? 'L' : 'M') + x(p[0]).toFixed(1) + ' ' + y(p[1]).toFixed(1)).join('');
+  s += `<path class="p-area" d="${d}L${x(K).toFixed(1)} ${B}L${L} ${B}Z"/><path class="p-line" d="${d}"/>`;
+  ROUTE.camps.forEach((c, i) => {
+    const cx = x(ROUTE.km[i]), cy = y(c[2]);
+    s += `<circle class="p-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.5"/>`;
+    if (i === 0 || i === 1 || i === 6) s += `<text class="p-camp" x="${(cx + (i === 6 ? -7 : 7)).toFixed(1)}" y="${(cy - 7).toFixed(1)}" text-anchor="${i === 6 ? 'end' : 'start'}">${CAMP_TAGS[i]}</text>`;
+  });
+  el.innerHTML = s;
+}
+
+/* ———————————————————————————— nieve y ventisca (canvas 2D) */
+const snowCv = $('#snow'), sctx = snowCv.getContext('2d');
+const flakes = [];
+let snowW = 0, snowH = 0, sdpr = 1;
+function sizeSnow() { sdpr = Math.min(devicePixelRatio || 1, 1.5); snowW = VW; snowH = VH; snowCv.width = VW * sdpr; snowCv.height = VH * sdpr; }
+function newFlake(rand) {
+  return { x: Math.random() * snowW, y: rand ? Math.random() * snowH : -10, z: .25 + Math.random() * .75, ph: Math.random() * 6.28 };
+}
+let snowParams = [0, 0, 0];
+function snowStep(dt, vScroll, time) {
+  const [nT, wind, fall] = snowParams;
+  const target = REDUCE ? 0 : Math.round(nT * Math.min(1.6, snowW * snowH / 1.1e6));
+  while (flakes.length < target) flakes.push(newFlake(true));
+  if (flakes.length > target) flakes.length = Math.max(target, flakes.length - 3);
+  sctx.setTransform(sdpr, 0, 0, sdpr, 0, 0);
+  sctx.clearRect(0, 0, snowW, snowH);
+  if (!flakes.length) return;
+  const streak = clamp((wind - .8) / 1.4, 0, 1);
+  sctx.fillStyle = sctx.strokeStyle = '#EAE3D4';
+  sctx.lineCap = 'round';
+  for (const p of flakes) {
+    const vx = (wind * 150 + Math.sin(time * .9 + p.ph) * 14) * p.z;
+    const vy = (fall * 60 + 14 + Math.cos(time * .7 + p.ph) * 6) * p.z - vScroll * .35 * p.z;
+    p.x += vx * dt; p.y += vy * dt;
+    if (p.x > snowW + 20) p.x -= snowW + 40; if (p.x < -20) p.x += snowW + 40;
+    if (p.y > snowH + 20) { p.y = -10; p.x = Math.random() * snowW; } if (p.y < -20) p.y = snowH + 10;
+    sctx.globalAlpha = .18 + p.z * .5;
+    if (streak > .05) {
+      sctx.lineWidth = .6 + p.z * 1.1;
+      sctx.beginPath(); sctx.moveTo(p.x, p.y); sctx.lineTo(p.x - vx * .05 * streak, p.y - vy * .05 * streak); sctx.stroke();
+    } else {
+      sctx.beginPath(); sctx.arc(p.x, p.y, .5 + p.z * 1.5, 0, 6.2832); sctx.fill();
+    }
+  }
+  sctx.globalAlpha = 1;
+}
+
+/* ———————————————————————————— HUD: altímetro, lámina, navegación */
+const altNum = $('#altNum'), altAir = $('#altAir'), altMark = $('#altMark'), altFill = $('#altFill'), altGhost = $('#altGhost'), alti = $('#alti');
+const ticks = $$('.alti__tick');
+const topAlt = $('#topAlt'), nowName = $('#nowName'), bar = $('#bar');
+const plate = $('#plate'), plateN = $('#plateN'), plateName = $('#plateName'), plateWhere = $('#plateWhere');
+const navLinks = $$('#nav a');
+const A0 = 4870, A1 = 8485;
+const air = h => Math.pow(1 - 2.25577e-5 * h, 5.25588);
+let shownAlt = -1, shownGhost = null, shownPlate = -1, shownChapter = -1, plateTimer = 0, introAlt = 0, introT0 = 0;
+function hud(st, altDisp) {
+  const a = Math.round(altDisp);
+  if (a !== shownAlt) {
+    shownAlt = a;
+    altNum.textContent = fmt(a); topAlt.textContent = fmt(a) + NB + 'm';
+    const p = clamp((altDisp - A0) / (A1 - A0), 0, 1);
+    altMark.style.bottom = (p * 100) + '%'; altFill.style.transform = `scaleY(${p})`;
+    ticks.forEach(t => t.classList.toggle('is-past', parseFloat(t.style.getPropertyValue('--p')) <= p + .001));
+    if (shownGhost == null) altAir.innerHTML = `Aire al <b>${Math.round(air(altDisp) * 100)}${NB}%</b> del nivel del mar`;
+  }
+  const g = st.ghost != null ? Math.round(st.ghost) : null;
+  if (g !== shownGhost) {
+    shownGhost = g;
+    alti.classList.toggle('alti--ghost', g != null);
+    if (g != null) { altGhost.style.bottom = clamp((g - A0) / (A1 - A0), 0, 1) * 100 + '%'; altAir.innerHTML = `En el mapa: <b>${fmt(g)}${NB}m</b>`; }
+    else altAir.innerHTML = `Aire al <b>${Math.round(air(altDisp) * 100)}${NB}%</b> del nivel del mar`;
+  }
+  const dom = st.t < .5 ? st.from : st.to;
+  if (dom !== shownPlate) {
+    shownPlate = dom; plate.classList.add('is-swap');
+    clearTimeout(plateTimer);
+    plateTimer = setTimeout(() => {
+      const s = SCENES[dom];
+      plateN.textContent = `Lámina ${s.n} / 07`;
+      plateName.innerHTML = `${s.name} <em>${s.alt}</em>`;
+      plateWhere.textContent = s.where;
+      plate.classList.remove('is-swap');
+    }, REDUCE ? 0 : 450);
+  }
+  if (st.chi !== shownChapter) {
+    shownChapter = st.chi;
+    const ch = chapters[st.chi];
+    nowName.textContent = ch.name;
+    navLinks.forEach(l => l.classList.toggle('is-on', l.getAttribute('href') === '#' + ch.id));
+    stage.classList.remove('side-left', 'side-right', 'side-center', 'side-hero');
+    stage.classList.add('side-' + ch.side);
+    plate.classList.toggle('plate--left', ch.side === 'right');
+    ensure(neighbours(st.chi));
+  }
+  bar.style.transform = `scaleX(${st.prog})`;
+}
+
+/* ———————————————————————————— bucle */
+let dirty = true, lastY = -1, lastT = performance.now(), vScroll = 0, tSm = 1, pair = '', time = 0;
+const hitos = $('#hitos');
+function frame(now) {
+  const dt = Math.min(.05, (now - lastT) / 1000); lastT = now; time += dt;
+  const y = scrollY;
+  const st = sample();
+  vScroll = lerp(vScroll, (y - (lastY < 0 ? y : lastY)) / Math.max(dt, .001), .15);
+  if (y !== lastY) dirty = true;
+  lastY = y;
+  // destino del encuadre: paso activo; la lámina que entra llega ya encuadrada en su primer paso
+  const s = st.step;
+  const firstOf = sc => steps.find(q => q.ch === chapters[chapters.findIndex(c => c.scene === sc && c.top >= st.ch.top - 1)]) || steps.find(q => q.scene === sc);
+  const targets = {};
+  targets[s.scene] = s.target;
+  if (st.to !== s.scene) { const q = firstOf(st.to); if (q) targets[st.to] = q.target; }
+  if (st.from !== s.scene && !targets[st.from]) { const prev = steps.slice(0, st.si + 1).reverse().find(q => q.scene === st.from); if (prev) targets[st.from] = prev.target; }
+  const k = REDUCE ? 1 : 1 - Math.exp(-dt * 2.1);
+  for (const key in targets) {
+    const i = +key, tg = targets[key];
+    // leve acercamiento continuo a lo largo del capítulo
+    const kb = (s.scene === i && st.ch.scene === i && !REDUCE) ? 1 + .035 * (1 - st.chP) : 1;
+    const tz = tg.z * kb;
+    if (!camNow[i]) { camNow[i] = { cx: tg.cx, cy: tg.cy, z: tz }; dirty = true; continue; }
+    const c = camNow[i];
+    const dx = tg.cx - c.cx, dy = tg.cy - c.cy, dz = tz - c.z;
+    if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 1e-5) { c.cx += dx * k; c.cy += dy * k; c.z += dz * k; dirty = true; }
+  }
+  // paralaje con el puntero
+  if (FINE && !REDUCE) {
+    const px = pointer.x + (pointer.tx - pointer.x) * (1 - Math.exp(-dt * 3)), py = pointer.y + (pointer.ty - pointer.y) * (1 - Math.exp(-dt * 3));
+    if (Math.abs(px - pointer.x) + Math.abs(py - pointer.y) > 1e-4) { pointer.x = px; pointer.y = py; dirty = true; }
+  }
+  // transición suavizada (mismo par de láminas) o directa (par nuevo)
+  const key = st.from + '>' + st.to;
+  if (key !== pair) { pair = key; tSm = st.t; } else tSm = lerp(tSm, st.t, REDUCE ? 1 : 1 - Math.exp(-dt * 9));
+  if (Math.abs(tSm - st.t) > 1e-4) dirty = true;
+  const t = tSm;
+  if (dirty) {
+    if (gl) drawGL(st.from, st.to, t); else if (FALLBACK) drawFallback(st.from, st.to, t);
+    // cimas: las de la lámina dominante, cuando está casi entera
+    const domW = [[st.from, 1 - t], [st.to, t]];
+    SCENES.forEach((sc, i) => {
+      const wgt = domW.reduce((acc, [j, w]) => acc + (j === i ? w : 0), 0);
+      const on = wgt > .9 && !(i === 6 && st.walk > 0 && NARROW);
+      const r = on || peakEls[i].some(p => p.on) ? rectOf(i) : null;
+      peakEls[i].forEach(p => {
+        if (r) {
+          const [x, yy] = toScreen(r, p.u, p.v);
+          const inside = x > 24 && x < VW - 24 && yy > 90 && yy < VH - 40;
+          p.el.style.transform = `translate3d(${x.toFixed(1)}px, ${yy.toFixed(1)}px, 0)`;
+          const edge = x < (NARROW ? 90 : 240) ? '-8%' : x > VW - (NARROW ? 90 : 200) ? '-92%' : '';
+          if (edge !== p.edge) { p.edge = edge; p.el.style.setProperty('--tx', edge || p.tx || '-50%'); }
+          const want = on && inside;
+          if (want !== p.on) { p.on = want; p.el.classList.toggle('is-on', want); }
+        }
+      });
+    });
+    // ruta
+    const wR = (st.from === 6 ? 1 - t : 0) + (st.to === 6 ? t : 0);
+    const rr = rectOf(6);
+    const allRoute = st.step.all;
+    const walkKm = allRoute ? ROUTE.km[ROUTE.km.length - 1] : st.walk;
+    drawRoute(wR, kmToLen(walkKm), rr);
+    const nowCamp = st.step.camp;
+    campEls.forEach((el, i) => {
+      const [x, yy] = toScreen(rr, ROUTE.camps[i].u, ROUTE.camps[i].v);
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${yy.toFixed(1)}px, 0)`;
+      const reached = walkKm >= ROUTE.km[i] - .01;
+      el.classList.toggle('is-seen', wR > .85);
+      el.classList.toggle('is-past', reached && nowCamp !== i);
+      el.classList.toggle('is-now', nowCamp === i && wR > .5);
+    });
+    dirty = false;
+  }
+  // nieve: mezcla de las dos láminas
+  const sa = SCENES[st.from].snow, sb = SCENES[st.to].snow;
+  snowParams = [lerp(sa[0], sb[0], t), lerp(sa[1], sb[1], t), lerp(sa[2], sb[2], t)];
+  if (!document.hidden) snowStep(dt, vScroll, time);
+  // altímetro (con la cuenta inicial de la portada)
+  let altDisp = st.alt;
+  if (introT0) { const p = clamp((now - introT0) / 2200, 0, 1); altDisp = lerp(0, st.alt, 1 - Math.pow(1 - p, 3)); if (p >= 1) introT0 = 0; }
+  hud(st, altDisp);
+  // cuerda de la cronología
+  if (hitos) {
+    const r = hitos.getBoundingClientRect();
+    hitos.style.setProperty('--rope', clamp((VH * .6 - r.top - VH * .32) / Math.max(1, r.height - VH * .64), 0, 1).toFixed(4));
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ———————————————————————————— revelado de piedras y notas */
+function setupReveal() {
+  const els = $$('.piedra, .nota').filter(el => !el.closest('.hero'));
+  els.forEach(el => Array.from(el.children).forEach((c, k) => c.style.setProperty('--k', k)));
+  if (REDUCE || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) {
+      e.target.classList.add('is-shown');
+      requestAnimationFrame(() => e.target.classList.remove('is-pending'));
+      io.unobserve(e.target);
+    }
+  }, { rootMargin: '0px 0px -12% 0px', threshold: .01 });
+  for (const el of els) {
+    const r = el.getBoundingClientRect();
+    if (r.top > VH * .92) { el.classList.add('is-pending'); io.observe(el); }
+  }
+}
+
+/* ———————————————————————————— eventos */
+addEventListener('resize', () => { measure(); sizeCanvas(); sizeSnow(); dirty = true; lastSW = 0; }, { passive: true });
+addEventListener('scroll', () => { dirty = true; }, { passive: true });
+if (FINE) addEventListener('pointermove', e => { pointer.tx = e.clientX / VW - .5; pointer.ty = e.clientY / VH - .5; }, { passive: true });
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  const id = a.getAttribute('href').slice(1), target = document.getElementById(id);
+  if (!target) return;
+  e.preventDefault();
+  const y = id === 'inicio' ? 0 : target.getBoundingClientRect().top + scrollY + (target.querySelector('.step') ? 0 : 0);
+  scrollTo({ top: y, behavior: REDUCE ? 'auto' : 'smooth' });
+  try { history.replaceState(null, '', '#' + id); } catch (_) {}
+});
+if ('fonts' in document) document.fonts.ready.then(() => { measure(); dirty = true; });
+addEventListener('load', () => { measure(); dirty = true; });
+
+/* ———————————————————————————— arranque */
+measure(); sizeSnow(); buildProfile();
+if (initGL()) { sizeCanvas(); } else { useFallback(); }
+ensure([0, 6, 1]);
+setupReveal();
+requestAnimationFrame(() => stage.classList.add('stage--awake'));
+if (scrollY < 40 && !REDUCE) introT0 = performance.now() + 300;
+requestAnimationFrame(frame);
+})();
+</script>
