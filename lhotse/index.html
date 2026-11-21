@@ -1,0 +1,1340 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Lhotse</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Lhotse, la cumbre al sur: sus picos, su nombre, la ruta normal, la Banda Amarilla, las ascensiones y las historias de la cuarta montaña de la Tierra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="preload" as="image" href="lajas/laja_portada.webp">
+<style>
+/* Layout: un escenario fijo a pantalla completa (las láminas, en WebGL) y, encima, los capítulos
+   como pasos de scroll; todo texto va sobre lajas de mármol. Transición entre láminas: un estrato
+   que sube desde abajo rematado por una franja ocre, la Banda Amarilla. */
+:root{
+  --marmol:#EFE8DA; --esquisto:#2A2C36; --ocre:#C99A3E; --sombra:#3A4458; --hielo:#9DB6C8;
+  --ocre-texto:#7A591C; --ocre-claro:#DEC48C; --estrato:#A6A4A2; --crema:#DED2BA; --liquen:#D6842C; --noche:#1B1D25;
+  --velo:rgba(27,29,37,.55);
+  --f-display:'Zilla Slab','Rockwell','Roboto Slab',Georgia,serif;
+  --f-texto:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;
+  --g-izq:max(16px, env(safe-area-inset-left, 0px));
+  --g-der:max(16px, env(safe-area-inset-right, 0px));
+  --barra:56px;
+  color-scheme:dark;
+}
+html{background:var(--noche);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--noche);color:var(--marmol);font-family:var(--f-texto);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ocre);outline-offset:3px;border-radius:2px}
+.n{white-space:nowrap;font-variant-numeric:tabular-nums lining-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- escenario ---------- */
+#escenario,#alt,#ventisca,#rotulos,#capa-ruta{position:fixed;left:0;top:0;width:100%;height:100vh;height:100lvh;pointer-events:none}
+#escenario{z-index:0;display:block;background:var(--noche)}
+#alt{z-index:0;overflow:hidden;display:none}
+#alt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s linear}
+.sin-gl #escenario{display:none}.sin-gl #alt{display:block}
+#ventisca{z-index:1}
+#rotulos{z-index:2}
+#capa-ruta{z-index:2;opacity:0}
+main{position:relative;z-index:3;overflow-x:clip}
+
+/* ---------- barra ---------- */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--esquisto)}
+.barra{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:30;height:var(--barra);display:flex;align-items:center;gap:24px;
+  padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));
+  background:rgba(42,44,54,.86);-webkit-backdrop-filter:blur(10px) saturate(1.1);backdrop-filter:blur(10px) saturate(1.1);
+  border-bottom:1px solid rgba(166,164,162,.18);transform:translateY(0);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.barra.oculta{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+.marca{font:600 22px/1 var(--f-display);color:var(--marmol);text-decoration:none;letter-spacing:-.005em;display:flex;align-items:baseline;gap:10px}
+.marca small{font:500 11px/1 var(--f-texto);letter-spacing:.18em;text-transform:uppercase;color:var(--ocre)}
+.barra nav{margin-left:auto;display:flex;gap:clamp(14px,2.2vw,34px)}
+.barra nav a{font:500 12px/1 var(--f-texto);letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--crema);padding:8px 0;position:relative;transition:color .3s}
+.barra nav a::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:2px;background:var(--ocre);transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.barra nav a:hover{color:var(--marmol)}
+.barra nav a.activo{color:var(--ocre-claro)}
+.barra nav a.activo::after{transform:scaleX(1)}
+.barra-actual{display:none;margin-left:auto;font:500 11px/1 var(--f-texto);letter-spacing:.18em;text-transform:uppercase;color:var(--ocre-claro)}
+.barra-progreso{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:transparent}
+.barra-progreso i{display:block;height:100%;background:linear-gradient(90deg,var(--ocre),var(--ocre-claro));transform-origin:0 50%;transform:scaleX(0)}
+@media (max-width:980px){.barra nav{display:none}.barra-actual{display:block}}
+
+/* ---------- cargador ---------- */
+#cargador{display:none}
+.js #cargador{position:fixed;inset:0;z-index:50;display:grid;place-content:center;justify-items:center;gap:14px;background:var(--noche);transition:opacity .9s ease,visibility .9s}
+#cargador.fuera{opacity:0;visibility:hidden}
+.c-marca{font:600 clamp(44px,8vw,76px)/1 var(--f-display);color:var(--marmol);letter-spacing:-.01em}
+.c-alt{font:500 italic 22px/1 var(--f-display);color:var(--ocre);font-variant-numeric:tabular-nums lining-nums;min-width:8ch;text-align:center}
+.c-linea{width:min(240px,60vw);height:2px;background:rgba(166,164,162,.22);overflow:hidden}
+.c-linea i{display:block;height:100%;background:var(--ocre);transform-origin:0 50%;transform:scaleX(0);transition:transform .3s}
+.c-txt{font:500 11px/1 var(--f-texto);letter-spacing:.22em;text-transform:uppercase;color:var(--estrato)}
+
+/* ---------- pasos ---------- */
+.capitulo{position:relative}
+.paso{position:relative;box-sizing:border-box;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;
+  padding-block:14vh;padding-left:var(--g-izq);padding-right:var(--g-der)}
+.paso--izq{justify-content:flex-start;padding-left:max(var(--g-izq),6vw)}
+.paso--der{justify-content:flex-end;padding-right:max(var(--g-der),6vw)}
+.paso--corto{min-height:70vh;min-height:70svh}
+.paso--hero{min-height:100vh;min-height:100svh;align-items:flex-end;justify-content:flex-start;padding-left:max(var(--g-izq),5vw);padding-bottom:12vh;padding-top:calc(var(--barra) + 8vh)}
+.fila{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(12px,2vw,28px);width:100%;max-width:1240px}
+.fila--picos{align-items:flex-start}
+.fila--picos .pieza:nth-child(2){margin-top:72px}
+.fila--picos .pieza:nth-child(3){margin-top:144px}
+.pila{display:flex;flex-direction:column;gap:clamp(12px,2vw,24px);align-items:flex-start}
+
+/* ---------- lajas (plantillas de la identidad) ---------- */
+.pieza{position:relative;flex:0 0 auto;max-width:100%}
+.pieza--portada{width:min(100%,clamp(500px,45vw,690px))}
+.pieza--partida{width:min(100%,880px)}
+.pieza--ancha{width:min(100%,clamp(800px,62vw,1000px))}
+.pieza--cita{width:min(100%,clamp(700px,56vw,880px))}
+.pieza--columna{width:min(100%,330px)}
+.pieza--ruta{width:min(100%,360px)}
+.pieza--dato{width:min(100%,268px)}
+.pieza--fosil{width:min(100%,530px)}
+.js .pieza{opacity:0;transform:translate3d(0,56px,0) rotate(var(--giro,-.7deg)) scale(.975);
+  transition:opacity .9s ease,transform 1.2s cubic-bezier(.16,.8,.2,1);transition-delay:var(--retraso,0s)}
+.js .pieza.visto{opacity:1;transform:none}
+.laja{position:relative;box-sizing:border-box;width:100%;min-height:0;overflow:hidden;background:center/100% 100% no-repeat;
+  color:var(--esquisto);container-type:inline-size;
+  transform:perspective(1200px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.cara{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;gap:calc(var(--k,1)*var(--gap,1.2cqw));overflow:hidden}
+.cara>*{margin:0}
+.laja .et{font-family:var(--f-texto);font-weight:500;font-size:calc(var(--k,1)*var(--fs-et));line-height:1.35;letter-spacing:.18em;text-transform:uppercase;color:var(--ocre-texto)}
+.laja h1,.laja h2,.laja h3{font-family:var(--f-display);font-weight:600;color:var(--esquisto);text-wrap:balance}
+.laja h1{font-size:calc(var(--k,1)*var(--fs-h1));line-height:.95;letter-spacing:-.015em}
+.laja h2{font-size:calc(var(--k,1)*var(--fs-h));line-height:1.06;letter-spacing:-.005em}
+.laja h3{font-size:calc(var(--k,1)*var(--fs-h3,var(--fs-h)));line-height:1.1}
+.laja p{font-size:calc(var(--k,1)*var(--fs-p));line-height:1.55;color:var(--esquisto);text-wrap:pretty}
+.laja .sub{font-family:var(--f-display);font-style:italic;font-weight:500;font-size:calc(var(--k,1)*var(--fs-sub));line-height:1.25;color:var(--ocre-texto)}
+.laja .num{font-family:var(--f-display);font-weight:600;font-size:calc(var(--k,1)*var(--fs-n));line-height:.95;color:var(--esquisto);letter-spacing:-.015em;font-variant-numeric:lining-nums}
+.laja .num small{font-size:.5em;font-weight:500;letter-spacing:0;margin-left:.08em;color:var(--ocre-texto)}
+.laja .cita-t{font-family:var(--f-display);font-style:italic;font-weight:500;font-size:calc(var(--k,1)*var(--fs-q));line-height:1.28;color:var(--esquisto);text-wrap:balance}
+.laja .pie{font-size:calc(var(--k,1)*var(--fs-p));line-height:1.45;color:var(--ocre-texto)}
+.laja b,.laja strong{font-weight:600}
+
+.laja--ancha{background-image:url(lajas/laja_ancha.webp);aspect-ratio:2400/1300;padding:13.33% 15.49% 16.58% 15.49%;
+  --fs-et:1.7cqw;--fs-h:4.6cqw;--fs-h3:4.1cqw;--fs-p:2.4cqw;--fs-n:7cqw;--fs-sub:2.8cqw;--gap:1.15cqw}
+.laja--angosta{background-image:url(lajas/laja_angosta.webp);aspect-ratio:2400/640;padding:6.87% 8.53% 10.6% 8.53%;
+  --fs-et:1.8cqw;--fs-h3:3.3cqw;--fs-p:2.2cqw;--gap:.5cqw}
+.laja--portada{background-image:url(lajas/laja_portada.webp);aspect-ratio:2400/1500;padding:18.88% 41.87% 22.62% 13.88%;
+  --fs-et:3.3cqw;--fs-h1:23cqw;--fs-sub:5.6cqw;--gap:2cqw}
+.laja--fosil{background-image:url(lajas/laja_fosil.webp);aspect-ratio:1800/1800;padding:44.6% 18.6% 24.6% 18.6%;
+  --fs-et:3.6cqw;--fs-h:7.6cqw;--fs-p:4.4cqw;--gap:2cqw}
+.laja--columna{background-image:url(lajas/laja_columna.webp);aspect-ratio:1200/2200;padding:24.77% 18.6% 30.27% 18.6%;
+  --fs-et:5.2cqw;--fs-h:11cqw;--fs-h3:10cqw;--fs-p:6.6cqw;--fs-n:18cqw;--fs-sub:7cqw;--gap:4cqw}
+.laja--dato{background-image:url(lajas/laja_dato.webp);aspect-ratio:1200/1000;padding:21.83% 19.17% 28.5% 19.17%;
+  --fs-et:6.4cqw;--fs-n:23cqw;--fs-p:7.8cqw;--fs-h:12cqw;--fs-sub:8cqw;--gap:3cqw;text-align:center}
+.laja--cita{background-image:url(lajas/laja_cita.webp);aspect-ratio:2100/1150;padding:15.44% 19.4% 17.63% 19.4%;
+  --fs-et:2.3cqw;--fs-q:5.4cqw;--fs-p:2.75cqw;--gap:2.2cqw;text-align:center}
+.laja--partida{background-image:url(lajas/laja_partida.webp);aspect-ratio:2400/950;padding:10.53% 45.82% 12.9% 9.82%;
+  --fs-et:3.3cqw;--fs-h:9.6cqw;--fs-sub:4.3cqw;--gap:1.8cqw}
+.laja--dato .cara{align-items:center}
+.laja--cita .cara{align-items:center}
+
+/* chips: lungta y estratos */
+.chips{display:flex;flex-wrap:wrap;gap:calc(var(--k,1)*.9cqw) calc(var(--k,1)*2.2cqw);font-size:calc(var(--k,1)*var(--fs-p));line-height:1.3}
+.chip{display:inline-flex;align-items:center;gap:.45em;white-space:nowrap}
+.chip i{display:inline-block;width:1.5em;height:.95em;border-radius:1px;box-shadow:inset 0 0 0 1px rgba(42,44,54,.35)}
+.chip b{font-weight:600}
+.estratos{display:grid;gap:calc(var(--k,1)*.55cqw);font-size:calc(var(--k,1)*var(--fs-p));line-height:1.3}
+.estratos div{display:grid;grid-template-columns:2.4em 1fr;align-items:center;gap:.7em}
+.estratos i{height:.9em;border-radius:1px;box-shadow:inset 0 0 0 1px rgba(42,44,54,.25)}
+.estratos b{font-weight:600}
+
+/* ---------- ficha de cronología ---------- */
+.crono{position:relative;width:100%;max-width:1060px;margin-inline:auto;padding-block:6vh 18vh}
+.crono-lista{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;column-gap:120px;row-gap:24px}
+.crono-linea{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(222,210,186,.18)}
+.crono-linea i{position:absolute;inset:0;background:linear-gradient(var(--ocre-claro),var(--ocre));transform-origin:50% 0;transform:scaleY(var(--avance,0))}
+.crono-lista .pieza{width:min(100%,320px)}
+.crono-lista .pieza:nth-child(odd){justify-self:end;grid-column:1}
+.crono-lista .pieza:nth-child(even){justify-self:start;grid-column:2;margin-top:200px}
+.crono-lista .pieza::after{content:"";position:absolute;top:44%;width:44px;height:2px;background:var(--ocre)}
+.crono-lista .pieza:nth-child(odd)::after{right:-60px}
+.crono-lista .pieza:nth-child(even)::after{left:-60px}
+.crono-lista .pieza::before{content:"";position:absolute;top:calc(44% - 6px);width:14px;height:14px;border-radius:50%;background:var(--ocre);box-shadow:0 0 0 4px rgba(27,29,37,.6)}
+.crono-lista .pieza:nth-child(odd)::before{right:-67px}
+.crono-lista .pieza:nth-child(even)::before{left:-67px}
+
+/* ---------- rótulos sobre las láminas ---------- */
+.grupo{position:absolute;inset:0;opacity:0}
+.rotulo,.r-rot,.r-ramal{transition:opacity .45s ease}
+.rotulo.tapado{opacity:0!important}
+.r-rot.tapado,.r-ramal.tapado{opacity:0!important}
+.rotulo{position:absolute;left:0;top:0;will-change:transform}
+.rotulo .pt{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--ocre);box-shadow:0 0 0 2px rgba(27,29,37,.6),0 0 16px rgba(201,154,62,.7)}
+.rotulo .ln{position:absolute;left:0;top:0;height:1px;background:rgba(239,232,218,.8);transform-origin:0 0;box-shadow:0 0 3px rgba(27,29,37,.7)}
+.rotulo .tx{position:absolute;white-space:nowrap;padding:5px 10px 6px;background:rgba(27,29,37,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);border-left:2px solid var(--ocre)}
+.rotulo .tx b{display:block;font:600 19px/1.1 var(--f-display);color:var(--marmol)}
+.rotulo .tx span{display:block;font:500 10.5px/1.5 var(--f-texto);letter-spacing:.16em;text-transform:uppercase;color:var(--ocre-claro)}
+@media (max-width:640px){.rotulo .tx b{font-size:16px}.rotulo .tx span{font-size:9.5px}}
+
+/* ---------- capa de la ruta ---------- */
+#ruta-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#r-sombra{fill:none;stroke:rgba(27,29,37,.55);stroke-linecap:round;stroke-linejoin:round}
+#r-plan{fill:none;stroke:rgba(239,232,218,.75);stroke-linecap:round;stroke-linejoin:round}
+#r-hecha{fill:none;stroke:var(--ocre);stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(201,154,62,.55))}
+#r-everest{fill:none;stroke:var(--hielo);stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.r-hito circle{transition:fill .5s,r .5s}
+.r-hito .aro{fill:none;stroke:var(--marmol)}
+.r-hito .nucleo{fill:rgba(27,29,37,.65);stroke:var(--marmol)}
+.r-hito.alcanzado .nucleo{fill:var(--ocre)}
+#r-cabeza .nucleo{fill:var(--marmol);stroke:var(--ocre)}
+#r-cabeza .pulso{fill:rgba(201,154,62,.35);transform-box:fill-box;transform-origin:center;animation:pulso 2.2s ease-out infinite}
+@keyframes pulso{from{transform:scale(.6);opacity:.9}to{transform:scale(2.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){#r-cabeza .pulso{animation:none;opacity:.4}}
+.r-rot{position:absolute;left:0;top:0;opacity:0;white-space:nowrap;will-change:transform}
+.r-rot .tx{position:absolute;left:14px;top:-13px;padding:3px 8px 4px;background:rgba(27,29,37,.62);border-left:2px solid var(--ocre)}
+.r-rot b{display:block;font:600 15px/1.15 var(--f-display);color:var(--marmol)}
+.r-rot span{display:block;font:500 10px/1.4 var(--f-texto);letter-spacing:.14em;text-transform:uppercase;color:var(--ocre-claro)}
+.r-rot.izq .tx{left:auto;right:14px;border-left:0;border-right:2px solid var(--ocre);text-align:right}
+.r-ramal{position:absolute;left:0;top:0;opacity:0;white-space:nowrap}
+.r-ramal .tx{position:absolute;right:12px;top:-30px;padding:3px 8px;background:rgba(27,29,37,.6);border-right:2px solid var(--hielo);text-align:right}
+.r-ramal b{display:block;font:600 14px/1.15 var(--f-display);color:var(--hielo)}
+.r-ramal span{display:block;font:500 10px/1.4 var(--f-texto);letter-spacing:.14em;text-transform:uppercase;color:var(--estrato)}
+
+/* altímetro */
+#altimetro{position:fixed;z-index:4;right:calc(max(18px,env(safe-area-inset-right,0px)) + 8px);top:50%;transform:translateY(-50%);height:min(56vh,520px);width:150px;opacity:0;pointer-events:none;transition:opacity .5s}
+.alt-escala{position:absolute;right:0;top:0;bottom:0;width:2px;background:rgba(239,232,218,.35)}
+.alt-relleno{position:absolute;right:0;bottom:0;width:2px;height:100%;background:var(--ocre);transform-origin:50% 100%;transform:scaleY(0)}
+.alt-marca{position:absolute;right:0;width:10px;height:1px;background:rgba(239,232,218,.6)}
+.alt-marca span{position:absolute;right:16px;top:-9px;font:500 10px/1.3 var(--f-texto);letter-spacing:.12em;text-transform:uppercase;color:var(--crema);white-space:nowrap;padding:2px 6px;background:rgba(27,29,37,.55)}
+.alt-cursor{position:absolute;right:-6px;width:14px;height:14px;margin-bottom:-7px;bottom:0;border-radius:50%;background:var(--marmol);box-shadow:0 0 0 3px var(--ocre),0 0 18px rgba(201,154,62,.8)}
+.alt-lectura{position:absolute;right:20px;bottom:-78px;text-align:right;white-space:nowrap;padding:7px 12px 8px;background:rgba(27,29,37,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-right:2px solid var(--ocre)}
+.alt-lectura b{display:block;font:600 30px/1 var(--f-display);color:var(--marmol);font-variant-numeric:tabular-nums lining-nums}
+.alt-lectura b small{font-size:.55em;color:var(--ocre-claro);margin-left:.15em}
+.alt-lectura .alt-lugar{display:block;font:500 10.5px/1.6 var(--f-texto);letter-spacing:.16em;text-transform:uppercase;color:var(--ocre-claro);margin-top:3px}
+@media (max-width:859px){
+  #altimetro{top:calc(env(safe-area-inset-top,0px) + var(--barra) + 12px);transform:none;height:auto;width:auto;right:var(--g-der)}
+  .alt-escala,.alt-marca,.alt-cursor,.alt-relleno{display:none}
+  .alt-lectura{position:static;padding:6px 12px 7px}
+  .alt-lectura b{font-size:22px}
+}
+
+/* ---------- galería ---------- */
+.galeria-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:22px}
+.galeria-cab{display:flex;align-items:baseline;gap:18px;padding-left:max(var(--g-izq),6vw);padding-right:max(var(--g-der),6vw);padding-top:var(--barra)}
+.galeria-cab .et{font:500 12px/1 var(--f-texto);letter-spacing:.2em;text-transform:uppercase;color:var(--ocre)}
+.galeria-cab .cuenta{font:600 22px/1 var(--f-display);color:var(--marmol);font-variant-numeric:tabular-nums}
+.galeria-cab .cuenta small{color:var(--estrato);font-weight:500}
+.galeria-pista{display:flex;align-items:flex-start;gap:clamp(24px,4vw,64px);padding-left:max(var(--g-izq),6vw);padding-right:max(var(--g-der),6vw);will-change:transform;width:max-content}
+.lamina{margin:0;flex:0 0 auto;width:clamp(280px,min(54vw,96vh),880px);display:flex;flex-direction:column;gap:10px}
+.lamina .marco{position:relative;overflow:hidden;box-shadow:0 34px 60px -24px rgba(0,0,0,.75);background:var(--sombra)}
+.lamina img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;transform:scale(1.04);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.lamina:hover img{transform:scale(1.0)}
+.lamina .nro{position:absolute;left:14px;top:12px;font:600 26px/1 var(--f-display);color:var(--marmol);text-shadow:0 2px 10px rgba(27,29,37,.8)}
+.lamina .nueva{position:absolute;right:12px;top:12px;font:500 10px/1 var(--f-texto);letter-spacing:.18em;text-transform:uppercase;background:var(--ocre);color:var(--esquisto);padding:6px 8px}
+.lamina .pieza{width:100%}
+.lamina .datos-cam{font:400 12.5px/1.5 var(--f-texto);letter-spacing:.01em;color:var(--hielo);padding-left:2px;font-variant-numeric:tabular-nums}
+
+/* ---------- pie ---------- */
+.pie-final{position:relative;z-index:3;background:var(--esquisto);color:var(--crema);border-top:3px solid var(--ocre);
+  padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));padding-left:max(var(--g-izq),6vw);padding-right:max(var(--g-der),6vw)}
+.pie-rejilla{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,2fr);gap:40px;max-width:1200px}
+.pie-final h2{font:600 34px/1 var(--f-display);color:var(--marmol);margin:0 0 8px}
+.pie-final .sub{font:italic 500 17px/1.3 var(--f-display);color:var(--ocre)}
+.pie-final p{margin:0 0 12px;font-size:14px;line-height:1.6;color:var(--crema);max-width:70ch}
+.pie-final p b{color:var(--marmol);font-weight:600}
+.pie-final a{color:var(--ocre-claro);text-underline-offset:3px}
+.pie-final .volver{display:inline-flex;margin-top:18px;font:500 12px/1 var(--f-texto);letter-spacing:.18em;text-transform:uppercase;color:var(--ocre-claro);text-decoration:none;border:1px solid rgba(201,154,62,.6);padding:12px 16px;transition:background .3s,color .3s}
+.pie-final .volver:hover{background:var(--ocre);color:var(--esquisto)}
+@media (max-width:760px){.pie-rejilla{grid-template-columns:minmax(0,1fr)}}
+
+/* indicación de scroll */
+.desliza{position:absolute;right:max(var(--g-der),5vw);bottom:12vh;display:flex;flex-direction:column;align-items:center;gap:12px;font:500 11px/1 var(--f-texto);letter-spacing:.22em;text-transform:uppercase;color:var(--marmol);text-shadow:0 1px 4px rgba(27,29,37,.8)}
+.desliza i{display:block;width:1px;height:64px;background:linear-gradient(rgba(239,232,218,0),var(--marmol));position:relative;overflow:hidden}
+.desliza i::after{content:"";position:absolute;left:-1px;width:3px;height:18px;background:var(--ocre);animation:baja 2.4s cubic-bezier(.6,0,.3,1) infinite}
+@keyframes baja{from{top:-18px}to{top:64px}}
+@media (prefers-reduced-motion:reduce){.desliza i::after{animation:none;top:46px}}
+
+/* ---------- versión estrecha: las lajas anchas pasan a columna o dato (manual, p. 23) ---------- */
+@media (max-width:859px){
+  .pieza--portada,.pieza--partida{width:min(100%,400px)}
+  .pieza--ancha,.pieza--cita,.pieza--columna,.pieza--ruta{width:min(100%,370px)}
+  .pieza--dato{width:min(100%,300px)}
+  .pieza--fosil{width:min(100%,400px)}
+  .laja--ancha,.laja--cita{background-image:url(lajas/laja_columna.webp);aspect-ratio:1200/2200;padding:24.77% 18.6% 30.27% 18.6%;
+    --fs-et:5.2cqw;--fs-h:10.6cqw;--fs-h3:9.6cqw;--fs-p:6.5cqw;--fs-n:17cqw;--fs-sub:7cqw;--fs-q:9.4cqw;--gap:3.8cqw}
+  .laja--partida,.laja--portada{background-image:url(lajas/laja_dato.webp);aspect-ratio:1200/1000;padding:21.83% 19.17% 28.5% 19.17%;
+    --fs-et:6cqw;--fs-h:13.5cqw;--fs-h1:28cqw;--fs-sub:7.4cqw;--gap:2.6cqw}
+  .laja--fosil{--fs-et:5cqw;--fs-h:9.4cqw;--fs-p:6.2cqw;--gap:2.4cqw}
+  .laja--angosta{--fs-h3:5.4cqw;--fs-p:3.7cqw}
+  .laja--angosta .solo-ancho{display:none}
+  .fila--picos .pieza:nth-child(n){margin-top:0}
+  .paso,.paso--izq,.paso--der{justify-content:center;padding-left:var(--g-izq);padding-right:var(--g-der)}
+  .paso--hero{justify-content:center;padding-bottom:16vh}
+  .desliza{right:50%;transform:translateX(50%);bottom:4vh}
+  .crono{padding-left:34px;box-sizing:border-box}
+  .crono-lista{grid-template-columns:minmax(0,1fr);row-gap:28px}
+  .crono-linea{left:10px}
+  .crono-lista .pieza:nth-child(n){grid-column:1;justify-self:start;margin-top:0;width:min(100%,330px)}
+  .crono-lista .pieza:nth-child(n)::after{left:-24px;right:auto;width:20px}
+  .crono-lista .pieza:nth-child(n)::before{left:-31px;right:auto}
+  .lamina{width:84vw}
+}
+@media (prefers-reduced-motion:reduce){
+  .js .pieza{transform:none;transition:opacity .6s ease}
+  .laja{transition:none}
+  .lamina img{transition:none;transform:none}
+}
+</style>
+
+<canvas id="escenario" aria-hidden="true"></canvas>
+<div id="alt" aria-hidden="true"></div>
+<canvas id="ventisca" aria-hidden="true"></canvas>
+<div id="rotulos" aria-hidden="true"></div>
+<div id="capa-ruta" aria-hidden="true">
+  <svg id="ruta-svg" preserveAspectRatio="none" viewBox="0 0 2400 1600">
+    <path id="r-sombra"/>
+    <path id="r-plan"/>
+    <path id="r-everest"/>
+    <path id="r-hecha"/>
+    <g id="r-hitos"></g>
+    <g id="r-cabeza"><circle class="pulso" r="10"/><circle class="nucleo" r="5"/></g>
+  </svg>
+  <div id="r-rotulos"></div>
+</div>
+<div id="altimetro" aria-hidden="true">
+  <div class="alt-escala"></div>
+  <div class="alt-relleno"></div>
+  <div class="alt-marcas"></div>
+  <div class="alt-cursor"></div>
+  <div class="alt-lectura"><b><span id="alt-num">5 364</span><small>m</small></b><span class="alt-lugar" id="alt-lugar">Campo Base</span></div>
+</div>
+
+<div id="cargador" role="status" aria-live="polite">
+  <div class="c-marca">Lhotse</div>
+  <div class="c-alt"><span id="c-num">0</span> m</div>
+  <div class="c-linea"><i></i></div>
+  <div class="c-txt">Aclimatando</div>
+</div>
+
+<header class="barra" id="barra">
+  <a class="marca" href="#inicio">Lhotse <small>8 516 m</small></a>
+  <nav aria-label="Capítulos">
+    <a href="#montana">La montaña</a>
+    <a href="#nombre">El nombre</a>
+    <a href="#ruta">La ruta</a>
+    <a href="#geologia">Geología</a>
+    <a href="#historia">Historia</a>
+    <a href="#anecdotas">Anécdotas</a>
+    <a href="#laminas">Láminas</a>
+  </nav>
+  <span class="barra-actual" id="barra-actual">La cumbre al sur</span>
+  <div class="barra-progreso"><i id="progreso"></i></div>
+</header>
+
+<main>
+  <!-- ===================== INICIO ===================== -->
+  <section class="capitulo" id="inicio" data-escena="aerea" data-kb="1.04,.47,.47,1.2,.5,.43" data-capitulo="La cumbre al sur">
+    <div class="paso paso--hero">
+      <div class="pieza pieza--portada" id="portada" style="--giro:-1.2deg">
+        <div class="laja laja--portada"><div class="cara">
+          <span class="et">Mahalangur Himal · Nepal y Tíbet</span>
+          <h1>Lhotse</h1>
+          <span class="sub">La cumbre al sur · <span class="n">8 516 m</span></span>
+        </div></div>
+      </div>
+      <div class="desliza" aria-hidden="true">Desliza para subir<i></i></div>
+    </div>
+    <div class="paso paso--izq">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">La cuarta montaña de la Tierra</span>
+          <h2>A la sombra de un gigante</h2>
+          <p>El Lhotse se alza a tres kilómetros del Everest, unido a él por el Collado Sur, a <span class="n">7 906 m</span>. Es la cuarta cumbre más alta del planeta y casi nunca la protagonista: desde el Campo Base, su cara oeste parece la pared del fondo de un pasillo que lleva a otra montaña. Esta página sube por ella.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== I · LA MONTAÑA ===================== -->
+  <section class="capitulo" id="montana" data-escena="aerea" data-kb="1.5,.52,.4,1.68,.52,.39" data-capitulo="I · La montaña">
+    <div class="paso paso--izq paso--corto">
+      <div class="pieza pieza--partida">
+        <div class="laja laja--partida"><div class="cara">
+          <span class="et">Capítulo I</span>
+          <h2>La montaña</h2>
+          <span class="sub">Una cresta y tres cumbres de más de ocho mil metros</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--der">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Cumbre principal</span>
+          <h2>8 516 metros de roca y hielo</h2>
+          <p>La cumbre principal es una aguja de roca en lo alto de un corredor de nieve. Desde allí el Everest queda enfrente, a menos de tres kilómetros, y el Collado Sur abajo, como un puerto de montaña entre los dos. La primera cordada llegó el 18 de mayo de 1956: los suizos Ernst Reiss y Fritz Luchsinger.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso">
+      <div class="fila" role="list" aria-label="Cifras del Lhotse">
+        <div class="pieza pieza--dato" role="listitem" style="--retraso:0s"><div class="laja laja--dato"><div class="cara">
+          <span class="num n">8 516<small>m</small></span><p>altitud oficial de la cumbre</p>
+        </div></div></div>
+        <div class="pieza pieza--dato" role="listitem" style="--retraso:.12s;--giro:.8deg"><div class="laja laja--dato"><div class="cara">
+          <span class="num">4.ª</span><p>montaña más alta del mundo</p>
+        </div></div></div>
+        <div class="pieza pieza--dato" role="listitem" style="--retraso:.24s"><div class="laja laja--dato"><div class="cara">
+          <span class="num n">610<small>m</small></span><p>de prominencia sobre el Collado Sur</p>
+        </div></div></div>
+        <div class="pieza pieza--dato" role="listitem" style="--retraso:.36s;--giro:.6deg"><div class="laja laja--dato"><div class="cara">
+          <span class="num n">3 200<small>m</small></span><p>de desnivel en la pared sur</p>
+        </div></div></div>
+      </div>
+    </div>
+    <div class="paso">
+      <div class="fila fila--picos" role="list" aria-label="Picos que forman el Lhotse">
+        <div class="pieza pieza--columna" role="listitem"><div class="laja laja--columna"><div class="cara">
+          <span class="et">Cumbre principal</span>
+          <h3>Lhotse</h3>
+          <span class="num n">8 516<small>m</small></span>
+          <p>Primera ascensión el 18 de mayo de 1956, por la expedición suiza de Albert Eggler. Es la que todos llaman «el Lhotse».</p>
+        </div></div></div>
+        <div class="pieza pieza--columna" role="listitem" style="--retraso:.15s;--giro:.6deg"><div class="laja laja--columna"><div class="cara">
+          <span class="et">Cumbre central</span>
+          <h3>Lhotse Medio</h3>
+          <span class="num n">8 414<small>m</small></span>
+          <p>Una torre en mitad de la cresta. Una expedición rusa la subió el 23 de mayo de 2001: hasta ese día era el punto con nombre más alto del planeta sin escalar.</p>
+        </div></div></div>
+        <div class="pieza pieza--columna" role="listitem" style="--retraso:.3s"><div class="laja laja--columna"><div class="cara">
+          <span class="et">Cumbre este</span>
+          <h3>Lhotse Shar</h3>
+          <span class="num n">8 383<small>m</small></span>
+          <p>El extremo oriental de la cresta, sobre el valle del Barun. Los austriacos Sepp Mayerl y Rolf Walter llegaron arriba el 12 de mayo de 1970.</p>
+        </div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== II · EL NOMBRE ===================== -->
+  <section class="capitulo" id="nombre" data-escena="campo_base" data-kb="1.32,.73,.66,1.5,.76,.71" data-rotulos="0" data-capitulo="II · El nombre">
+    <div class="paso paso--izq paso--corto">
+      <div class="pieza pieza--partida">
+        <div class="laja laja--partida"><div class="cara">
+          <span class="et">Capítulo II</span>
+          <h2>El nombre</h2>
+          <span class="sub">Cultura y significado del pico del sur</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso">
+      <div class="pieza pieza--cita">
+        <div class="laja laja--cita"><div class="cara">
+          <span class="cita-t">«Lho-tse»</span>
+          <p class="pie">En tibetano, «pico sur»: la montaña se nombra por su lugar junto al Chomolungma.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--izq">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Un bautizo de 1921</span>
+          <h2>Un nombre prestado</h2>
+          <p>El nombre se fijó durante el reconocimiento británico del Everest, en 1921: Lho-tse, el pico que está al sur del Chomolungma, «la diosa madre del mundo», como llaman los tibetanos al Everest. En chino se escribe Lhozê. Es una de las pocas grandes montañas cuyo nombre no habla de ella sino de su vecina.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--der">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Khumbu · la puja</span>
+          <h2>Pedir permiso para subir</h2>
+          <p>Para los sherpas del Khumbu, las montañas son morada de deidades; en el Everest vive Miyolangsangma, diosa de la generosidad. Antes de pisar la cascada de hielo, cada expedición celebra una puja junto a un altar de piedra: un lama bendice piolets y crampones, arde el enebro y se tienden las banderas de oración.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--izq">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Lungta · caballo de viento</span>
+          <h2>Cinco colores en el viento</h2>
+          <p>Cada bandera lleva oraciones impresas que el viento reparte por el valle. Se cuelgan siempre en el mismo orden, uno por elemento:</p>
+          <div class="chips" role="list">
+            <span class="chip" role="listitem"><i style="background:#2F5FA8"></i><b>Azul</b> cielo</span>
+            <span class="chip" role="listitem"><i style="background:#F7F4EC"></i><b>Blanco</b> aire</span>
+            <span class="chip" role="listitem"><i style="background:#B83A2E"></i><b>Rojo</b> fuego</span>
+            <span class="chip" role="listitem"><i style="background:#3F8A4A"></i><b>Verde</b> agua</span>
+            <span class="chip" role="listitem"><i style="background:#E2B634"></i><b>Amarillo</b> tierra</span>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div data-escena="cumbre" data-kb="1.04,.44,.42,1.16,.42,.3">
+      <div class="paso">
+        <div class="pieza pieza--cita">
+          <div class="laja laja--cita"><div class="cara">
+            <span class="cita-t">«Yo soy yo y mi circunstancia, y si no la salvo a ella no me salvo yo.»</span>
+            <p class="pie">José Ortega y Gasset, <i>Meditaciones del Quijote</i> (1914)</p>
+          </div></div>
+        </div>
+      </div>
+      <div class="paso paso--der">
+        <div class="pieza pieza--ancha">
+          <div class="laja laja--ancha"><div class="cara">
+            <span class="et">Significado</span>
+            <h2>Una montaña que se define por otra</h2>
+            <p>Pocas cimas encarnan tan al pie de la letra la frase de Ortega: el Lhotse no tiene un nombre propio, tiene una posición. Y aun así guarda una de las paredes más grandes y temidas del Himalaya. Lionel Terray llamó a los alpinistas «conquistadores de lo inútil»; aquí lo inútil tiene forma de cuarta montaña, la que se sube sin la promesa de ser el techo del mundo.</p>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== III · LA RUTA ===================== -->
+  <section class="capitulo" id="ruta" data-escena="ruta" data-modo="ruta" data-capitulo="III · La ruta">
+    <div class="paso paso--izq paso--corto">
+      <div class="pieza pieza--partida">
+        <div class="laja laja--partida"><div class="cara">
+          <span class="et">Capítulo III</span>
+          <h2>La ruta</h2>
+          <span class="sub"><span class="n">3 152 m</span> de desnivel por la vía normal</span>
+        </div></div>
+      </div>
+    </div>
+    <article class="paso paso--izq paso--ruta" data-est="inicio" data-zoom="1">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Vía normal · Nepal</span>
+        <h3>Del glaciar a la aguja</h3>
+        <p>La ruta del Lhotse comparte con la del Everest casi todo el camino: la cascada del Khumbu, el Cwm Occidental y la cara del Lhotse. Solo en la Banda Amarilla, hacia los <span class="n">7 500 m</span>, se separan.</p>
+        <p>El trazado común es el de OpenStreetMap sobre el terreno real; el último tramo, por el corredor, es aproximado.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="campo_base" data-zoom="1.55" data-iris="campo_base">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Campo Base · <span class="n">5 364 m</span></span>
+        <h3>Una ciudad de lona sobre el glaciar</h3>
+        <p>Cada primavera cientos de carpas se levantan sobre las piedras del glaciar del Khumbu. Aquí se pasan semanas aclimatando, se celebra la puja y se espera la ventana de buen tiempo.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="cascada" data-zoom="1.75">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Cascada del Khumbu · <span class="n">5 400–5 900 m</span></span>
+        <h3>El tramo más imprevisible</h3>
+        <p>El glaciar se desploma en un caos de seracs y grietas que se mueve cada día. Un equipo de sherpas, los «doctores de la cascada», la equipa con cuerdas y escaleras de aluminio. El 18 de abril de 2014 una avalancha mató aquí a dieciséis trabajadores de montaña nepalíes.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="campo1" data-zoom="1.65" data-iris="campo1">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Campo 1 · <span class="n">6 050 m</span></span>
+        <h3>Noches en el umbral del Cwm</h3>
+        <p>Al final de la cascada, sobre una llanura de nieve cortada por grietas que se cruzan con escaleras. De noche, las linternas frontales de quienes ya suben la cara del Lhotse dibujan una línea de puntos en la oscuridad.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="cwm" data-zoom="1.6">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Cwm Occidental</span>
+        <h3>El Valle del Silencio</h3>
+        <p>George Mallory lo vio en 1921 y lo llamó <i>cwm</i>, la palabra galesa para un circo glaciar. Los suizos de 1952 lo rebautizaron Valle del Silencio. Encajonado entre el Everest y el Nuptse, de día el sol rebota en sus paredes y el calor se vuelve agobiante a más de seis mil metros.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="campo2" data-zoom="1.55" data-iris="campo2">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Campo 2 · <span class="n">6 450 m</span></span>
+        <h3>El campo base avanzado</h3>
+        <p>Sobre la morrena lateral, al pie de la cara del Lhotse. Es el último campo cómodo: hay cocina y tienda comedor, y enfrente la pared que queda por subir, cruzada en diagonal por la Banda Amarilla.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="campo3" data-zoom="1.7" data-iris="campo3">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Campo 3 · <span class="n">7 150 m</span></span>
+        <h3>Tiendas colgadas de la cara</h3>
+        <p>La cara del Lhotse es una pared de hielo azul de <span class="n">1 125 m</span>, con pendientes de 40 a 50 grados. El Campo 3 son plataformas talladas a piolet donde las carpas cuelgan sobre el vacío del Cwm.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="banda" data-zoom="1.9">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Banda Amarilla · <span class="n">≈ 7 500 m</span></span>
+        <h3>Donde los caminos se separan</h3>
+        <p>Las cuerdas fijas cruzan la franja de mármol ocre. Quien va al Everest gira a la izquierda hacia el Espolón de los Ginebrinos y el Collado Sur. Quien va al Lhotse sigue recto, cara arriba.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="campo4" data-zoom="1.95">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Campo 4 · <span class="n">≈ 7 800 m</span></span>
+        <h3>El último campo</h3>
+        <p>El Campo 4 del Lhotse no está en el Collado Sur sino en la misma cara, en repisas talladas en la nieve. De aquí se sale de noche hacia el corredor, con la cumbre a unos setecientos metros por encima.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="cumbre_lhotse" data-zoom="1.7" data-iris="cumbre">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Cumbre · <span class="n">8 516 m</span></span>
+        <h3>El corredor y la aguja</h3>
+        <p>Un canal estrecho de nieve y roca, el corredor Reiss, sube encajonado hasta la cresta. Arriba, la cumbre es una punta de roca donde caben pocas personas. Enfrente, a menos de tres kilómetros, el Everest.</p>
+      </div></div></div>
+    </article>
+    <article class="paso paso--izq paso--ruta" data-est="final" data-zoom="1">
+      <div class="pieza pieza--ruta"><div class="laja laja--columna"><div class="cara">
+        <span class="et">Seis a ocho semanas</span>
+        <h3>La línea completa</h3>
+        <p>Una expedición al Lhotse dura de seis a ocho semanas. La mayor parte se pasa subiendo y bajando entre campos para aclimatarse; el día de cumbre son entre diez y catorce horas desde el Campo 4.</p>
+      </div></div></div>
+    </article>
+  </section>
+
+  <!-- ===================== IV · GEOLOGÍA ===================== -->
+  <section class="capitulo" id="geologia" data-escena="campo2" data-kb="1.2,.55,.3,1.45,.55,.24" data-capitulo="IV · Geología">
+    <div class="paso paso--izq paso--corto">
+      <div class="pieza pieza--partida">
+        <div class="laja laja--partida"><div class="cara">
+          <span class="et">Capítulo IV</span>
+          <h2>Geología</h2>
+          <span class="sub">Un fondo marino a ocho mil metros</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--der">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Geología</span>
+          <h2>La Banda Amarilla</h2>
+          <p>Una franja de mármol y caliza cruza la cara del Lhotse y la del Everest. Se formó en el fondo del antiguo mar de Tetis y la colisión de la India con Asia la levantó hasta el techo del mundo. Los escaladores la atraviesan entre el Campo 3 y el Collado Sur.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--izq">
+      <div class="pila">
+        <div class="pieza pieza--fosil">
+          <div class="laja laja--fosil"><div class="cara">
+            <h3>Un mar en la cima</h3>
+            <p>La caliza de la cumbre del Everest, a tres kilómetros del Lhotse, guarda lirios de mar fósiles (crinoideos) de hace más de 400 millones de años.</p>
+          </div></div>
+        </div>
+      </div>
+    </div>
+    <div class="paso paso--der">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Corte del macizo, de arriba abajo</span>
+          <h2>Cuatro pisos de roca</h2>
+          <div class="estratos">
+            <div><i style="background:#DED2BA"></i><span><b>Caliza de Qomolangma</b> · la cumbre del Everest, con fósiles marinos</span></div>
+            <div><i style="background:#C99A3E"></i><span><b>Banda Amarilla</b> · mármol y caliza, hacia los 7 500 m en la cara del Lhotse</span></div>
+            <div><i style="background:#3A4458"></i><span><b>Formación North Col</b> · filitas y esquistos</span></div>
+            <div><i style="background:#A6A4A2"></i><span><b>Gneis y granito claro</b> · la base del Lhotse y del Nuptse</span></div>
+          </div>
+          <p>Entre los esquistos y el gneis corre el despegue del Lhotse, una falla casi horizontal por la que la cordillera se estiró mientras subía.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--corto">
+      <div class="fila">
+        <div class="pieza pieza--dato"><div class="laja laja--dato"><div class="cara">
+          <span class="num">≈ 450<small>Ma</small></span><p>edad de la caliza de la cumbre (Ordovícico)</p>
+        </div></div></div>
+        <div class="pieza pieza--dato" style="--retraso:.15s;--giro:.7deg"><div class="laja laja--dato"><div class="cara">
+          <span class="num">≈ 50<small>Ma</small></span><p>desde que la India empezó a chocar con Asia</p>
+        </div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== V · HISTORIA ===================== -->
+  <section class="capitulo" id="historia" data-escena="campo3" data-kb="1.02,.5,.5,1.16,.56,.58" data-capitulo="V · Historia">
+    <div class="paso paso--izq paso--corto">
+      <div class="pieza pieza--partida">
+        <div class="laja laja--partida"><div class="cara">
+          <span class="et">Capítulo V</span>
+          <h2>Ascensiones</h2>
+          <span class="sub">Setenta años de cordadas en el Lhotse</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso" style="padding-block:0">
+      <div class="crono" id="crono">
+        <div class="crono-linea" aria-hidden="true"><i></i></div>
+        <ol class="crono-lista">
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1921</span><h3>Un nombre en el mapa</h3>
+          <p>El reconocimiento británico del Everest da a la cumbre vecina el nombre de Lho-tse, «pico sur».</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1956</span><h3>Primera ascensión</h3>
+          <p>18 de mayo. Ernst Reiss y Fritz Luchsinger, de la expedición suiza de Albert Eggler, llegan a la cumbre por la cara oeste y el corredor.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1970</span><h3>Lhotse Shar</h3>
+          <p>12 de mayo. Los austriacos Sepp Mayerl y Rolf Walter suben la cumbre este, de <span class="n">8 383 m</span>.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1979</span><h3>El primer ochomil de Kukuczka</h3>
+          <p>4 de octubre. Jerzy Kukuczka hace cumbre. Ocho años después será el segundo alpinista en completar los catorce ochomiles.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1986</span><h3>El último de Messner</h3>
+          <p>16 de octubre. Reinhold Messner cierra en el Lhotse la colección de los catorce ochomiles: el primero en lograrlo.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1988</span><h3>La primera invernal</h3>
+          <p>31 de diciembre. Krzysztof Wielicki llega solo a la cumbre en pleno invierno, con un corsé ortopédico por una lesión de espalda.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1990</span><h3>La pared sur</h3>
+          <p>16 de octubre. Los soviéticos Serguéi Bershov y Vladímir Karatáev completan la primera ascensión indiscutida de la gran pared sur.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">1996</span><h3>Primera mujer</h3>
+          <p>Mayo. La francesa Chantal Mauduit se convierte en la primera mujer en pisar la cumbre, y lo hace sin oxígeno embotellado.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">2001</span><h3>Lhotse Medio</h3>
+          <p>23 de mayo. Una expedición rusa sube la cumbre central, de <span class="n">8 414 m</span>, la última gran cima de la cresta que quedaba virgen.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">2018</span><h3>Esquís desde la cumbre</h3>
+          <p>30 de septiembre. Hilaree Nelson y Jim Morrison bajan esquiando el corredor desde la cima.</p>
+        </div></div></li>
+        <li class="pieza"><div class="laja laja--columna"><div class="cara">
+          <span class="num">2019</span><h3>Dos cumbres, un día</h3>
+          <p>22 de mayo. Nirmal Purja encadena Everest y Lhotse en la misma jornada, dentro de su proyecto de los catorce ochomiles en siete meses.</p>
+        </div></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VI · ANÉCDOTAS ===================== -->
+  <section class="capitulo" id="anecdotas" data-escena="campo1" data-kb="1.02,.5,.42,1.18,.47,.3" data-capitulo="VI · Anécdotas">
+    <div class="paso paso--izq paso--corto">
+      <div class="pieza pieza--partida">
+        <div class="laja laja--partida"><div class="cara">
+          <span class="et">Capítulo VI</span>
+          <h2>Hazañas y anécdotas</h2>
+          <span class="sub">Historias que se cuentan de noche en los campos</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--der">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">La cara sur · 1975–1990</span>
+          <h2>La pared más empinada del mundo</h2>
+          <p>La cara sur sube <span class="n">3 200 m</span> en apenas 2,25 km de distancia horizontal. Riccardo Cassin y Reinhold Messner se retiraron de ella en 1975. En octubre de 1989, a unos <span class="n">8 200 m</span>, se rompió la cuerda que aseguraba a Jerzy Kukuczka y cayó por la pared. El Lhotse había sido su primer ochomil; fue también el último.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--izq">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Abril de 1990</span>
+          <h2>Una cumbre sin testigos</h2>
+          <p>El esloveno Tomo Česen dijo haber escalado la cara sur en solitario, en unas sesenta horas. No trajo fotos de cumbre que lo probaran, y muchos alpinistas, entre ellos varios de los soviéticos que la subieron ese otoño tras semanas de asedio, dudaron de su relato. Más de treinta años después sigue en entredicho.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--der">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Invierno de 1988</span>
+          <h2>Ochomil con corsé</h2>
+          <p>Krzysztof Wielicki se había lesionado la espalda y llevaba un corsé ortopédico. Subió igual, solo, y el 31 de diciembre firmó la primera ascensión invernal del Lhotse. Era uno de los «guerreros del hielo» polacos, la generación que inventó el himalayismo de invierno.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="paso paso--izq">
+      <div class="pieza pieza--ancha">
+        <div class="laja laja--ancha"><div class="cara">
+          <span class="et">Otoño de 2018</span>
+          <h2>La línea soñada</h2>
+          <p>Los esquiadores la llamaban <i>Dream Line</i>: el corredor que cae recto desde la cumbre hasta la cara. El 30 de septiembre de 2018, Hilaree Nelson y Jim Morrison la bajaron con esquís desde la cima, la primera vez que alguien lo conseguía. Nelson murió cuatro años después esquiando en el Manaslu.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VII · LÁMINAS ===================== -->
+  <section class="capitulo" id="laminas" data-escena="aerea" data-kb="1.0,.5,.5,1.06,.52,.46" data-dim=".58" data-rotulos="0" data-capitulo="VII · Láminas">
+    <div class="paso paso--izq paso--corto">
+      <div class="pieza pieza--partida">
+        <div class="laja laja--partida"><div class="cara">
+          <span class="et">Capítulo VII</span>
+          <h2>Láminas</h2>
+          <span class="sub">Siete vistas pintadas sobre el terreno real</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="galeria" id="galeria">
+      <div class="galeria-pin">
+        <div class="galeria-cab"><span class="et">Láminas del macizo</span><span class="cuenta"><span id="g-actual">I</span> <small>/ VII</small></span></div>
+        <div class="galeria-pista" id="g-pista"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pie-final">
+  <div class="pie-rejilla">
+    <div>
+      <h2>Lhotse</h2>
+      <div class="sub">La cumbre al sur · 8 516 m</div>
+      <a class="volver" href="#inicio">Descender al Campo Base ↑</a>
+    </div>
+    <div>
+      <p><b>Láminas.</b> Pintadas con pincel seco por un motor determinista a partir de un modelo del terreno real. La lámina VII, la de la ruta, se pintó para esta página con el mismo motor y la misma paleta. Las alturas que se muestran son las oficiales; las del modelo quedan unos 35 m por debajo.</p>
+      <p><b>Terreno.</b> Berthier, E. (2022). <i>Pléiades DEM of 23 March 2017, Khumbu region, Nepal</i>. Zenodo, <a href="https://doi.org/10.5281/zenodo.6979691" target="_blank" rel="noopener">doi:10.5281/zenodo.6979691</a>, licencia CC BY 4.0.</p>
+      <p><b>Ruta.</b> Datos © colaboradores de <a href="https://www.openstreetmap.org/relation/17822898" target="_blank" rel="noopener">OpenStreetMap</a> (relación 17822898), licencia ODbL 1.0. El ramal final hacia la cumbre del Lhotse es una aproximación.</p>
+      <p><b>Identidad.</b> «Banda Amarilla»: lajas de mármol, Zilla Slab y Hanken Grotesk (SIL Open Font License 1.1).</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+var raiz=document.documentElement;
+raiz.lang='es';
+raiz.classList.add('js');
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var FINO=matchMedia('(pointer: fine)').matches;
+function clamp(v,a,b){return v<a?a:v>b?b:v}
+function lerp(a,b,t){return a+(b-a)*t}
+function ss(a,b,t){t=clamp((t-a)/(b-a),0,1);return t*t*(3-2*t)}
+function eio(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+function fmt(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+
+/* ------------------------------------------------ datos */
+var RUTA={"subida":[4990,9717,5260,5008,9682,5262,4981,9649,5265,4999,9618,5265,5027,9598,5267,5039,9563,5271,5031,9526,5274,4997,9501,5274,4965,9465,5277,4960,9442,5273,4950,9416,5272,4952,9372,5273,4937,9320,5280,4927,9271,5281,4911,9244,5281,4886,9217,5274,4854,9195,5274,4823,9168,5280,4798,9118,5289,4772,9100,5291,4749,9057,5301,4752,9001,5317,4772,8952,5331,4801,8906,5342,4824,8839,5362,4847,8754,5395,4849,8743,5399,4847,8732,5405,4861,8656,5433,4891,8632,5443,4889,8553,5470,4858,8501,5479,4828,8426,5505,4798,8360,5525,4820,8331,5533,4830,8310,5539,4850,8272,5549,4852,8242,5559,4849,8196,5570,4845,8170,5578,4851,8151,5585,4854,8114,5598,4854,8089,5608,4853,8058,5621,4847,8025,5635,4828,8020,5638,4822,8010,5638,4795,8009,5636,4770,7982,5642,4744,7956,5649,4716,7916,5662,4692,7897,5670,4698,7879,5675,4710,7864,5678,4712,7840,5683,4746,7820,5688,4751,7786,5698,4734,7756,5701,4739,7731,5705,4734,7672,5723,4730,7600,5751,4751,7568,5763,4767,7509,5787,4754,7468,5801,4757,7441,5813,4767,7411,5825,4778,7392,5831,4803,7358,5849,4807,7348,5854,4842,7342,5858,4881,7334,5861,4853,7291,5881,4811,7290,5869,4776,7266,5874,4781,7224,5891,4828,7177,5912,4874,7134,5930,4886,7108,5939,4902,7091,5946,4920,7077,5948,4948,7052,5955,4958,7030,5960,4957,7009,5965,4938,6967,5976,4956,6948,5980,4947,6912,5991,4966,6879,6000,5009,6870,6003,5060,6872,6004,5098,6855,6009,5118,6839,6012,5150,6841,6011,5194,6835,6010,5225,6830,6015,5269,6839,6013,5303,6817,6014,5340,6815,6011,5380,6823,6012,5406,6811,6014,5438,6800,6014,5492,6802,6018,5530,6793,6020,5557,6786,6022,5593,6797,6021,5609,6771,6028,5638,6737,6038,5643,6698,6051,5653,6664,6063,5657,6627,6074,5653,6589,6086,5626,6578,6088,5601,6550,6097,5584,6524,6100,5572,6488,6114,5611,6490,6115,5595,6468,6121,5604,6433,6129,5602,6410,6133,5575,6401,6135,5536,6387,6140,5505,6369,6143,5499,6341,6149,5458,6318,6152,5442,6297,6155,5424,6276,6158,5389,6250,6165,5361,6220,6173,5342,6189,6180,5321,6165,6186,5318,6143,6191,5290,6116,6199,5274,6090,6206,5258,6060,6215,5241,6026,6224,5216,5998,6233,5190,5974,6240,5174,5950,6246,5160,5927,6252,5139,5906,6258,5120,5886,6263,5115,5867,6268,5100,5844,6274,5092,5824,6280,5076,5803,6286,5050,5775,6294,5034,5746,6301,5014,5724,6307,4995,5698,6313,4984,5682,6317,4979,5659,6322,4975,5641,6325,4964,5619,6332,4958,5600,6337,4939,5582,6344,4907,5571,6348,4885,5556,6352,4877,5528,6361,4874,5502,6370,4873,5475,6381,4876,5450,6391,4879,5421,6402,4878,5389,6416,4880,5364,6425,4876,5348,6431,4870,5328,6435,4829,5324,6439,4816,5304,6444,4805,5283,6449,4802,5265,6452,4798,5252,6454,4790,5238,6456,4809,5234,6458,4826,5232,6456,4831,5220,6456,4831,5206,6460,4824,5183,6467,4820,5165,6471,4825,5151,6475,4824,5132,6480,4827,5118,6484,4842,5089,6495,4853,5068,6507,4864,5046,6519,4858,5024,6531,4867,4998,6543,4893,4993,6543,4906,4982,6545,4919,4971,6549,4934,4949,6558,4949,4928,6568,4963,4896,6587,4989,4871,6603,5026,4853,6613,5031,4839,6620,5036,4818,6629,5031,4798,6637,5022,4783,6643,5015,4768,6650,5014,4748,6658,5010,4724,6668,5009,4699,6682,5013,4671,6698,5018,4642,6716,5017,4608,6738,5023,4561,6773,5019,4526,6799,5014,4475,6839,5006,4428,6874,5010,4402,6895,5020,4367,6923,5025,4333,6950,5032,4297,6978,5043,4268,7001,5058,4223,7033,5052,4184,7064,5037,4151,7089,5021,4092,7138,5025,4045,7176,5020,4005,7207,5008,3963,7240,4998,3930,7267,4997,3887,7301,4995,3833,7345,4991,3791,7379,4978,3743,7418,4969,3695,7458,4950,3654,7492,4933,3611,7528,4934,3546,7586,4934,3497,7627,4935,3451,7665,4936,3403,7706,4937,3354,7747,4938,3304,7791,4939,3255,7834,4940,3205,7877,4940,3149,7927,4941,3084,7988,4942,3023,8044,4943,2957,8106,4944,2893,8166,4945,2824,8232,4945,2755,8298,4946,2683,8367,4947,2650,8395,4948,2608,8434,4949,2559,8480],"everest":[4932,3636,7508,4867,3545,7589,4826,3480,7644,4768,3420,7698,4702,3376,7740,4646,3365,7763,4619,3345,7794,4564,3317,7823,4504,3304,7833,4441,3299,7840,4396,3281,7853,4340,3270,7860,4287,3261,7876,4220,3222,7923,4188,3211,7939,4151,3204,7953,4129,3193,7969,4094,3176,7995,4056,3144,8036,4008,3083,8108,3956,3005,8198,3892,2921,8289,3830,2851,8363,3789,2810,8406,3786,2791,8431,3787,2753,8482,3759,2672,8573,3722,2578,8676,3662,2566,8698,3592,2504,8762,3558,2490,8781,3515,2471,8802,3499,2464,8810],"hitos":{"campo_base":[5077,9775,5255],"cascada":[4754,7472,5801],"campo1":[5523,6425,6133],"campo2":[4805,5274,6460],"campo3":[5023,4069,7159],"banda":[4932,3642,7504],"campo4":[4938,3292,7804],"cumbre_lhotse":[4949,2562,8480],"everest":[3496,2469,8809],"collado_sur":[4352,3288,7853],"nuptse":[6490,4044,7736],"pumori":[5422,9893,7025]}};
+var GRANDE=Math.max(innerWidth,innerHeight)>=1100&&innerWidth>=900;
+var ESC={
+  aerea:{w:2560,h:1440,polvo:.45}, cumbre:{w:2560,h:1440,polvo:.9}, campo_base:{w:2560,h:1440,polvo:.2},
+  campo1:{w:2560,h:1440,polvo:0}, campo2:{w:2560,h:1440,polvo:.3}, campo3:{w:2560,h:1440,polvo:.5}, ruta:{w:2400,h:1600,polvo:0}
+};
+function src(k){var e=ESC[k];var w=e.w===2400?(GRANDE?2400:1800):(GRANDE?2560:1920);return 'img/'+k+'-'+w+'.webp'}
+var ORDEN_CARGA=['aerea','cumbre','campo_base','ruta','campo1','campo2','campo3'];
+
+/* rótulos: coordenadas proyectadas con la cámara de cada lámina (0-1) */
+var ROT={
+  aerea:[
+    {x:.3219,y:.3259,n:'Everest',s:'8 849 m',dx:-46,dy:-64},
+    {x:.5254,y:.369,n:'Lhotse',s:'8 516 m',dx:58,dy:-78},
+    {x:.4428,y:.4679,n:'Collado Sur',s:'7 906 m',dx:-58,dy:58},
+    {x:.7476,y:.5594,n:'Nuptse',s:'7 861 m',dx:44,dy:-58}
+  ],
+  cumbre:[
+    {x:.4059,y:.0857,n:'Everest',s:'8 849 m · a 2,8 km',dx:60,dy:46},
+    {x:.4335,y:.6853,n:'Collado Sur',s:'7 906 m',dx:70,dy:-40}
+  ],
+  campo2:[
+    {x:.5358,y:.0675,n:'Lhotse',s:'8 516 m',dx:56,dy:34},
+    {x:.5462,y:.2442,n:'Banda Amarilla',s:'mármol y caliza',dx:-64,dy:44},
+    {x:.6084,y:.3322,n:'Campo 3',s:'7 150 m',dx:60,dy:30}
+  ],
+  campo3:[
+    {x:.5794,y:.2324,n:'Pumori',s:'7 161 m',dx:52,dy:-36},
+    {x:.6651,y:.5778,n:'Campo 2',s:'6 450 m · 700 m más abajo',dx:46,dy:-48}
+  ],
+  campo1:[
+    {x:.49,y:.2622,n:'Campo 3',s:'7 150 m · linternas',dx:56,dy:36}
+  ]
+};
+
+/* ------------------------------------------------ medidas */
+var vw=innerWidth,vh=innerHeight,cw=1,ch=1,dpr=1;
+var limites=[].slice.call(document.querySelectorAll('[data-escena]')).map(function(el,i){
+  return {el:el,k:el.dataset.escena,kb:(el.dataset.kb||'1,.5,.5,1.08,.5,.5').split(',').map(Number),dim:+(el.dataset.dim||0),
+    rot:el.dataset.rotulos!=='0'&&!!ROT[el.dataset.escena],ruta:el.dataset.modo==='ruta',i:i,top:0,len:1};
+});
+var pasosRuta=[].slice.call(document.querySelectorAll('.paso--ruta')).map(function(el){
+  return {el:el,est:el.dataset.est,zoom:+el.dataset.zoom||1,iris:el.dataset.iris||null,top:0,h:1,f:0};
+});
+var capitulos=[].slice.call(document.querySelectorAll('.capitulo'));
+var enlaces=[].slice.call(document.querySelectorAll('.barra nav a'));
+var docH=1;
+function absTop(el){return el.getBoundingClientRect().top+scrollY}
+
+/* ------------------------------------------------ cobertura (object-fit: cover con zoom y foco) */
+function cover(iw,ih,zoom,fx,fy){
+  var ia=iw/ih,va=cw/ch,fw,fh;
+  if(va>=ia){fw=1;fh=ia/va}else{fh=1;fw=va/ia}
+  fw/=zoom;fh/=zoom;
+  var cx=clamp(fx,fw/2,1-fw/2),cy=clamp(fy,fh/2,1-fh/2);
+  return {ox:cx-fw/2,oy:cy-fh/2,fw:fw,fh:fh};
+}
+function aPantalla(t,u,v){return [(u-t.ox)/t.fw*cw,(v-t.oy)/t.fh*ch]}
+
+/* ------------------------------------------------ ruta: polilínea en px de la lámina */
+var RW=2400,RH=1600;
+var P=[],Z=[],L=[0];
+(function(){var s=RUTA.subida;for(var i=0;i<s.length;i+=3){P.push([s[i]/1e4*RW,s[i+1]/1e4*RH]);Z.push(s[i+2])}
+  for(var j=1;j<P.length;j++){L.push(L[j-1]+Math.hypot(P[j][0]-P[j-1][0],P[j][1]-P[j-1][1]))}})();
+var LT=L[L.length-1];
+function cerca(h){var x=h[0]/1e4*RW,y=h[1]/1e4*RH,b=0,bd=1e18;for(var i=0;i<P.length;i++){var d=(P[i][0]-x)*(P[i][0]-x)+(P[i][1]-y)*(P[i][1]-y);if(d<bd){bd=d;b=i}}return L[b]/LT}
+var EST={
+  inicio:{f:0},
+  campo_base:{f:0,n:'Campo Base',alt:5364},
+  cascada:{f:cerca(RUTA.hitos.cascada),n:'Cascada del Khumbu',alt:null},
+  campo1:{f:cerca(RUTA.hitos.campo1),n:'Campo 1',alt:6050},
+  campo2:{f:cerca(RUTA.hitos.campo2),n:'Campo 2',alt:6450},
+  campo3:{f:cerca(RUTA.hitos.campo3),n:'Campo 3',alt:7150},
+  banda:{f:cerca(RUTA.hitos.banda),n:'Banda Amarilla',alt:7500},
+  campo4:{f:cerca(RUTA.hitos.campo4),n:'Campo 4',alt:7800},
+  cumbre_lhotse:{f:1,n:'Cumbre',alt:8516},
+  final:{f:1}
+};
+EST.cwm={f:lerp(EST.campo1.f,EST.campo2.f,.55)};
+var ANCLAS=['campo_base','campo1','campo2','campo3','banda','campo4','cumbre_lhotse'].map(function(k){return {k:k,f:EST[k].f,alt:EST[k].alt}});
+function idxDe(f){var d=f*LT,lo=0,hi=L.length-1;while(hi-lo>1){var m=(lo+hi)>>1;if(L[m]<=d)lo=m;else hi=m}return lo}
+function punto(f){f=clamp(f,0,1);var i=idxDe(f),j=Math.min(i+1,P.length-1),seg=L[j]-L[i]||1,t=(f*LT-L[i])/seg;
+  return [lerp(P[i][0],P[j][0],t),lerp(P[i][1],P[j][1],t),lerp(Z[i],Z[j],clamp(t,0,1))]}
+function altitud(f){
+  for(var a=0;a<ANCLAS.length-1;a++){var A=ANCLAS[a],B=ANCLAS[a+1];
+    if(f<=B.f||a===ANCLAS.length-2){var za=punto(A.f)[2],zb=punto(B.f)[2],z=punto(f)[2];
+      var t=zb!==za?clamp((z-za)/(zb-za),0,1):clamp((f-A.f)/((B.f-A.f)||1),0,1);return lerp(A.alt,B.alt,t)}}
+  return 8516}
+function lugarDe(f){var n='Campo Base';for(var k in EST){var e=EST[k];if(e.n&&f>=e.f-.004)n=e.n}return n}
+pasosRuta.forEach(function(p){p.f=(EST[p.est]||{f:0}).f});
+
+/* SVG de la ruta */
+var svg=document.getElementById('ruta-svg');
+function dDe(pts){return pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join('')}
+var dSub=dDe(P);
+['r-sombra','r-plan','r-hecha'].forEach(function(id){document.getElementById(id).setAttribute('d',dSub)});
+var PE=[];(function(){var s=RUTA.everest;for(var i=0;i<s.length;i+=3)PE.push([s[i]/1e4*RW,s[i+1]/1e4*RH])})();
+document.getElementById('r-everest').setAttribute('d',dDe(PE));
+var rHecha=document.getElementById('r-hecha'),rPlan=document.getElementById('r-plan'),rSombra=document.getElementById('r-sombra'),rEv=document.getElementById('r-everest');
+var LP=rHecha.getTotalLength?rHecha.getTotalLength():LT;
+rHecha.style.strokeDasharray=LP+' '+LP;
+var gHitos=document.getElementById('r-hitos'),rRot=document.getElementById('r-rotulos'),cabeza=document.getElementById('r-cabeza');
+var NS='http://www.w3.org/2000/svg';
+var hitosRuta=['campo_base','campo1','campo2','campo3','banda','campo4','cumbre_lhotse'].map(function(k){
+  var e=EST[k],p=punto(e.f),g=document.createElementNS(NS,'g');g.setAttribute('class','r-hito');
+  var aro=document.createElementNS(NS,'circle');aro.setAttribute('class','aro');
+  var nu=document.createElementNS(NS,'circle');nu.setAttribute('class','nucleo');
+  g.appendChild(aro);g.appendChild(nu);gHitos.appendChild(g);
+  var r=document.createElement('div');r.className='r-rot'+(k==='campo1'||k==='banda'?'':' izq');
+  r.innerHTML='<div class="tx"><b>'+e.n+'</b><span>'+(e.alt?(k==='campo4'||k==='banda'?'≈ ':'')+fmt(e.alt)+' m':'')+'</span></div>';
+  rRot.appendChild(r);
+  return {k:k,f:e.f,x:p[0],y:p[1],g:g,aro:aro,nu:nu,rot:r};
+});
+var ramal=document.createElement('div');ramal.className='r-ramal';
+ramal.innerHTML='<div class="tx"><b>Hacia el Everest</b><span>Espolón · Collado Sur</span></div>';rRot.appendChild(ramal);
+var PEm=PE[Math.floor(PE.length*.55)];
+
+/* altímetro */
+var altEl=document.getElementById('altimetro'),altNum=document.getElementById('alt-num'),altLugar=document.getElementById('alt-lugar');
+var altCursor=altEl.querySelector('.alt-cursor'),altRelleno=altEl.querySelector('.alt-relleno');
+var A0=5200,A1=8600;
+(function(){var m=altEl.querySelector('.alt-marcas');[['C. Base',5364],['C1',6050],['C2',6450],['C3',7150],['C4',7800],['Cumbre',8516]].forEach(function(a){
+  var d=document.createElement('div');d.className='alt-marca';d.style.bottom=((a[1]-A0)/(A1-A0)*100)+'%';d.innerHTML='<span>'+a[0]+' · '+fmt(a[1])+'</span>';m.appendChild(d)})})();
+
+/* rótulos de cada lámina: lado de la etiqueta (se voltea si no cabe) */
+function orientar(o,lado){
+  if(o.lado===lado)return;o.lado=lado;var r=o.d,dx=r.dx*lado,dy=r.dy;
+  var len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI;
+  o.ln.style.width=len+'px';o.ln.style.transform='rotate('+ang+'deg)';
+  o.tx.style.left=dx+'px';o.tx.style.top=dy+'px';
+  o.tx.style.transform='translate('+(dx<0?'-100%':'0')+','+(dy<0?'-100%':'0')+')';
+  o.tx.style.borderLeft=dx<0?'0':'2px solid var(--ocre)';o.tx.style.borderRight=dx<0?'2px solid var(--ocre)':'0';o.tx.style.textAlign=dx<0?'right':'left';
+}
+/* lajas visibles: los rótulos que quedan debajo se apagan */
+var lajasVis=new Set();
+if('IntersectionObserver' in window){var ioL=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)lajasVis.add(e.target);else lajasVis.delete(e.target)})});
+  [].forEach.call(document.querySelectorAll('main .laja'),function(l){ioL.observe(l)})}
+var rectsLajas=[];
+function tomarRects(){rectsLajas=[];lajasVis.forEach(function(l){var r=l.getBoundingClientRect();rectsLajas.push([r.left+r.width*.03,r.top+r.height*.04,r.right-r.width*.03,r.bottom-r.height*.08])})}
+function tapa(x0,y0,x1,y1){for(var i=0;i<rectsLajas.length;i++){var r=rectsLajas[i];if(x0<r[2]&&x1>r[0]&&y0<r[3]&&y1>r[1])return true}return false}
+var capaRot=document.getElementById('rotulos');
+limites.forEach(function(b){
+  if(!b.rot)return;
+  var g=document.createElement('div');g.className='grupo';
+  b.rotulos=ROT[b.k].map(function(r){
+    var el=document.createElement('div');el.className='rotulo';
+    el.innerHTML='<span class="ln"></span><span class="pt"></span><span class="tx"><b>'+r.n+'</b><span>'+r.s+'</span></span>';
+    g.appendChild(el);var o={d:r,el:el,tx:el.querySelector('.tx'),ln:el.querySelector('.ln'),lado:0,w:0,h:0};orientar(o,1);return o;
+  });
+  capaRot.appendChild(g);b.grupo=g;
+});
+
+/* ------------------------------------------------ WebGL */
+var canvas=document.getElementById('escenario');
+var gl=null;
+try{gl=canvas.getContext('webgl',{antialias:false,alpha:false,depth:false,stencil:false,premultipliedAlpha:false,powerPreference:'high-performance'})}catch(e){gl=null}
+var VS='attribute vec2 aPos;varying vec2 vUv;void main(){vUv=vec2(aPos.x*.5+.5,.5-aPos.y*.5);gl_Position=vec4(aPos,0.,1.);}';
+var FS=[
+'#ifdef GL_FRAGMENT_PRECISION_HIGH','precision highp float;','#else','precision mediump float;','#endif',
+'varying vec2 vUv;uniform sampler2D uA,uB;uniform vec4 uTA,uTB;',
+'uniform float uP,uModo,uAsp,uSem,uT,uR,uDimA,uDimB;uniform vec2 uC;uniform vec3 uOcre,uOcreC,uNoche;',
+'float hash(vec2 p){vec3 p3=fract(vec3(p.xyx)*.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}',
+'float ruido(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);}',
+'float fbm(vec2 p){float v=0.,a=.5;for(int k=0;k<5;k++){v+=a*ruido(p);p=p*2.03+vec2(13.1,7.7);a*=.5;}return v/.96875;}',
+'vec3 texA(vec2 uv){return mix(texture2D(uA,uTA.xy+uv*uTA.zw).rgb,uNoche,uDimA);}',
+'vec3 texB(vec2 uv){return mix(texture2D(uB,uTB.xy+uv*uTB.zw).rgb,uNoche,uDimB);}',
+'void main(){',
+' vec2 uv=vUv;vec2 q=vec2(uv.x*uAsp,uv.y);vec3 col;',
+' if(uModo<.5){',
+'  float dip=.16;float c=cos(dip),s=sin(dip);vec2 r=vec2(c*q.x-s*q.y,s*q.x+c*q.y);',
+'  float n=fbm(vec2(r.x*1.25,r.y*6.)+uSem*3.17);',
+'  float fib=ruido(vec2(r.x*2.5,r.y*130.)+uSem*11.);',
+'  float g=(1.-uv.y)+(uv.x-.5)*.18;',
+'  float campo=g+(n-.5)*.38+(fib-.5)*.025;',
+'  float P=mix(-.36,1.36,uP);float d=campo-P;',
+'  float m=1.-smoothstep(-.0025,.0025,d);',
+'  float w=.032;',
+'  float banda=smoothstep(0.,.004,d)*(1.-smoothstep(w*.5,w,d));',
+'  float seco=smoothstep(.28,.72,ruido(vec2(r.x*3.,r.y*72.)+uSem*5.));',
+'  float hilo=smoothstep(w*.52,w*.64,d)*(1.-smoothstep(w*.64,w*.86,d));',
+'  float somb=(1.-smoothstep(0.,.07,-d))*m;',
+'  float empuje=exp(-d*d/.003);',
+'  vec3 a=texA(uv+vec2(0.,.012*empuje));vec3 b=texB(uv);',
+'  col=mix(a,b*(1.-.3*somb),m);',
+'  vec3 oc=mix(uOcre*.82,uOcreC,smoothstep(.3,.8,n));',
+'  col=mix(col,oc,banda*(.38+.62*seco)*.92);',
+'  col=mix(col,vec3(.95,.92,.86),hilo*.55*seco);',
+' }else{',
+'  vec2 dd=vec2((uv.x-uC.x)*uAsp,uv.y-uC.y);float r=length(dd);float an=atan(dd.y,dd.x);',
+'  float n=fbm(vec2(an*1.4+uSem,r*2.5+uT*.05));',
+'  float R=uR*(1.+(n-.5)*.24);float d=r-R;',
+'  float m=1.-smoothstep(-.002,.002,d);',
+'  float seco=smoothstep(.25,.7,ruido(vec2(an*42.,r*9.)));',
+'  float aro=smoothstep(0.,.003,d)*(1.-smoothstep(.011,.022,d))*step(.001,uR);',
+'  vec3 a=texA(uv)*(1.-.32*smoothstep(0.,.22,uR));vec3 b=texB(uv);',
+'  col=mix(a,b,m);col=mix(col,mix(uOcre*.85,uOcreC,n),aro*(.4+.6*seco));',
+' }',
+' float vig=smoothstep(1.22,.3,length((uv-.5)*vec2(1.,1.18)));',
+' col*=mix(.72,1.,vig);',
+' gl_FragColor=vec4(col,1.);',
+'}'].join('\n');
+var prog,U={},texturas={},texNoche=null,buf;
+function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o}
+function iniciarGL(){
+  prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error('link');
+  gl.useProgram(prog);
+  buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  var loc=gl.getAttribLocation(prog,'aPos');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  ['uA','uB','uTA','uTB','uP','uModo','uAsp','uSem','uT','uR','uDimA','uDimB','uC','uOcre','uOcreC','uNoche'].forEach(function(n){U[n]=gl.getUniformLocation(prog,n)});
+  gl.uniform1i(U.uA,0);gl.uniform1i(U.uB,1);
+  gl.uniform3f(U.uOcre,201/255,154/255,62/255);gl.uniform3f(U.uOcreC,222/255,196/255,140/255);gl.uniform3f(U.uNoche,27/255,29/255,37/255);
+  texNoche=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texNoche);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([27,29,37,255]));
+  ajustarTex();
+}
+function ajustarTex(){gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE)}
+if(gl){try{iniciarGL()}catch(e){gl=null}}
+if(!gl)raiz.classList.add('sin-gl');
+canvas.addEventListener('webglcontextlost',function(e){e.preventDefault();gl=null;raiz.classList.add('sin-gl');armarAlt();pedir()});
+
+/* carga de láminas */
+var imgs={},altImgs={};
+function cargar(k){
+  if(imgs[k])return imgs[k];
+  imgs[k]=new Promise(function(res){
+    var im=new Image();im.decoding='async';im.src=src(k);
+    var listo=function(){
+      if(gl){var t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+        try{gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);ajustarTex();texturas[k]=t}catch(e){}}
+      res(im);pedir();
+    };
+    (im.decode?im.decode():Promise.reject()).then(listo,function(){if(im.complete&&im.naturalWidth)listo();else{im.onload=listo;im.onerror=function(){res(null)}}});
+  });
+  return imgs[k];
+}
+function armarAlt(){var c=document.getElementById('alt');if(c.childNodes.length)return;Object.keys(ESC).forEach(function(k){var im=document.createElement('img');im.alt='';im.src=src(k);c.appendChild(im);altImgs[k]=im})}
+if(!gl)armarAlt();
+
+/* ------------------------------------------------ tamaño */
+function medir(){
+  vw=innerWidth;vh=innerHeight;
+  dpr=Math.min(devicePixelRatio||1,GRANDE?1.6:2);
+  cw=canvas.clientWidth||vw;ch=canvas.clientHeight||vh;
+  if(gl){var W=Math.round(cw*dpr),H=Math.round(ch*dpr);if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;gl.viewport(0,0,W,H)}}
+  medirGaleria();
+  docH=document.documentElement.scrollHeight;
+  limites.forEach(function(b){b.top=absTop(b.el)});
+  limites.forEach(function(b,i){b.len=(i+1<limites.length?limites[i+1].top:docH)-b.top});
+  pasosRuta.forEach(function(p){p.top=absTop(p.el);p.h=p.el.offsetHeight});
+  capitulos.forEach(function(c){c._top=absTop(c);c._h=c.offsetHeight});
+  gTop=absTop(galeria);
+  ventiscaTam();
+}
+
+/* ------------------------------------------------ estado de la ruta (scroll -> cámara) */
+var cam={f:0,zoom:1,fx:.5,fy:.8,iris:0,irisK:null,ok:false};
+function objetivoRuta(){
+  var c=scrollY+vh*.5,f=0,zoom=1,iris=0,irisK=null,pf=0,pz=1;
+  for(var i=0;i<pasosRuta.length;i++){var p=pasosRuta[i],t=(c-p.top)/p.h;
+    if(t<0)break;
+    var e=ss(0,.42,t);f=lerp(pf,p.f,e);zoom=lerp(pz,p.zoom,e);
+    if(p.iris&&t<1){var o=ss(.4,.56,t)*(1-ss(.8,.94,t));if(o>iris){iris=o;irisK=p.iris}}
+    pf=p.f;pz=p.zoom;}
+  return {f:f,zoom:zoom,iris:iris,irisK:irisK};
+}
+function focoRuta(f,zoom){
+  var p=punto(f),u=p[0]/RW,v=p[1]/RH;
+  var base=cover(RW,RH,zoom,.5,.5);
+  var sx=vw>=860?.6:.5,sy=vw>=860?.5:.34;
+  var k=ss(1,1.35,zoom);
+  return [lerp(.5,u+(.5-sx)*base.fw,k),lerp(.82,v+(.5-sy)*base.fh,k)];
+}
+
+/* ------------------------------------------------ bucle */
+var pendiente=0,introT=RM?1:0,introInicio=0,intro=false,ultimoP=-1,mostrarRot=false;
+function pedir(){if(!pendiente)pendiente=requestAnimationFrame(cuadro)}
+function kbDe(b,y){var t=clamp((y+vh-b.top)/(b.len+vh),0,1);if(RM)t=.35;t=eio(t);var k=b.kb;return {z:lerp(k[0],k[3],t),fx:lerp(k[1],k[4],t),fy:lerp(k[2],k[5],t)}}
+function trDe(b,y){
+  if(b.ruta)return cover(RW,RH,cam.zoom,cam.fx,cam.fy);
+  var e=ESC[b.k],k=kbDe(b,y);return cover(e.w,e.h,k.z,k.fx,k.fy);
+}
+function cuadro(ts){
+  pendiente=0;var seguir=false;
+  var y=scrollY;
+  /* escena actual y transición */
+  var i=0;for(var j=0;j<limites.length;j++){if(y+vh-limites[j].top>1)i=j;else break}
+  var B=limites[i],A=i>0?limites[i-1]:B,p=i===0?1:clamp((y+vh-B.top)/vh,0,1);
+  if(p>=1)A=B;
+  var hayRuta=A.ruta||B.ruta;
+  /* ruta */
+  if(hayRuta){
+    var o=objetivoRuta();
+    var fo=focoRuta(o.f,o.zoom);
+    var kk=cam.ok&&!RM?.14:1;
+    cam.f=lerp(cam.f,o.f,kk);cam.zoom=lerp(cam.zoom,o.zoom,kk);cam.fx=lerp(cam.fx,fo[0],kk);cam.fy=lerp(cam.fy,fo[1],kk);
+    cam.iris=lerp(cam.iris,o.iris,cam.ok&&!RM?.2:1);if(o.irisK)cam.irisK=o.irisK;
+    if(cam.iris<.002&&!o.irisK)cam.irisK=null;
+    cam.ok=true;
+    if(Math.abs(cam.f-o.f)>1e-4||Math.abs(cam.zoom-o.zoom)>1e-4||Math.abs(cam.fx-fo[0])>1e-4||Math.abs(cam.fy-fo[1])>1e-4||Math.abs(cam.iris-o.iris)>1e-3)seguir=true;
+  }
+  var irisAct=(B.ruta&&p>=1)?cam.iris:0;
+  /* intro */
+  var pDib=p,modo=0,tA=trDe(A,y),tB=trDe(B,y);
+  var texA_k=A.k,texB_k=B.k,dimA=A.dim,dimB=B.dim;
+  if(introT<1&&i===0){
+    if(intro){introT=clamp((ts-introInicio)/1900,0,1);seguir=true}
+    texA_k='__noche';texB_k=B.k;pDib=eio(introT);A=B;
+  }
+  var irisR=0,irisC=[.5,.5],tI=null;
+  if(irisAct>.001&&cam.irisK){
+    modo=1;var e2=ESC[cam.irisK];
+    tI=cover(e2.w,e2.h,lerp(1.28,1,eio(irisAct)),.5,.5);
+    var hp=punto(cam.f),sp=aPantalla(tA,hp[0]/RW,hp[1]/RH);irisC=[sp[0]/cw,sp[1]/ch];
+    var asp=cw/ch,dmax=0;[[0,0],[1,0],[0,1],[1,1]].forEach(function(c){dmax=Math.max(dmax,Math.hypot((c[0]-irisC[0])*asp,c[1]-irisC[1]))});
+    irisR=eio(irisAct)*dmax*1.12;
+  }
+  /* dibujo */
+  if(gl){
+    gl.uniform1f(U.uAsp,cw/ch);gl.uniform1f(U.uT,ts/1000);
+    gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texA_k==='__noche'?texNoche:(texturas[texA_k]||texNoche));
+    gl.uniform4f(U.uTA,tA.ox,tA.oy,tA.fw,tA.fh);gl.uniform1f(U.uDimA,texA_k==='__noche'?0:dimA);
+    if(modo===1){
+      gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,texturas[cam.irisK]||texNoche);
+      gl.uniform4f(U.uTB,tI.ox,tI.oy,tI.fw,tI.fh);gl.uniform1f(U.uDimB,0);
+      gl.uniform1f(U.uModo,1);gl.uniform1f(U.uR,irisR);gl.uniform2f(U.uC,irisC[0],irisC[1]);gl.uniform1f(U.uSem,3.3);gl.uniform1f(U.uP,0);
+      if(!RM)seguir=true;
+    }else{
+      gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,texturas[texB_k]||texNoche);
+      gl.uniform4f(U.uTB,tB.ox,tB.oy,tB.fw,tB.fh);gl.uniform1f(U.uDimB,dimB);
+      gl.uniform1f(U.uModo,0);gl.uniform1f(U.uP,(texA_k===texB_k&&tA===tB)?0:pDib);gl.uniform1f(U.uSem,(B.i||0)*1.731+.4);gl.uniform1f(U.uR,0);
+    }
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  }else{
+    Object.keys(altImgs).forEach(function(k){var w=0;
+      if(k===A.k)w=Math.max(w,p<1?1:1);if(k===B.k)w=Math.max(w,p>=1?1:(A.k===B.k?1:pDib));
+      if(irisAct>.001&&k===cam.irisK)w=Math.max(w,irisAct);
+      if(k!==A.k&&k!==B.k&&!(irisAct>.001&&k===cam.irisK))w=0;
+      altImgs[k].style.opacity=w;altImgs[k].style.zIndex=(k===B.k?2:1)+(k===cam.irisK&&irisAct>.001?3:0)});
+  }
+  /* rótulos */
+  tomarRects();
+  var listoRot=introT>=1;
+  limites.forEach(function(b){
+    if(!b.grupo)return;
+    var w=0;
+    if(b===B)w=(A===B)?1:ss(.55,.95,p);
+    else if(b===A&&p<1)w=1-ss(.05,.4,p);
+    w*=listoRot?1:0;
+    if(w<.01){if(b._w!==0){b.grupo.style.opacity=0;b._w=0}return}
+    b._w=w;b.grupo.style.opacity=w.toFixed(3);
+    var t=b===B?tB:tA;
+    b.rotulos.forEach(function(r){var s=aPantalla(t,r.d.x,r.d.y);var fuera=s[0]<12||s[0]>cw-12||s[1]<60||s[1]>ch-12;
+      if(!r.w){r.w=r.tx.offsetWidth;r.h=r.tx.offsetHeight}
+      var lado=r.d.dx>0?(s[0]+r.d.dx+r.w>cw-8?-1:1):(s[0]+r.d.dx-r.w<8?-1:1);orientar(r,lado);
+      var dx=r.d.dx*lado,bx0=dx<0?s[0]+dx-r.w:s[0]+dx,by0=r.d.dy<0?s[1]+r.d.dy-r.h:s[1]+r.d.dy;
+      var tapado=tapa(Math.min(s[0],bx0)-4,Math.min(s[1],by0)-4,Math.max(s[0],bx0+r.w)+4,Math.max(s[1],by0+r.h)+4);
+      r.el.classList.toggle('tapado',tapado);
+      r.el.style.transform='translate3d('+s[0].toFixed(1)+'px,'+s[1].toFixed(1)+'px,0)';r.el.style.visibility=fuera?'hidden':'visible'});
+  });
+  /* capa de la ruta */
+  var wR=0;if(B.ruta)wR=p>=1?1:ss(.55,1,p);else if(A.ruta&&p<1)wR=1-ss(0,.45,p);
+  var capa=document.getElementById('capa-ruta');
+  var opCapa=wR*(1-ss(.05,.5,irisAct));
+  capa.style.opacity=opCapa.toFixed(3);
+  altEl.style.opacity=wR.toFixed(3);
+  if(wR>.001){
+    var tR=cover(RW,RH,cam.zoom,cam.fx,cam.fy);
+    svg.setAttribute('viewBox',(tR.ox*RW).toFixed(2)+' '+(tR.oy*RH).toFixed(2)+' '+(tR.fw*RW).toFixed(2)+' '+(tR.fh*RH).toFixed(2));
+    var s=tR.fw*RW/cw;
+    rSombra.style.strokeWidth=(7*s).toFixed(3);rPlan.style.strokeWidth=(1.4*s).toFixed(3);rPlan.style.strokeDasharray=(2*s)+' '+(5*s);
+    rHecha.style.strokeWidth=(3.4*s).toFixed(3);rHecha.style.strokeDashoffset=(LP*(1-cam.f)).toFixed(2);
+    var ve=ss(EST.banda.f-.004,EST.banda.f+.02,cam.f);rEv.style.opacity=(ve*.9).toFixed(3);rEv.style.strokeWidth=(2*s).toFixed(3);rEv.style.strokeDasharray=(5*s)+' '+(5*s);
+    var cp=punto(cam.f);
+    cabeza.setAttribute('transform','translate('+cp[0].toFixed(1)+' '+cp[1].toFixed(1)+') scale('+s.toFixed(3)+')');
+    hitosRuta.forEach(function(h){
+      var al=cam.f>=h.f-.003;
+      h.g.setAttribute('class','r-hito'+(al?' alcanzado':''));
+      h.aro.setAttribute('cx',h.x);h.aro.setAttribute('cy',h.y);h.aro.setAttribute('r',(al?9:6)*s);h.aro.style.strokeWidth=(1.2*s);h.aro.style.opacity=al?.9:.5;
+      h.nu.setAttribute('cx',h.x);h.nu.setAttribute('cy',h.y);h.nu.setAttribute('r',4.2*s);h.nu.style.strokeWidth=(1.2*s);
+      var sp=aPantalla(tR,h.x/RW,h.y/RH);
+      h.rot.style.transform='translate3d('+sp[0].toFixed(1)+'px,'+sp[1].toFixed(1)+'px,0)';
+      h.rot.style.opacity=al?1:0;
+      var izq=h.rot.classList.contains('izq');h.rot.classList.toggle('tapado',al&&tapa(izq?sp[0]-150:sp[0],sp[1]-16,izq?sp[0]:sp[0]+150,sp[1]+16));
+    });
+    var em=aPantalla(tR,PEm[0]/RW,PEm[1]/RH);ramal.style.transform='translate3d('+em[0].toFixed(1)+'px,'+em[1].toFixed(1)+'px,0)';ramal.style.opacity=ve;ramal.classList.toggle('tapado',tapa(em[0]-170,em[1]-34,em[0],em[1]));
+    var alt=altitud(cam.f);altNum.textContent=fmt(alt);altLugar.textContent=lugarDe(cam.f);
+    var fr=clamp((alt-A0)/(A1-A0),0,1);altCursor.style.bottom=(fr*100)+'%';altRelleno.style.transform='scaleY('+fr.toFixed(4)+')';
+  }
+  /* ventisca */
+  var pol=A===B?ESC[B.k].polvo:lerp(ESC[A.k].polvo,ESC[B.k].polvo,pDib);
+  intensidad=pol*(1-irisAct)*(introT>=1?1:introT);
+  if(intensidad>.02)arrancarVentisca();
+  /* barra, cronología, galería */
+  interfaz(y);
+  if(seguir)pedir();
+}
+
+/* ------------------------------------------------ interfaz ligada al scroll */
+var progreso=document.getElementById('progreso'),barraAct=document.getElementById('barra-actual'),barra=document.getElementById('barra');
+var crono=document.getElementById('crono'),cronoLinea=crono.querySelector('.crono-linea');
+var ultimoY=0,capActual=null;
+function interfaz(y){
+  progreso.style.transform='scaleX('+clamp(y/Math.max(1,docH-vh),0,1).toFixed(4)+')';
+  var c=y+vh*.45,act=null;capitulos.forEach(function(s){if(c>=s._top&&c<s._top+s._h)act=s});
+  if(act!==capActual){capActual=act;var id=act?act.id:'';
+    enlaces.forEach(function(a){a.classList.toggle('activo',a.getAttribute('href')==='#'+id)});
+    barraAct.textContent=act?act.dataset.capitulo:'Lhotse'}
+  if(y>ultimoY+6&&y>vh*.6)barra.classList.add('oculta');else if(y<ultimoY-6)barra.classList.remove('oculta');
+  ultimoY=y;
+  var r=crono.getBoundingClientRect();cronoLinea.style.setProperty('--avance',clamp((vh*.6-r.top)/r.height,0,1).toFixed(4));
+  galeriaScroll(y);
+}
+addEventListener('scroll',pedir,{passive:true});
+var tRes=0;addEventListener('resize',function(){clearTimeout(tRes);tRes=setTimeout(function(){medir();ajustarLajas();pedir()},120)});
+
+/* ------------------------------------------------ galería de láminas (scroll horizontal fijado) */
+var LAMINAS=[
+  {k:'campo_base',r:'I',t:'Campo Base',a:'5 364 m',s:'La cascada del Khumbu entre el Nuptse y el hombro oeste del Everest',c:'28,0026° N · 86,8549° E · rumbo 113° · campo 70° · sol 238°/36°',alt:'Carpas amarillas y naranjas sobre la morrena del Khumbu, banderas de oración y la cascada de hielo al fondo'},
+  {k:'campo1',r:'II',t:'Campo 1, de noche',a:'6 050 m',s:'La cara del Lhotse al fondo del Cwm Occidental bajo la luna',c:'27,9830° N · 86,8810° E · rumbo 113,5° · campo 52° · luz de luna',alt:'Carpas iluminadas en la nieve azul de la noche, una escalera sobre una grieta y linternas subiendo la cara'},
+  {k:'campo2',r:'III',t:'Campo 2',a:'6 450 m',s:'La cara del Lhotse a mediodía, con la Banda Amarilla y el Espolón de los Ginebrinos',c:'27,9800° N · 86,9038° E · rumbo 121° · campo 70° · sol 200°/62°',alt:'La gran cara nevada del Lhotse sobre las carpas del Campo 2 entre bloques de roca'},
+  {k:'campo3',r:'IV',t:'Campo 3',a:'7 150 m',s:'Las carpas colgadas de la cara; abajo el Cwm Occidental, el Nuptse y el Pumori',c:'27,9687° N · 86,9192° E · rumbo 292° · campo 84° · sol 246°/24°',alt:'Tres carpas en una repisa de la cara con un escalador; al fondo el valle y el Pumori'},
+  {k:'cumbre',r:'V',t:'Cumbre del Lhotse',a:'8 516 m',s:'El Everest a menos de tres kilómetros: la arista sureste sobre el Collado Sur',c:'27,9621° N · 86,9338° E · rumbo 352° · campo 80° · sol 128°/42°',alt:'La pirámide del Everest vista desde la cumbre del Lhotse, con banderas de oración en primer plano'},
+  {k:'aerea',r:'VI',t:'El macizo desde el oeste',a:'8 900 m',s:'Everest, Lhotse y Nuptse al encenderse con la última luz',c:'28,0100° N · 86,8350° E · 8 900 m · rumbo 117° · campo 60° · sol 286°/3,5°',alt:'Everest, Lhotse y Nuptse teñidos de rosa sobre un mar de nubes al atardecer'},
+  {k:'ruta',r:'VII',t:'La ruta normal',a:'10 400 m',s:'Del Campo Base a la cumbre: la cascada, el Cwm Occidental y la cara del Lhotse',c:'28,0420° N · 86,7820° E · 10 400 m · rumbo 121° · campo 50° · sol 248°/34°',alt:'Vista aérea del macizo con el glaciar del Khumbu, el Cwm Occidental y la cara del Lhotse',nueva:true}
+];
+var pista=document.getElementById('g-pista'),galeria=document.getElementById('galeria'),gActual=document.getElementById('g-actual');
+LAMINAS.forEach(function(l){
+  var f=document.createElement('figure');f.className='lamina';
+  var ch_=l.k==='ruta'?['900','1800']:['960','1920'];
+  f.innerHTML='<div class="marco"><img loading="lazy" decoding="async" src="img/'+l.k+'-'+ch_[0]+'.webp" srcset="img/'+l.k+'-'+ch_[0]+'.webp '+ch_[0]+'w, img/'+l.k+'-'+ch_[1]+'.webp '+ch_[1]+'w" sizes="(min-width: 860px) 54vw, 84vw" alt="'+l.alt+'"><span class="nro">'+l.r+'</span>'+(l.nueva?'<span class="nueva">Nueva</span>':'')+'</div>'+
+    '<figcaption class="pieza visto"><div class="laja laja--angosta"><div class="cara"><h3>Lámina '+l.r+' · '+l.t+' <span class="n">('+l.a.replace(' ',' ')+')</span></h3><p class="solo-ancho">'+l.s+'</p></div></div></figcaption>'+
+    '<div class="datos-cam">'+l.c+'</div>';
+  pista.appendChild(f);
+});
+var gTop=0,gRango=0,gH=0;
+function medirGaleria(){
+  var ancho=pista.scrollWidth;gRango=Math.max(0,ancho-vw);
+  gH=vh+gRango*1.1;galeria.style.height=gH+'px';
+}
+function galeriaScroll(y){
+  var t=clamp((y-gTop)/Math.max(1,gH-vh),0,1);
+  pista.style.transform='translate3d('+(-t*gRango).toFixed(1)+'px,0,0)';
+  var idx=Math.min(LAMINAS.length-1,Math.round(t*(LAMINAS.length-1)));gActual.textContent=LAMINAS[idx].r;
+}
+
+/* ------------------------------------------------ ventisca (polvo de nieve) */
+var vc=document.getElementById('ventisca'),vx=vc.getContext('2d'),parts=[],intensidad=0,vAct=false,vUlt=0,vIntSuave=0;
+function ventiscaTam(){var d=Math.min(devicePixelRatio||1,1.5);vc.width=Math.round(vc.clientWidth*d)||1;vc.height=Math.round(vc.clientHeight*d)||1;vx.setTransform(d,0,0,d,0,0);
+  var n=Math.min(150,Math.round(vc.clientWidth*vc.clientHeight/11000));while(parts.length<n)parts.push(nueva(true));parts.length=n}
+function nueva(ini){var W=vc.clientWidth,H=vc.clientHeight;return {x:ini?Math.random()*W:-20,y:Math.random()*H,v:40+Math.random()*120,r:.4+Math.random()*1.6,a:.12+Math.random()*.45,f:Math.random()*6.28,w:.4+Math.random()*1.2}}
+function arrancarVentisca(){if(RM||vAct)return;vAct=true;vUlt=performance.now();requestAnimationFrame(pasoVentisca)}
+function pasoVentisca(ts){
+  var dt=Math.min(.05,(ts-vUlt)/1000);vUlt=ts;
+  vIntSuave=lerp(vIntSuave,intensidad,.05);
+  var W=vc.clientWidth,H=vc.clientHeight;vx.clearRect(0,0,W,H);
+  if(vIntSuave<.01&&intensidad<.02){vAct=false;return}
+  if(document.hidden){vAct=false;return}
+  vx.lineCap='round';
+  for(var i=0;i<parts.length;i++){var q=parts[i];
+    q.f+=dt*q.w;q.x+=q.v*dt;q.y+=(Math.sin(q.f)*14-q.v*.12)*dt;
+    if(q.x>W+20||q.y<-20){parts[i]=nueva(false);continue}
+    vx.strokeStyle='rgba(239,232,218,'+(q.a*vIntSuave).toFixed(3)+')';vx.lineWidth=q.r;
+    vx.beginPath();vx.moveTo(q.x,q.y);vx.lineTo(q.x-q.v*.06,q.y+q.v*.008);vx.stroke();}
+  requestAnimationFrame(pasoVentisca);
+}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&intensidad>.02)arrancarVentisca()});
+
+/* ------------------------------------------------ lajas: ajuste del texto a la cara pulida */
+function ajustarLajas(){
+  [].forEach.call(document.querySelectorAll('.laja'),function(l){
+    var cara=l.firstElementChild;if(!cara)return;
+    l.style.setProperty('--k','1');var k=1;
+    for(var n=0;n<7;n++){
+      var hijos=cara.children;if(!hijos.length)break;
+      var a=hijos[0],b=hijos[hijos.length-1];
+      var alto=b.offsetTop+b.offsetHeight-a.offsetTop,disp=cara.clientHeight;
+      var anchoOk=true;for(var m=0;m<hijos.length;m++){if(hijos[m].scrollWidth>cara.clientWidth+1){anchoOk=false;break}}
+      if(alto<=disp+.5&&anchoOk)break;
+      k*=Math.max(.86,Math.min(.985,Math.sqrt(disp/Math.max(alto,1))*.99));l.style.setProperty('--k',k.toFixed(3));
+    }
+  });
+}
+
+/* ------------------------------------------------ aparición de lajas e inclinación */
+var piezas=[].slice.call(document.querySelectorAll('main .pieza:not(.visto)'));
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visto');io.unobserve(e.target)}})},{rootMargin:'0px 0px -10% 0px',threshold:.12});
+  piezas.forEach(function(p){if(p.id!=='portada')io.observe(p)});
+}else piezas.forEach(function(p){p.classList.add('visto')});
+if(FINO&&!RM){
+  piezas.forEach(function(p){var l=p.querySelector('.laja');if(!l)return;
+    p.addEventListener('pointermove',function(e){var r=p.getBoundingClientRect();var x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+      l.style.setProperty('--ry',(x*3.2).toFixed(2)+'deg');l.style.setProperty('--rx',(-y*2.6).toFixed(2)+'deg')});
+    p.addEventListener('pointerleave',function(){l.style.setProperty('--ry','0deg');l.style.setProperty('--rx','0deg')});
+  });
+}
+
+/* ------------------------------------------------ arranque */
+var cargador=document.getElementById('cargador'),cNum=document.getElementById('c-num'),cLinea=document.querySelector('.c-linea i');
+var meta=0,mostrado=0,listo=false;
+function animarCargador(){
+  mostrado=lerp(mostrado,meta,.12);cNum.textContent=fmt(mostrado*8516);cLinea.style.transform='scaleX('+mostrado.toFixed(3)+')';
+  if(!listo||mostrado<.995)requestAnimationFrame(animarCargador);else terminarCarga();
+}
+var terminado=false;
+function terminarCarga(){
+  if(terminado)return;terminado=true;cNum.textContent=fmt(8516);
+  cargador.classList.add('fuera');
+  setTimeout(function(){cargador.style.display='none'},950);
+  intro=true;introInicio=performance.now()+120;
+  setTimeout(function(){document.getElementById('portada').classList.add('visto')},RM?0:700);
+  pedir();
+}
+var pasos=0,total=3;
+function avance(){pasos++;meta=Math.min(1,pasos/total);if(pasos>=total)listo=true}
+var fuentes=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+fuentes.then(function(){avance();ajustarLajas();medir();pedir()});
+cargar('aerea').then(avance);
+(function(){var im=new Image();im.onload=im.onerror=avance;im.src='lajas/laja_portada.webp'})();
+setTimeout(function(){listo=true;meta=1},5000);
+medir();ajustarLajas();
+requestAnimationFrame(animarCargador);
+/* el resto de las láminas, en orden de aparición */
+var cola=ORDEN_CARGA.slice(1);
+(function siguiente(){if(!cola.length)return;cargar(cola.shift()).then(function(){setTimeout(siguiente,60)})})();
+setTimeout(function(){medir();pedir()},600);
+pedir();
+})();
+</script>
+
+</body>
+</html>
