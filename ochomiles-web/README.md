@@ -93,7 +93,7 @@ El círculo punteado pasa a ser un vértice, el contador sube y el índice lo en
 | `manaslu/` | `claude/amazing-euler-d3lnwa` (`manaslu/`) | sin la propuesta de nubes ni la versión autocontenida |
 | `makalu/` | `claude/optimistic-mccarthy-76ssx0` (`makalu/`) | |
 | `kangchenjunga/` | `main` (`kangchenjunga/site/`) | se le añadió la cabecera `<!doctype>` + `charset` + `viewport` que antes ponía la plataforma de artifacts |
-| `lhotse/` | artifact «Lhotse» | no existía en el repositorio: se copió del artifact publicado |
+| `lhotse/` | `main` (`lhotse/`) | |
 
 Solo se copian los archivos que la web necesita en el navegador; el código que genera
 las láminas sigue en cada rama.
