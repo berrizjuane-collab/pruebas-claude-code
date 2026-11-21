@@ -1,0 +1,74 @@
+/* Annapurna — identidad visual v1.0 · fuentes, color y escala tipográfica */
+@font-face { font-family: "Cormorant Garamond"; src: url(fonts/CormorantGaramond-VF.woff2) format("woff2");
+  font-weight: 300 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Cormorant Garamond"; src: url(fonts/CormorantGaramond-Italic-VF.woff2) format("woff2");
+  font-weight: 300 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "Tiro Devanagari Hindi"; src: url(fonts/TiroDevanagariHindi-Regular.woff2) format("woff2");
+  font-style: normal; font-display: swap; }
+@font-face { font-family: "Tiro Devanagari Hindi"; src: url(fonts/TiroDevanagariHindi-Italic.woff2) format("woff2");
+  font-style: italic; font-display: swap; }
+
+:root {
+  /* color */
+  --tinta: #22242F; --azul: #505771; --cielo: #788497; --bruma: #C1C1BF; --nieve: #F0ECE0;
+  --morrena: #B4A798; --roca: #978985; --pradera: #777648; --musgo: #545944;
+  --rododendro: #B8343F; --amanecer: #E8A48A;
+  /* fuentes */
+  --serif: "Cormorant Garamond", Garamond, Georgia, serif;
+  --deva: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
+  /* escala */
+  --fs-display: clamp(56px, 8vw, 132px);
+  --fs-h1: clamp(40px, 5vw, 76px);
+  --fs-h2: clamp(32px, 3.4vw, 48px);
+  --fs-h3: clamp(22px, 2vw, 28px);
+  --fs-lead: clamp(22px, 2vw, 28px);
+  --fs-body: 20px;
+  --fs-small: 17px;
+  --fs-label: 15px;
+  /* velo para texto sobre ilustración */
+  --velo: linear-gradient(180deg, rgb(20 22 32 / .55) 0%, rgb(20 22 32 / 0) 45%);
+}
+
+html { -webkit-font-smoothing: antialiased; }
+body { margin: 0; font: 500 var(--fs-body)/1.6 var(--serif); letter-spacing: .005em;
+       color: var(--tinta); background: var(--nieve); }
+@media (max-width: 640px) { body { font-size: 19px; } }
+
+h1 { font-weight: 300; font-size: var(--fs-h1); line-height: 1.05; letter-spacing: -.005em; }
+h2 { font-weight: 400; font-size: var(--fs-h2); line-height: 1.12; }
+h3 { font-weight: 600; font-size: var(--fs-h3); line-height: 1.25; }
+.lead { font-style: italic; font-weight: 400; font-size: var(--fs-lead); line-height: 1.4; }
+small, .small { font-size: var(--fs-small); line-height: 1.5; letter-spacing: .01em; }
+.label { font-weight: 600; font-size: var(--fs-label); line-height: 1.2; letter-spacing: .22em; text-transform: uppercase; }
+.dev, :lang(ne) { font-family: var(--deva); }
+p { max-width: 40em; }
+a { color: var(--azul); text-underline-offset: .2em; }
+
+/* textura de papel opcional para fondos lisos */
+.grano { position: relative; }
+.grano::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: url(grano.png); background-size: 512px; opacity: .3; }
+
+/* botones */
+.btn { display: inline-block; font: 600 var(--fs-label)/1 var(--serif); letter-spacing: .22em; text-transform: uppercase;
+  padding: 16px 30px; border-radius: 2px; border: 1px solid transparent; text-decoration: none; cursor: pointer;
+  transition: filter .2s, background .2s, color .2s; }
+.btn-primario { background: var(--azul); color: var(--nieve); }
+.btn-contorno { border-color: currentColor; color: var(--tinta); background: transparent; }
+.btn-contorno:hover { background: var(--tinta); color: var(--nieve); }
+.btn-acento  { background: var(--rododendro); color: var(--nieve); }
+.btn-primario:hover, .btn-acento:hover { filter: brightness(1.08); }
+
+/* logotipo como texto (ver logotipo.html) */
+.logo { text-align: center; color: var(--nieve); font-family: var(--serif); }
+.logo .d { font-family: var(--deva); font-size: .26em; letter-spacing: .06em; line-height: 1; }
+.logo .w { font-weight: 300; font-size: 1em; letter-spacing: .16em; line-height: 1; margin: .12em 0 .14em .16em; }
+.logo .s { font-style: italic; font-weight: 400; font-size: .27em; letter-spacing: .04em; line-height: 1.2; }
+.logo .m { font-family: var(--deva); font-size: .21em; letter-spacing: .3em; margin-top: .45em; line-height: 1; }
+.logo--oscuro { color: var(--tinta); }
+
+/* portada */
+.hero { position: relative; min-height: 100svh; background: var(--velo), url(img/santuario-hero-2560.webp) center / cover; }
+@media (max-width: 760px), (orientation: portrait) {
+  .hero { background: var(--velo), url(img/santuario-movil-1080.webp) center top / cover; }
+}

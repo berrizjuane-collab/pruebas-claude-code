@@ -1,0 +1,88 @@
+/* Nanga Parbat · identidad Diamir · tokens
+   Fuente: manual de identidad (Tokens CSS, p. 28), ampliado con las escalas
+   de apoyo (p. 5) y la paleta de rutas validada para fondo noche. */
+
+:root {
+  /* Paleta principal (60 · 20 · 7 · 6 · 5 · 2 %) */
+  --np-noche: #222430;
+  --np-lana: #EFE6D2;
+  --np-albaricoque: #E3A15A;
+  --np-granada: #A4382F;
+  --np-enebro: #3F5E4C;
+  --np-nogal: #6B4A35;
+
+  /* Apoyo */
+  --np-lana2: #CFC6B4;
+  --np-ceniza: #9E9686;
+  --np-superficie: #2C2F3D;
+  --np-linea: #3A3D4D;
+  --np-tinta: #2B2620;
+
+  /* Escalas (100 · 300 · 700 · 900) */
+  --np-noche-700: #1B1D27;
+  --np-noche-900: #151720;
+  --np-albaricoque-300: #E7B67E;
+  --np-albaricoque-700: #A27444;
+  --np-granada-300: #BA6C60;
+  --np-granada-700: #762B26;
+  --np-enebro-300: #748774;
+  --np-nogal-300: #937964;
+
+  /* Rutas sobre el mapa (validadas: banda, croma, daltonismo, contraste) */
+  --ruta-kinshofer: #C8812F;
+  --ruta-buhl: #1FA38A;
+  --ruta-messner: #7A7FE6;
+  --ruta-mazeno: #D35F7E;
+
+  /* Tipografía: tres voces */
+  --np-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --np-sans: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --np-nastaliq: "Gulzar", "Noto Nastaliq Urdu", serif;
+
+  --np-display: clamp(52px, 7vw, 88px);
+  --np-h1: clamp(38px, 4.6vw, 56px);
+  --np-h2: clamp(28px, 3vw, 34px);
+  --np-h3: clamp(21px, 2vw, 24px);
+  --np-lead: clamp(19px, 1.6vw, 22px);
+  --np-body: clamp(16px, 1.2vw, 18px);
+  --np-radius: 6px;
+
+  --np-ease: cubic-bezier(.22, .8, .2, 1);
+}
+
+body {
+  background: var(--np-noche);
+  color: var(--np-lana);
+  font: 400 var(--np-body)/1.65 var(--np-sans);
+}
+
+h1, h2, h3, .np-display {
+  font-family: var(--np-serif);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+}
+
+.np-display { font-size: var(--np-display); line-height: .95; letter-spacing: -.01em; }
+h1 { font-size: var(--np-h1); line-height: 1.05; letter-spacing: -.005em; }
+h2 { font-size: var(--np-h2); line-height: 1.15; }
+h3 { font-size: var(--np-h3); line-height: 1.25; }
+
+.np-lead { font: italic 400 var(--np-lead)/1.4 var(--np-serif); color: var(--np-lana2); }
+.np-dato { font-weight: 500; font-variant-numeric: tabular-nums; }
+.np-pie { font-size: 14px; line-height: 1.5; color: var(--np-ceniza); }
+.np-etiqueta {
+  font-size: 12px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: .18em; color: var(--np-albaricoque);
+}
+.np-ur {
+  font-family: var(--np-nastaliq); direction: rtl; line-height: 2.2;
+  font-size: 1.22em; color: var(--np-albaricoque);
+}
+a { color: var(--np-albaricoque); text-underline-offset: .2em; }
+.np-boton {
+  display: inline-flex; align-items: center; gap: .6em;
+  background: var(--np-albaricoque); color: var(--np-noche);
+  font: 600 15px/1 var(--np-sans); padding: 14px 26px; border-radius: 999px;
+  text-decoration: none; border: 0; cursor: pointer;
+}

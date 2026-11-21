@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Nanga Parbat · la montaña desnuda</title>
+  <meta name="description" content="El Nanga Parbat (8126 m), ancla occidental del Himalaya, contado sobre ocho láminas en pincel seco pintadas sobre su relieve real: sus caras, sus cumbres, sus valles, su historia y la ruta Kinshofer de campo a campo.">
+  <meta name="theme-color" content="#222430">
+  <meta property="og:title" content="Nanga Parbat · la montaña desnuda">
+  <meta property="og:description" content="Ocho láminas en pincel seco sobre el relieve real del Nanga Parbat.">
+  <meta property="og:image" content="assets/laminas/fairy-1280.webp">
+  <link rel="icon" href="assets/sello.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Gulzar&family=Work+Sans:wght@400;500;600&display=swap">
+  <link rel="preload" as="image" href="assets/capas/fairy-l0-2400.webp" media="(min-width: 900px)">
+  <link rel="preload" as="image" href="assets/capas/fairy-l0-1280.webp" media="(max-width: 899px)">
+  <link rel="stylesheet" href="css/diamir.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body class="is-loading">
+
+<!-- ═══════════════════════════════════════════════ precarga -->
+<div class="preloader" aria-hidden="true">
+  <div class="preloader__inner">
+    <svg class="sello sello--preloader" viewBox="0 0 80 80" aria-hidden="true">
+      <defs>
+        <clipPath id="pl-clip"><circle cx="40" cy="40" r="34.4"/></clipPath>
+        <clipPath id="pl-nieve"><rect x="0" y="0" width="80" height="35.96"/></clipPath>
+      </defs>
+      <circle class="sello__fondo" cx="40" cy="40" r="40"/>
+      <g clip-path="url(#pl-clip)">
+        <g class="sello__monte"><use href="#perfil" class="sello__roca"/><use href="#perfil" class="sello__nieve" clip-path="url(#pl-nieve)"/></g>
+      </g>
+      <circle class="sello__anillo" cx="40" cy="40" r="37.2" pathLength="1"/>
+    </svg>
+    <p class="preloader__marca"><span>Nanga Parbat</span><span class="np-ur" lang="ur">نانگا پربت</span></p>
+    <p class="preloader__estado np-pie"><span class="preloader__txt">Preparando las láminas</span> <span class="preloader__pct np-dato">0</span></p>
+  </div>
+</div>
+
+<!-- perfil del sello: el macizo visto desde el campo base del Rupal (manual, p. 3) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="perfil" d="M 0,80 L 3.2,62 L 3.65,61.36 L 4.09,60.56 L 4.54,59.73 L 4.99,58.86 L 5.43,58.02 L 5.88,57.22 L 6.33,56.43 L 6.77,55.59 L 7.22,54.8 L 7.67,54.15 L 8.11,53.59 L 8.56,52.98 L 9.01,52.45 L 9.45,51.99 L 9.9,51.66 L 10.35,51.18 L 10.79,50.57 L 11.24,50.06 L 11.69,49.63 L 12.13,49.23 L 12.58,48.78 L 13.03,48.31 L 13.47,47.82 L 13.92,47.34 L 14.37,46.97 L 14.81,46.73 L 15.26,46.52 L 15.71,46.29 L 16.15,46.08 L 16.6,45.96 L 17.05,45.93 L 17.49,45.89 L 17.94,45.68 L 18.39,45.47 L 18.83,45.39 L 19.28,45.27 L 19.73,44.92 L 20.17,44.55 L 20.62,44.15 L 21.07,43.48 L 21.51,42.77 L 21.96,42.24 L 22.41,41.71 L 22.85,41.07 L 23.3,40.29 L 23.75,39.3 L 24.19,38.38 L 24.64,37.85 L 25.09,37.46 L 25.53,36.98 L 25.98,36.37 L 26.43,35.66 L 26.87,35.02 L 27.32,34.49 L 27.77,33.99 L 28.21,33.46 L 28.66,32.98 L 29.11,32.56 L 29.55,32.13 L 30,31.6 L 30.45,30.8 L 30.89,29.74 L 31.34,28.75 L 31.79,28.24 L 32.23,28.09 L 32.68,27.79 L 33.13,27.12 L 33.57,26.57 L 34.02,26.27 L 34.47,25.92 L 34.91,25.51 L 35.36,25.22 L 35.81,24.97 L 36.25,24.74 L 36.7,24.5 L 37.15,24.21 L 37.59,23.79 L 38.04,23.28 L 38.49,22.75 L 38.93,22.24 L 39.38,21.73 L 39.83,21.21 L 40.27,20.69 L 40.72,20.22 L 41.17,19.86 L 41.61,19.57 L 42.06,19.25 L 42.51,18.83 L 42.95,18.46 L 43.4,18.36 L 43.85,18.48 L 44.29,18.69 L 44.74,18.87 L 45.19,19.03 L 45.63,19.1 L 46.08,19.03 L 46.53,19.1 L 46.97,19.42 L 47.42,19.82 L 47.87,20.21 L 48.31,20.79 L 48.76,21.61 L 49.21,22.43 L 49.65,23.18 L 50.1,23.96 L 50.55,24.85 L 50.99,25.89 L 51.44,26.97 L 51.89,28.07 L 52.33,29.21 L 52.78,30.36 L 53.23,31.49 L 53.67,32.61 L 54.12,33.77 L 54.57,34.98 L 55.01,36.18 L 55.46,37.3 L 55.91,38.27 L 56.35,39.08 L 56.8,39.84 L 57.25,40.59 L 57.69,41.29 L 58.14,41.95 L 58.59,42.56 L 59.03,43.11 L 59.48,43.66 L 59.93,44.3 L 60.37,44.98 L 60.82,45.54 L 61.27,45.96 L 61.71,46.31 L 62.16,46.69 L 62.61,47.08 L 63.05,47.52 L 63.5,48.13 L 63.95,48.85 L 64.39,49.55 L 64.84,50.25 L 65.29,51.02 L 65.73,51.74 L 66.18,52.24 L 66.63,52.62 L 67.07,53.1 L 67.52,53.75 L 67.97,54.48 L 68.41,55.2 L 68.86,55.79 L 69.31,56.21 L 69.75,56.51 L 70.2,56.72 L 70.65,56.89 L 71.09,57.04 L 71.54,57.17 L 71.99,57.22 L 72.43,57.17 L 72.88,57.17 L 73.33,57.31 L 73.79,57.83 L 74.23,57.98 L 74.68,58.21 L 75.12,58.66 L 75.57,59.16 L 76.02,59.42 L 76.46,59.31 L 80,80 Z"/>
+  </defs>
+</svg>
+
+<!-- ═══════════════════════════════════════════════ escenario: las láminas de fondo -->
+<canvas id="stage" class="stage" aria-hidden="true"></canvas>
+<div class="stage-fallback" aria-hidden="true"><div class="stage-fallback__a"></div><div class="stage-fallback__b"></div></div>
+<div class="stage-veil" aria-hidden="true"></div>
+<svg id="overlay" class="overlay" aria-hidden="true"></svg>
+
+<!-- ═══════════════════════════════════════════════ cabecera -->
+<header class="cabecera" data-state="hidden">
+  <a class="marca" href="#portada" aria-label="Nanga Parbat, inicio">
+    <svg class="sello" viewBox="0 0 80 80" aria-hidden="true">
+      <defs>
+        <clipPath id="h-clip"><circle cx="40" cy="40" r="34.4"/></clipPath>
+        <clipPath id="h-nieve"><rect x="0" y="0" width="80" height="35.96"/></clipPath>
+      </defs>
+      <circle class="sello__fondo" cx="40" cy="40" r="40"/>
+      <g clip-path="url(#h-clip)"><use href="#perfil" class="sello__roca"/><use href="#perfil" class="sello__nieve" clip-path="url(#h-nieve)"/></g>
+      <circle class="sello__anillo" cx="40" cy="40" r="37.2"/>
+    </svg>
+    <span class="marca__nombre">Nanga Parbat</span>
+    <span class="marca__filete" aria-hidden="true"></span>
+    <span class="marca__ur np-ur" lang="ur">نانگا پربت</span>
+  </a>
+  <nav class="nav" aria-label="Capítulos">
+    <a href="#nombre">La montaña</a>
+    <a href="#caras">Las caras</a>
+    <a href="#historia">Historia</a>
+    <a href="#ruta">La ruta</a>
+    <a href="#laminas">Láminas</a>
+  </nav>
+</header>
+
+<!-- altímetro: el progreso de lectura como altitud -->
+<div class="altimetro" aria-hidden="true">
+  <div class="altimetro__escala"></div>
+  <div class="altimetro__marca"><span class="altimetro__valor np-dato">1150</span><span class="altimetro__u">m</span></div>
+</div>
+
+<!-- minimapa: dónde está la cámara de cada lámina -->
+<div class="minimapa" aria-hidden="true">
+  <div class="minimapa__disco">
+    <img src="assets/mapa/mapa-1100.webp" alt="" decoding="async">
+    <svg class="minimapa__svg" viewBox="0 0 200 200"></svg>
+  </div>
+  <p class="minimapa__txt"><span class="minimapa__lugar">Fairy Meadows</span><span class="minimapa__dato np-dato">mira al 177°</span></p>
+</div>
+
+<main id="contenido">
+
+<!-- ═══════════════════════════════════════════════ 1 · PORTADA -->
+<section id="portada" class="portada" data-shot="fairy" data-zoom="1,1.03" data-focus="0.5,0.5" data-dim="0.5">
+  <div class="portada__pin">
+    <div class="capa capa--cielo" data-depth="0">
+      <img alt="" decoding="async" fetchpriority="high"
+        src="assets/capas/fairy-l0-1280.webp"
+        srcset="assets/capas/fairy-l0-1280.webp 1280w, assets/capas/fairy-l0-2400.webp 2400w" sizes="100vw">
+    </div>
+    <div class="capa capa--montana" data-depth="1">
+      <img alt="" decoding="async" fetchpriority="high"
+        src="assets/capas/fairy-l1-1280.webp"
+        srcset="assets/capas/fairy-l1-1280.webp 1280w, assets/capas/fairy-l1-2400.webp 2400w" sizes="100vw">
+    </div>
+    <div class="portada__titulo">
+      <p class="np-etiqueta portada__etiqueta">8126 m · Gilgit-Baltistán · Pakistán</p>
+      <h1 class="portada__h1" aria-label="Nanga Parbat"><span class="portada__palabra">Nanga</span> <span class="portada__palabra">Parbat</span></h1>
+      <p class="portada__ur np-ur" lang="ur" dir="rtl">نانگا پربت</p>
+    </div>
+    <div class="capa capa--frente" data-depth="2">
+      <img alt="Fairy Meadows al amanecer: una pradera con pinos y, al fondo, la cara Rakhiot del Nanga Parbat, pintada en pincel seco." decoding="async" fetchpriority="high"
+        src="assets/capas/fairy-l2-1280.webp"
+        srcset="assets/capas/fairy-l2-1280.webp 1280w, assets/capas/fairy-l2-2400.webp 2400w" sizes="100vw">
+    </div>
+    <div class="portada__pie">
+      <p class="np-lead">la montaña desnuda</p>
+      <p class="np-pie np-dato">35.2375° N · 74.5892° E</p>
+    </div>
+    <div class="portada__cue" aria-hidden="true"><span>Desliza para subir</span><i></i></div>
+    <div class="portada__velo" aria-hidden="true"></div>
+  </div>
+
+  <div class="portada__entrada">
+    <article class="piedra piedra--lapida" data-reveal>
+      <p class="piedra__etiqueta">Lámina 1 · Fairy Meadows, 3300 m</p>
+      <h2 class="piedra__titulo">La montaña desnuda</h2>
+      <p class="piedra__ur np-ur" lang="ur" dir="rtl">نانگا پربت</p>
+      <p>El ancla occidental del Himalaya, vista desde los valles que viven a sus pies. Ocho láminas en pincel seco, pintadas sobre su relieve real, para recorrerla de punta a punta: de la pradera a la cumbre.</p>
+      <p class="piedra__acciones">
+        <a class="np-boton" href="#laminas" data-scrollto>Ver las láminas</a>
+        <a class="enlace-sub" href="#nombre" data-scrollto>Empezar a subir <span aria-hidden="true">↓</span></a>
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 2 · EL NOMBRE -->
+<section id="nombre" class="capitulo nombre" data-shot="fairy" data-zoom="1.18,1.42" data-focus="0.52,0.33" data-dim="0.5" data-chapter="La montaña">
+  <header class="capitulo__cabeza">
+    <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>La montaña desnuda</span></h2>
+  </header>
+
+  <div class="nombre__grid">
+    <article class="piedra piedra--estela" data-reveal>
+      <p class="piedra__etiqueta">El nombre</p>
+      <h3 class="piedra__titulo">«Montaña desnuda»</h3>
+      <p>Nanga Parbat viene del sánscrito: <em>nanga</em>, desnuda; <em>parvata</em>, montaña. En el valle la llaman Diamir, que suele traducirse como «rey de las montañas».</p>
+    </article>
+
+    <article class="piedra piedra--losa" data-reveal>
+      <p class="piedra__etiqueta">Por qué desnuda</p>
+      <h3 class="piedra__titulo">Roca al aire, sola en el horizonte</h3>
+      <p>Se suele explicar por su cara sur, tan empinada que la nieve no se sostiene y deja la roca a la vista. Pero también está sola: se levanta en el extremo occidental del Himalaya sin vecinos de su altura, y el Indo la rodea por el norte y el oeste antes de girar hacia el sur.</p>
+      <p>Es, además, una montaña joven y en marcha: el macizo sube del orden de siete milímetros al año, uno de los relieves que más deprisa crecen en la Tierra.</p>
+    </article>
+
+    <article class="piedra piedra--tablilla" data-reveal>
+      <p class="piedra__etiqueta">Ficha</p>
+      <h3 class="piedra__titulo">Nanga Parbat</h3>
+      <dl class="ficha">
+        <div><dt>Altura</dt><dd class="np-dato">8126 m · novena del mundo</dd></div>
+        <div><dt>Prominencia</dt><dd class="np-dato">4608 m</dd></div>
+        <div><dt>Situación</dt><dd class="np-dato">35.2375° N · 74.5892° E</dd></div>
+        <div><dt>Región</dt><dd>Gilgit-Baltistán, Pakistán</dd></div>
+        <div><dt>Primera ascensión</dt><dd>3 de julio de 1953 · Hermann Buhl, en solitario</dd></div>
+        <div><dt>Ruta normal</dt><dd>Kinshofer, por la cara Diamir</dd></div>
+      </dl>
+    </article>
+  </div>
+
+  <ul class="cifras" role="list">
+    <li class="cifra">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">metros</span><span class="medallon__n" data-count="8126">8126</span></div>
+      <p class="cifra__txt">de altura: la novena montaña del planeta.</p>
+    </li>
+    <li class="cifra">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">metros</span><span class="medallon__n" data-count="4600">4600</span></div>
+      <p class="cifra__txt">de pared en la cara Rupal, la más alta del mundo.</p>
+    </li>
+    <li class="cifra">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">metros</span><span class="medallon__n" data-count="7000" data-prefix="≈">≈7000</span></div>
+      <p class="cifra__txt">sobre el Indo, en apenas veinticinco kilómetros.</p>
+    </li>
+    <li class="cifra">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">mm al año</span><span class="medallon__n" data-count="7" data-prefix="≈">≈7</span></div>
+      <p class="cifra__txt">lo que se eleva el macizo: no ha terminado de crecer.</p>
+    </li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 3 · LAS TRES CARAS -->
+<section id="caras" class="capitulo caras" data-chapter="Las caras">
+  <div class="caras__paso caras__intro" data-shot="fairy" data-zoom="1.04,1.1" data-focus="0.5,0.4" data-dim="0.3" data-cam="fairy">
+    <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>Las tres caras de la montaña</span></h2>
+    <article class="piedra piedra--pizarra" data-reveal>
+      <p class="piedra__etiqueta">Las tres caras</p>
+      <h3 class="piedra__titulo">Rakhiot, Diamir y Rupal</h3>
+      <p>Rakhiot mira al norte, a Fairy Meadows. Diamir mira al oeste y lleva la ruta Kinshofer. Rupal mira al sur: la pared más alta del mundo. Dar la vuelta a la montaña es cambiar de valle, de luz y de historia.</p>
+    </article>
+  </div>
+
+  <div class="caras__paso" data-shot="fairy" data-zoom="1.0,1.08" data-focus="0.5,0.32" data-dim="0.08" data-cam="fairy" data-labels="fairy" data-dir="right">
+    <article class="piedra piedra--losa caras__piedra" data-reveal>
+      <p class="piedra__etiqueta">Cara norte · Rakhiot</p>
+      <h3 class="piedra__titulo">Siete mil metros sobre el Indo</h3>
+      <p>Desde Fairy Meadows, a 3300 m, se ve entera: la cumbre está a unos dieciséis kilómetros y casi cinco de desnivel. Más abajo, el Indo corre a poco más de mil metros. Por aquí subieron las expediciones alemanas de los años treinta y la primera ascensión, en 1953.</p>
+    </article>
+  </div>
+
+  <div class="caras__paso" data-shot="diamir" data-zoom="1.0,1.1" data-focus="0.5,0.36" data-dim="0.08" data-cam="diamir" data-labels="diamir" data-dir="right">
+    <article class="piedra piedra--losa caras__piedra caras__piedra--der" data-reveal>
+      <p class="piedra__etiqueta">Cara oeste · Diamir</p>
+      <h3 class="piedra__titulo">La cara de la ruta normal</h3>
+      <p>Ancha, glaciada y algo menos vertical, la Diamir es por donde sube hoy casi todo el mundo, por la ruta Kinshofer. Por aquí lo intentó Mummery en 1895 y por aquí bajó Reinhold Messner en 1970, después de perder a su hermano.</p>
+    </article>
+  </div>
+
+  <div class="caras__paso" data-shot="rupal" data-zoom="1.0,1.12" data-focus="0.55,0.3" data-dim="0.08" data-cam="rupal" data-labels="rupal" data-dir="right">
+    <div class="caras__rupal">
+      <article class="piedra piedra--losa caras__piedra" data-reveal>
+        <p class="piedra__etiqueta">Cara sur · Rupal</p>
+        <h3 class="piedra__titulo">La pared más alta del mundo</h3>
+        <p>Unos 4600 metros de roca y hielo de un solo trazo, desde la pradera del valle de Rupal hasta la cumbre. Los hermanos Messner la abrieron en 1970; Steve House y Vince Anderson la escalaron en estilo alpino por el pilar central en 2005.</p>
+      </article>
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">metros de pared</span><span class="medallon__n" data-count="4600">4600</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 4 · EL MACIZO (lámina 8, nueva) -->
+<section id="macizo" class="capitulo macizo" data-shot="rupal" data-zoom="1.2,1.3" data-focus="0.5,0.4" data-dim="0.86" data-chapter="El macizo">
+  <h2 class="piedra piedra--dintel macizo__dintel" data-reveal="dintel"><span>El macizo desde arriba</span></h2>
+  <div class="macizo__pin">
+    <div class="macizo__textos">
+      <article class="piedra piedra--losa macizo__paso" data-step="0">
+        <p class="piedra__etiqueta">Lámina 8 · nueva</p>
+        <h3 class="piedra__titulo">Veinticuatro kilómetros de relieve real</h3>
+        <p>Este mapa no existía: está pintado con el mismo pincel que las láminas, sobre las cotas del satélite (SRTM). La luz entra desde el noroeste, como en los mapas clásicos; por eso la gran cara Rupal, al sur, queda en sombra azul.</p>
+      </article>
+      <article class="piedra piedra--losa macizo__paso" data-step="1">
+        <p class="piedra__etiqueta">Hielo</p>
+        <h3 class="piedra__titulo">Tres glaciares, tres valles</h3>
+        <p>El Rakhiot baja al norte, hacia Fairy Meadows. El Diamir, al oeste, lleva al campo base de la ruta normal. El Bazhin, al sureste, desemboca en el valle de Rupal, bajo la pared.</p>
+      </article>
+      <article class="piedra piedra--pizarra macizo__paso" data-step="2">
+        <p class="piedra__etiqueta">Cumbres</p>
+        <h3 class="piedra__titulo">Una cumbre, muchas cimas</h3>
+        <ul class="lista-picos">
+          <li><span>Nanga Parbat</span><span class="np-dato">8126</span></li>
+          <li><span>Cumbre Norte</span><span class="np-dato">7816</span></li>
+          <li><span>Antecima</span><span class="np-dato">≈7850</span></li>
+          <li><span>Meseta de Plata</span><span class="np-dato">≈7500</span></li>
+          <li><span>Silbersattel</span><span class="np-dato">≈7450</span></li>
+          <li><span>Pico Mazeno</span><span class="np-dato">7120</span></li>
+          <li><span>Pico Rakhiot</span><span class="np-dato">7070</span></li>
+          <li><span>Chongra</span><span class="np-dato">6830</span></li>
+          <li><span>Pico Ganalo</span><span class="np-dato">6606</span></li>
+        </ul>
+      </article>
+      <article class="piedra piedra--pizarra macizo__paso" data-step="3">
+        <p class="piedra__etiqueta">Rutas</p>
+        <h3 class="piedra__titulo">Cuatro maneras de subir</h3>
+        <ul class="leyenda-rutas">
+          <li data-ruta="kinshofer"><i></i><span><strong>Kinshofer</strong> · Diamir, 1962</span></li>
+          <li data-ruta="buhl"><i></i><span><strong>Buhl</strong> · Rakhiot, 1953</span></li>
+          <li data-ruta="messner"><i></i><span><strong>Messner</strong> · Rupal, 1970</span></li>
+          <li data-ruta="mazeno"><i></i><span><strong>Mazeno</strong> · arista, 2012</span></li>
+        </ul>
+        <p class="piedra__nota">Trazados aproximados sobre el relieve: orientan, no sirven como croquis de escalada.</p>
+      </article>
+    </div>
+    <figure class="mapa">
+      <div class="mapa__tablero">
+        <img class="mapa__img" alt="Mapa pintado del macizo del Nanga Parbat visto desde arriba, con sus glaciares y aristas." decoding="async" loading="lazy"
+          src="assets/mapa/mapa-1100.webp" srcset="assets/mapa/mapa-1100.webp 1100w, assets/mapa/mapa-2000.webp 2000w" sizes="(min-width: 900px) 52vw, 92vw">
+        <svg class="mapa__svg" viewBox="0 0 2000 2121" role="img" aria-label="Cumbres, glaciares y rutas del Nanga Parbat"></svg>
+      </div>
+      <figcaption class="np-pie">Lámina 8 · el macizo, 24 × 25 km, norte arriba. Relieve SRTM; luz del noroeste.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 5 · LOS VALLES -->
+<section id="valles" class="capitulo valles" data-chapter="Los valles">
+  <div class="valles__paso" data-shot="rupal" data-zoom="1.25,1.4" data-focus="0.42,0.78" data-dim="0.42">
+    <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>Quienes viven a sus pies</span></h2>
+    <div class="valles__fila">
+      <article class="piedra piedra--estela" data-reveal>
+        <p class="piedra__etiqueta">Diamir</p>
+        <h3 class="piedra__titulo">«Rey de las montañas»</h3>
+        <p>Así suele traducirse el nombre del valle. Otros lo leen como «la montaña enorme» o «la morada de las hadas»: allí se cuenta que las <em>peri</em> viven en sus nieves.</p>
+      </article>
+      <article class="piedra piedra--losa" data-reveal>
+        <p class="piedra__etiqueta">Shina y nastaliq</p>
+        <h3 class="piedra__titulo">Tres valles, una lengua</h3>
+        <p>En Astore, Rupal y Diamer se habla shina, una lengua dárdica, y se escribe con la caligrafía nastaliq del urdu: la misma con la que esta web escribe el nombre de la montaña.</p>
+        <p class="valles__ur np-ur" lang="ur" dir="rtl">نانگا پربت</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="valles__paso" data-shot="rupal" data-zoom="1.5,1.62" data-focus="0.3,0.83" data-dim="0.5">
+    <div class="valles__fila valles__fila--b">
+      <article class="piedra piedra--chilas" data-reveal>
+        <p class="piedra__etiqueta">Las rocas de Chilas</p>
+        <h3 class="piedra__titulo">Grabados junto al Indo</h3>
+        <p>Al pie del macizo, a orillas del Indo, miles de petroglifos cuentan siglos de caminantes: íbices, estupas, cazadores e inscripciones. Entre Hunza y Shatial se han catalogado más de 50&#8239;000 grabados e inscripciones.</p>
+      </article>
+      <article class="piedra piedra--pizarra" data-reveal>
+        <p class="piedra__etiqueta">Los colores de esta web</p>
+        <h3 class="piedra__titulo">Salen del valle</h3>
+        <ul class="lista-colores">
+          <li><i style="--c:#E3A15A"></i><span><strong>Albaricoque</strong>, los que se secan en los techos de Astore.</span></li>
+          <li><i style="--c:#EFE6D2"></i><span><strong>Lana cruda</strong>, la de los gorros gilgitíes, sin teñir.</span></li>
+          <li><i style="--c:#A4382F"></i><span><strong>Granada</strong> y <strong>enebro</strong>, los de los bordados.</span></li>
+          <li><i style="--c:#6B4A35"></i><span><strong>Nogal</strong>, la madera tallada de las casas.</span></li>
+          <li><i style="--c:#222430"></i><span><strong>Noche de Astore</strong>, el fondo de todo: la misma noche de las láminas.</span></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+
+  <div class="valles__paso" data-shot="fairy" data-zoom="1.3,1.4" data-focus="0.5,0.74" data-dim="0.4" data-dir="left">
+    <article class="piedra piedra--lapida valles__hadas" data-reveal>
+      <p class="piedra__etiqueta">Fairy Meadows · 3300 m</p>
+      <h3 class="piedra__titulo">El prado de cuento</h3>
+      <p>Los pastores lo llaman Joot. Los alpinistas alemanes de los años treinta lo bautizaron <em>Märchenwiese</em>, «el prado de cuento», y de ahí viene su nombre en inglés. La tradición local tiene la montaña por morada de hadas; un viejo relato de la región habla incluso de un castillo de cristal en la cumbre.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 6 · HISTORIA -->
+<section id="historia" class="capitulo historia" data-chapter="Historia">
+  <div class="historia__cabeza" data-shot="diamir" data-zoom="1.1,1.2" data-focus="0.5,0.3" data-dim="0.62">
+    <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>La montaña asesina</span></h2>
+    <p class="np-lead historia__lead">Antes de que nadie pisara su cumbre ya había matado a treinta y una personas. Ciento treinta años de intentos, de 1895 a hoy.</p>
+  </div>
+
+  <div class="historia__cuerpo">
+    <div class="historia__ano" aria-hidden="true">
+      <div class="odometro" data-value="1895"></div>
+      <p class="historia__ano-pie np-etiqueta">año</p>
+    </div>
+
+    <ol class="historia__eventos" role="list">
+      <li class="evento" data-year="1895" data-shot="diamir" data-zoom="1.15,1.25" data-focus="0.45,0.35" data-dim="0.55">
+        <article class="piedra piedra--losa" data-reveal>
+          <p class="piedra__etiqueta">1895 · Cara Diamir</p>
+          <h3 class="piedra__titulo">El primer intento a un ochomil</h3>
+          <p>El británico Albert F. Mummery escala la cara Diamir por encima de los 6000 m, por el espolón que hoy lleva su nombre. Poco después desaparece con dos gurkhas, Ragobir Thapa y Goman Singh, cuando intentaban pasar al lado Rakhiot. Nunca se les volvió a ver.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="1934" data-shot="fairy" data-zoom="1.3,1.42" data-focus="0.42,0.24" data-dim="0.58" data-dir="right">
+        <article class="piedra piedra--chilas" data-reveal>
+          <p class="piedra__etiqueta">1934 · Cara Rakhiot</p>
+          <h3 class="piedra__titulo">La tormenta</h3>
+          <p>La expedición de Willy Merkl supera el Silbersattel y queda a unos cientos de metros de la cumbre. Una tormenta de días los atrapa en la arista: mueren Merkl, Welzenbach, Wieland y seis sherpas. Antes, Alfred Drexel había muerto enfermo. Diez muertos.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="1937" data-shot="fairy" data-zoom="1.42,1.55" data-focus="0.25,0.3" data-dim="0.62">
+        <div class="evento__par">
+          <article class="piedra piedra--losa" data-reveal>
+            <p class="piedra__etiqueta">1937 · Campo IV</p>
+            <h3 class="piedra__titulo">Dieciséis en una noche</h3>
+            <p>Un alud sepulta el campo IV, bajo el Pico Rakhiot, mientras duermen: siete alemanes, entre ellos el jefe, Karl Wien, y nueve sherpas. Con los dos británicos desaparecidos en 1950, la montaña suma treinta y un muertos antes de su primera ascensión.</p>
+          </article>
+          <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">muertos antes de 1953</span><span class="medallon__n" data-count="31">31</span></div>
+        </div>
+      </li>
+      <li class="evento" data-year="1939" data-shot="diamir" data-zoom="1.12,1.2" data-focus="0.56,0.42" data-dim="0.58" data-dir="left">
+        <article class="piedra piedra--losa" data-reveal>
+          <p class="piedra__etiqueta">1939 · Cara Diamir</p>
+          <h3 class="piedra__titulo">De la Diamir al Tíbet</h3>
+          <p>Peter Aufschnaiter y Heinrich Harrer exploran la cara Diamir. Estalla la guerra y los británicos los internan en la India. En 1944 escapan del campo de Dehradun, cruzan el Himalaya y, años después, llegan a Lhasa: es la historia de <em>Siete años en el Tíbet</em>.</p>
+        </article>
+      </li>
+      <li class="evento evento--grande" data-year="1953" data-shot="summit" data-zoom="1.05,1.15" data-focus="0.38,0.5" data-dim="0.42" data-dir="up">
+        <article class="piedra piedra--lapida" data-reveal>
+          <p class="piedra__etiqueta">3 de julio de 1953 · Rakhiot</p>
+          <h3 class="piedra__titulo">Hermann Buhl, solo</h3>
+          <p>Su compañero Otto Kempter se queda atrás. Buhl sigue solo desde el campo V, cruza el Silbersattel y la Meseta de Plata —las que se ven desde la cumbre, en esta lámina— y llega arriba al anochecer, sin oxígeno embotellado. Vuelve al campo cuarenta y una horas después de haber salido.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="1962" data-shot="diamir" data-zoom="1.08,1.18" data-focus="0.5,0.4" data-dim="0.55" data-dir="left">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">22 de junio de 1962 · Diamir</p>
+          <h3 class="piedra__titulo">La vía Kinshofer</h3>
+          <p>Toni Kinshofer, Siegfried Löw y Anderl Mannhardt hacen la segunda ascensión, la primera por la cara Diamir. Löw muere en el descenso. Su ruta es hoy la normal de la montaña.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="1970" data-shot="rupal" data-zoom="1.08,1.2" data-focus="0.56,0.32" data-dim="0.52" data-dir="right">
+        <article class="piedra piedra--losa" data-reveal>
+          <p class="piedra__etiqueta">27 de junio de 1970 · Rupal</p>
+          <h3 class="piedra__titulo">Los hermanos Messner</h3>
+          <p>Reinhold y Günther Messner suben por primera vez la pared de la Rupal. Günther está agotado y destrepar lo subido parece imposible: bajan por la Diamir, al otro lado. Al pie de la cara, Günther muere en un alud.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="1978" data-shot="diamir" data-zoom="1.18,1.3" data-focus="0.5,0.3" data-dim="0.55" data-dir="left">
+        <article class="piedra piedra--losa" data-reveal>
+          <p class="piedra__etiqueta">1978 · Diamir</p>
+          <h3 class="piedra__titulo">Solo, desde el campo base</h3>
+          <p>Reinhold Messner vuelve a la cara donde murió su hermano y la sube solo, por una línea nueva, sin compañeros ni cuerdas fijas: la primera ascensión de un ochomil en solitario de principio a fin.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="1984" data-shot="diamir" data-zoom="1.3,1.42" data-focus="0.45,0.78" data-dim="0.5">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">27 de junio de 1984</p>
+          <h3 class="piedra__titulo">La primera mujer</h3>
+          <p>La francesa Liliane Barrard llega a la cumbre con su marido, Maurice, sin oxígeno y por la ruta Kinshofer.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="2005" data-shot="rupal" data-zoom="1.12,1.24" data-focus="0.6,0.28" data-dim="0.52" data-dir="right">
+        <article class="piedra piedra--losa" data-reveal>
+          <p class="piedra__etiqueta">Septiembre de 2005 · Rupal</p>
+          <h3 class="piedra__titulo">El pilar central, en estilo alpino</h3>
+          <p>Steve House y Vince Anderson suben los 4100 m del pilar central de la Rupal en seis días, solos, sin cuerdas fijas ni campamentos. Ganan el Piolet d'Or.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="2012" data-shot="camp1" data-zoom="1.05,1.15" data-focus="0.45,0.3" data-dim="0.5" data-dir="right">
+        <article class="piedra piedra--losa" data-reveal>
+          <p class="piedra__etiqueta">Julio de 2012 · Arista Mazeno</p>
+          <h3 class="piedra__titulo">Más de diez kilómetros de arista</h3>
+          <p>Sandy Allan y Rick Allen recorren por primera vez entera la arista Mazeno —la que se ve en esta lámina desde el campo 1— y siguen hasta la cumbre el 15 de julio, tras más de dos semanas en la montaña. Piolet d'Or 2013.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="2013" data-shot="diamir" data-zoom="1.4,1.5" data-focus="0.6,0.8" data-dim="0.72" data-dir="left">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">22 de junio de 2013 · Campo base Diamir</p>
+          <h3 class="piedra__titulo">Silencio en el campo base</h3>
+          <p>Un grupo armado asalta de noche el campo base del Diamir y mata a once personas, diez de ellas alpinistas extranjeros. La montaña se cierra durante años.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="2016" data-shot="camp3" data-zoom="1.05,1.15" data-focus="0.5,0.42" data-dim="0.38" data-dir="up">
+        <article class="piedra piedra--losa" data-reveal>
+          <p class="piedra__etiqueta">26 de febrero de 2016</p>
+          <h3 class="piedra__titulo">La primera invernal</h3>
+          <p>Simone Moro, Alex Txikon y Muhammad Ali Sadpara pisan la cumbre en pleno invierno por la ruta Kinshofer. Tamara Lunger se da la vuelta a pocos metros. Era el penúltimo ochomil sin ascensión invernal.</p>
+        </article>
+      </li>
+      <li class="evento" data-year="2018" data-shot="camp3" data-zoom="1.2,1.3" data-focus="0.6,0.7" data-dim="0.45">
+        <article class="piedra piedra--chilas" data-reveal>
+          <p class="piedra__etiqueta">Enero de 2018</p>
+          <h3 class="piedra__titulo">Rescate en la noche</h3>
+          <p>Élisabeth Revol y Tomasz Mackiewicz hacen cumbre el 25 de enero. Mackiewicz, en su séptimo intento invernal, no puede bajar. Adam Bielecki y Denis Urubko, que estaban en el K2, suben de noche más de mil metros para rescatar a Revol. A Tomek no se le pudo alcanzar.</p>
+        </article>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 7 · HAZAÑAS -->
+<section id="hazanas" class="capitulo hazanas" data-shot="rupal" data-zoom="1.0,1.12" data-focus="0.55,0.35" data-dim="0.74" data-dir="right" data-chapter="Hazañas">
+  <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>Lo que solo pasó aquí</span></h2>
+  <ul class="hazanas__grid" role="list">
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">en solitario</span><span class="medallon__n" data-count="1953" data-plain>1953</span></div>
+      <h3>Buhl, solo</h3><p>La única primera ascensión de un ochomil hecha en solitario.</p>
+    </li>
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">horas</span><span class="medallon__n" data-count="41">41</span></div>
+      <h3>Ida y vuelta</h3><p>Lo que tardó Buhl desde el campo V, sin tienda ni saco.</p>
+    </li>
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">metros de pared</span><span class="medallon__n" data-count="4600">4600</span></div>
+      <h3>La Rupal</h3><p>Abierta en 1970 por Reinhold y Günther Messner.</p>
+    </li>
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">solo integral</span><span class="medallon__n" data-count="1978" data-plain>1978</span></div>
+      <h3>Messner, otra vez</h3><p>El primer ochomil subido en solitario desde el campo base.</p>
+    </li>
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">primera mujer</span><span class="medallon__n" data-count="1984" data-plain>1984</span></div>
+      <h3>Liliane Barrard</h3><p>Sin oxígeno, por la ruta Kinshofer.</p>
+    </li>
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">metros de pilar</span><span class="medallon__n" data-count="4100">4100</span></div>
+      <h3>Estilo alpino</h3><p>House y Anderson, pilar central de la Rupal, 2005. Piolet d'Or.</p>
+    </li>
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">km de arista</span><span class="medallon__n" data-count="10" data-prefix="+">+10</span></div>
+      <h3>La Mazeno</h3><p>Allan y Allen, 2012: la primera travesía completa. Piolet d'Or.</p>
+    </li>
+    <li class="hazana">
+      <div class="piedra piedra--medallon" data-reveal="medallon"><span class="medallon__u">invierno</span><span class="medallon__n" data-count="2016" data-plain>2016</span></div>
+      <h3>Primera invernal</h3><p>Moro, Txikon y Ali Sadpara, el 26 de febrero.</p>
+    </li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 8 · LA RUTA KINSHOFER -->
+<section id="ruta" class="capitulo ruta" data-chapter="La ruta">
+  <div class="ruta__intro" data-shot="diamir" data-zoom="1.0,1.0" data-focus="0.5,0.5" data-dim="0.55" data-dir="up" data-cam="diamir">
+    <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>Subir por la Diamir</span></h2>
+    <article class="piedra piedra--losa" data-reveal>
+      <p class="piedra__etiqueta">La ruta normal</p>
+      <h3 class="piedra__titulo">Kinshofer, de campo en campo</h3>
+      <p>Casi cuatro mil metros de desnivel desde el campo base. Cuatro campamentos, un muro de roca y hielo con cuerdas fijas, y un día de cumbre que empieza de noche. Las láminas 3 a 7 siguen este camino: desliza para subir.</p>
+    </article>
+  </div>
+
+  <div class="ruta__escalada">
+    <div class="ruta__panel" aria-hidden="false">
+      <div class="ruta__altitud">
+        <p class="np-etiqueta">Altitud</p>
+        <p class="ruta__metros"><span class="ruta__num">4175</span><span class="ruta__u">m</span></p>
+        <p class="ruta__lugar np-pie">Campo base del Diamir</p>
+      </div>
+      <figure class="perfil">
+        <figcaption class="perfil__titulo">Perfil de la ruta Kinshofer <span class="np-pie">· altitud frente a distancia desde el campo base</span></figcaption>
+        <div class="perfil__lienzo">
+          <svg class="perfil__svg" role="img" aria-label="Perfil de altitud de la ruta Kinshofer, de 4175 m en el campo base a 8126 m en la cumbre"></svg>
+          <div class="perfil__tip" role="status" aria-live="polite"></div>
+        </div>
+        <details class="perfil__datos">
+          <summary>Ver los datos</summary>
+          <table>
+            <thead><tr><th scope="col">Punto</th><th scope="col">Altitud</th><th scope="col">Distancia</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </details>
+      </figure>
+    </div>
+
+    <ol class="ruta__pasos" role="list">
+      <li class="ruta__paso" data-camp="bc" data-shot="diamir" data-zoom="1.0,1.06" data-focus="0.5,0.42" data-dim="0.05" data-dir="up" data-route="diamir" data-cam="diamir">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">Lámina 3 · Campo base</p>
+          <h3 class="piedra__titulo">4175 m · la morrena</h3>
+          <p>Sobre la morrena del glaciar Diamir, tras varias jornadas de marcha por su valle. Desde aquí se ve la cara entera, con la cumbre al centro. La línea es la ruta: la parte que el relieve deja ver.</p>
+        </article>
+      </li>
+      <li class="ruta__paso" data-camp="c1" data-shot="camp1" data-zoom="1.0,1.08" data-focus="0.5,0.5" data-dim="0.05" data-dir="up" data-cam="camp1">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">Lámina 4 · Campo 1</p>
+          <h3 class="piedra__titulo">4900 m · al pie del muro</h3>
+          <p>Se cruza el glaciar y se suben canales donde caen piedras y aludes. El campo se instala al pie del muro Kinshofer, mirando a la mitad sur de la cara y a la arista Mazeno.</p>
+        </article>
+      </li>
+      <li class="ruta__paso" data-camp="muro" data-shot="camp1" data-zoom="1.12,1.22" data-focus="0.55,0.32" data-dim="0.25">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">Entre el campo 1 y el 2</p>
+          <h3 class="piedra__titulo">El muro Kinshofer</h3>
+          <p>El paso clave: cientos de metros de roca y hielo muy empinados. Cada expedición deja sus cuerdas fijas sobre las de los años anteriores; en 1962 llegaron a instalar una escalera para los porteadores.</p>
+        </article>
+      </li>
+      <li class="ruta__paso" data-camp="c2" data-shot="camp2" data-zoom="1.0,1.08" data-focus="0.5,0.5" data-dim="0.05" data-dir="up" data-cam="camp2">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">Lámina 5 · Campo 2</p>
+          <h3 class="piedra__titulo">6050 m · sobre el muro</h3>
+          <p>Encima del muro, por fin un rellano. Al atardecer el valle del Diamir se llena de un mar de nubes a 4150 m y el sol se pone sobre él.</p>
+        </article>
+      </li>
+      <li class="ruta__paso" data-camp="c3" data-shot="camp3" data-zoom="1.0,1.08" data-focus="0.5,0.5" data-dim="0.05" data-dir="up" data-cam="camp3">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">Lámina 6 · Campo 3</p>
+          <h3 class="piedra__titulo">6800 m · noche de luna</h3>
+          <p>Largas pendientes de nieve y hielo, expuestas a aludes. De noche, con luna, la pared norte de la arista Mazeno brilla enfrente.</p>
+        </article>
+      </li>
+      <li class="ruta__paso" data-camp="c4" data-shot="camp3" data-zoom="1.25,1.4" data-focus="0.55,0.3" data-dim="0.3">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">Campo 4</p>
+          <h3 class="piedra__titulo">≈7200 m · la última tienda</h3>
+          <p>En la parte alta de la cara, bajo la pirámide final. Se sale de madrugada, con frontal, para tener luz de sobra a la bajada.</p>
+        </article>
+      </li>
+      <li class="ruta__paso" data-camp="cumbre" data-shot="summit" data-zoom="1.0,1.06" data-focus="0.5,0.5" data-dim="0.05" data-dir="up" data-cam="summit">
+        <article class="piedra piedra--tablilla" data-reveal>
+          <p class="piedra__etiqueta">Lámina 7 · Cumbre</p>
+          <h3 class="piedra__titulo">8126 m</h3>
+          <p>Unos novecientos metros de desnivel el día de cumbre. Arriba no hay más que bajar.</p>
+        </article>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 9 · DESDE LA CUMBRE -->
+<section id="cumbre" class="capitulo cumbre" data-shot="summit" data-zoom="1.0,1.04" data-focus="0.5,0.46" data-dim="0.02" data-labels="summit" data-cam="summit" data-chapter="La cumbre">
+  <div class="cumbre__espacio" aria-hidden="true"></div>
+  <article class="piedra piedra--lapida cumbre__lapida" data-reveal>
+    <p class="piedra__etiqueta">Lámina 7 · hacia el noreste</p>
+    <h2 class="piedra__titulo">Lo que se ve desde arriba</h2>
+    <p>La Meseta de Plata y el Silbersattel bajan hacia el Pico Rakhiot; más allá, un mar de nubes a 4100 m. Es el camino por el que llegó Buhl, solo, en 1953.</p>
+    <p class="cumbre__reflexion">Quizá el nombre no hable solo de la roca. Arriba no queda nada que tape: ni el valle, ni los compañeros, ni la tienda. La montaña desnuda también desnuda a quien la sube.</p>
+  </article>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 10 · RELATOS DE CAMPAMENTO -->
+<section id="relatos" class="capitulo relatos" data-shot="camp3" data-zoom="1.0,1.18" data-focus="0.56,0.62" data-dim="0.48" data-dir="down" data-chapter="Relatos">
+  <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>Relatos de campamento</span></h2>
+  <p class="np-lead relatos__lead">Lo que se cuenta de noche, en la tienda, a 6800 m.</p>
+  <div class="relatos__campo">
+    <article class="piedra piedra--chilas relato" data-reveal data-drift="-6">
+      <p class="piedra__etiqueta">1953</p>
+      <h3 class="piedra__titulo">El vivac de pie</h3>
+      <p>Bajando de la cumbre se le hizo de noche cerca de los 8000 m. Sin tienda ni saco, Buhl pasó la noche de pie en una repisa, agarrado a la roca. Contó después que sintió a su lado a un compañero invisible.</p>
+    </article>
+    <article class="piedra piedra--losa relato" data-reveal data-drift="8">
+      <p class="piedra__etiqueta">1953 · 1999</p>
+      <h3 class="piedra__titulo">El piolet de la cumbre</h3>
+      <p>Buhl dejó su piolet arriba, como prueba. Cuarenta y seis años después lo encontró una expedición japonesa, que se lo devolvió a su viuda.</p>
+    </article>
+    <article class="piedra piedra--losa relato" data-reveal data-drift="-4">
+      <p class="piedra__etiqueta">1934</p>
+      <h3 class="piedra__titulo">Gaylay</h3>
+      <p>El sherpa Gaylay pudo bajar y no quiso: se quedó con Willy Merkl, agotado, en la arista. Murieron juntos. Sus cuerpos aparecieron cuatro años después.</p>
+    </article>
+    <article class="piedra piedra--chilas relato" data-reveal data-drift="6">
+      <p class="piedra__etiqueta">Pervitin</p>
+      <h3 class="piedra__titulo">Pastillas en el bolsillo</h3>
+      <p>Para el día de cumbre Buhl llevaba unas tabletas de Pervitin, una metanfetamina que entonces se daba a soldados y a alpinistas. Ni cuerda ni oxígeno.</p>
+    </article>
+    <article class="piedra piedra--losa relato" data-reveal data-drift="-8">
+      <p class="piedra__etiqueta">1930</p>
+      <h3 class="piedra__titulo">La montaña del destino</h3>
+      <p>En la Alemania de los años treinta la llamaban <em>Schicksalsberg</em>, «la montaña del destino». Después de 1934 y 1937 el nombre sonó a lápida.</p>
+    </article>
+    <article class="piedra piedra--chilas relato" data-reveal data-drift="4">
+      <p class="piedra__etiqueta">2005 · 2022</p>
+      <h3 class="piedra__titulo">Las botas de Günther</h3>
+      <p>En 2005 el glaciar del Diamir devolvió los restos de Günther Messner, a 4300 m; en 2022, su segunda bota. Estaban donde Reinhold siempre dijo: al pie de la cara Diamir, no en la Rupal.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ 11 · LAS OCHO LÁMINAS -->
+<section id="laminas" class="capitulo laminas" data-shot="camp2" data-zoom="1.1,1.2" data-focus="0.5,0.5" data-dim="0.86" data-dir="right" data-chapter="Láminas">
+  <div class="laminas__cabeza">
+    <h2 class="piedra piedra--dintel" data-reveal="dintel"><span>Ocho vistas en pincel seco</span></h2>
+    <p class="np-lead">Relieve real visto desde la coordenada de cada punto. Siete láminas de la serie y una nueva, el mapa, pintada para esta web.</p>
+  </div>
+  <div class="laminas__pista">
+    <ol class="laminas__lista" role="list"></ol>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════ pie -->
+<footer class="pie" data-shot="fairy" data-zoom="1.0,1.0" data-focus="0.5,0.5" data-dim="0.72" data-dir="down">
+  <div class="pie__marca">
+    <svg class="sello sello--pie" viewBox="0 0 80 80" aria-hidden="true">
+      <defs>
+        <clipPath id="f-clip"><circle cx="40" cy="40" r="34.4"/></clipPath>
+        <clipPath id="f-nieve"><rect x="0" y="0" width="80" height="35.96"/></clipPath>
+      </defs>
+      <circle class="sello__fondo" cx="40" cy="40" r="40"/>
+      <g clip-path="url(#f-clip)"><use href="#perfil" class="sello__roca"/><use href="#perfil" class="sello__nieve" clip-path="url(#f-nieve)"/></g>
+      <circle class="sello__anillo" cx="40" cy="40" r="37.2"/>
+    </svg>
+    <p class="pie__nombre">Nanga Parbat</p>
+    <p class="np-ur" lang="ur" dir="rtl">نانگا پربت</p>
+    <p class="np-pie np-dato">8126 m · Diamir</p>
+  </div>
+  <div class="pie__texto">
+    <p>Identidad Diamir. Láminas pintadas por código sobre el relieve SRTM (Open Topo Data): la forma del macizo es real; nubes, primer plano y figuras son compuestos. Los trazados de ruta y la posición de los campos son aproximados.</p>
+    <p class="np-pie">Tipografías Fraunces, Work Sans y Gulzar (SIL Open Font License). Datos históricos contrastados con el <em>American Alpine Journal</em>, el <em>Himalayan Journal</em>, Explorersweb y otras fuentes; donde discrepan, se ha optado por la cifra prudente.</p>
+    <p><a href="#portada" data-scrollto>Volver a Fairy Meadows <span aria-hidden="true">↑</span></a></p>
+  </div>
+</footer>
+
+<noscript><style>.preloader{display:none}.capa img{opacity:1}</style></noscript>
+<script src="vendor/gsap.min.js" defer></script>
+<script src="vendor/ScrollTrigger.min.js" defer></script>
+<script src="vendor/lenis.min.js" defer></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

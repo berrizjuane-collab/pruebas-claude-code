@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Los 14 ochomiles</title>
+<meta name="description" content="Las catorce montañas de más de ocho mil metros en un mapa pintado a pincel seco. Cada cumbre explorada abre su propia web de la serie.">
+<meta name="theme-color" content="#0E1020">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230E1020'/%3E%3Cpath d='M16 6 27 25H5z' fill='%23D4A64A'/%3E%3Ccircle cx='16' cy='18.5' r='2.2' fill='%230E1020'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ───────────── Identidad «El mapa del cartógrafo» ─────────────
+   Bodoni Moda (títulos, nombres, ríos en cursiva) · Archivo (rótulos y texto) · IBM Plex Mono (cifras)
+   Paleta sacada de las constantes del estilo «pincel seco»: noche, tiza, bruma, hielo en sombra, velo,
+   latón de teodolito (acento) y alpenglow (solo para el estado activo). */
+:root{
+  --noche:#0E1020; --tarjeta:#161A2E; --tiza:#F0ECE0; --bruma:#C4D0E4; --hielo:#8298C8;
+  --velo:#606476; --velo-texto:#9AA0B4; --laton:#D4A64A; --laton-claro:#E8C77E; --alpenglow:#EEA48C;
+  --f-titulo:'Bodoni Moda','Didot','Bodoni 72',Georgia,serif;
+  --f-texto:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --f-cifra:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --g-izq:max(16px,env(safe-area-inset-left,0px));
+  --g-der:max(16px,env(safe-area-inset-right,0px));
+  --barra:60px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--noche);-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--noche);color:var(--tiza);font:400 16px/1.6 var(--f-texto);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--laton);outline-offset:3px;border-radius:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.n{font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+
+/* ───────────── barra ───────────── */
+.barra{position:fixed;z-index:40;left:0;right:0;top:0;height:calc(var(--barra) + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);
+  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));
+  display:flex;align-items:center;gap:20px;pointer-events:none;
+  background:linear-gradient(rgba(14,16,32,.86),rgba(14,16,32,.55) 70%,rgba(14,16,32,0))}
+.barra>*{pointer-events:auto}
+.marca{display:flex;align-items:center;gap:10px;text-decoration:none;font:600 12px/1 var(--f-texto);font-stretch:125%;letter-spacing:.32em;text-transform:uppercase;color:var(--tiza)}
+.marca svg{width:16px;height:14px;flex:none}
+.barra-der{margin-left:auto;display:flex;align-items:center;gap:22px}
+.contador{font:500 12px/1 var(--f-cifra);color:var(--bruma);letter-spacing:.04em}
+.contador b{color:var(--laton);font-weight:500}
+.enlace-indice{font:500 11px/1 var(--f-texto);font-stretch:112%;letter-spacing:.24em;text-transform:uppercase;text-decoration:none;color:var(--bruma);padding:10px 0;border-bottom:1px solid rgba(212,166,74,.0);transition:color .3s,border-color .3s}
+.enlace-indice:hover{color:var(--tiza);border-color:var(--laton)}
+@media (max-width:560px){.enlace-indice{display:none}.marca{letter-spacing:.24em}}
+
+/* ───────────── portada: el mapa ───────────── */
+.portada{position:relative;height:100vh;height:100svh;min-height:520px;overflow:hidden;background:var(--noche)}
+.escenario{position:absolute;inset:0;overflow:hidden}
+.escenario.panoramico{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.escenario.panoramico::-webkit-scrollbar{display:none}
+.lienzo{position:absolute;left:0;top:0;width:1600px;height:1067px;opacity:0;transition:opacity 1.6s ease;will-change:transform}
+.listo .lienzo{opacity:1}
+.lienzo>img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;
+  transform:scale(1.035);transition:transform 3.2s cubic-bezier(.16,.8,.2,1)}
+.listo .lienzo>img{transform:none}
+/* bordes del cuadro fundidos con la noche de la página */
+.lienzo::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 70px 24px var(--noche)}
+.velo-titulo{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 52% 58% at 0% 100%,rgba(14,16,32,.88),rgba(14,16,32,.55) 50%,rgba(14,16,32,0) 100%)}
+
+/* rótulos de geografía */
+.geo{position:absolute;left:0;top:0;pointer-events:none;white-space:nowrap;transform-origin:50% 50%;opacity:0;transition:opacity 1.4s ease 1s}
+.listo .geo{opacity:1}
+.geo--cordillera{font:500 13px/1 var(--f-texto);font-stretch:125%;letter-spacing:.62em;text-transform:uppercase;color:var(--hielo)}
+.geo--region{font:400 12px/1 var(--f-texto);font-stretch:118%;letter-spacing:.48em;text-transform:uppercase;color:rgba(196,208,228,.55)}
+.geo--rio{font:italic 500 15px/1 var(--f-titulo);letter-spacing:.04em;color:#A9BADB;opacity:.85}
+.geo{text-shadow:0 0 10px rgba(14,16,32,.95),0 0 3px rgba(14,16,32,.9)}
+
+/* vértices: los 14 picos */
+.pico{position:absolute;left:0;top:0;width:0;height:0;padding:0;margin:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;opacity:0}
+.pico:focus-visible{outline:none}
+.listo .pico{animation:aparece .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--retraso,0s)}
+@keyframes aparece{from{opacity:0}to{opacity:1}}
+.marca-pico{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s}
+.marca-pico svg{display:block;width:100%;height:100%;overflow:visible}
+.tri{fill:var(--laton);stroke:var(--noche);stroke-width:1.6;stroke-linejoin:round}
+.tri-punto{fill:var(--noche)}
+.circ{fill:rgba(14,16,32,.45);stroke:var(--velo-texto);stroke-width:1.3;stroke-dasharray:2.2 2.4}
+.guia{position:absolute;left:0;top:0;height:1px;transform-origin:0 50%;background:rgba(240,236,224,.38);transition:background .3s}
+.pico.pendiente .guia{background:rgba(154,160,180,.3)}
+.rotulo{position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:3px;padding:5px 9px 6px;white-space:nowrap;text-align:left;border-radius:2px;
+  background:rgba(14,16,32,.58);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  text-shadow:0 0 8px rgba(14,16,32,.9),0 1px 2px rgba(14,16,32,.9);transition:background .3s}
+.pico:hover .rotulo,.pico.activo .rotulo{background:rgba(14,16,32,.78)}
+.rotulo.izq{text-align:right;align-items:flex-end}
+.rotulo b{font:600 17px/1.05 var(--f-titulo);font-optical-sizing:auto;color:var(--tiza);letter-spacing:.005em;transition:color .3s}
+.rotulo span{font:500 10.5px/1.2 var(--f-cifra);letter-spacing:.05em;color:var(--laton)}
+.pico.pendiente .rotulo b{font-style:italic;font-weight:500;color:var(--velo-texto)}
+.pico.pendiente .rotulo span{color:rgba(154,160,180,.78)}
+.pico:hover .rotulo b,.pico:focus-visible .rotulo b,.pico.activo .rotulo b{color:var(--alpenglow)}
+.pico:hover .guia,.pico:focus-visible .guia,.pico.activo .guia{background:rgba(238,164,140,.85)}
+.pico:hover .marca-pico,.pico:focus-visible .marca-pico,.pico.activo .marca-pico{transform:scale(1.22);filter:drop-shadow(0 0 6px rgba(238,164,140,.75))}
+.pico:focus-visible .rotulo{outline:2px solid var(--laton);outline-offset:0;border-radius:2px}
+.pico.activo .marca-pico::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid var(--alpenglow);animation:pulso 1.8s ease-out infinite}
+@keyframes pulso{from{transform:scale(.6);opacity:.9}to{transform:scale(1.9);opacity:0}}
+@media (max-width:700px){
+  .rotulo{padding:4px 7px 5px;gap:2px}
+  .rotulo b{font-size:14.5px}
+  .rotulo span{display:none}
+  .geo--cordillera{font-size:11px;letter-spacing:.5em}
+  .geo--region{font-size:10px}
+  .geo--rio{font-size:13px}
+}
+
+/* título */
+.titulo{position:absolute;z-index:5;left:max(48px,env(safe-area-inset-left,0px));bottom:max(52px,env(safe-area-inset-bottom,0px));width:min(470px,calc(100% - 64px));pointer-events:none}
+.titulo>*{pointer-events:auto}
+.antetitulo{margin:0 0 14px;font:500 12px/1 var(--f-texto);font-stretch:125%;letter-spacing:.42em;text-transform:uppercase;color:var(--hielo)}
+.titulo h1{margin:0;font-family:var(--f-titulo);font-optical-sizing:auto;font-weight:400;font-size:clamp(54px,6.6vw,104px);line-height:.92;letter-spacing:-.012em;color:var(--tiza);text-wrap:balance}
+.titulo h1 em{display:block;font-style:italic;font-weight:500;color:var(--tiza)}
+.titulo h1 .cifra{font-weight:600}
+.entrada{margin:20px 0 0;max-width:36ch;font:400 16.5px/1.6 var(--f-texto);color:var(--bruma);text-wrap:pretty}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px 22px;margin:22px 0 0;padding:16px 0 0;border-top:1px solid rgba(212,166,74,.35);list-style:none;font:500 12px/1.3 var(--f-cifra);color:var(--bruma)}
+.leyenda li{display:flex;align-items:center;gap:9px}
+.leyenda svg{width:14px;height:13px;flex:none;overflow:visible}
+.titulo>*{opacity:0;transform:translateY(18px);transition:opacity 1s ease,transform 1.2s cubic-bezier(.16,.8,.2,1)}
+.listo .titulo>*{opacity:1;transform:none}
+.listo .titulo>:nth-child(2){transition-delay:.12s}
+.listo .titulo>:nth-child(3){transition-delay:.26s}
+.listo .titulo>:nth-child(4){transition-delay:.4s}
+.pista{position:absolute;z-index:5;right:max(28px,env(safe-area-inset-right,0px));bottom:max(30px,env(safe-area-inset-bottom,0px));margin:0;display:flex;align-items:center;gap:12px;
+  font:500 11px/1 var(--f-texto);font-stretch:112%;letter-spacing:.26em;text-transform:uppercase;color:var(--bruma);opacity:0;transition:opacity 1s ease 1.6s;pointer-events:none}
+.listo .panoramico-activo .pista,.panoramico-activo.listo .pista{opacity:.85}
+.pista i{display:block;width:44px;height:1px;background:linear-gradient(90deg,rgba(212,166,74,0),var(--laton))}
+.pista .solo-panoramico{display:none}
+.panoramico-activo .pista .solo-panoramico{display:inline}
+.panoramico-activo .pista .solo-normal{display:none}
+
+/* versión vertical: el título arriba, el mapa debajo y se recorre de lado */
+.vertical .velo-titulo{background:linear-gradient(var(--noche) 0,rgba(14,16,32,.94) calc(var(--alto-titulo,300px) - 30px),rgba(14,16,32,0) calc(var(--alto-titulo,300px) + 50px))}
+.vertical .titulo{top:calc(var(--barra) + env(safe-area-inset-top,0px) + 8px);bottom:auto;left:var(--g-izq);width:calc(100% - 32px)}
+.vertical .titulo h1{font-size:clamp(46px,13vw,64px)}
+.vertical .entrada{font-size:15px;margin-top:14px}
+.vertical .antetitulo{margin-bottom:10px;font-size:11px}
+.vertical .leyenda{margin-top:14px;padding-top:12px;font-size:11px}
+.vertical .pista{left:var(--g-izq);right:auto;bottom:max(14px,env(safe-area-inset-bottom,0px));font-size:10px}
+
+/* ───────────── emergente ───────────── */
+.emergente{position:fixed;z-index:60;left:0;top:0;width:min(318px,calc(100vw - 24px));padding:20px 20px 18px;
+  background:rgba(22,26,46,.9);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);
+  border:1px solid rgba(212,166,74,.55);border-radius:3px;box-shadow:0 24px 60px -18px rgba(0,0,0,.75),0 0 0 1px rgba(14,16,32,.6);
+  opacity:0;visibility:hidden;transform:translateY(6px) scale(.98);transform-origin:var(--origen,0 50%);
+  transition:opacity .28s ease,transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s linear .32s}
+.emergente.abierto{opacity:1;visibility:visible;transform:none;transition:opacity .28s ease,transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.emergente::before{content:"";position:absolute;width:10px;height:10px;background:inherit;border:inherit;border-right:0;border-top:0;
+  left:-6px;top:var(--flecha-y,50%);transform:translateY(-50%) rotate(45deg);-webkit-backdrop-filter:none;backdrop-filter:none}
+.emergente.flecha-der::before{left:auto;right:-6px;transform:translateY(-50%) rotate(225deg)}
+.emergente.flecha-no::before{display:none}
+.em-cab{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 8px}
+.em-cordillera{margin:0;font:500 10.5px/1.3 var(--f-texto);font-stretch:118%;letter-spacing:.3em;text-transform:uppercase;color:var(--hielo)}
+.em-orden{font:500 11px/1 var(--f-cifra);color:var(--velo-texto)}
+.em-nombre{margin:0;font:600 34px/1 var(--f-titulo);font-optical-sizing:auto;color:var(--tiza);letter-spacing:-.005em}
+.em-lema{margin:6px 0 0;font:italic 500 16px/1.3 var(--f-titulo);color:var(--bruma)}
+.em-datos{margin:12px 0 0;font:400 12px/1.55 var(--f-cifra);color:var(--bruma)}
+.em-datos b{font-weight:500;color:var(--laton)}
+.em-raya{width:42px;height:1px;margin:16px 0 14px;border:0;background:var(--laton)}
+.em-pregunta{margin:0;font:italic 500 21px/1.25 var(--f-titulo);color:var(--tiza)}
+.em-nota{margin:0;font:400 14px/1.55 var(--f-texto);color:var(--bruma)}
+.em-botones{display:flex;gap:10px;margin-top:16px}
+.boton{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:42px;padding:0 18px;border-radius:2px;cursor:pointer;text-decoration:none;
+  font:600 11.5px/1 var(--f-texto);font-stretch:118%;letter-spacing:.22em;text-transform:uppercase;transition:background .25s,color .25s,border-color .25s,transform .25s}
+.boton-si{background:var(--laton);color:#1A1608;border:1px solid var(--laton)}
+.boton-si:hover{background:var(--laton-claro);border-color:var(--laton-claro)}
+.boton-si svg{width:14px;height:10px;transition:transform .3s}
+.boton-si:hover svg{transform:translateX(3px)}
+.boton-no{background:transparent;color:var(--tiza);border:1px solid rgba(240,236,224,.35)}
+.boton-no:hover{border-color:var(--tiza)}
+.em-pendiente .em-nombre{font-style:italic;font-weight:500;color:var(--velo-texto)}
+.em-etiqueta{display:inline-block;margin:14px 0 10px;padding:5px 8px;border:1px dashed rgba(154,160,180,.6);font:500 10.5px/1 var(--f-texto);font-stretch:112%;letter-spacing:.26em;text-transform:uppercase;color:var(--velo-texto)}
+
+/* salida hacia la web de un pico */
+.telon{position:fixed;inset:0;z-index:80;background:var(--noche);opacity:0;pointer-events:none;transition:opacity .7s ease .15s}
+.partiendo .telon{opacity:1}
+.partiendo .lienzo{transition:transform 1s cubic-bezier(.6,0,.2,1)}
+.partiendo .titulo,.partiendo .pista,.partiendo .barra{opacity:0;transition:opacity .4s ease}
+
+/* ───────────── índice ───────────── */
+.indice{position:relative;padding:clamp(72px,10vw,128px) max(24px,var(--g-der)) clamp(64px,8vw,104px) max(24px,var(--g-izq));
+  background:linear-gradient(var(--noche),#0B0D1A)}
+.indice-cab{max-width:1120px;margin:0 auto 40px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 40px}
+.indice-cab h2{margin:0;font:italic 500 clamp(38px,5vw,60px)/1 var(--f-titulo);color:var(--tiza)}
+.indice-cab p{margin:0;max-width:44ch;color:var(--bruma);font-size:15.5px}
+.lista{max-width:1120px;margin:0 auto;padding:0;list-style:none;border-top:1px solid rgba(130,152,200,.28)}
+.fila{border-bottom:1px solid rgba(130,152,200,.18)}
+.fila>a,.fila>div{display:grid;grid-template-columns:48px minmax(0,1.5fr) 104px minmax(0,1.2fr) 156px;align-items:center;gap:20px;padding:18px 8px;text-decoration:none}
+.fila>a{transition:background .3s}
+.fila>a:hover{background:rgba(212,166,74,.06)}
+.f-orden{font:500 12px/1 var(--f-cifra);color:var(--velo-texto)}
+.f-nombre{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f-nombre b{font:600 24px/1.05 var(--f-titulo);color:var(--tiza)}
+.f-nombre i{font:italic 500 14.5px/1.3 var(--f-titulo);color:var(--bruma)}
+.f-alt{font:500 14px/1 var(--f-cifra);color:var(--laton)}
+.f-lugar{font:500 11px/1.4 var(--f-texto);font-stretch:112%;letter-spacing:.2em;text-transform:uppercase;color:var(--hielo)}
+.f-estado{justify-self:end;display:inline-flex;align-items:center;gap:9px;font:600 11px/1 var(--f-texto);font-stretch:118%;letter-spacing:.22em;text-transform:uppercase;color:var(--laton)}
+.f-estado svg{width:14px;height:10px;transition:transform .3s}
+.fila>a:hover .f-estado svg{transform:translateX(4px)}
+.fila.pendiente .f-nombre b{font-style:italic;font-weight:500;color:var(--velo-texto)}
+.fila.pendiente .f-alt{color:var(--velo-texto)}
+.fila.pendiente .f-estado{color:var(--velo-texto);font-weight:500}
+@media (max-width:760px){
+  .fila>a,.fila>div{grid-template-columns:34px minmax(0,1fr) auto;grid-template-areas:"o n a" "o l e";gap:6px 14px;padding:16px 4px}
+  .f-orden{grid-area:o;align-self:start;padding-top:6px}.f-nombre{grid-area:n}.f-alt{grid-area:a;justify-self:end}
+  .f-lugar{grid-area:l}.f-estado{grid-area:e}
+  .f-nombre b{font-size:21px}
+}
+
+/* ───────────── pie ───────────── */
+.pie{padding:48px max(24px,var(--g-der)) calc(40px + env(safe-area-inset-bottom,0px)) max(24px,var(--g-izq));background:#0B0D1A;border-top:1px solid rgba(212,166,74,.35)}
+.pie-rejilla{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:32px 56px}
+.pie h2{margin:0 0 6px;font:italic 500 26px/1.1 var(--f-titulo);color:var(--tiza)}
+.pie .sub{margin:0;font:500 11px/1.5 var(--f-texto);font-stretch:118%;letter-spacing:.26em;text-transform:uppercase;color:var(--hielo)}
+.pie p{margin:0 0 12px;font-size:13.5px;line-height:1.65;color:var(--bruma);max-width:72ch}
+.pie p b{color:var(--tiza);font-weight:600}
+.pie a{color:var(--laton-claro);text-underline-offset:3px}
+@media (max-width:760px){.pie-rejilla{grid-template-columns:minmax(0,1fr)}}
+
+@media (prefers-reduced-motion:reduce){
+  .lienzo,.lienzo>img,.titulo>*,.geo,.pista,.emergente,.telon{transition:none!important}
+  .listo .pico{animation:none;opacity:1}
+  .pico.activo .marca-pico::after{animation:none;opacity:.6}
+}
+</style>
+</head>
+<body>
+
+<header class="barra" id="barra">
+  <a class="marca" href="#inicio" aria-label="Los 14 ochomiles, inicio">
+    <svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 .8 15.2 13.2H.8z" fill="#D4A64A"/><circle cx="8" cy="9" r="1.5" fill="#0E1020"/></svg>
+    Ochomiles
+  </a>
+  <div class="barra-der">
+    <span class="contador" id="contador"><b>7</b>/14 exploradas</span>
+    <a class="enlace-indice" href="#indice">Índice</a>
+  </div>
+</header>
+
+<main>
+  <section class="portada" id="inicio" aria-labelledby="titulo-principal">
+    <div class="escenario" id="escenario">
+      <div class="lienzo" id="lienzo">
+        <img id="mapa" src="assets/mapa-2560.webp"
+             srcset="assets/mapa-1600.webp 1600w, assets/mapa-2560.webp 2560w, assets/mapa-3840.webp 3840w"
+             sizes="(min-aspect-ratio: 21/20) max(100vw, 150vh), 115vh" width="3840" height="2560" fetchpriority="high" decoding="async"
+             alt="Mapa pintado a pincel seco del Himalaya y el Karakórum de noche: la cordillera nevada brilla a la luz de la luna entre las llanuras de la India y la meseta tibetana.">
+      </div>
+    </div>
+    <div class="velo-titulo" aria-hidden="true"></div>
+    <div class="titulo" id="titulo">
+      <p class="antetitulo">Himalaya · Karakórum</p>
+      <h1 id="titulo-principal">Los <span class="cifra">14</span><em>ochomiles</em></h1>
+      <p class="entrada">Catorce cumbres por encima de los ocho mil metros, en un solo arco de mil quinientos kilómetros. Elige una en el mapa y sube.</p>
+      <ul class="leyenda" aria-label="Leyenda">
+        <li><svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 .8 15.2 13.2H.8z" fill="#D4A64A"/><circle cx="8" cy="9" r="1.5" fill="#0E1020"/></svg><span><span id="n-exploradas">7</span> exploradas</span></li>
+        <li><svg viewBox="0 0 16 14" aria-hidden="true"><circle cx="8" cy="7" r="5.6" fill="none" stroke="#9AA0B4" stroke-width="1.3" stroke-dasharray="2.2 2.4"/></svg><span><span id="n-pendientes">7</span> sin levantar</span></li>
+      </ul>
+    </div>
+    <p class="pista" aria-hidden="true"><span class="solo-normal">Pulsa un vértice</span><span class="solo-panoramico">Desliza para recorrer el arco</span><i></i></p>
+  </section>
+
+  <section class="indice" id="indice" aria-labelledby="titulo-indice">
+    <div class="indice-cab">
+      <h2 id="titulo-indice">Índice de la expedición</h2>
+      <p>Las catorce cumbres de la Tierra que pasan de los ocho mil metros, de la más alta a la más baja. Las que ya tienen su web se abren desde aquí o desde el mapa.</p>
+    </div>
+    <ol class="lista" id="lista">
+      <noscript>
+        <li class="fila"><a href="k2/"><span class="f-nombre"><b>K2</b></span></a></li>
+        <li class="fila"><a href="kangchenjunga/"><span class="f-nombre"><b>Kangchenjunga</b></span></a></li>
+        <li class="fila"><a href="lhotse/"><span class="f-nombre"><b>Lhotse</b></span></a></li>
+        <li class="fila"><a href="makalu/"><span class="f-nombre"><b>Makalu</b></span></a></li>
+        <li class="fila"><a href="manaslu/"><span class="f-nombre"><b>Manaslu</b></span></a></li>
+        <li class="fila"><a href="nanga-parbat/"><span class="f-nombre"><b>Nanga Parbat</b></span></a></li>
+        <li class="fila"><a href="annapurna/"><span class="f-nombre"><b>Annapurna I</b></span></a></li>
+      </noscript>
+    </ol>
+  </section>
+</main>
+
+<footer class="pie">
+  <div class="pie-rejilla">
+    <div>
+      <h2>Los 14 ochomiles</h2>
+      <p class="sub">Una serie de webs, una por cumbre</p>
+    </div>
+    <div>
+      <p><b>El mapa.</b> Pintado a pincel seco por un programa (<code>herramientas/pintar_mapa.py</code>) que sigue la especificación de estilo de la serie, en su variante de noche, sobre el relieve real en proyección cónica conforme de Lambert. Las cumbres están en sus coordenadas; el detalle de roca y nieve lo pone el pincel.</p>
+      <p><b>Datos.</b> Relieve: AWS Terrain Tiles de Mapzen (SRTM, GMTED2010, ETOPO1 y otros; <a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener">atribución</a>). Ríos y lagos: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a>, dominio público. Altitudes oficiales; las fronteras no se dibujan.</p>
+      <p><b>Identidad.</b> «El mapa del cartógrafo»: Bodoni Moda, Archivo e IBM Plex Mono (SIL Open Font License 1.1). Cada cumbre conserva la identidad de su propia web.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="emergente" id="emergente" role="dialog" aria-modal="false" aria-labelledby="em-nombre" hidden></div>
+<div class="telon" aria-hidden="true"></div>
+
+<script>
+(function(){
+'use strict';
+var raiz=document.documentElement;
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ───────── datos ─────────
+   u, v: posición de la cumbre en el cuadro (0–1), de assets/mapa.json (misma proyección que el pintor).
+   r: rótulo — desplazamiento [dx, dy] en px desde la cumbre y lado del texto ('d' a la derecha, 'i' a la izquierda). */
+var PICOS=[
+  {id:'everest',n:'Everest',art:'el',alt:8849,c:'Himalaya',p:'Nepal–China',lat:27.98904,lon:86.92555,u:.76761,v:.82067,web:null,r:[30,-128,'d']},
+  {id:'k2',n:'K2',art:'el',alt:8611,c:'Karakórum',p:'Pakistán–China',lat:35.88072,lon:76.5125,u:.2618,v:.15537,web:'k2/',lema:'La montaña sin nombre',r:[74,-30,'d']},
+  {id:'kangchenjunga',n:'Kangchenjunga',art:'el',alt:8586,c:'Himalaya',p:'Nepal–India',lat:27.70277,lon:88.14758,u:.83014,v:.83941,web:'kangchenjunga/',lema:'Los cinco tesoros de la gran nieve',r:[46,48,'d']},
+  {id:'lhotse',n:'Lhotse',art:'el',alt:8516,c:'Himalaya',p:'Nepal–China',lat:27.96178,lon:86.93243,u:.76804,v:.82296,web:'lhotse/',lema:'La cumbre al sur',r:[14,72,'d']},
+  {id:'makalu',n:'Makalu',art:'el',alt:8485,c:'Himalaya',p:'Nepal–China',lat:27.89146,lon:87.08851,u:.77612,v:.82828,web:'makalu/',lema:'El gran negro',r:[66,-36,'d']},
+  {id:'cho-oyu',n:'Cho Oyu',art:'el',alt:8188,c:'Himalaya',p:'Nepal–China',lat:28.09697,lon:86.66023,u:.75394,v:.81257,web:null,r:[-34,66,'i']},
+  {id:'dhaulagiri',n:'Dhaulagiri I',art:'el',alt:8167,c:'Himalaya',p:'Nepal',lat:28.69792,lon:83.48948,u:.59371,v:.77048,web:null,r:[-30,-64,'i']},
+  {id:'manaslu',n:'Manaslu',art:'el',alt:8163,c:'Himalaya',p:'Nepal',lat:28.5507,lon:84.55921,u:.64746,v:.78075,web:'manaslu/',lema:'La montaña del espíritu',r:[8,-86,'d']},
+  {id:'nanga-parbat',n:'Nanga Parbat',art:'el',alt:8126,c:'Himalaya',p:'Pakistán',lat:35.23855,lon:74.58931,u:.17083,v:.20325,web:'nanga-parbat/',lema:'La montaña desnuda',r:[-28,50,'i']},
+  {id:'annapurna',n:'Annapurna I',art:'el',alt:8091,c:'Himalaya',p:'Nepal',lat:28.59619,lon:83.81952,u:.61036,v:.77852,web:'annapurna/',lema:'La diosa de la abundancia',r:[-24,62,'i']},
+  {id:'gasherbrum-i',n:'Gasherbrum I',art:'el',alt:8080,c:'Karakórum',p:'Pakistán–China',lat:35.72497,lon:76.69837,u:.27004,v:.16916,web:null,r:[66,86,'d']},
+  {id:'broad-peak',n:'Broad Peak',art:'el',alt:8051,c:'Karakórum',p:'Pakistán–China',lat:35.81142,lon:76.5668,u:.26415,v:.16143,web:null,r:[90,10,'d']},
+  {id:'gasherbrum-ii',n:'Gasherbrum II',art:'el',alt:8035,c:'Karakórum',p:'Pakistán–China',lat:35.75753,lon:76.65261,u:.268,v:.16626,web:null,r:[84,48,'d']},
+  {id:'shishapangma',n:'Shishapangma',art:'el',alt:8027,c:'Himalaya',p:'China (Tíbet)',lat:28.35225,lon:85.78146,u:.70913,v:.79407,web:null,r:[2,-52,'d']}
+];
+var GEO=[
+  {t:'Himalaya',k:'cordillera',u:.31662,v:.57264,a:41},
+  {t:'Karakórum',k:'cordillera',u:0.2237,v:0.17236,a:29.9},
+  {t:'Meseta tibetana',k:'region',u:.70927,v:.4392,a:.2},
+  {t:'Indo',k:'rio',u:0.13148,v:0.18056,a:-23.7},
+  {t:'Yarlung Tsangpo',k:'rio',u:.91084,v:.69121,a:-2.8}
+];
+var ASPECTO=1.5;
+
+function fmt(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+function gms(x,pos,neg){var s=x<0?neg:pos;x=Math.abs(x);var g=Math.floor(x),m=Math.round((x-g)*60);if(m===60){g++;m=0}return g+'°'+String(m).padStart(2,'0')+'′ '+s}
+var ORDEN=PICOS.slice().sort(function(a,b){return b.alt-a.alt});
+ORDEN.forEach(function(p,i){p.orden=i+1});
+var exploradas=PICOS.filter(function(p){return p.web}).length;
+document.getElementById('contador').innerHTML='<b>'+exploradas+'</b>/14 exploradas';
+document.getElementById('n-exploradas').textContent=exploradas;
+document.getElementById('n-pendientes').textContent=14-exploradas;
+
+var FLECHA='<svg viewBox="0 0 14 10" aria-hidden="true"><path d="M0 5h12M8 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+var TRI='<svg viewBox="-9 -9 18 18" aria-hidden="true"><path class="tri" d="M0 -7.4 7.2 5.6H-7.2z"/><circle class="tri-punto" cx="0" cy="1.6" r="1.6"/></svg>';
+var CIRC='<svg viewBox="-9 -9 18 18" aria-hidden="true"><circle class="circ" r="5.4"/></svg>';
+
+/* ───────── mapa: rótulos y vértices ───────── */
+var portada=document.querySelector('.portada'),escenario=document.getElementById('escenario'),lienzo=document.getElementById('lienzo'),mapa=document.getElementById('mapa');
+GEO.forEach(function(g){var el=document.createElement('span');el.className='geo geo--'+g.k;el.textContent=g.t;el.setAttribute('aria-hidden','true');lienzo.appendChild(el);g.el=el});
+
+/* orden de tabulación: de oeste a este, como se recorre el arco */
+PICOS.slice().sort(function(a,b){return a.u-b.u}).forEach(function(p,i){
+  var b=document.createElement('button');
+  b.type='button';b.className='pico'+(p.web?'':' pendiente');b.dataset.id=p.id;
+  b.setAttribute('aria-haspopup','dialog');
+  b.setAttribute('aria-label',p.n+', '+fmt(p.alt)+' metros, '+(p.web?'explorado':'sin levantar'));
+  b.style.setProperty('--retraso',(1.1+i*.07).toFixed(2)+'s');
+  b.innerHTML='<span class="guia"></span><span class="marca-pico">'+(p.web?TRI:CIRC)+'</span>'+
+    '<span class="rotulo'+(p.r[2]==='i'?' izq':'')+'"><b>'+p.n+'</b><span>'+fmt(p.alt)+' m</span></span>';
+  b.addEventListener('click',function(e){e.stopPropagation();abrir(p)});
+  lienzo.appendChild(b);p.el=b;p.rot=b.querySelector('.rotulo');p.guia=b.querySelector('.guia');
+});
+
+/* ───────── maquetación: dónde y a qué escala va el cuadro ───────── */
+var cajaU=[Infinity,-Infinity],cajaV=[Infinity,-Infinity];
+PICOS.forEach(function(p){cajaU[0]=Math.min(cajaU[0],p.u);cajaU[1]=Math.max(cajaU[1],p.u);cajaV[0]=Math.min(cajaV[0],p.v);cajaV[1]=Math.max(cajaV[1],p.v)});
+var esc={W:1600,H:1067,x:0,y:0,k:1,vertical:false,panoramico:false};
+
+function maquetar(){
+  var w=portada.clientWidth,hv=innerHeight;
+  var vertical=w/hv<1.05;
+  raiz.classList.toggle('vertical',vertical);
+  var k=w<700?.78:1;                                   // los rótulos se acercan en pantallas pequeñas
+  var barra=document.getElementById('barra').offsetHeight;
+  var titulo=document.getElementById('titulo');
+  // márgenes que necesitan los rótulos alrededor de la caja de cumbres
+  var mIzq=150*k,mDer=190*k,mArr=(vertical?40:58)*k,mAbj=(vertical?70:96)*k;
+  var bu=cajaU[1]-cajaU[0],bv=cajaV[1]-cajaV[0];
+  var W,H,x,y,panoramico=false;
+  if(vertical){
+    portada.style.height='';
+    var tb=titulo.offsetTop+titulo.offsetHeight;
+    portada.style.setProperty('--alto-titulo',tb+'px');
+    var y0=tb+10,pie=44;
+    var porAlto=(hv-y0-pie-mArr-mAbj)/(bv/ASPECTO);
+    // el arco necesita sitio: si no cabe en la pantalla, la portada crece y se baja con el dedo
+    H=Math.max(porAlto/ASPECTO,Math.min(Math.max(1.5*w,520),900));
+    W=Math.max(H*ASPECTO,w*1.02);H=W/ASPECTO;
+    x=0;y=y0+mArr-cajaV[0]*H;
+    var alto=Math.ceil(y+cajaV[1]*H+mAbj+pie);
+    if(alto>hv)portada.style.height=alto+'px';
+    panoramico=W>w+2;
+  }else{
+    portada.style.height='';
+    var h=portada.clientHeight;
+    var zona={x0:28,x1:w-28,y0:barra+6,y1:h-10};
+    var porAncho=(zona.x1-zona.x0-mIzq-mDer)/bu;
+    var porAlto2=(zona.y1-zona.y0-mArr-mAbj)/(bv/ASPECTO);
+    W=Math.min(porAncho,porAlto2);
+    var cubre=Math.max(w,h*ASPECTO);
+    if(cubre<=W*1.12)W=cubre;
+    W=Math.max(W,320);H=W/ASPECTO;
+    var cx=(zona.x0+zona.x1)/2+(mIzq-mDer)/2,cy=(zona.y0+zona.y1)/2+(mArr-mAbj)/2;
+    x=cx-(cajaU[0]+bu/2)*W;y=cy-(cajaV[0]+bv/2)*H;
+    if(W>=w)x=Math.min(0,Math.max(w-W,x));
+    if(H>=h)y=Math.min(0,Math.max(h-H,y));
+  }
+  esc={W:W,H:H,x:x,y:y,k:k,vertical:vertical,panoramico:panoramico};
+  escenario.classList.toggle('panoramico',panoramico);
+  raiz.classList.toggle('panoramico-activo',panoramico);
+  lienzo.style.width=W+'px';lienzo.style.height=H+'px';
+  lienzo.style.left=x+'px';lienzo.style.top=y+'px';
+  mapa.sizes=Math.round(W)+'px';
+  GEO.forEach(function(g){g.el.style.transform='translate('+(g.u*W).toFixed(1)+'px,'+(g.v*H).toFixed(1)+'px) translate(-50%,-50%) rotate('+g.a+'deg)'});
+  PICOS.forEach(function(p){
+    var px=p.u*W,py=p.v*H,dx=p.r[0]*k,dy=p.r[1]*k;
+    p.el.style.transform='translate('+px.toFixed(1)+'px,'+py.toFixed(1)+'px)';
+    var len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx);
+    var ini=9,fin=Math.max(ini,len-4);
+    p.guia.style.width=(fin-ini)+'px';
+    p.guia.style.transform='translate('+(Math.cos(ang)*ini).toFixed(1)+'px,'+(Math.sin(ang)*ini).toFixed(1)+'px) rotate('+ang+'rad)';
+    p.rot.style.transform='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) translate('+(p.r[2]==='i'?'-100%':'0')+',-50%)';
+  });
+  if(panoramico&&!maquetar.centrado){
+    // se empieza mirando a Nepal: allí están nueve de las catorce
+    escenario.scrollLeft=Math.max(0,.66*W-w/2);maquetar.centrado=true;
+  }
+  if(abierto)colocar(abierto);
+}
+
+/* ───────── emergente ───────── */
+var em=document.getElementById('emergente'),abierto=null,origen=null;
+function contenido(p){
+  var cab='<div class="em-cab"><p class="em-cordillera">'+p.c+' · '+p.p+'</p><span class="em-orden">'+String(p.orden).padStart(2,'0')+'/14</span></div>';
+  var datos='<p class="em-datos"><b>'+fmt(p.alt)+' m</b> · '+gms(p.lat,'N','S')+' '+gms(p.lon,'E','O')+'</p>';
+  if(p.web){
+    return cab+'<h2 class="em-nombre" id="em-nombre">'+p.n+'</h2><p class="em-lema">'+p.lema+'</p>'+datos+
+      '<hr class="em-raya"><p class="em-pregunta">¿Desea explorar '+p.art+' '+p.n+'?</p>'+
+      '<div class="em-botones"><a class="boton boton-si" href="'+p.web+'" data-si>Sí'+FLECHA+'</a><button type="button" class="boton boton-no" data-no>No</button></div>';
+  }
+  return '<div class="em-pendiente">'+cab+'<h2 class="em-nombre" id="em-nombre">'+p.n+'</h2>'+datos+
+    '<span class="em-etiqueta">Expedición pendiente</span><p class="em-nota">Este ochomil aún no tiene su web en la serie. Cuando la tenga, este círculo se convertirá en un vértice.</p>'+
+    '<div class="em-botones"><button type="button" class="boton boton-no" data-no>Seguir en el mapa</button></div></div>';
+}
+function abrir(p){
+  if(abierto===p){cerrar(true);return}
+  if(abierto)abierto.el.classList.remove('activo');
+  abierto=p;origen=p.el;
+  em.innerHTML=contenido(p);em.hidden=false;
+  p.el.classList.add('activo');p.el.setAttribute('aria-expanded','true');
+  colocar(p);
+  requestAnimationFrame(function(){em.classList.add('abierto')});
+  var si=em.querySelector('[data-si]'),no=em.querySelector('[data-no]');
+  if(no)no.addEventListener('click',function(){cerrar(true)});
+  if(si)si.addEventListener('click',function(e){
+    if(e.metaKey||e.ctrlKey||e.shiftKey||e.button===1)return;
+    e.preventDefault();partir(p,si.getAttribute('href'));
+  });
+  setTimeout(function(){(si||no).focus({preventScroll:true})},RM?0:60);
+}
+function cerrar(devolver){
+  if(!abierto)return;
+  abierto.el.classList.remove('activo');abierto.el.setAttribute('aria-expanded','false');
+  em.classList.remove('abierto');
+  var o=origen;abierto=null;
+  setTimeout(function(){if(!abierto){em.hidden=true;em.innerHTML=''}},RM?0:320);
+  if(devolver&&o)o.focus({preventScroll:true});
+}
+/* la tarjeta se coloca al lado del nombre; si no cabe, al otro lado; en móvil, debajo o encima */
+function colocar(p){
+  var r=p.rot.getBoundingClientRect(),vw=innerWidth,vh=innerHeight;
+  var cw=em.offsetWidth,ch=em.offsetHeight,gap=16,m=12,x,y,clase='';
+  var der=r.right+gap,izq=r.left-gap-cw;
+  if(der+cw<=vw-m){x=der;clase=''}
+  else if(izq>=m){x=izq;clase='flecha-der'}
+  else{
+    x=Math.min(Math.max(m,r.left+r.width/2-cw/2),vw-cw-m);clase='flecha-no';
+    y=r.bottom+gap+ch<=vh-m?r.bottom+gap:Math.max(m,r.top-gap-ch);
+  }
+  if(y===undefined){y=Math.min(Math.max(m,r.top+r.height/2-ch/2),vh-ch-m)}
+  em.classList.remove('flecha-der','flecha-no');if(clase)em.classList.add(clase);
+  em.style.setProperty('--flecha-y',Math.min(ch-18,Math.max(18,r.top+r.height/2-y))+'px');
+  em.style.setProperty('--origen',clase==='flecha-der'?'100% 50%':clase==='flecha-no'?'50% 0':'0 50%');
+  em.style.left=Math.round(x)+'px';em.style.top=Math.round(y)+'px';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&abierto)cerrar(true)});
+document.addEventListener('click',function(e){if(abierto&&!em.contains(e.target))cerrar(false)});
+addEventListener('scroll',function(){if(abierto)colocar(abierto)},{passive:true});
+escenario.addEventListener('scroll',function(){if(abierto)colocar(abierto)},{passive:true});
+
+/* ───────── salida: el mapa se acerca a la cumbre y cae el telón ───────── */
+function partir(p,href){
+  if(RM){location.href=href;return}
+  var ox=p.u*esc.W,oy=p.v*esc.H;
+  lienzo.style.transformOrigin=ox+'px '+oy+'px';
+  em.classList.remove('abierto');
+  raiz.classList.add('partiendo');
+  requestAnimationFrame(function(){lienzo.style.transform='scale(2.4)'});
+  setTimeout(function(){location.href=href},820);
+}
+addEventListener('pageshow',function(e){
+  if(e.persisted){raiz.classList.remove('partiendo');lienzo.style.transform='';cerrar(false)}
+});
+
+/* ───────── índice ───────── */
+var lista=document.getElementById('lista');
+lista.innerHTML='';
+ORDEN.forEach(function(p){
+  var li=document.createElement('li');li.className='fila'+(p.web?'':' pendiente');
+  var dentro='<span class="f-orden">'+String(p.orden).padStart(2,'0')+'</span>'+
+    '<span class="f-nombre"><b>'+p.n+'</b>'+(p.lema?'<i>'+p.lema+'</i>':'')+'</span>'+
+    '<span class="f-alt n">'+fmt(p.alt)+' m</span>'+
+    '<span class="f-lugar">'+p.c+' · '+p.p+'</span>'+
+    (p.web?'<span class="f-estado">Explorar'+FLECHA+'</span>':'<span class="f-estado">Sin levantar</span>');
+  li.innerHTML=p.web?'<a href="'+p.web+'">'+dentro+'</a>':'<div>'+dentro+'</div>';
+  lista.appendChild(li);
+});
+
+/* ───────── arranque ───────── */
+var tRes=0;
+var ultimo=[innerWidth,innerHeight];
+addEventListener('resize',function(){
+  // en móvil la barra de direcciones cambia el alto al desplazarse: eso no es motivo para rehacer el mapa
+  if(esc.vertical&&innerWidth===ultimo[0]&&Math.abs(innerHeight-ultimo[1])<160)return;
+  ultimo=[innerWidth,innerHeight];clearTimeout(tRes);tRes=setTimeout(maquetar,90)});
+maquetar();
+function mostrar(){if(!raiz.classList.contains('listo'))raiz.classList.add('listo')}
+if(mapa.complete&&mapa.naturalWidth)mostrar();
+else{mapa.addEventListener('load',mostrar);mapa.addEventListener('error',mostrar);setTimeout(mostrar,2500)}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(maquetar);
+})();
+</script>
+</body>
+</html>

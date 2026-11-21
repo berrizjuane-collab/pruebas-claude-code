@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>K2 · La montaña sin nombre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Un ascenso en scroll al K2: el nombre que nunca tuvo, la gente de Baltistán, los picos de Concordia, la pirámide de 8 611 m, la ruta del Espolón de los Abruzos y la memoria de quienes no volvieron.">
+<meta name="theme-color" content="#0B0F1A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K2 · La montaña sin nombre">
+<meta property="og:description" content="Un ascenso en scroll a la segunda montaña de la Tierra.">
+<meta property="og:image" content="assets/img/og.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230B0F1A'/%3E%3Cpath d='M6 54 26 20l7 9 6-13 19 38z' fill='%23E8EDF2'/%3E%3Cpath d='M39 16l-3.4 7.4 4.6 5.2 4-3.4z' fill='%23D9572B'/%3E%3C/svg%3E">
+<link rel="preload" as="font" type="font/woff2" href="assets/fuentes/cinzel-var.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fuentes/spectral-300.woff2" crossorigin>
+<link rel="stylesheet" href="css/k2.css">
+<link rel="stylesheet" href="css/lqip.css">
+<script>
+  /* Las animaciones de entrada solo se activan si el script principal arranca: sin él, todo el texto queda visible. */
+  document.documentElement.classList.add('js');
+  setTimeout(function () { if (!window.__k2) document.documentElement.classList.remove('js'); }, 4000);
+</script>
+</head>
+<body>
+
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- ═══════════════════════ ESCENARIO FIJO: las ilustraciones ═══════════════════════ -->
+<div id="escenario" aria-hidden="true">
+
+  <div class="escena" data-escena="portada" data-entrada="ninguna">
+    <div class="lamina" data-img="k2_01_concordia" data-ar="1.77778">
+      <img alt="" decoding="async" fetchpriority="high" src="assets/img/k2_01_concordia-1600.webp"
+           data-base="assets/img/k2_01_concordia" data-anchos="960,1600,2560,3840">
+    </div>
+    <div class="velo velo--portada"></div>
+  </div>
+
+  <div class="escena" data-escena="nombre" data-entrada="fundido">
+    <div class="lamina" data-img="k2_07_horizonte" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_07_horizonte" data-anchos="960,1600,2560,3840">
+      <svg class="anot anot--horizonte" viewBox="0 0 1600 900" preserveAspectRatio="none">
+        <line class="anot__visual" x1="352" y1="566" x2="972" y2="312" pathLength="1"/>
+        <g class="anot__hito" data-hito="k1">
+          <line x1="536" y1="380" x2="536" y2="296" pathLength="1"/>
+          <circle cx="536" cy="389" r="5"/>
+          <text x="536" y="272" text-anchor="middle">K1</text>
+          <text class="anot__sub" x="536" y="240" text-anchor="middle">Masherbrum</text>
+        </g>
+        <g class="anot__hito" data-hito="k2">
+          <line x1="979" y1="296" x2="979" y2="196" pathLength="1"/>
+          <circle cx="979" cy="304" r="5"/>
+          <text x="979" y="170" text-anchor="middle">K2</text>
+          <text class="anot__sub" x="979" y="136" text-anchor="middle">sin nombre</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="escena" data-escena="baltistan" data-entrada="macizo">
+    <div class="lamina" data-img="k2_08_baltoro" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_08_baltoro" data-anchos="960,1600,2560,3840">
+    </div>
+  </div>
+
+  <div class="escena" data-escena="macizo" data-entrada="fundido">
+    <div class="lamina" data-img="k2_09_anfiteatro" data-ar="3.6">
+      <img alt="" decoding="async" data-base="assets/img/k2_09_anfiteatro" data-anchos="3600,5400,7200">
+      <div class="pico" data-pico="k2" style="--u:17%;--v:8.5%"><b>K2</b><i>8&thinsp;611 m</i></div>
+      <div class="pico" data-pico="broad" style="--u:36.5%;--v:17.5%"><b>Broad Peak</b><i>8&thinsp;051 m</i></div>
+      <div class="pico pico--izq" data-pico="g2" style="--u:46.8%;--v:36.5%"><b>Gasherbrum II</b><i>8&thinsp;035 m</i></div>
+      <div class="pico" data-pico="g4" style="--u:58.2%;--v:15%"><b>Gasherbrum IV</b><i>7&thinsp;925 m</i></div>
+      <div class="pico pico--izq" data-pico="bkangri" style="--u:70.2%;--v:38.5%"><b>Baltoro Kangri</b><i>7&thinsp;312 m</i></div>
+      <div class="pico pico--izq" data-pico="chogolisa" style="--u:77.52%;--v:26.5%"><b>Chogolisa</b><i>7&thinsp;665 m</i></div>
+      <div class="pico pico--izq" data-pico="mitre" style="--u:92.8%;--v:7%"><b>Mitre Peak</b><i>6&thinsp;010 m</i></div>
+    </div>
+    <div class="velo velo--pie"></div>
+  </div>
+
+  <div class="escena" data-escena="piramide" data-entrada="macizo">
+    <div class="lamina" data-img="k2_02_campo_base" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_02_campo_base" data-anchos="960,1600,2560,3840">
+      <svg class="anot anot--piramide anot--ancha" viewBox="0 0 1600 900" preserveAspectRatio="none">
+        <g class="anot__hito" data-hito="cumbre">
+          <line x1="786" y1="52" x2="640" y2="52" pathLength="1"/>
+          <circle cx="796" cy="52" r="5"/>
+          <text x="626" y="48" text-anchor="end">Cumbre</text>
+          <text class="anot__sub" x="626" y="82" text-anchor="end">8 611 m</text>
+        </g>
+        <g class="anot__hito" data-hito="hombro">
+          <line x1="1078" y1="166" x2="1170" y2="118" pathLength="1"/>
+          <circle cx="1070" cy="170" r="5"/>
+          <text x="1184" y="112">El Hombro</text>
+          <text class="anot__sub" x="1184" y="146">≈ 7 900 m</text>
+        </g>
+        <g class="anot__hito" data-hito="cuello">
+          <line x1="930" y1="108" x2="990" y2="60" pathLength="1"/>
+          <circle cx="923" cy="114" r="5"/>
+          <text x="1004" y="56">Cuello de Botella</text>
+        </g>
+        <g class="anot__hito" data-hito="abruzos">
+          <line x1="1232" y1="300" x2="1282" y2="268" pathLength="1"/>
+          <circle cx="1224" cy="304" r="5"/>
+          <text x="1294" y="262">Abruzos</text>
+          <text class="anot__sub" x="1294" y="296">arista sureste</text>
+        </g>
+        <g class="anot__hito" data-hito="magic">
+          <line x1="562" y1="250" x2="470" y2="210" pathLength="1"/>
+          <circle cx="570" cy="254" r="5"/>
+          <text x="456" y="204" text-anchor="end">Magic Line</text>
+          <text class="anot__sub" x="456" y="238" text-anchor="end">pilar suroeste</text>
+        </g>
+      </svg>
+      <svg class="anot anot--piramide anot--estrecha" viewBox="0 0 1600 900" preserveAspectRatio="none">
+        <g class="anot__hito" data-hito="cumbre">
+          <line x1="806" y1="50" x2="836" y2="42" pathLength="1"/>
+          <circle cx="796" cy="52" r="4"/>
+          <text x="846" y="47">Cumbre</text>
+        </g>
+        <g class="anot__hito" data-hito="cuello">
+          <line x1="931" y1="108" x2="954" y2="96" pathLength="1"/>
+          <circle cx="923" cy="114" r="4"/>
+          <text x="964" y="94">Cuello de</text>
+          <text x="964" y="116">Botella</text>
+        </g>
+        <g class="anot__hito" data-hito="hombro">
+          <line x1="1070" y1="180" x2="1070" y2="214" pathLength="1"/>
+          <circle cx="1070" cy="170" r="4"/>
+          <text x="1150" y="240" text-anchor="end">El Hombro</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="escena" data-escena="ruta" data-entrada="telon">
+    <div class="lamina" data-img="k2_03_ruta" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_03_ruta" data-anchos="960,1600,2560,3840">
+      <svg class="ruta-svg" viewBox="0 0 3840 2160" preserveAspectRatio="none">
+        <defs>
+          <mask id="ruta-mascara" maskUnits="userSpaceOnUse" x="0" y="0" width="3840" height="2160">
+            <path id="ruta-trazo" fill="none" stroke="#fff" stroke-width="70" stroke-linejoin="round" pathLength="1"
+                  stroke-dasharray="1 1" stroke-dashoffset="1"/>
+            <g id="ruta-hitos" fill="#fff"></g>
+          </mask>
+        </defs>
+        <image id="ruta-capa" mask="url(#ruta-mascara)" preserveAspectRatio="none"/>
+        <g id="ruta-rotulos"></g>
+        <g id="ruta-cabeza"><circle class="halo" r="34"/><circle class="punto" r="11"/></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="escena" data-escena="noche" data-entrada="fundido">
+    <div class="lamina" data-img="k2_04_campo_4_noche" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_04_campo_4_noche" data-anchos="960,1600,2560,3840">
+      <i class="brasa" style="--u:9%;--v:77%;--t:4.6s"></i><i class="brasa" style="--u:27.5%;--v:81%;--t:6.1s"></i>
+      <i class="brasa" style="--u:17%;--v:86%;--t:5.2s"></i><i class="brasa" style="--u:37.5%;--v:88%;--t:7s"></i>
+      <i class="frontal" style="--u:50%;--v:85.5%;--t:2.9s"></i><i class="frontal" style="--u:55.5%;--v:82%;--t:3.7s"></i>
+      <i class="frontal" style="--u:61%;--v:78.5%;--t:2.3s"></i><i class="frontal" style="--u:65.5%;--v:75.5%;--t:4.1s"></i>
+      <i class="frontal" style="--u:69%;--v:72.5%;--t:3.1s"></i><i class="frontal" style="--u:71.5%;--v:70%;--t:2.6s"></i>
+    </div>
+    <div id="tunel"></div>
+  </div>
+
+  <div class="escena" data-escena="cuello" data-entrada="pendiente">
+    <div class="lamina" data-img="k2_05_cuello_de_botella" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_05_cuello_de_botella" data-anchos="960,1600,2560,3840">
+    </div>
+  </div>
+
+  <div class="escena" data-escena="cumbre" data-entrada="iris" style="--cx:39%;--cy:66%">
+    <div class="lamina" data-img="k2_06_cumbre" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_06_cumbre" data-anchos="960,1600,2560,3840">
+    </div>
+  </div>
+
+  <div class="escena" data-escena="memoria" data-entrada="fundido">
+    <div class="lamina" data-img="k2_10_gilkey" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_10_gilkey" data-anchos="960,1600,2560,3840">
+    </div>
+  </div>
+
+  <div class="escena" data-escena="epilogo" data-entrada="fundido">
+    <div class="lamina" data-img="k2_01_concordia" data-ar="1.77778">
+      <img alt="" decoding="async" data-base="assets/img/k2_01_concordia" data-anchos="960,1600,2560,3840">
+    </div>
+    <div class="velo velo--epilogo"></div>
+  </div>
+</div>
+
+<canvas id="nieve" aria-hidden="true"></canvas>
+
+<!-- ═══════════════════════ CABECERA Y ALTÍMETRO ═══════════════════════ -->
+<header class="cabecera">
+  <a class="cabecera__marca" href="#portada" aria-label="K2, volver al inicio">K2</a>
+  <nav class="cabecera__nav" aria-label="Capítulos">
+    <a href="#nombre">Nombre</a>
+    <a href="#baltistan">Baltistán</a>
+    <a href="#macizo">Macizo</a>
+    <a href="#piramide">Pirámide</a>
+    <a href="#ruta">Ruta</a>
+    <a href="#cumbre">Cumbre</a>
+    <a href="#memoria">Memoria</a>
+  </nav>
+</header>
+
+<aside class="altimetro" aria-hidden="true">
+  <div class="altimetro__regla"></div>
+  <div class="altimetro__cursor" id="alt-cursor">
+    <span class="altimetro__cifra" id="alt-cifra">4&thinsp;600</span><span class="altimetro__m">m</span>
+    <span class="altimetro__lugar" id="alt-lugar">Concordia</span>
+    <i class="altimetro__indice"></i>
+  </div>
+</aside>
+<div id="corte" aria-hidden="true"></div>
+
+<main id="contenido">
+
+  <!-- ═══════════════════════ 00 · PORTADA ═══════════════════════ -->
+  <section class="capitulo capitulo--portada" id="portada" data-escena="portada" data-alt="4600" data-lugar="Concordia" data-nieve=".4" data-viento=".12">
+    <div class="portada">
+      <div class="portada__texto">
+        <p class="etiqueta" data-entra>Karakórum · Baltistán</p>
+        <h1 class="display" aria-label="K2"><span class="letras" aria-hidden="true">K2</span></h1>
+        <p class="subdisplay" data-entra style="--d:.5s">Chogori</p>
+        <p class="tibetano" aria-hidden="true" data-entra style="--d:.65s">ཀཁགངཅཆ</p>
+        <p class="portada__lema" data-entra style="--d:.8s">La montaña que nunca tuvo nombre propio.</p>
+        <a class="boton" href="#nombre" data-entra style="--d:.95s">Comenzar el ascenso</a>
+      </div>
+      <aside class="recuadro recuadro--ficha portada__ficha" data-entra="papel" style="--rot:2deg;--d:1.1s" aria-label="Ficha técnica">
+        <div class="ficha">
+          <p class="etiqueta">Ficha técnica</p>
+          <p class="cifra">8&thinsp;611 m</p>
+          <dl class="ficha__filas">
+            <div><dt>Cordillera</dt><dd>Karakórum</dd></div>
+            <div><dt>Frontera</dt><dd>Pakistán · China</dd></div>
+            <div><dt>1.ª ascensión</dt><dd>1954</dd></div>
+            <div><dt>1.ª invernal</dt><dd>2021</dd></div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+    <div class="portada__baja" aria-hidden="true"><span class="portada__hilo"></span><span class="etiqueta">Desliza para subir</span></div>
+  </section>
+
+  <!-- ═══════════════════════ 01 · EL NOMBRE ═══════════════════════ -->
+  <section class="capitulo" id="nombre" data-escena="nombre" data-alt="5142" data-lugar="Monte Haramukh" data-nieve=".14" data-viento=".08">
+    <div class="plano plano--der">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>Monte Haramukh · Cachemira · 1856</p>
+        <h2 class="seccion" data-titulo>Una montaña medida, no adorada</h2>
+        <p data-entra>Casi todos los gigantes de Asia tienen nombre de diosa, de madre o de montaña sagrada. El K2 tiene un código.</p>
+        <p data-entra>En 1856, el teniente Thomas Montgomerie, del Gran Levantamiento Trigonométrico de la India, sube al Haramukh con un teodolito. A más de doscientos kilómetros, sobre un mar de cordilleras, asoman dos picos del Karakórum. Los anota en su libreta por orden: <strong>K1</strong>, <strong>K2</strong>.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--mudo" data-hitos="nombre">
+      <p class="etiqueta" data-entra>La visual de Montgomerie · más de 200 km</p>
+    </div>
+
+    <div class="plano plano--der">
+      <aside class="recuadro recuadro--recorte" data-entra="papel" style="--rot:-2deg;--w:30rem">
+        <div class="hoja">
+          <p class="etiqueta">¿Por qué «K2»?</p>
+          <p>La «K» es de Karakórum y el «2», el orden en que el topógrafo anotó el pico. No era un nombre: era una etiqueta de trabajo, la entrada de un catálogo.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="plano">
+      <div class="bloque">
+        <p data-entra>La norma del Levantamiento era devolver a cada cumbre su nombre local. K1 resultó ser el Masherbrum; K4 y K5, los Gasherbrum. El K2 no. Está tan escondido tras otras montañas que no se ve desde Askole, la última aldea del valle, y nadie supo decir cómo se llamaba.</p>
+        <p data-entra>Se le han propuesto varios nombres desde entonces. Ninguno ha podido con el número.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--der plano--alto">
+      <ul class="tiras" aria-label="Los otros nombres del K2">
+        <li data-entra="tira" style="--rot:-.7deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Chogori</span><span class="tira__v">balti</span></div></div>
+          <p class="nota">«Montaña grande». Quizá lo acuñaron los propios exploradores: apenas hay rastro de su uso en el valle.</p>
+        </li>
+        <li data-entra="tira" style="--rot:.5deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Qogir</span><span class="tira__v">China</span></div></div>
+          <p class="nota">La misma palabra, pasada al chino. Es el nombre oficial en la vertiente norte.</p>
+        </li>
+        <li data-entra="tira" style="--rot:-.4deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Godwin-Austen</span><span class="tira__v">1861</span></div></div>
+          <p class="nota">Por el explorador que cartografió sus glaciares. La Royal Geographical Society lo rechazó; hoy lo lleva solo el glaciar.</p>
+        </li>
+        <li data-entra="tira" style="--rot:.8deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Ketu</span><span class="tira__v">hoy</span></div></div>
+          <p class="nota">Así pronuncian «K2» los baltís. El código del topógrafo ha acabado siendo también el nombre local.</p>
+        </li>
+      </ul>
+    </div>
+
+    <div class="plano plano--centro">
+      <blockquote class="cita-grande" data-entra>
+        <p class="cita">«Es una montaña salvaje que intenta matarte».</p>
+        <footer class="nota">George Bell, expedición estadounidense de 1953. De ahí su otro nombre: <em>the Savage Mountain</em>.</footer>
+      </blockquote>
+    </div>
+    <p class="pie">Ilustración · El Karakórum desde el Haramukh, a más de 200 km. Recreación; las distancias están comprimidas.</p>
+  </section>
+
+  <!-- ═══════════════════════ 02 · BALTISTÁN ═══════════════════════ -->
+  <section class="capitulo" id="baltistan" data-escena="baltistan" data-alt="3048" data-alt-fin="4600" data-lugar="Glaciar Baltoro" data-nieve=".04" data-viento=".1">
+    <div class="plano plano--der">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>Askole · 3&thinsp;048 m → Concordia · 4&thinsp;600 m</p>
+        <h2 class="seccion" data-titulo>Antes de la pared, el camino</h2>
+        <p data-entra>El K2 empieza lejos del K2. Desde Skardu, capital de Baltistán, una pista de tierra lleva hasta Askole, la última aldea. Después ya solo se camina: una semana glaciar arriba por el Baltoro, más de sesenta kilómetros de hielo y piedra suelta.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--der">
+      <div class="bloque">
+        <h3 class="subtitulo" data-entra>La gente del valle</h3>
+        <p data-entra>Los baltís hablan una lengua de la familia tibetana y son, en su gran mayoría, musulmanes: el islam llegó a estos valles hacia el siglo XIV, sobre una raíz bön y budista. A Baltistán se le ha llamado por eso «el pequeño Tíbet».</p>
+        <p data-entra>Sin ellos no hay expedición. Cada verano, cientos de porteadores cargan unos veinticinco kilos por jornada: bidones, cocinas, cuerdas, tiendas.</p>
+      </div>
+    </div>
+
+    <div class="plano">
+      <aside class="recuadro recuadro--nota" data-entra="papel" style="--rot:1.5deg;--w:33rem" aria-label="Etapas del Baltoro">
+        <div class="cuaderno">
+          <p class="etiqueta">Etapas del Baltoro</p>
+          <ol>
+            <li><span>Askole</span><span>3&thinsp;048 m</span></li>
+            <li><span>Paiju</span><span>≈ 3&thinsp;400 m</span></li>
+            <li><span>Urdukas</span><span>≈ 4&thinsp;050 m</span></li>
+            <li><span>Goro II</span><span>≈ 4&thinsp;300 m</span></li>
+            <li><span>Concordia</span><span>≈ 4&thinsp;600 m</span></li>
+            <li><span>Campo base</span><span>≈ 5&thinsp;150 m</span></li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+
+    <div class="plano plano--der">
+      <div class="bloque">
+        <h3 class="subtitulo" data-entra>Los que suben la carga</h3>
+        <p data-entra>Durante décadas, sus nombres fueron una nota al pie. En 1954, el porteador hunza Amir Mehdi subió el oxígeno de la primera ascensión por encima de los 8&thinsp;000 metros y pasó la noche al raso; perdió los dedos de los pies.</p>
+        <p data-entra>Ali Sadpara, de una aldea vecina de Skardu, coronó ocho ochomiles. Desapareció en el K2 en febrero de 2021, intentándolo en invierno.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--der">
+      <aside class="recuadro recuadro--recorte" data-entra="papel" style="--rot:2.4deg;--w:30rem">
+        <div class="hoja">
+          <p class="etiqueta">Lo que dicen los nombres</p>
+          <dl class="glosario">
+            <div><dt>Karakórum</dt><dd>«grava negra», en lenguas túrquicas</dd></div>
+            <div><dt>Gasherbrum</dt><dd>«montaña hermosa», en balti</dd></div>
+            <div><dt>Chogori</dt><dd>«montaña grande», en balti</dd></div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+    <p class="pie">Ilustración · Porteadores en el Baltoro, entre las torres de granito. Al fondo del glaciar, el Gasherbrum IV.</p>
+  </section>
+
+  <!-- ═══════════════════════ 03 · EL MACIZO ═══════════════════════ -->
+  <section class="capitulo capitulo--macizo" id="macizo" data-escena="macizo" data-alt="4600" data-lugar="Concordia" data-nieve=".22" data-viento="-.1">
+    <div class="plano plano--der">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>Concordia · 4&thinsp;600 m</p>
+        <h2 class="seccion" data-titulo>El salón del trono</h2>
+        <p data-entra>Aquí se juntan dos ríos de hielo, el Baltoro y el Godwin-Austen. A menos de veinticinco kilómetros se levantan cuatro de los catorce ochomiles del planeta. El fotógrafo Galen Rowell lo llamó «el salón del trono de los dioses de la montaña».</p>
+        <p data-entra>Basta girar la cabeza. De norte a sur, estos son los picos que rodean al K2.</p>
+      </div>
+    </div>
+
+    <div class="pano" id="pano">
+      <div class="pano__marco">
+        <ol class="picos" id="picos">
+          <li class="picos__ficha" data-pico="k2">
+            <p class="etiqueta">Norte · K2 del topógrafo</p>
+            <h3 class="picos__nombre">K2</h3>
+            <p class="cifra">8&thinsp;611 m</p>
+            <p>La segunda montaña de la Tierra. Desde Concordia se ve entera por primera vez: doce kilómetros de glaciar y tres kilómetros y medio de pared.</p>
+          </li>
+          <li class="picos__ficha" data-pico="broad">
+            <p class="etiqueta">Noreste · Faichan Kangri</p>
+            <h3 class="picos__nombre">Broad Peak</h3>
+            <p class="cifra">8&thinsp;051 m</p>
+            <p>Tres cumbres sobre una cresta de más de un kilómetro. Martin Conway lo bautizó «pico ancho» en 1892. Primera ascensión: 1957, sin oxígeno ni porteadores de altura.</p>
+          </li>
+          <li class="picos__ficha" data-pico="g2">
+            <p class="etiqueta">Este · K4 del topógrafo</p>
+            <h3 class="picos__nombre">Gasherbrum II</h3>
+            <p class="cifra">8&thinsp;035 m</p>
+            <p>Asoma al fondo. Detrás queda el Gasherbrum I (8&thinsp;080 m), el K5: desde aquí no se ve, y por eso Conway lo llamó <em>Hidden Peak</em>, el pico oculto.</p>
+          </li>
+          <li class="picos__ficha" data-pico="g4">
+            <p class="etiqueta">Este · K3 del topógrafo</p>
+            <h3 class="picos__nombre">Gasherbrum IV</h3>
+            <p class="cifra">7&thinsp;925 m</p>
+            <p>Se queda a 75 metros de ser un ochomil y es más difícil que casi todos ellos. Su cara oeste se enciende al atardecer: la llaman la Pared Resplandeciente.</p>
+          </li>
+          <li class="picos__ficha" data-pico="bkangri">
+            <p class="etiqueta">Sureste · el Trono Dorado</p>
+            <h3 class="picos__nombre">Baltoro Kangri</h3>
+            <p class="cifra">7&thinsp;312 m</p>
+            <p>Cierra el alto Baltoro, donde nace el glaciar. Martin Conway lo llamó <em>Golden Throne</em> en 1892: le pareció un trono.</p>
+          </li>
+          <li class="picos__ficha" data-pico="chogolisa">
+            <p class="etiqueta">Sur · Bride Peak</p>
+            <h3 class="picos__nombre">Chogolisa</h3>
+            <p class="cifra">7&thinsp;665 m</p>
+            <p>Un tejado de nieve de líneas perfectas. En una de sus cornisas desapareció Hermann Buhl en 1957, dieciocho días después de coronar el Broad Peak.</p>
+          </li>
+          <li class="picos__ficha" data-pico="mitre">
+            <p class="etiqueta">Suroeste</p>
+            <h3 class="picos__nombre">Mitre Peak</h3>
+            <p class="cifra">6&thinsp;010 m</p>
+            <p>El más bajo y el más cercano: una aguja en forma de mitra que vigila la confluencia de los glaciares.</p>
+          </li>
+        </ol>
+        <div class="pano__pie" aria-hidden="true">
+          <div class="pano__paso"><i></i></div>
+          <div class="brujula"><div class="brujula__cinta">
+            <span>NO</span><span>N</span><span>NE</span><span>E</span><span>SE</span><span>S</span><span>SO</span>
+          </div><i class="brujula__fiel"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="plano">
+      <div class="bloque">
+        <p data-entra>Hay uno que falta. El Masherbrum, el K1 de Montgomerie, queda a la espalda, glaciar abajo. Fue el primero de la lista y ha acabado siendo el menos conocido.</p>
+        <p data-entra>Del resto de la serie, solo una cumbre conserva el número.</p>
+      </div>
+    </div>
+    <p class="pie">Ilustración · Panorámica desde Concordia al atardecer. Composición interpretativa: los rumbos y las distancias son aproximados.</p>
+  </section>
+
+  <!-- ═══════════════════════ 04 · LA PIRÁMIDE ═══════════════════════ -->
+  <section class="capitulo" id="piramide" data-escena="piramide" data-alt="5150" data-lugar="Campo base" data-nieve=".1" data-viento=".14">
+    <div class="plano">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>Campo base · ≈ 5&thinsp;150 m</p>
+        <h2 class="seccion" data-titulo>La pirámide</h2>
+        <p data-entra>Desde las tiendas, la cumbre queda tres kilómetros y medio más arriba. No hay cara fácil. El K2 es una pirámide de aristas afiladas que cae casi tres mil metros por cualquiera de sus lados.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--der">
+      <aside class="recuadro recuadro--ficha" data-entra="papel" style="--rot:1.5deg;--w:24rem" aria-label="Ficha técnica del K2">
+        <div class="ficha">
+          <p class="etiqueta">Ficha técnica</p>
+          <p class="cifra"><span data-cuenta="8611">8&thinsp;611</span> m</p>
+          <p class="ficha__sub">Segunda montaña más alta de la Tierra</p>
+          <dl class="ficha__filas">
+            <div><dt>Cordillera</dt><dd>Karakórum</dd></div>
+            <div><dt>Frontera</dt><dd>Pakistán · China</dd></div>
+            <div><dt>Coordenadas</dt><dd>35°52′ N · 76°30′ E</dd></div>
+            <div><dt>Prominencia</dt><dd>4&thinsp;020 m</dd></div>
+            <div><dt>1.ª ascensión</dt><dd>31 de julio de 1954</dd></div>
+            <div><dt>1.ª invernal</dt><dd>16 de enero de 2021</dd></div>
+            <div><dt>Ruta normal</dt><dd>Espolón de los Abruzos</dd></div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+
+    <div class="plano plano--mudo" data-hitos="piramide">
+      <p class="etiqueta" data-entra>Anatomía de la cara sur</p>
+    </div>
+
+    <div class="plano">
+      <div class="bloque">
+        <h3 class="subtitulo" data-entra>Anatomía</h3>
+        <p data-entra>La línea de la derecha es el Espolón de los Abruzos, la arista sureste. Sube hasta el Hombro, una explanada de nieve a casi ocho mil metros, y de ahí, por el Cuello de Botella, a la cima.</p>
+        <p data-entra>A la izquierda, el pilar suroeste. Reinhold Messner lo miró en 1979, lo llamó <em>Magic Line</em> y renunció a intentarlo. Se escaló en 1986.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--centro">
+      <ul class="cifras" aria-label="El K2 en cifras">
+        <li data-entra><span class="cifra"><span data-cuenta="3461">3&thinsp;461</span> m</span><span class="etiqueta">del campo base a la cumbre</span></li>
+        <li data-entra style="--d:.12s"><span class="cifra"><span data-cuenta="238">238</span> m</span><span class="etiqueta">lo que le saca el Everest</span></li>
+        <li data-entra style="--d:.24s"><span class="cifra"><span data-cuenta="4020">4&thinsp;020</span> m</span><span class="etiqueta">de prominencia</span></li>
+      </ul>
+    </div>
+
+    <div class="plano plano--der">
+      <div class="bloque">
+        <h3 class="subtitulo" data-entra>La montaña de los montañeros</h3>
+        <p data-entra>Es más baja que el Everest, pero más empinada, más fría y con peor tiempo. Durante veintitrés años después de la primera ascensión, nadie volvió a pisar la cumbre.</p>
+        <ul class="vias" data-entra>
+          <li><span>Arista sureste · Abruzos</span><span>1954</span></li>
+          <li><span>Arista noreste</span><span>1978</span></li>
+          <li><span>Arista oeste</span><span>1981</span></li>
+          <li><span>Arista norte</span><span>1982</span></li>
+          <li><span>Pilar suroeste · Magic Line</span><span>1986</span></li>
+          <li><span>Cara sur · línea polaca</span><span>1986</span></li>
+          <li><span>Cara oeste</span><span>2007</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="pie">Ilustración · La cara sur sobre el glaciar: carpas, banderas de oración y torres de hielo. Los rótulos señalan zonas aproximadas.</p>
+  </section>
+
+  <!-- ═══════════════════════ 05 · LA RUTA ═══════════════════════ -->
+  <section class="capitulo capitulo--ruta" id="ruta" data-escena="ruta" data-alt="5300" data-lugar="Espolón de los Abruzos" data-nieve=".28" data-viento=".3">
+    <div class="plano">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>Espolón de los Abruzos · arista sureste</p>
+        <h2 class="seccion" data-titulo>La ruta</h2>
+        <p data-entra>Tres de cada cuatro personas que han pisado la cumbre subieron por aquí. El Duque de los Abruzos lo intentó en 1909 y llegó a unos 6&thinsp;250 metros; desde entonces el espolón lleva su nombre.</p>
+        <p data-entra>Son más de tres mil metros de desnivel y cuatro campamentos colgados de la arista. La línea roja marca el camino, de forma aproximada.</p>
+      </div>
+    </div>
+
+    <ol class="pasos" id="pasos">
+      <li class="paso" data-tramo="inicio" data-altitud="5300">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Pie del espolón</span><span class="tira__v">≈ 5&thinsp;300 m</span></div></div>
+        <p>El campo base avanzado. Se llega cruzando el glaciar entre grietas; aquí empiezan las cuerdas fijas.</p>
+      </li>
+      <li class="paso" data-tramo="c1" data-altitud="6050">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Campo 1</span><span class="tira__v">≈ 6&thinsp;050 m</span></div></div>
+        <p>Setecientos metros de nieve y roca rota. Las repisas son tan estrechas que apenas caben unas pocas tiendas.</p>
+      </li>
+      <li class="paso" data-tramo="chimenea" data-altitud="6600">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Chimenea House</span><span class="tira__v">≈ 6&thinsp;600 m</span></div></div>
+        <p>Treinta metros de roca vertical. Bill House la escaló en libre en 1938; hoy cuelga de ella una maraña de cuerdas viejas.</p>
+      </li>
+      <li class="paso" data-tramo="c2" data-altitud="6700">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Campo 2</span><span class="tira__v">≈ 6&thinsp;700 m</span></div></div>
+        <p>Justo encima de la chimenea, al borde de la arista. El campamento más expuesto al viento.</p>
+      </li>
+      <li class="paso" data-tramo="piramide" data-altitud="7000">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Pirámide Negra</span><span class="tira__v">≈ 7&thinsp;000 m</span></div></div>
+        <p>Casi cuatrocientos metros de roca oscura y hielo: el tramo más técnico de toda la ruta.</p>
+      </li>
+      <li class="paso" data-tramo="c3" data-altitud="7350">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Campo 3</span><span class="tira__v">≈ 7&thinsp;350 m</span></div></div>
+        <p>Sobre la Pirámide Negra, en una ladera abierta y cargada de nieve. El peligro aquí son los aludes.</p>
+      </li>
+      <li class="paso" data-tramo="c4" data-altitud="7900">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Campo 4 · el Hombro</span><span class="tira__v">≈ 7&thinsp;900 m</span></div></div>
+        <p>La última noche. Una explanada de nieve bajo la pirámide final, al borde de los ocho mil.</p>
+      </li>
+      <li class="paso" data-tramo="cuello" data-altitud="8200">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Cuello de Botella</span><span class="tira__v senal">≈ 8&thinsp;200 m</span></div></div>
+        <p>Un corredor de hielo bajo el gran serac. Después, la travesía hacia la izquierda.</p>
+      </li>
+      <li class="paso" data-tramo="cumbre" data-altitud="8611">
+        <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Cumbre</span><span class="tira__v senal">8&thinsp;611 m</span></div></div>
+        <p>La pala de nieve final. Desde el Hombro, más de diez horas de subida.</p>
+      </li>
+    </ol>
+
+    <div class="plano">
+      <aside class="recuadro recuadro--doblada" data-entra="papel" style="--rot:-1.2deg;--w:30rem" aria-label="Campos de altura">
+        <div class="campos">
+          <p class="etiqueta">Ruta de los Abruzos</p>
+          <h3 class="campos__titulo">Campos de altura</h3>
+          <dl>
+            <div><dt>Campo base</dt><dd>≈ 5&thinsp;150 m</dd></div>
+            <div><dt>Campo 1</dt><dd>≈ 6&thinsp;050 m</dd></div>
+            <div><dt>Campo 2</dt><dd>≈ 6&thinsp;700 m</dd></div>
+            <div><dt>Campo 3</dt><dd>≈ 7&thinsp;350 m</dd></div>
+            <div><dt>Campo 4 · el Hombro</dt><dd>≈ 7&thinsp;900 m</dd></div>
+            <div class="campos__cumbre"><dt>Cumbre</dt><dd>8&thinsp;611 m</dd></div>
+          </dl>
+          <p class="campos__nota">Altitudes aproximadas: varían según la temporada y la expedición.</p>
+        </div>
+      </aside>
+    </div>
+    <p class="pie">Ilustración · Vista aérea sobre el mar de nubes. La línea roja marca, de forma aproximada, la ruta normal hasta la cumbre.</p>
+  </section>
+
+  <!-- ═══════════════════════ 06 · LA NOCHE ═══════════════════════ -->
+  <section class="capitulo capitulo--noche" id="noche" data-escena="noche" data-alt="7900" data-lugar="El Hombro" data-nieve=".4" data-viento=".05">
+    <div class="plano">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>El Hombro · ≈ 7&thinsp;900 m · de noche</p>
+        <h2 class="seccion" data-titulo>La zona de la muerte</h2>
+        <p data-entra>Por encima de los ocho mil metros el aire tiene un tercio del oxígeno que hay al nivel del mar. El cuerpo ya no se aclimata: solo se deteriora. Cada paso cuesta varias respiraciones y cada decisión se toma más despacio.</p>
+        <p data-entra>Por eso se sale de noche. Hay que estar bajo el serac con la primera luz, cuando el hielo todavía está frío, y de vuelta antes de que oscurezca.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--der">
+      <aside class="recuadro recuadro--nota" data-entra="papel" style="--rot:-1.6deg;--w:33rem" aria-label="Nota de campo, recreación">
+        <div class="cuaderno cuaderno--diario">
+          <p class="etiqueta">Campo 4 · 7&thinsp;900 m · 23:40</p>
+          <p>Viento del noroeste, menos que ayer. Agua derretida para seis. Salimos a la una. Nadie habla del serac.</p>
+          <p class="cuaderno__firma">— Nota de campo. Recreación</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="plano plano--centro">
+      <div class="dato" data-entra>
+        <span class="cifra cifra--enorme">1/3</span>
+        <span class="etiqueta">del oxígeno del nivel del mar</span>
+      </div>
+    </div>
+    <p class="pie">Ilustración · El Hombro antes del ataque a cumbre: carpas encendidas y frontales subiendo hacia el Cuello de Botella.</p>
+  </section>
+
+  <!-- ═══════════════════════ 07 · EL CUELLO DE BOTELLA ═══════════════════════ -->
+  <section class="capitulo" id="cuello" data-escena="cuello" data-alt="8200" data-lugar="Cuello de Botella" data-nieve="1" data-viento=".85">
+    <div class="plano plano--der">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>≈ 8&thinsp;200 m · amanece</p>
+        <h2 class="seccion" data-titulo>El cuello de botella</h2>
+        <p data-entra>Un corredor de hielo de más de cincuenta grados, a cuatrocientos metros de la cumbre. Encima cuelga un muro de seracs alto como un edificio. Es el paso más corto y el más expuesto, y no hay otro razonable.</p>
+        <p data-entra>Aquí se va en fila y sin poder correr. Lo que tarde el de delante es lo que uno pasa debajo del hielo.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--centro">
+      <aside class="recuadro recuadro--helada" data-entra="papel" style="--rot:-1deg;--w:34rem" aria-label="Advertencia: agosto de 2008">
+        <div class="hoja hoja--centro">
+          <p class="etiqueta senal-etiqueta">Advertencia</p>
+          <h3 class="hoja__titulo">Agosto de 2008</h3>
+          <p>El 1 de agosto, un bloque del serac arrancó las cuerdas fijas con varios equipos por encima. Entre ese día y el siguiente murieron once alpinistas.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="plano plano--der">
+      <div class="bloque">
+        <p data-entra>Pasado el corredor viene la travesía: un centenar de metros hacia la izquierda, pegados a la base del serac. Después, la pala final. Faltan todavía horas.</p>
+      </div>
+    </div>
+    <p class="pie">Ilustración · La travesía bajo el gran serac, en cordada y con cuerda fija.</p>
+  </section>
+
+  <!-- ═══════════════════════ 08 · CUMBRE ═══════════════════════ -->
+  <section class="capitulo capitulo--cumbre" id="cumbre" data-escena="cumbre" data-alt="8611" data-lugar="Cumbre" data-nieve=".2" data-viento=".25">
+    <div class="plano plano--centro plano--alto">
+      <div class="cima">
+        <p class="etiqueta" data-entra>Cumbre</p>
+        <p class="display display--cifra" data-entra><span data-cuenta="8611" data-desde="8200">8&thinsp;611</span><span class="display__m"> m</span></p>
+        <p class="cita" data-entra style="--d:.2s">31 de julio de 1954, hacia las seis de la tarde.</p>
+      </div>
+    </div>
+
+    <div class="plano">
+      <div class="bloque">
+        <h2 class="seccion" data-titulo>Medio siglo para un espolón</h2>
+        <p data-entra>Lino Lacedelli y Achille Compagnoni pisan la cima. La noche anterior, Walter Bonatti y Amir Mehdi les habían subido las botellas y tuvieron que vivaquear al raso a más de ocho mil metros. La expedición italiana tardó cincuenta años en ponerse de acuerdo sobre lo que pasó aquella noche.</p>
+        <p data-entra>Antes que ellos lo habían intentado cinco expediciones.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--der plano--alto">
+      <ol class="tiras tiras--crono" aria-label="Cronología">
+        <li data-entra="tira" style="--rot:-.6deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Primer intento</span><span class="tira__v">1902</span></div></div>
+          <p class="nota">Oscar Eckenstein y Aleister Crowley alcanzan 6&thinsp;525 m por la arista noreste.</p>
+        </li>
+        <li data-entra="tira" style="--rot:.5deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">El duque</span><span class="tira__v">1909</span></div></div>
+          <p class="nota">Luis Amadeo de Saboya prueba la arista sureste. Vittorio Sella la fotografía.</p>
+        </li>
+        <li data-entra="tira" style="--rot:-.3deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">A 240 m de la cima</span><span class="tira__v">1939</span></div></div>
+          <p class="nota">Fritz Wiessner y Pasang Dawa Lama se dan la vuelta a 8&thinsp;370 m. En el descenso mueren Dudley Wolfe y tres sherpas.</p>
+        </li>
+        <li data-entra="tira" style="--rot:.7deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Cumbre</span><span class="tira__v senal">1954</span></div></div>
+          <p class="nota">Lacedelli y Compagnoni, por el Espolón de los Abruzos.</p>
+        </li>
+        <li data-entra="tira" style="--rot:-.5deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Sin oxígeno</span><span class="tira__v">1978</span></div></div>
+          <p class="nota">Louis Reichardt llega arriba sin botellas, un año después de la segunda ascensión.</p>
+        </li>
+        <li data-entra="tira" style="--rot:.4deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Verano negro</span><span class="tira__v">1986</span></div></div>
+          <p class="nota">Wanda Rutkiewicz es la primera mujer en la cumbre. Esa temporada mueren trece personas.</p>
+        </li>
+        <li data-entra="tira" style="--rot:-.8deg">
+          <div class="recuadro recuadro--tira"><div class="tira"><span class="tira__n">Invierno</span><span class="tira__v senal">2021</span></div></div>
+          <p class="nota">Era el último ochomil sin ascensión invernal.</p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="plano">
+      <div class="bloque">
+        <h3 class="subtitulo" data-entra>16 de enero de 2021, 16:58</h3>
+        <p data-entra>Diez alpinistas nepalíes, de tres equipos distintos, se esperan unos a otros a diez metros de la cima. Suben los últimos pasos juntos, cantando el himno de su país. Ninguno quiso ser el primero.</p>
+      </div>
+    </div>
+    <p class="pie">Ilustración · Luz dorada sobre el Karakórum, a 8&thinsp;611 metros.</p>
+  </section>
+
+  <!-- ═══════════════════════ 09 · MEMORIA ═══════════════════════ -->
+  <section class="capitulo" id="memoria" data-escena="memoria" data-alt="5050" data-lugar="Memorial Gilkey" data-nieve=".5" data-viento=".04">
+    <div class="plano">
+      <aside class="recuadro recuadro--clavada" data-entra="papel" style="--rot:1deg;--w:25rem" aria-label="Memorial Gilkey">
+        <div class="lapida">
+          <p class="etiqueta">Memorial</p>
+          <h2 class="lapida__nombre">Gilkey</h2>
+          <p class="lapida__ano">1953</p>
+          <p>Un mojón de piedras al pie del K2, levantado por la expedición estadounidense de 1953 en memoria de Art Gilkey.</p>
+          <p>Con los años se llenó de placas de metal con los nombres de quienes no volvieron.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="plano">
+      <div class="bloque">
+        <p class="etiqueta" data-entra>Al pie de la cara sur · ≈ 5&thinsp;000 m</p>
+        <h2 class="seccion" data-titulo>Bajar es la otra mitad</h2>
+        <p data-entra>Agosto de 1953. Art Gilkey enferma a 7&thinsp;700 metros y sus compañeros deciden bajarlo envuelto en una tienda, en plena tormenta. Uno resbala y arrastra a los demás. Pete Schoening detiene él solo la caída de cinco hombres con un piolet clavado detrás de una roca.</p>
+        <p data-entra>Horas después, un alud se lleva a Gilkey. Los demás llegaron vivos al campo base, y allí apilaron las piedras.</p>
+      </div>
+    </div>
+
+    <div class="plano plano--centro">
+      <div class="dato" data-entra>
+        <span class="cifra cifra--enorme senal">1 de cada 4</span>
+        <span class="etiqueta">Durante medio siglo, por cada cuatro personas en la cumbre moría una</span>
+      </div>
+    </div>
+
+    <div class="plano">
+      <div class="bloque">
+        <p data-entra>Hoy hay cuerdas fijas, oxígeno y partes meteorológicos, y la proporción ha bajado: ronda una muerte por cada diez cumbres, según quién lleve la cuenta. Las placas siguen sumando. Son ya más de noventa nombres.</p>
+        <p data-entra>Muchos murieron bajando, con la cumbre ya hecha.</p>
+      </div>
+    </div>
+    <p class="pie">Ilustración · El memorial al anochecer, con el campo base encendido en el glaciar. Recreación.</p>
+  </section>
+
+  <!-- ═══════════════════════ 10 · EPÍLOGO ═══════════════════════ -->
+  <section class="capitulo capitulo--epilogo" id="epilogo" data-escena="epilogo" data-alt="4600" data-lugar="Concordia" data-nieve=".4" data-viento=".1">
+    <div class="plano plano--centro plano--alto">
+      <div class="epilogo">
+        <p class="tibetano" aria-hidden="true" data-entra>ཀཁགང</p>
+        <p class="etiqueta" data-entra>De vuelta en Concordia</p>
+        <h2 class="seccion" data-titulo>Solo el esqueleto de un nombre</h2>
+        <p data-entra>El Everest es la más alta. El K2 es otra cosa: la medida. Una montaña que no fue adorada ni bautizada, solo anotada en una libreta, y que se quedó con el número como quien se queda con un epitafio.</p>
+        <blockquote data-entra>
+          <p class="cita">«…solo el esqueleto de un nombre, todo roca y hielo y tormenta y abismo. No intenta sonar humano. Es átomos y estrellas. Tiene la desnudez del mundo antes del primer hombre, o la del planeta calcinado después del último».</p>
+          <footer class="nota">Fosco Maraini, alpinista y etnólogo, sobre el nombre «K2»</footer>
+        </blockquote>
+        <a class="boton boton--fantasma" href="#portada" data-entra>Volver a la base</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="creditos">
+  <div class="creditos__in">
+    <p class="creditos__marca">K2</p>
+    <div class="creditos__col">
+      <p class="etiqueta">Sobre los datos</p>
+      <p class="nota">Las altitudes de los campos son aproximadas y cambian con cada temporada. Las cifras de cumbres y fallecidos varían según la base de datos. La cita de Maraini circula en inglés a partir de su libro sobre el Gasherbrum IV; la traducción es propia.</p>
+    </div>
+    <div class="creditos__col">
+      <p class="etiqueta">Fuentes</p>
+      <ul class="nota creditos__fuentes">
+        <li><a href="https://es.wikipedia.org/wiki/K2" target="_blank" rel="noopener">Wikipedia · K2</a></li>
+        <li><a href="https://explorersweb.com/how-the-pakistans-giant-peaks-got-their-k-names/" target="_blank" rel="noopener">ExplorersWeb · los nombres «K»</a></li>
+        <li><a href="https://www.alanarnette.com/blog/" target="_blank" rel="noopener">Alan Arnette · crónicas y cifras</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/1953_American_Karakoram_expedition" target="_blank" rel="noopener">Expedición estadounidense de 1953</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Balti_people" target="_blank" rel="noopener">Wikipedia · el pueblo balti</a></li>
+      </ul>
+    </div>
+    <div class="creditos__col">
+      <p class="etiqueta">Hechura</p>
+      <p class="nota">Identidad visual «Epitafio». Ilustraciones pintadas por código, a pincel seco sobre fondo oscuro. Tipografías Cinzel, Spectral y Jomolhari, bajo licencia SIL Open Font. El tibetano es decorativo: son consonantes del alfabeto, no palabras.</p>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

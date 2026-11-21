@@ -1,0 +1,186 @@
+{
+ "fuente": "herramientas/pintar_mapa.py",
+ "proyeccion": "+proj=lcc +lat_1=27 +lat_2=37 +lat_0=31 +lon_0=81 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+ "extension_m": {
+  "x0": -915000.0,
+  "y1": 750000.0,
+  "ancho": 1950000.0,
+  "alto": 1300000.0
+ },
+ "aspecto": 1.5,
+ "picos": [
+  {
+   "id": "everest",
+   "nombre": "Everest",
+   "altitud": 8849,
+   "lat": 27.98904,
+   "lon": 86.92555,
+   "u": 0.76761,
+   "v": 0.82067
+  },
+  {
+   "id": "k2",
+   "nombre": "K2",
+   "altitud": 8611,
+   "lat": 35.88072,
+   "lon": 76.5125,
+   "u": 0.2618,
+   "v": 0.15537
+  },
+  {
+   "id": "kangchenjunga",
+   "nombre": "Kangchenjunga",
+   "altitud": 8586,
+   "lat": 27.70277,
+   "lon": 88.14758,
+   "u": 0.83014,
+   "v": 0.83941
+  },
+  {
+   "id": "lhotse",
+   "nombre": "Lhotse",
+   "altitud": 8516,
+   "lat": 27.96178,
+   "lon": 86.93243,
+   "u": 0.76804,
+   "v": 0.82296
+  },
+  {
+   "id": "makalu",
+   "nombre": "Makalu",
+   "altitud": 8485,
+   "lat": 27.89146,
+   "lon": 87.08851,
+   "u": 0.77612,
+   "v": 0.82828
+  },
+  {
+   "id": "cho-oyu",
+   "nombre": "Cho Oyu",
+   "altitud": 8188,
+   "lat": 28.09697,
+   "lon": 86.66023,
+   "u": 0.75394,
+   "v": 0.81257
+  },
+  {
+   "id": "dhaulagiri",
+   "nombre": "Dhaulagiri I",
+   "altitud": 8167,
+   "lat": 28.69792,
+   "lon": 83.48948,
+   "u": 0.59371,
+   "v": 0.77048
+  },
+  {
+   "id": "manaslu",
+   "nombre": "Manaslu",
+   "altitud": 8163,
+   "lat": 28.5507,
+   "lon": 84.55921,
+   "u": 0.64746,
+   "v": 0.78075
+  },
+  {
+   "id": "nanga-parbat",
+   "nombre": "Nanga Parbat",
+   "altitud": 8126,
+   "lat": 35.23855,
+   "lon": 74.58931,
+   "u": 0.17083,
+   "v": 0.20325
+  },
+  {
+   "id": "annapurna",
+   "nombre": "Annapurna I",
+   "altitud": 8091,
+   "lat": 28.59619,
+   "lon": 83.81952,
+   "u": 0.61036,
+   "v": 0.77852
+  },
+  {
+   "id": "gasherbrum-i",
+   "nombre": "Gasherbrum I",
+   "altitud": 8080,
+   "lat": 35.72497,
+   "lon": 76.69837,
+   "u": 0.27004,
+   "v": 0.16916
+  },
+  {
+   "id": "broad-peak",
+   "nombre": "Broad Peak",
+   "altitud": 8051,
+   "lat": 35.81142,
+   "lon": 76.5668,
+   "u": 0.26415,
+   "v": 0.16143
+  },
+  {
+   "id": "gasherbrum-ii",
+   "nombre": "Gasherbrum II",
+   "altitud": 8035,
+   "lat": 35.75753,
+   "lon": 76.65261,
+   "u": 0.268,
+   "v": 0.16626
+  },
+  {
+   "id": "shishapangma",
+   "nombre": "Shishapangma",
+   "altitud": 8027,
+   "lat": 28.35225,
+   "lon": 85.78146,
+   "u": 0.70913,
+   "v": 0.79407
+  }
+ ],
+ "rotulos": [
+  {
+   "id": "himalaya",
+   "texto": "Himalaya",
+   "tipo": "cordillera",
+   "u": 0.31662,
+   "v": 0.57264,
+   "angulo": 41.0,
+   "largo": 0.2145
+  },
+  {
+   "id": "karakorum",
+   "texto": "Karakórum",
+   "tipo": "cordillera",
+   "u": 0.2237,
+   "v": 0.17236,
+   "angulo": 29.9,
+   "largo": 0.0573
+  },
+  {
+   "id": "meseta",
+   "texto": "Meseta tibetana",
+   "tipo": "region",
+   "u": 0.70927,
+   "v": 0.4392,
+   "angulo": 0.2,
+   "largo": 0.23072
+  },
+  {
+   "id": "indo",
+   "texto": "Indo",
+   "tipo": "rio",
+   "u": 0.13148,
+   "v": 0.18056,
+   "angulo": -23.7,
+   "largo": 0.0393
+  },
+  {
+   "id": "tsangpo",
+   "texto": "Yarlung Tsangpo",
+   "tipo": "rio",
+   "u": 0.91084,
+   "v": 0.69121,
+   "angulo": -2.8,
+   "largo": 0.09941
+  }
+ ]
+}
