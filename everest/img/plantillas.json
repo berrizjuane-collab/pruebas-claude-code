@@ -1,0 +1,329 @@
+{
+ "cordel_banderas": {
+  "nombre": "cordel_banderas",
+  "descripcion": "Separador: cordel de diez banderas.",
+  "ancho": 2400,
+  "alto": 420,
+  "banderas": [
+   {
+    "x": 3.583,
+    "y": 15.0,
+    "w": 8.458,
+    "h": 73.571,
+    "ancla": 4.21
+   },
+   {
+    "x": 12.917,
+    "y": 20.238,
+    "w": 8.458,
+    "h": 77.143,
+    "ancla": 3.4
+   },
+   {
+    "x": 22.25,
+    "y": 24.524,
+    "w": 8.458,
+    "h": 70.0,
+    "ancla": 2.72
+   },
+   {
+    "x": 31.583,
+    "y": 27.381,
+    "w": 8.458,
+    "h": 66.429,
+    "ancla": 2.15
+   },
+   {
+    "x": 40.917,
+    "y": 29.048,
+    "w": 8.458,
+    "h": 70.952,
+    "ancla": 1.34
+   },
+   {
+    "x": 50.25,
+    "y": 29.048,
+    "w": 8.458,
+    "h": 70.952,
+    "ancla": 1.34
+   },
+   {
+    "x": 59.583,
+    "y": 27.381,
+    "w": 8.458,
+    "h": 67.143,
+    "ancla": 2.48
+   },
+   {
+    "x": 68.917,
+    "y": 24.524,
+    "w": 8.458,
+    "h": 68.571,
+    "ancla": 3.12
+   },
+   {
+    "x": 78.25,
+    "y": 20.476,
+    "w": 8.458,
+    "h": 76.667,
+    "ancla": 3.42
+   },
+   {
+    "x": 87.583,
+    "y": 15.238,
+    "w": 8.458,
+    "h": 75.238,
+    "ancla": 4.11
+   }
+  ]
+ },
+ "ficha_amarilla": {
+  "nombre": "ficha_amarilla",
+  "descripcion": "Ficha de campo horizontal, amarilla.",
+  "ancho": 1760,
+  "alto": 760,
+  "caja_texto_px": {
+   "x": 644,
+   "y": 230,
+   "ancho": 930,
+   "alto": 314
+  },
+  "caja_texto_pct": {
+   "izq": 36.59,
+   "arriba": 30.26,
+   "der": 10.57,
+   "abajo": 28.42
+  }
+ },
+ "ficha_azul": {
+  "nombre": "ficha_azul",
+  "descripcion": "Ficha de campo horizontal, azul.",
+  "ancho": 1760,
+  "alto": 760,
+  "caja_texto_px": {
+   "x": 644,
+   "y": 230,
+   "ancho": 930,
+   "alto": 314
+  },
+  "caja_texto_pct": {
+   "izq": 36.59,
+   "arriba": 30.26,
+   "der": 10.57,
+   "abajo": 28.42
+  }
+ },
+ "khata_blanco": {
+  "nombre": "khata_blanco",
+  "descripcion": "Khata blanco: nudo sin fin tejido tono sobre tono. Citas.",
+  "ancho": 1700,
+  "alto": 760,
+  "caja_texto_px": {
+   "x": 340,
+   "y": 160,
+   "ancho": 1020,
+   "alto": 420
+  },
+  "caja_texto_pct": {
+   "izq": 20.0,
+   "arriba": 21.05,
+   "der": 20.0,
+   "abajo": 23.68
+  }
+ },
+ "khata_dorado": {
+  "nombre": "khata_dorado",
+  "descripcion": "Khata dorado: banda de símbolos auspiciosos. Destacados.",
+  "ancho": 1700,
+  "alto": 760,
+  "caja_texto_px": {
+   "x": 260,
+   "y": 218,
+   "ancho": 1180,
+   "alto": 304
+  },
+  "caja_texto_pct": {
+   "izq": 15.29,
+   "arriba": 28.68,
+   "der": 15.29,
+   "abajo": 31.32
+  }
+ },
+ "khata_drapeado": {
+  "nombre": "khata_drapeado",
+  "descripcion": "Khata colgado con pliegues y puntas caídas. Citas grandes.",
+  "ancho": 1700,
+  "alto": 1080,
+  "caja_texto_px": {
+   "x": 360,
+   "y": 250,
+   "ancho": 980,
+   "alto": 430
+  },
+  "caja_texto_pct": {
+   "izq": 21.18,
+   "arriba": 23.15,
+   "der": 21.18,
+   "abajo": 37.04
+  }
+ },
+ "lungta_amarillo": {
+  "nombre": "lungta_amarillo",
+  "descripcion": "Lung ta amarillo (tierra).",
+  "ancho": 1100,
+  "alto": 1340,
+  "caja_texto_px": {
+   "x": 250,
+   "y": 532,
+   "ancho": 600,
+   "alto": 450
+  },
+  "caja_texto_pct": {
+   "izq": 22.73,
+   "arriba": 39.7,
+   "der": 22.73,
+   "abajo": 26.72
+  }
+ },
+ "lungta_azul": {
+  "nombre": "lungta_azul",
+  "descripcion": "Lung ta azul (cielo).",
+  "ancho": 1100,
+  "alto": 1340,
+  "caja_texto_px": {
+   "x": 250,
+   "y": 532,
+   "ancho": 600,
+   "alto": 450
+  },
+  "caja_texto_pct": {
+   "izq": 22.73,
+   "arriba": 39.7,
+   "der": 22.73,
+   "abajo": 26.72
+  }
+ },
+ "lungta_blanco": {
+  "nombre": "lungta_blanco",
+  "descripcion": "Lung ta blanco (aire).",
+  "ancho": 1100,
+  "alto": 1340,
+  "caja_texto_px": {
+   "x": 250,
+   "y": 532,
+   "ancho": 600,
+   "alto": 450
+  },
+  "caja_texto_pct": {
+   "izq": 22.73,
+   "arriba": 39.7,
+   "der": 22.73,
+   "abajo": 26.72
+  }
+ },
+ "lungta_rojo": {
+  "nombre": "lungta_rojo",
+  "descripcion": "Lung ta rojo (fuego).",
+  "ancho": 1100,
+  "alto": 1340,
+  "caja_texto_px": {
+   "x": 250,
+   "y": 532,
+   "ancho": 600,
+   "alto": 450
+  },
+  "caja_texto_pct": {
+   "izq": 22.73,
+   "arriba": 39.7,
+   "der": 22.73,
+   "abajo": 26.72
+  }
+ },
+ "lungta_verde": {
+  "nombre": "lungta_verde",
+  "descripcion": "Lung ta verde (agua).",
+  "ancho": 1100,
+  "alto": 1340,
+  "caja_texto_px": {
+   "x": 250,
+   "y": 532,
+   "ancho": 600,
+   "alto": 450
+  },
+  "caja_texto_pct": {
+   "izq": 22.73,
+   "arriba": 39.7,
+   "der": 22.73,
+   "abajo": 26.72
+  }
+ },
+ "thangka_granate": {
+  "nombre": "thangka_granate",
+  "descripcion": "Thangka granate: brocado con nubes de oro. Textos largos.",
+  "ancho": 1200,
+  "alto": 1680,
+  "caja_texto_px": {
+   "x": 284,
+   "y": 290,
+   "ancho": 632,
+   "alto": 918
+  },
+  "caja_texto_pct": {
+   "izq": 23.67,
+   "arriba": 17.26,
+   "der": 23.67,
+   "abajo": 28.1
+  },
+  "vara": {
+   "arriba": 85.595,
+   "alto": 5.536,
+   "corte": 87.202
+  }
+ },
+ "thangka_lapis": {
+  "nombre": "thangka_lapis",
+  "descripcion": "Thangka lapislázuli: brocado nocturno con nudos sin fin.",
+  "ancho": 1200,
+  "alto": 1680,
+  "caja_texto_px": {
+   "x": 284,
+   "y": 290,
+   "ancho": 632,
+   "alto": 918
+  },
+  "caja_texto_pct": {
+   "izq": 23.67,
+   "arriba": 17.26,
+   "der": 23.67,
+   "abajo": 28.1
+  },
+  "vara": {
+   "arriba": 85.595,
+   "alto": 5.536,
+   "corte": 87.202
+  }
+ },
+ "thangka_velo": {
+  "nombre": "thangka_velo",
+  "descripcion": "Thangka apaisado con el velo enrollado y cintas.",
+  "ancho": 1700,
+  "alto": 1180,
+  "caja_texto_px": {
+   "x": 278,
+   "y": 278,
+   "ancho": 1144,
+   "alto": 460
+  },
+  "caja_texto_pct": {
+   "izq": 16.35,
+   "arriba": 23.56,
+   "der": 16.35,
+   "abajo": 37.46
+  },
+  "vara": {
+   "arriba": 80.678,
+   "alto": 7.542,
+   "corte": 82.797
+  }
+ }
+}

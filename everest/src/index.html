@@ -1,0 +1,676 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Everest · Chomolungma</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="El Everest contado como un ascenso: de la cara norte a la cumbre, campo a campo, con las láminas pintadas de la identidad «Chomolungma».">
+<style>/*ESTILOS*/</style>
+<script>document.documentElement.classList.add('js');</script>
+
+<a class="salto" href="#montana">Saltar al contenido</a>
+
+<div class="velo-carga" id="velo" role="status" aria-live="polite">
+  <div class="interior">
+    <div class="lampara-manteca" aria-hidden="true"><div class="llama"></div><div class="copa"></div></div>
+    <div class="tib" lang="bo">ཇོ་མོ་གླང་མ</div>
+    <div class="barra" aria-hidden="true"><i></i></div>
+    <div class="cuenta">Encendiendo las lámparas · <span id="velo-p">0</span> %</div>
+  </div>
+</div>
+
+<div class="escenario" id="escenario" aria-hidden="true">
+  <div class="respaldo" id="respaldo">
+    <img id="resp-a" src="img/laminas/norte-1280.webp" alt="" width="1280" height="720" decoding="async" fetchpriority="high">
+    <img id="resp-b" src="img/laminas/norte-1280.webp" alt="" width="1280" height="720" decoding="async" style="opacity:0">
+  </div>
+  <canvas id="gl"></canvas>
+  <div class="sombra-lado" id="sombra-lado"></div>
+  <div class="sombra-escena"></div>
+  <canvas id="viento"></canvas>
+</div>
+<svg class="trazado" id="trazado" viewBox="0 0 1 0.5625" preserveAspectRatio="none" aria-hidden="true">
+  <path class="ruta-fantasma" id="ruta-fantasma" vector-effect="non-scaling-stroke" d=""/>
+  <path class="ruta-sombra" id="ruta-sombra" vector-effect="non-scaling-stroke" d="" pathLength="1"/>
+  <path class="ruta-linea" id="ruta-linea" vector-effect="non-scaling-stroke" d="" pathLength="1"/>
+</svg>
+<div class="escalador" id="escalador" aria-hidden="true"></div>
+<div class="rotulos" id="rotulos" aria-hidden="true"></div>
+
+<header class="cabecera" id="cabecera">
+  <a class="marca" href="#inicio" aria-label="Everest, inicio"><b>Everest</b><span class="tib" lang="bo">ཇོ་མོ་གླང་མ</span></a>
+  <button class="boton-menu" id="boton-menu" type="button" aria-expanded="false" aria-controls="menu"><span></span>Índice</button>
+  <ul class="menu" id="menu">
+    <li><a href="#montana" data-cap="montana">La montaña</a></li>
+    <li><a href="#cultura" data-cap="cultura">Cultura</a></li>
+    <li><a href="#ruta" data-cap="ruta">La ruta</a></li>
+    <li><a href="#macizo" data-cap="macizo">El macizo</a></li>
+    <li><a href="#historia" data-cap="historia">Historia</a></li>
+    <li><a href="#hazanas" data-cap="hazanas">Hazañas</a></li>
+    <li><a href="#noche" data-cap="noche">Anécdotas</a></li>
+    <li><a href="#cumbre" data-cap="cumbre">Cumbre</a></li>
+  </ul>
+</header>
+
+<aside class="altimetro" id="altimetro" aria-hidden="true">
+  <div class="alt-escala" id="alt-escala"><div class="cuerda"></div><div class="marca-alt"></div></div>
+  <div class="alt-num" id="alt-num">5 150<small>m</small></div>
+  <div class="alt-o2">O₂ <span id="alt-o2">52</span> %</div>
+  <div class="alt-lugar" id="alt-lugar">Rongbuk</div>
+</aside>
+
+<aside class="perfil" id="perfil" aria-label="Perfil de la ruta del Collado Sur">
+  <header><b id="perfil-lugar">Campo Base</b><span class="dato" id="perfil-alt">5 364 m</span></header>
+  <div class="sub"><span id="perfil-km">km 0,0 de 13,0</span><span>O₂ <span id="perfil-o2">53</span> % del nivel del mar</span></div>
+  <div style="position:relative"><svg id="perfil-svg" viewBox="0 0 400 150" role="img" aria-label="Altitud frente a distancia, del Campo Base a la cumbre"></svg><div class="info-p" id="perfil-info"></div></div>
+</aside>
+
+<main id="contenido">
+
+<!-- ================================================================ HÉROE · cara norte -->
+<section class="cap" id="inicio" data-escena="norte" data-alt="5150" data-lugar="Rongbuk">
+  <div class="paso heroe" data-cam="0.5,0.42,1" data-mcam="0.5,0.2,1" data-pos="0.5,0.5" data-rot="everest" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta tinta">Mahalangur Himal · 27°59′17″ N · 86°55′31″ E</span>
+      <h1 id="titulo" aria-label="Chomolungma">Chomolungma</h1>
+      <div class="nombres revela" style="--i:2">
+        <span class="tib" lang="bo">ཇོ་མོ་གླང་མ</span>
+        <span class="deva" lang="ne">सगरमाथा</span>
+        <span class="lat">Everest</span>
+      </div>
+      <p class="entradilla revela" style="--i:3">La montaña más alta de la Tierra tiene tres nombres y una sola cumbre. Esta página es un ascenso: empieza en la cara norte, a 5 150 metros, y sube campo a campo hasta la cima.</p>
+      <p class="cifra-heroe revela" style="--i:4"><span class="dato" data-cuenta="8848.86" data-dec="2">8 848,86</span> <span class="dato" style="color:var(--khata-2)">m sobre el nivel del mar</span></p>
+      <span class="bajar revela" style="--i:5"><i></i>Desliza para subir</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ I · LA MONTAÑA (cara norte, 5 150 m) -->
+<section class="cap" id="montana" data-escena="norte" data-alt="5150" data-lugar="Rongbuk · Tíbet">
+  <div class="paso" data-cam="0.42,0.62,1.25" data-pos="0.62,0.5" data-rot="chorten" data-lado="izq">
+    <div class="apertura">
+      <span class="etiqueta tinta">La montaña</span>
+      <div class="alt-cap revela">5 150<small>m</small></div>
+      <figure class="plantilla ficha azul">
+        <img src="img/plantillas/ficha_azul.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="dato">5 150 M · TÍBET</span>
+          <h3>Cara norte · Rongbuk</h3>
+          <p>Campo Base tibetano bajo la cara norte. Por esta vertiente subieron Mallory e Irvine en 1924.</p>
+        </div>
+      </figure>
+      <p class="ficha-pie">Campo Base tibetano bajo la cara norte. Por esta vertiente subieron Mallory e Irvine en 1924.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.47,0.24,1.45" data-pos="0.68,0.42" data-rot="everest,changtse,penacho,nuptse_n" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">Dónde está</span>
+      <h2 class="palabras">El techo del mundo</h2>
+      <p>El Everest se alza en la cordillera Mahalangur, en el Himalaya, justo encima de la frontera entre Nepal y la Región Autónoma del Tíbet, en China. Su cumbre es el punto más alto de la superficie terrestre: 8 848,86 metros sobre el nivel del mar.</p>
+      <p>Desde el monasterio de Rongbuk se ve entera, como una pirámide de tres caras: la norte, que mira al Tíbet; la suroeste, sobre Nepal, y la de Kangshung, al este. A sotavento de la cima, la corriente en chorro arranca un penacho de nieve que puede alargarse varios kilómetros.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.5,0.2,1.75" data-pos="0.7,0.4" data-rot="everest,ne,oeste" data-lado="izq">
+    <div class="env">
+    <figure class="plantilla thangka velo granate">
+      <div class="capa">
+        <img class="v" src="img/plantillas/thangka_granate_tela.webp" alt="" loading="lazy" decoding="async">
+        <img class="h" src="img/plantillas/thangka_velo_tela.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="etq">Medición</span>
+          <h3>El Pico XV</h3>
+          <p>En 1852, el calculista bengalí Radhanath Sikdar concluyó que el «Pico XV» era la montaña más alta del mundo: 29 002 pies.<span class="resto"> La cifra oficial de hoy, 8 848,86 m, la midieron juntos Nepal y China en 2020.</span></p>
+        </div>
+      </div>
+      <img class="vara v" src="img/plantillas/thangka_granate_vara.webp" alt="" loading="lazy" decoding="async">
+      <img class="vara h" src="img/plantillas/thangka_velo_vara.webp" alt="" loading="lazy" decoding="async">
+    </figure>
+      <div class="prosa thangka-resto"><p>La cifra oficial de hoy, 8 848,86 m, la midieron juntos Nepal y China en 2020.</p></div>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.5,0.17,2.3" data-pos="0.68,0.38" data-rot="everest" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">Geología</span>
+      <h2 class="palabras">Un fondo de mar a 8 800 metros</h2>
+      <p>La roca de la cima es caliza del Ordovícico, de unos 470 millones de años, con fósiles de trilobites, crinoideos y braquiópodos. El techo del mundo fue el lecho del océano Tetis.</p>
+      <p>Debajo asoma la Banda Amarilla, un mármol ocre que se cruza camino del Collado Sur. La India sigue empujando hacia el norte unos cuatro centímetros al año, y la montaña aún gana unos milímetros de altura en ese tiempo.</p>
+    </div>
+  </div>
+</section>
+
+<div class="cordel" data-revela>
+  <!--CORDEL-->
+</div>
+
+<!-- ================================================================ II · CULTURA (Campo Base, 5 364 m) -->
+<section class="cap" id="cultura" data-escena="campo_base" data-alt="5364" data-lugar="Campo Base · Khumbu">
+  <div class="paso" data-cam="0.5,0.5,1" data-pos="0.5,0.5" data-rot="altar" data-lado="izq">
+    <div class="apertura">
+      <span class="etiqueta tinta">Cultura y significado</span>
+      <div class="alt-cap revela">5 364<small>m</small></div>
+      <figure class="plantilla lungta azul">
+        <img src="img/plantillas/lungta_azul.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="dato">5 364 m</span>
+          <h3>Campo Base</h3>
+          <p>Ciudad de carpas sobre el glaciar del Khumbu. Aquí se hace la puja.</p>
+        </div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="paso centro" data-cam="0.47,0.2,1.3" data-pos="0.5,0.22" data-rot="arista" data-lado="no">
+    <div class="bloque-velo">
+      <div class="prosa ancha" style="margin:0 auto 2.2rem;text-align:center;justify-items:center">
+        <span class="etiqueta">Los nombres</span>
+        <h2 class="palabras">Tres nombres para una montaña</h2>
+      </div>
+      <div class="nombres-tres">
+        <div class="nombre revela" style="--i:0">
+          <span class="grafia tib" lang="bo">ཇོ་མོ་གླང་མ</span>
+          <figure class="plantilla khata blanco">
+            <div class="capa"><img src="img/plantillas/khata_blanco.webp" alt="" loading="lazy" decoding="async"></div>
+            <div class="contenido"><h3>Chomolungma</h3><p>«Diosa madre del mundo». Nombre tibetano y sherpa.</p></div>
+          </figure>
+          <p class="nota">Así la llaman a los dos lados de la frontera quienes viven bajo ella.</p>
+        </div>
+        <div class="nombre revela" style="--i:1">
+          <span class="grafia deva" lang="ne">सगरमाथा</span>
+          <figure class="plantilla khata blanco">
+            <div class="capa"><img src="img/plantillas/khata_blanco.webp" alt="" loading="lazy" decoding="async"></div>
+            <div class="contenido"><h3>Sagarmatha</h3><p>«La frente del cielo». Nombre nepalí.</p></div>
+          </figure>
+          <p class="nota">Lo acuñó el historiador Baburam Acharya; es oficial en Nepal desde los años sesenta.</p>
+        </div>
+        <div class="nombre revela" style="--i:2">
+          <span class="grafia lat">Everest</span>
+          <figure class="plantilla khata blanco">
+            <div class="capa"><img src="img/plantillas/khata_blanco.webp" alt="" loading="lazy" decoding="async"></div>
+            <div class="contenido"><h3>Everest</h3><p>Por sir George Everest, topógrafo general de la India.</p></div>
+          </figure>
+          <p class="nota">La Real Sociedad Geográfica lo adoptó en 1865, aunque él mismo se oponía.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.74,0.62,1.55" data-pos="0.72,0.55" data-rot="altar" data-lado="izq">
+    <div class="env">
+    <figure class="plantilla thangka velo granate">
+      <div class="capa">
+        <img class="v" src="img/plantillas/thangka_granate_tela.webp" alt="" loading="lazy" decoding="async">
+        <img class="h" src="img/plantillas/thangka_velo_tela.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="etq">Cultura</span>
+          <h3>La diosa que da sin agotarse</h3>
+          <p>Para los sherpas, en la montaña vive Miyolangsangma, diosa de la generosidad inagotable.<span class="resto"> Por eso ninguna expedición pisa la cascada del Khumbu sin antes hacer la puja: un lama bendice piolets y crampones, se quema enebro y se tienden las banderas.</span></p>
+        </div>
+      </div>
+      <img class="vara v" src="img/plantillas/thangka_granate_vara.webp" alt="" loading="lazy" decoding="async">
+      <img class="vara h" src="img/plantillas/thangka_velo_vara.webp" alt="" loading="lazy" decoding="async">
+    </figure>
+      <div class="prosa thangka-resto"><p>Por eso ninguna expedición pisa la cascada del Khumbu sin antes hacer la puja: un lama bendice piolets y crampones, se quema enebro y se tienden las banderas.</p></div>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.78,0.45,2.0" data-pos="0.7,0.45" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">Lung ta <span class="tib" lang="bo" style="letter-spacing:0;text-transform:none;font-size:1.05rem">རླུང་རྟ</span></span>
+      <h2 class="palabras">El caballo de viento</h2>
+      <p>Las banderas de oración se cuelgan siempre en el mismo orden, uno por cada elemento. En el centro de cada una va impreso el lung ta, un caballo que lleva en el lomo la joya llameante, y en las esquinas, sus cuatro guardianes: garuda, dragón, tigre y león de las nieves.</p>
+      <div class="elementos" role="list">
+        <div class="elemento" role="listitem" style="--i:0"><img src="img/plantillas/bandera_0.webp" alt="" loading="lazy"><b>Azul</b><i>cielo</i></div>
+        <div class="elemento" role="listitem" style="--i:1"><img src="img/plantillas/bandera_1.webp" alt="" loading="lazy"><b>Blanco</b><i>aire</i></div>
+        <div class="elemento" role="listitem" style="--i:2"><img src="img/plantillas/bandera_2.webp" alt="" loading="lazy"><b>Rojo</b><i>fuego</i></div>
+        <div class="elemento" role="listitem" style="--i:3"><img src="img/plantillas/bandera_3.webp" alt="" loading="lazy"><b>Verde</b><i>agua</i></div>
+        <div class="elemento" role="listitem" style="--i:4"><img src="img/plantillas/bandera_4.webp" alt="" loading="lazy"><b>Amarillo</b><i>tierra</i></div>
+      </div>
+      <p>Cada vez que el viento las agita, se lleva los mantras impresos y los reparte por el valle. Por eso no se descuelgan las viejas: se dejan deshacer. Al tenderlas se lanza harina de cebada al aire y se grita <span class="tib" lang="bo" style="font-size:1.05rem">ལྷ་རྒྱལ་ལོ</span>, <i>lha gyalo</i>: «victoria a los dioses».</p>
+    </div>
+  </div>
+
+  <div class="paso der" data-cam="0.2,0.6,1.7" data-pos="0.3,0.55" data-rot="carpas" data-lado="der">
+    <div class="prosa">
+      <span class="etiqueta">Los sherpas</span>
+      <h2 class="palabras">La gente del este</h2>
+      <p><i>Shar</i> significa «este» y <i>pa</i>, «gente». Los sherpas llegaron al Khumbu desde la región tibetana de Kham hace unos cinco siglos, cruzando el paso de Nangpa La. Budistas de la escuela nyingma, comerciantes y pastores de yaks, en el siglo XX se convirtieron en el corazón de las expediciones.</p>
+      <p>Dos monasterios miran la montaña de frente: Rongbuk, en el Tíbet, fundado en 1902 a casi 5 000 metros, y Tengboche, en Nepal, de 1916, donde las expediciones piden la bendición del lama antes de subir.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.47,0.1,1.75" data-pos="0.66,0.34" data-rot="arista" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">Significado</span>
+      <h2 class="palabras">Conquista o permiso</h2>
+      <p>Para Occidente, el Everest fue durante un siglo un problema que resolver: había que «conquistar» la cima. Para quien vive a sus pies, una montaña así no se conquista; se le pide permiso para subirla.</p>
+      <p>La puja es exactamente eso: se va a pisar el cuerpo de una diosa, y volver depende también de su generosidad. Entre esas dos ideas, la conquista y el permiso, se ha escrito toda la historia de la montaña.</p>
+      <p class="cita-corta">Desde aquí no se ve la cumbre.<small>Lo que arde al atardecer sobre el Campo Base es la arista oeste; la cima queda escondida detrás. Lo confirma el modelo del terreno con el que se pintó esta lámina.</small></p>
+    </div>
+  </div>
+</section>
+
+<div class="cordel" data-revela>
+  <!--CORDEL-->
+</div>
+
+<!-- ================================================================ III · LA RUTA (lámina VIII) -->
+<section class="cap" id="ruta" data-escena="ruta" data-alt="5364" data-lugar="Campo Base · planificando">
+  <div class="paso" data-cam="0.5,0.46,1.02" data-pos="0.6,0.5" data-rot="r_everest,r_lhotse,r_nuptse,r_makalu" data-ruta="0" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">La ruta · lámina VIII</span>
+      <h2 class="palabras">La ruta del Collado Sur</h2>
+      <p class="entradilla">La vía normal por Nepal, la de Hillary y Tenzing en 1953: unos trece kilómetros desde el Campo Base hasta la cima y 3 485 metros de desnivel.</p>
+      <p>Una expedición tarda entre seis y nueve semanas en recorrerlos. Se sube, se baja, se vuelve a subir un poco más alto, hasta que el cuerpo fabrica los glóbulos rojos que le faltan. Antes hay ocho a diez días de marcha desde el aeródromo de Lukla:</p>
+      <ol class="trek">
+        <li>Lukla 2 860</li><li>Namche 3 440</li><li>Tengboche 3 867</li><li>Dingboche 4 410</li><li>Lobuche 4 940</li><li>Gorak Shep 5 164</li>
+      </ol>
+      <p style="font-size:.9rem;color:var(--khata-2)">Esta lámina no estaba en el paquete original: se pintó para esta página con el mismo código y el mismo terreno que las otras siete, y la línea dorada es el trazado real de la ruta en OpenStreetMap.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="hito:campo1,1.9" data-pos="0.66,0.5" data-ruta="campo1" data-lado="izq">
+    <div class="prosa tramo">
+      <span class="marca-tramo etiqueta" style="--c:var(--b-azul)"><i></i>Campo Base → Campo 1 · 5 364 → 6 065 m</span>
+      <h2 class="palabras">La cascada del Khumbu</h2>
+      <p>Un glaciar que cae seiscientos metros roto en seracs del tamaño de edificios y avanza alrededor de un metro al día. Se cruza de madrugada, antes de que el sol afloje el hielo, por escaleras de aluminio atadas sobre las grietas. Las instala y las cuida un equipo sherpa: los «doctores de la cascada».</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="hito:campo2,1.85" data-pos="0.66,0.5" data-ruta="campo2" data-lado="izq">
+    <div class="prosa tramo">
+      <span class="marca-tramo etiqueta" style="--c:var(--b-blanco)"><i></i>Campo 1 → Campo 2 · 6 065 → 6 400 m</span>
+      <h2 class="palabras">El Cwm Occidental</h2>
+      <p>Mallory le dio en 1921 el nombre galés de <i>cwm</i>, valle glaciar. Es un pasillo de nieve cerrado por el Everest, el Lhotse y el Nuptse. A mediodía la luz rebota en todas las paredes y se pasa calor a más de seis mil metros; de noche, el frío cae de golpe.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="hito:campo3,2.0" data-pos="0.66,0.5" data-ruta="campo3" data-lado="izq">
+    <div class="prosa tramo">
+      <span class="marca-tramo etiqueta" style="--c:var(--b-rojo)"><i></i>Campo 2 → Campo 3 · 6 400 → 7 160 m</span>
+      <h2 class="palabras">La cara del Lhotse</h2>
+      <p>Unos mil cien metros de hielo azul a cuarenta grados, con cuerdas fijas de principio a fin. El Campo 3 son repisas talladas a piolet en mitad de la pared: para dormir allí hay que asegurarse a la cuerda incluso para salir de la tienda.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="hito:collado_sur,2.1" data-pos="0.66,0.48" data-ruta="collado_sur" data-lado="izq">
+    <div class="prosa tramo">
+      <span class="marca-tramo etiqueta" style="--c:var(--b-verde)"><i></i>Campo 3 → Collado Sur · 7 160 → 7 906 m</span>
+      <h2 class="palabras">La Banda Amarilla y el Espolón</h2>
+      <p>La ruta cruza la Banda Amarilla y rodea el Espolón de los Ginebrinos, bautizado por los suizos en 1952, hasta el Collado Sur: una explanada de roca y viento entre el Everest y el Lhotse. Es el último campo, y casi todos lo pisan ya con oxígeno embotellado.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="hito:cumbre,2.2" data-pos="0.66,0.42" data-ruta="cumbre" data-lado="izq">
+    <div class="prosa tramo">
+      <span class="marca-tramo etiqueta" style="--c:var(--b-amarillo)"><i></i>Collado Sur → cumbre · 7 906 → 8 849 m</span>
+      <h2 class="palabras">El ataque</h2>
+      <p>Se sale de noche. El Balcón, a 8 400 m, es el primer descanso y el cambio de botellas; después llegan la Cima Sur, a 8 749 m, la travesía de la cornisa con el abismo de Kangshung a un lado y el Escalón Hillary, el último resalte antes de la cima.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.5,0.46,1.02" data-pos="0.6,0.5" data-ruta="cumbre" data-rot="r_everest,r_lhotse" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">La otra vertiente</span>
+      <h2 class="palabras">Por el Tíbet</h2>
+      <p>La ruta norte sale del Campo Base de Rongbuk, a 5 150 m, sube al Collado Norte (7 020 m) y sigue por la arista noreste. Allí esperan tres escalones de roca; el segundo, a unos 8 610 m, tiene una escalera fija desde 1975. Es la vertiente de Mallory, más fría y expuesta al viento, pero sin cascada de hielo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ IV · CAMPO 1 · EL MACIZO (6 065 m) -->
+<section class="cap" id="macizo" data-escena="campo1" data-alt="6065" data-lugar="Campo 1 · Cwm Occidental">
+  <div class="paso" data-cam="0.42,0.62,1.15" data-pos="0.62,0.55" data-lado="izq">
+    <div class="apertura">
+      <span class="etiqueta tinta">Picos conformantes</span>
+      <div class="alt-cap revela">6 065<small>m</small></div>
+      <figure class="plantilla lungta blanco">
+        <img src="img/plantillas/lungta_blanco.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="dato">6 065 m</span>
+          <h3>Campo 1</h3>
+          <p>Arriba de la cascada de hielo, a la entrada del Cwm Occidental.</p>
+        </div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.6,0.22,1.12" data-pos="0.62,0.35" data-rot="c1_everest,c1_lhotse,c1_nuptse,c1_collado,c1_hombro" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">El macizo</span>
+      <h2 class="palabras">La herradura</h2>
+      <p>Desde el Campo 1 se ve el macizo entero cerrando el valle: el Everest a la izquierda, el Lhotse al fondo y el Nuptse a la derecha, en sombra. Son tres montañas soldadas por aristas. El Collado Sur une el Everest con el Lhotse, y la larga cresta del Lhotse al Nuptse cierra el Cwm por el sur.</p>
+      <p>Los nombres de los vecinos dicen dónde están respecto al Everest: Lhotse es «pico sur»; Nuptse, «pico oeste», y Changtse, al otro lado, «pico norte».</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.48,0.12,1.55" data-pos="0.72,0.32" data-rot="c1_everest,c1_lhotse" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">A escala, desde el nivel del mar</span>
+      <h2 class="palabras">Las cimas del macizo</h2>
+      <div class="macizo" id="macizo-grafico" data-revela style="--r: calc(8000 / 9000)">
+        <div class="ref8"><span>8 000 m · zona de la muerte</span></div>
+        <!--MACIZO-->
+        <div class="ejes" aria-hidden="true"><span></span><div class="esc"><span>0</span><span>3 000</span><span>6 000</span><span>9 000 m</span></div><span></span></div>
+      </div>
+      <p style="font-size:.9rem;color:var(--khata-2)">Pasa el cursor o el foco por cada cima para ver su primera ascensión.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.84,0.3,1.6" data-pos="0.7,0.4" data-rot="c1_lhotse,c1_c3" data-lado="izq">
+    <div class="prosa">
+      <span class="etiqueta">Anatomía</span>
+      <h2 class="palabras">Tres caras, tres aristas, tres glaciares</h2>
+      <dl class="tres-tres">
+        <div><dt>Caras</dt><dd>Norte, sobre el Tíbet</dd><dd>Suroeste, sobre Nepal</dd><dd>Kangshung o este</dd></div>
+        <div><dt>Aristas</dt><dd>Sureste: la de 1953</dd><dd>Noreste: la de Mallory</dd><dd>Oeste: la de 1963</dd></div>
+        <div><dt>Glaciares</dt><dd>Khumbu, al suroeste</dd><dd>Rongbuk, al norte</dd><dd>Kangshung, al este</dd></div>
+      </dl>
+      <p>El Lhotse, cuarta montaña más alta del mundo, comparte con el Everest la ruta hasta más allá del Campo 3. Allí, en la cara que sale en esta lámina, los dos caminos se separan.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ V · CAMPO 2 · HISTORIA (6 400 m) -->
+<section class="cap" id="historia" data-escena="campo2" data-alt="6400" data-lugar="Campo 2 · base avanzada">
+  <div class="paso" data-cam="0.5,0.5,1" data-pos="0.5,0.5" data-rot="c2_carpas" data-lado="izq">
+    <div class="apertura">
+      <span class="etiqueta tinta">Ascensiones importantes</span>
+      <div class="alt-cap revela">6 400<small>m</small></div>
+      <figure class="plantilla lungta rojo">
+        <img src="img/plantillas/lungta_rojo.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="dato">6 400 m</span>
+          <h3>Campo 2</h3>
+          <p>Base avanzada en la morrena, al pie de la cara suroeste.</p>
+        </div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.56,0.72,1.45" data-pos="0.7,0.55" data-lado="izq" style="min-height:auto;padding-block:12vh 6vh">
+    <div class="prosa">
+      <span class="etiqueta">Historia</span>
+      <h2 class="palabras">Cien años de cuerda fija</h2>
+      <p class="entradilla">Cada intento dejó algo clavado en la montaña para el siguiente: una ruta, un dato, una advertencia. Esta es la cuerda que va de 1921 a hoy.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.56,0.5,1.5" data-pos="0.7,0.45" data-lado="izq" style="padding-block:4vh 14vh;align-items:flex-start">
+    <div class="historia-cuerda">
+      <ol class="cuerda-fija" id="cuerda-fija">
+        <li class="anclaje revela" data-revela><span class="anio">1921</span><h3>El reconocimiento</h3><p>Una expedición británica rodea la montaña desde el Tíbet para buscarle un camino. George Mallory llega al Collado Norte y ve por dónde se podría subir.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1922</span><h3>Oxígeno y la primera tragedia</h3><p>George Finch y Geoffrey Bruce suben a 8 320 m con oxígeno embotellado, un récord de altitud. Una avalancha bajo el Collado Norte mata a siete porteadores: las primeras muertes registradas en el Everest.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1924</span><h3>Mallory e Irvine</h3><p>El 8 de junio, Noel Odell los ve por última vez «avanzando con fuerza hacia la cima». Nadie sabe si llegaron. El cuerpo de Mallory apareció en 1999 a 8 155 m; un pie de Irvine, todavía dentro de su bota, en 2024.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1933</span><h3>Por encima de la cumbre</h3><p>Dos biplanos Westland de la expedición Houston sobrevuelan la cima por primera vez y la fotografían desde el aire.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1952</span><h3>Los suizos</h3><p>Raymond Lambert y Tenzing Norgay llegan a unos 8 595 m por la arista sureste. Abren la ruta que se usará al año siguiente.</p></li>
+        <li class="anclaje grande revela" data-revela>
+          <span class="anio">1953</span>
+          <div class="env">
+          <figure class="plantilla thangka velo granate">
+            <div class="capa">
+              <img class="v" src="img/plantillas/thangka_granate_tela.webp" alt="" loading="lazy" decoding="async">
+              <img class="h" src="img/plantillas/thangka_velo_tela.webp" alt="" loading="lazy" decoding="async">
+              <div class="contenido">
+                <span class="etq">Historia</span>
+                <h3>29 de mayo de 1953</h3>
+                <p>A las 11:30, Edmund Hillary y Tenzing Norgay llegaron a la cumbre por la arista sureste.<span class="resto"> La noticia llegó a Londres en clave la mañana de la coronación de Isabel II. Tenzing dejó en la nieve una ofrenda para la diosa; Hillary, un pequeño crucifijo.</span></p>
+              </div>
+            </div>
+            <img class="vara v" src="img/plantillas/thangka_granate_vara.webp" alt="" loading="lazy" decoding="async">
+            <img class="vara h" src="img/plantillas/thangka_velo_vara.webp" alt="" loading="lazy" decoding="async">
+          </figure>
+            <div class="prosa thangka-resto"><p>La noticia llegó a Londres en clave la mañana de la coronación de Isabel II. Tenzing dejó en la nieve una ofrenda para la diosa; Hillary, un pequeño crucifijo.</p></div>
+          </div>
+        </li>
+        <li class="anclaje revela" data-revela><span class="anio">1960</span><h3>Por el norte</h3><p>Wang Fuzhou, Gonpo y Qu Yinhua completan de madrugada la primera ascensión por la arista noreste. Qu se quitó las botas para trepar el Segundo Escalón y perdió los dedos de los pies.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1963</span><h3>La travesía</h3><p>Tom Hornbein y Willi Unsoeld suben por la arista oeste y bajan por el Collado Sur: la primera travesía de la montaña. Pasan la noche al raso a unos 8 500 m, sin tienda ni oxígeno, y sobreviven.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1975</span><h3>Junko Tabei</h3><p>El 16 de mayo, la japonesa Junko Tabei es la primera mujer en la cumbre, doce días después de quedar sepultada por una avalancha en el Campo 2.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1978</span><h3>Sin oxígeno</h3><p>Reinhold Messner y Peter Habeler llegan a la cima sin oxígeno embotellado. Muchos fisiólogos lo creían imposible.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1980</span><h3>En invierno y en solitario</h3><p>En febrero, los polacos Krzysztof Wielicki y Leszek Cichy firman la primera invernal. En agosto, Messner sube solo, sin oxígeno y en pleno monzón, por la cara norte.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">1996</span><h3>La tormenta</h3><p>El 10 de mayo, una tormenta sorprende en el descenso a varias expediciones comerciales. Mueren ocho personas, entre ellas los guías Rob Hall y Scott Fischer. Jon Krakauer lo contó en <i>Mal de altura</i>.</p></li>
+        <li class="anclaje revela" data-revela><span class="anio">2020</span><h3>8 848,86</h3><p>Nepal y China anuncian juntos la nueva altura oficial, medida con receptores de satélite desde la misma cumbre.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ VI · CAMPO 3 · HAZAÑAS (7 160 m) -->
+<section class="cap" id="hazanas" data-escena="campo3" data-alt="7160" data-lugar="Campo 3 · cara del Lhotse">
+  <div class="paso" data-cam="0.6,0.55,1.05" data-pos="0.55,0.55" data-rot="c3_carpas" data-lado="izq">
+    <div class="apertura">
+      <span class="etiqueta tinta">Hazañas</span>
+      <div class="alt-cap revela">7 160<small>m</small></div>
+      <figure class="plantilla lungta verde">
+        <img src="img/plantillas/lungta_verde.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="dato">7 160 m</span>
+          <h3>Campo 3</h3>
+          <p>Repisas talladas en el hielo de la cara del Lhotse.</p>
+        </div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="paso centro" data-cam="0.88,0.38,1.55" data-pos="0.5,0.3" data-lado="no">
+    <div class="bloque-velo">
+      <div class="prosa ancha" style="margin:0 auto 2.6rem;text-align:center;justify-items:center">
+        <span class="etiqueta">Marcas</span>
+        <h2 class="palabras">La medida de lo posible</h2>
+        <p class="entradilla">Una vez escalada, la montaña se convirtió en una vara de medir. Estas son algunas de las marcas que la movieron.</p>
+      </div>
+      <div class="hazanas">
+        <article class="hazana revela" style="--i:0">
+          <figure class="plantilla khata dorado"><div class="capa"><img src="img/plantillas/khata_dorado.webp" alt="" loading="lazy" decoding="async"></div><div class="contenido"><span class="cifra" data-cuenta="31">31</span></div></figure>
+          <span class="quien">Kami Rita Sherpa</span>
+          <h3>Cumbres de un solo hombre</h3>
+          <p>El récord absoluto. La trigésima primera, en mayo de 2025, casi siempre guiando a otros.</p>
+        </article>
+        <article class="hazana revela" style="--i:1">
+          <figure class="plantilla khata dorado"><div class="capa"><img src="img/plantillas/khata_dorado.webp" alt="" loading="lazy" decoding="async"></div><div class="contenido"><span class="cifra">Sin O<small>₂</small></span></div></figure>
+          <span class="quien">Messner y Habeler · 1978</span>
+          <h3>A pulmón</h3>
+          <p>La primera cumbre sin oxígeno embotellado demostró que el cuerpo humano podía, justo, respirar allí arriba.</p>
+        </article>
+        <article class="hazana revela" style="--i:2">
+          <figure class="plantilla khata dorado"><div class="capa"><img src="img/plantillas/khata_dorado.webp" alt="" loading="lazy" decoding="async"></div><div class="contenido"><span class="cifra" data-cuenta="3">3<small>días</small></span></div></figure>
+          <span class="quien">Reinhold Messner · 1980</span>
+          <h3>Solo, en monzón</h3>
+          <p>Del campo base avanzado a la cima por la cara norte, sin compañeros, sin oxígeno y con la nieve blanda del verano.</p>
+        </article>
+        <article class="hazana revela" style="--i:3">
+          <figure class="plantilla khata dorado"><div class="capa"><img src="img/plantillas/khata_dorado.webp" alt="" loading="lazy" decoding="async"></div><div class="contenido"><span class="cifra">10<small>h</small> 56<small>min</small></span></div></figure>
+          <span class="quien">Lakpa Gelu Sherpa · 2003</span>
+          <h3>Del Campo Base a la cima</h3>
+          <p>Lo que una expedición hace en semanas, de un tirón. Kilian Jornet subió en 2017 desde Rongbuk en 26 horas, sin oxígeno ni cuerdas fijas.</p>
+        </article>
+        <article class="hazana revela" style="--i:4">
+          <figure class="plantilla khata dorado"><div class="capa"><img src="img/plantillas/khata_dorado.webp" alt="" loading="lazy" decoding="async"></div><div class="contenido"><span class="cifra" data-cuenta="21">21<small>h</small></span></div></figure>
+          <span class="quien">Babu Chiri Sherpa · 1999</span>
+          <h3>Una noche en la cima</h3>
+          <p>Se quedó en la cumbre veintiuna horas, durmiendo incluido, sin oxígeno embotellado.</p>
+        </article>
+        <article class="hazana revela" style="--i:5">
+          <figure class="plantilla khata dorado"><div class="capa"><img src="img/plantillas/khata_dorado.webp" alt="" loading="lazy" decoding="async"></div><div class="contenido"><span class="cifra" data-cuenta="80">80<small>años</small></span></div></figure>
+          <span class="quien">Yuichiro Miura · 2013</span>
+          <h3>La edad no es la cima</h3>
+          <p>La persona de más edad en la cumbre. En el otro extremo, Jordan Romero la pisó con trece años en 2010.</p>
+        </article>
+      </div>
+      <div class="prosa ancha" style="margin:3rem auto 0">
+        <dl class="tres-tres">
+          <div><dt>Ciego · 2001</dt><dd>Erik Weihenmayer es el primer ciego en la cumbre.</dd></div>
+          <div><dt>Esquís · 2000</dt><dd>Davo Karničar baja esquiando de la cima al Campo Base sin quitárselos.</dd></div>
+          <div><dt>Diez cumbres · 2022</dt><dd>Lakpa Sherpa, récord femenino, criada al pie de la montaña.</dd></div>
+          <div><dt>Al mar · 2011</dt><dd>Lakpa Tsheri y Sano Babu bajan en parapente desde la cima y siguen en kayak hasta el golfo de Bengala.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ VII · COLLADO SUR · NOCHE Y ANÉCDOTAS (7 906 m) -->
+<section class="cap" id="noche" data-escena="campo4" data-alt="7906" data-lugar="Collado Sur · noche">
+  <div class="paso" data-cam="0.5,0.5,1" data-pos="0.5,0.5" data-lado="izq" data-lamp>
+    <div class="apertura">
+      <span class="etiqueta tinta">La noche</span>
+      <div class="alt-cap revela">7 906<small>m</small></div>
+      <figure class="plantilla lungta amarillo">
+        <img src="img/plantillas/lungta_amarillo.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="dato">7 906 m</span>
+          <h3>Collado Sur</h3>
+          <p>Último campo: roca, hielo y viento. De aquí sale el ataque.</p>
+        </div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.48,0.3,1.5" data-pos="0.7,0.42" data-rot="c4_frontales,c4_balcon" data-lado="izq" data-lamp>
+    <div class="env">
+    <figure class="plantilla thangka lapis">
+      <div class="capa">
+        <img src="img/plantillas/thangka_lapis_tela.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="etq">La ruta</span>
+          <h3>La noche del ataque</h3>
+          <p>El último tramo empieza de noche en el Collado Sur. Las cordadas salen entre las nueve y las once, con oxígeno.<span class="resto"> Suben a la luz de las frontales hasta el Balcón, a 8 400 m, para estar en la cima por la mañana y bajar antes de que cambie el tiempo.</span></p>
+        </div>
+      </div>
+      <img class="vara" src="img/plantillas/thangka_lapis_vara.webp" alt="" loading="lazy" decoding="async">
+    </figure>
+      <div class="prosa thangka-resto"><p>Suben a la luz de las frontales hasta el Balcón, a 8 400 m, para estar en la cima por la mañana y bajar antes de que cambie el tiempo.</p></div>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.5,0.12,2.2" data-pos="0.7,0.35" data-rot="c4_cima,c4_balcon" data-lado="izq" data-lamp>
+    <div class="prosa">
+      <span class="etiqueta">Por encima de 8 000 m</span>
+      <h2 class="palabras">La zona de la muerte</h2>
+      <p>Allí arriba el cuerpo ya no se aclimata: se consume. Cada inspiración trae un tercio del oxígeno que a nivel del mar, el cerebro y los pulmones pueden encharcarse y el juicio se nubla sin que uno lo note.</p>
+      <p>Por eso existe la hora de vuelta: si a la hora pactada no se ha llegado a la cima, se baja, esté donde esté. Más de trescientas personas han muerto en el Everest, muchas durante el descenso, con la cumbre ya hecha.</p>
+    </div>
+  </div>
+
+  <div class="paso centro" data-cam="0.3,0.72,1.35" data-pos="0.5,0.55" data-lado="no" data-lamp>
+    <div class="bloque-velo">
+      <div class="prosa ancha" style="margin:0 auto 2.4rem;text-align:center;justify-items:center">
+        <span class="etiqueta">Anécdotas</span>
+        <h2 class="palabras">Historias de tienda</h2>
+        <p class="entradilla">Las que se cuentan en el Collado Sur mientras se derrite nieve para el té, a la luz de la frontal.</p>
+      </div>
+      <div class="historias">
+        <article class="historia revela" style="--i:0"><span class="etiqueta">La cifra</span><h3>29 002 pies</h3><p>Cuenta la leyenda que el cálculo de 1852 dio exactamente 29 000 pies, y que se añadieron dos para que nadie creyera que era un redondeo.</p></article>
+        <article class="historia revela" style="--i:1"><span class="etiqueta">El nombre</span><h3>Everest nunca la vio</h3><p>Sir George Everest se opuso a que la montaña llevara su apellido, que además él pronunciaba «Iv-rest». Se había jubilado antes de que nadie supiera que era la más alta.</p></article>
+        <article class="historia revela" style="--i:2"><span class="etiqueta">El misterio</span><h3>La foto de Ruth</h3><p>Mallory llevaba una fotografía de su mujer para dejarla en la cima. No estaba entre sus cosas cuando apareció su cuerpo en 1999. Para muchos, esa ausencia es la mejor pista de que llegó.</p></article>
+        <article class="historia revela" style="--i:3"><span class="etiqueta">El telegrama</span><h3>Nieve en malas condiciones</h3><p>El corresponsal James Morris mandó la noticia en clave: <q>Snow conditions bad. Advanced base abandoned yesterday. Awaiting improvement</q>. Quería decir: cumbre, Hillary y Tenzing.</p></article>
+        <article class="historia revela" style="--i:4"><span class="etiqueta">La foto</span><h3>Hillary no sale en la cima</h3><p>Tenzing no había usado nunca una cámara, y allí arriba no era momento de aprender. La imagen famosa es la suya, con el piolet en alto y cuatro banderas: la ONU, el Reino Unido, Nepal y la India.</p></article>
+        <article class="historia revela" style="--i:5"><span class="etiqueta">La ofrenda</span><h3>Dulces y un lápiz</h3><p>Tenzing enterró en la nieve unos dulces y un lápiz rojo y azul que le había dado su hija Nima. Hillary dejó a su lado el pequeño crucifijo que le había confiado John Hunt.</p></article>
+        <article class="historia revela" style="--i:6"><span class="etiqueta">La vecina</span><h3>Más alta, no más grande</h3><p>El Mauna Kea, en Hawái, mide unos 10 200 m desde su base en el fondo del mar, y la cima del Chimborazo, en Ecuador, es el punto más alejado del centro de la Tierra. El Everest gana en lo que se mide desde el mar.</p></article>
+        <article class="historia revela" style="--i:7"><span class="etiqueta">La residente</span><h3>Una araña a 6 700 m</h3><p><i>Euophrys omnisuperstes</i>, «la que está por encima de todo», es una araña saltadora que vive en las laderas del Everest. La recogió la expedición de 1924 y se alimenta de los insectos que sube el viento.</p></article>
+        <article class="historia revela" style="--i:8"><span class="etiqueta">El atasco</span><h3>La cola de 2019</h3><p>El 22 de mayo de 2019, Nirmal Purja fotografió una fila de más de cien personas esperando turno en la arista final. Aquella temporada murieron once.</p></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ VIII · CUMBRE (8 849 m) -->
+<section class="cap" id="cumbre" data-escena="cumbre" data-alt="8848.86" data-lugar="Cumbre · amanecer">
+  <div class="paso" data-cam="0.5,0.5,1" data-pos="0.5,0.5" data-lado="izq" data-amanecer="0.1">
+    <div class="apertura">
+      <span class="etiqueta tinta">La cumbre principal</span>
+      <div class="alt-cap revela">8 849<small>m</small></div>
+      <figure class="plantilla ficha amarilla">
+        <img src="img/plantillas/ficha_amarilla.webp" alt="" loading="lazy" decoding="async">
+        <div class="contenido">
+          <span class="dato">8 849 M · 27,9881° N 86,9250° E</span>
+          <h3>Cumbre del Everest</h3>
+          <p>Desde 1953 han subido más de seis mil personas. La caliza de la cima tiene fósiles marinos.</p>
+        </div>
+      </figure>
+      <p class="ficha-pie">Desde 1953 han subido más de seis mil personas. La caliza de la cima tiene fósiles marinos.</p>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.62,0.4,1.2" data-pos="0.66,0.42" data-rot="k_lhotse,k_shar,k_chamlang,k_baruntse" data-lado="izq" data-amanecer="0.35">
+    <div class="prosa">
+      <span class="etiqueta">8 848,86 m</span>
+      <h2 class="palabras">Una cúpula de nieve</h2>
+      <p>La cima es un domo de nieve donde caben pocas personas a la vez. Debajo está la caliza con fósiles; la altura oficial incluye la capa de nieve.</p>
+      <p>El aire tiene un tercio de la presión del nivel del mar. La temperatura media de enero ronda los −36 °C, y en invierno la corriente en chorro sopla por encima de 160 km/h.</p>
+    </div>
+  </div>
+
+  <div class="paso der" data-cam="0.24,0.38,1.25" data-pos="0.3,0.45" data-rot="k_makalu,k_kangch,k_chomo" data-lado="der" data-amanecer="0.55">
+    <div class="prosa">
+      <span class="etiqueta">Lo que se ve</span>
+      <h2 class="palabras">El mar de nubes</h2>
+      <p>Al amanecer, mirando al sureste: el Lhotse a los pies, el Makalu y, a 124 kilómetros, el Kangchenjunga. De las seis montañas más altas del planeta, desde aquí se ven todas menos el K2.</p>
+      <figure class="plantilla khata dorado" style="width:min(100%,400px);margin-top:.6rem">
+        <div class="capa"><img src="img/plantillas/khata_dorado.webp" alt="" loading="lazy" decoding="async"></div>
+        <div class="contenido"><span class="cifra" style="font-size:clamp(22px,7.4cqw,40px)">8 848,86<small>m</small></span><p>Nepal y China, 2020<span class="resto">, con nieve incluida</span>.</p></div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="paso centro" data-cam="0.62,0.3,1.1" data-pos="0.5,0.3" data-lado="no" data-amanecer="0.75">
+    <div class="cita-final env">
+      <figure class="plantilla khata drapeado">
+        <div class="capa"><img src="img/plantillas/khata_drapeado.webp" alt="" loading="lazy" decoding="async"></div>
+        <div class="contenido">
+          <h3>«Porque está ahí»</h3>
+          <p>George Mallory, 1923<span class="resto">, cuando le preguntaron por qué quería subir el Everest</span>.</p>
+        </div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="paso" data-cam="0.5,0.45,1.02" data-pos="0.5,0.5" data-lado="izq" data-amanecer="1">
+    <div class="prosa">
+      <span class="etiqueta">La mitad del camino</span>
+      <h2 class="palabras">Volver</h2>
+      <p>La cumbre es solo la mitad. El alpinista Ed Viesturs lo resumía así: <q>llegar a la cima es opcional; bajar es obligatorio</q>. Y a Hillary se le atribuye otra frase que la montaña repite a cada uno: <q>no es la montaña lo que conquistamos, sino a nosotros mismos</q>.</p>
+      <p>Quizá por eso la palabra tibetana sigue siendo la más exacta. No es un trofeo; es una madre. Se le pide permiso, se sube y se vuelve a casa.</p>
+    </div>
+  </div>
+
+  <div class="paso centro corto" data-cam="0.5,0.42,1" data-pos="0.5,0.5" data-lado="no" data-amanecer="1">
+    <div class="despedida revela">
+      <div class="cifra-final"><span data-cuenta="8848.86" data-dec="2">8 848,86</span><small> m</small></div>
+      <div class="tib" lang="bo">བཀྲ་ཤིས་བདེ་ལེགས།</div>
+      <p style="color:var(--khata-2)"><i>Tashi delek</i>: que todo vaya bien.</p>
+    </div>
+  </div>
+</section>
+
+<div class="cordel" data-revela>
+  <!--CORDEL-->
+</div>
+</main>
+
+<footer class="pie">
+  <div class="rejilla">
+    <div>
+      <h4>Las láminas</h4>
+      <p>Las ocho láminas están pintadas sobre el terreno real con el código de la identidad «Chomolungma»: DEM Pléiades del Khumbu (Berthier, 2022, CC BY 4.0), SRTM3 de la NASA (dominio público) y la ruta del Collado Sur de OpenStreetMap (© colaboradores de OpenStreetMap, ODbL). La lámina VIII, «La ruta», se pintó para esta página con ese mismo código.</p>
+    </div>
+    <div>
+      <h4>Las cumbres señaladas</h4>
+      <p>Cada rótulo sobre una cima está calculado proyectando sus coordenadas con la cámara de su lámina, con el mismo modelo del terreno. Los que no son un punto geográfico (aristas, penacho, campamentos pintados) se colocaron a mano.</p>
+    </div>
+    <div>
+      <h4>Tipografías e identidad</h4>
+      <ul>
+        <li>Gotu y Mukta (Ek Type) y Noto Serif Tibetan (Google), con licencia SIL Open Font License 1.1.</li>
+        <li>Thangkas, khatas y banderas de la identidad «Chomolungma»: dibujos propios inspirados en piezas tradicionales.</li>
+        <li>Oxígeno disponible estimado con el modelo de presión de West para el Himalaya.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="firma"><span>Everest · Chomolungma · Sagarmatha</span><span>De 5 150 a 8 848,86 metros</span></div>
+</footer>
+
+<script type="application/json" id="datos">/*DATOS*/</script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+<script>/*ESCENA*/</script>
+<script>/*MAIN*/</script>
