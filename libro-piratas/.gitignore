@@ -1,0 +1,4 @@
+node_modules/
+salida/_pliegos*.pdf
+maqueta/medidas.json
+__pycache__/

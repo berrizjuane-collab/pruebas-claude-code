@@ -1,0 +1,12 @@
+{
+  "name": "libro-piratas-del-caribe",
+  "private": true,
+  "description": "Maqueta del libro ilustrado de 64 páginas sobre Piratas del Caribe",
+  "scripts": {
+    "construir": "bash herramientas/construir.sh"
+  },
+  "dependencies": {
+    "d3-geo": "3.1.1",
+    "topojson-client": "3.1.0"
+  }
+}

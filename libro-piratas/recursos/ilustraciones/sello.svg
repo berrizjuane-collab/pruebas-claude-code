@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<defs>
+<radialGradient id="sl-g" cx="38%" cy="34%" r="70%"><stop offset="0" stop-color="#c2363d"/><stop offset=".55" stop-color="#a22029"/><stop offset="1" stop-color="#5e0f12"/></radialGradient>
+<radialGradient id="sl-i" cx="58%" cy="62%" r="65%"><stop offset="0" stop-color="#b52a31"/><stop offset="1" stop-color="#7a161a"/></radialGradient>
+</defs>
+<polygon points="95.1,50.0 93.5,57.7 94.0,66.0 87.9,71.9 85.4,79.7 79.1,84.7 71.9,87.8 65.7,93.3 57.6,92.9 50.0,95.7 42.4,93.1 35.0,91.2 27.2,89.5 19.3,86.5 16.3,78.3 11.4,72.3 6.2,66.0 2.4,58.4 3.6,50.0 5.2,42.1 4.4,33.4 12.2,28.2 13.3,19.2 21.1,15.6 27.9,11.8 34.9,8.6 42.2,5.7 50.0,2.4 57.7,6.3 65.9,6.4 73.4,9.5 79.1,15.3 85.4,20.3 87.9,28.1 91.1,35.1 93.8,42.3" fill="url(#sl-g)"/>
+<circle cx="50" cy="50" r="31" fill="url(#sl-i)" stroke="#5e0f12" stroke-width="2.2"/>
+<circle cx="50" cy="50" r="25" fill="none" stroke="#d65a5f" stroke-opacity=".55" stroke-width="1.2"/>
+<path d="M50 34 l3.6 10.8 h11.4 l-9.2 6.7 3.5 10.9 -9.3-6.7 -9.3 6.7 3.5-10.9 -9.2-6.7 h11.4z" fill="#6e1216" fill-opacity=".75"/>
+<ellipse cx="36" cy="28" rx="10" ry="5" fill="#fff" fill-opacity=".18" transform="rotate(-30 36 28)"/>
+</svg>
