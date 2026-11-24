@@ -1,0 +1,1482 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Broad Peak</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Broad Peak, 8 051 m: una ascensión en scroll por sus tres cumbres, su ruta normal, su historia y su gente, sobre láminas pintadas en pincel seco.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap">
+<style>
+/* Concepto «Cresta Ancha»: una lámina pintada fija a sangre; el texto asciende sobre ella en dos carriles,
+   lectura sobre lavado de grava y datos en placas de hielo. El scroll es la subida. */
+:root{
+  color-scheme: dark;
+  --grava:#1C1D21; --granito:#4A4C52; --morrena:#8C8478; --hielo:#C9D6DC; --nieve:#F2F0EA; --arrebol:#D9733F;
+  --sombra-serac:#8FA6B3;
+  --h100:#F4F8FA; --h200:#DCE8EF; --h300:#C3D8E4; --h400:#A4C3D8; --h500:#82A9C6;
+  --h600:#5E8CB0; --h700:#3F6E96; --h800:#2A5276; --h900:#1B3A57;
+  --display:'Archivo','Archivo Expanded','Arial Black',system-ui,sans-serif;
+  --texto:'Newsreader',Georgia,'Times New Roman',serif;
+  --t-hero:clamp(56px,8.3vw,150px); --t-h1:clamp(38px,4.8vw,68px); --t-h2:clamp(26px,2.8vw,40px);
+  --t-h3:clamp(19px,1.7vw,24px); --t-cuerpo:clamp(17px,1.32vw,20px); --t-nota:clamp(14px,1.1vw,16px); --t-et:12px;
+  --lado-i:max(16px, env(safe-area-inset-left,0px)); --lado-d:max(16px, env(safe-area-inset-right,0px));
+  --hud:0px;
+}
+@media (min-width:900px){ :root{ --lado-i:max(40px, env(safe-area-inset-left,0px)); --lado-d:max(40px, env(safe-area-inset-right,0px)); --hud:84px } }
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:clip}
+html{background:var(--grava); scroll-behavior:auto}
+body{margin:0; background:var(--grava); color:var(--nieve); font-family:var(--texto); font-size:var(--t-cuerpo); line-height:1.6;
+  font-optical-sizing:auto; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+::selection{background:var(--h700); color:var(--h100)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--h300); outline-offset:3px}
+.sr{position:absolute!important; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap}
+
+/* ---------- tipografía de marca ---------- */
+.display{font-family:var(--display); font-stretch:125%; font-weight:800; letter-spacing:.03em; text-transform:uppercase; line-height:.95; text-wrap:balance}
+.etiqueta{font-family:var(--display); font-stretch:125%; font-weight:600; font-size:var(--t-et); letter-spacing:.2em; text-transform:uppercase; line-height:1.4}
+.num{font-variant-numeric:tabular-nums lining-nums}
+
+/* ---------- escenario fijo ---------- */
+.escenario{position:fixed; inset:0; z-index:0; background:var(--grava); overflow:hidden}
+.escenario canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+.escenario .dom-lam{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transform-origin:50% 50%; will-change:opacity,transform}
+.capa-trazo{position:fixed; inset:0; z-index:1; pointer-events:none; width:100%; height:100%}
+.cotas{position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden}
+.cota{position:absolute; left:0; top:0; opacity:0; will-change:transform,opacity}
+.cota-linea{position:absolute; left:0; width:1px; background:var(--nieve); opacity:.85}
+.cota-punto{position:absolute; left:-3px; top:-3px; width:7px; height:7px; background:var(--nieve);
+  clip-path:polygon(50% 0,100% 100%,0 100%)}
+.cota-chip{position:absolute; display:flex; flex-direction:column; gap:1px; padding:6px 10px 6px 9px; background:var(--grava);
+  white-space:nowrap; clip-path:polygon(0 0,100% 0,100% 72%,94% 100%,0 100%)}
+.cota-chip b{font-family:var(--display); font-stretch:125%; font-weight:700; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--nieve); line-height:1.2}
+.cota-chip i{font-family:var(--texto); font-style:italic; font-size:13px; color:var(--hielo); line-height:1.15}
+.cota.foco .cota-punto{background:var(--arrebol)}
+.cota.foco .cota-chip b{color:var(--nieve)}
+.cota.foco .cota-chip{box-shadow:inset 2px 0 0 var(--arrebol)}
+
+/* ---------- HUD ---------- */
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--grava)}
+.barra{position:fixed; top:env(safe-area-inset-top,0px); left:0; right:0; z-index:8; display:flex; align-items:center; justify-content:space-between; gap:24px;
+  padding:18px var(--lado-d) 0 var(--lado-i); pointer-events:none}
+.barra > *{pointer-events:auto; position:relative}
+.barra::before{content:""; position:absolute; left:0; right:0; top:calc(-1 * env(safe-area-inset-top,0px)); height:calc(118px + env(safe-area-inset-top,0px)); background:var(--grava); opacity:1; pointer-events:none;
+  -webkit-mask:url(img/pincelada-banda.webp) center top / 100% 100% no-repeat; mask:url(img/pincelada-banda.webp) center top / 100% 100% no-repeat}
+@media (max-width:899px){ .barra::before{height:calc(92px + env(safe-area-inset-top,0px))} }
+.marca{display:flex; align-items:baseline; gap:12px; text-decoration:none}
+.marca b{font-family:var(--display); font-stretch:125%; font-weight:800; font-size:15px; letter-spacing:.08em}
+.marca span{font-family:var(--texto); font-style:italic; font-size:15px; color:var(--hielo)}
+.indice{display:flex; gap:clamp(12px,1.6vw,26px)}
+.indice a{text-decoration:none; color:var(--hielo); padding:6px 0; position:relative; transition:color .3s}
+.indice a::after{content:""; position:absolute; left:0; right:100%; bottom:1px; height:2px; background:var(--arrebol); transition:right .45s cubic-bezier(.2,.8,.2,1)}
+.indice a:hover{color:var(--nieve)}
+.indice a[aria-current="true"]{color:var(--nieve)}
+.indice a[aria-current="true"]::after{right:0}
+.capitulo-movil{display:none; color:var(--hielo)}
+@media (max-width:1080px){ .indice{display:none} .capitulo-movil{display:block} }
+
+.altimetro{position:fixed; right:max(18px, env(safe-area-inset-right,0px)); top:50%; transform:translateY(-50%); z-index:7; width:58px; height:min(52vh,460px);
+  pointer-events:none; display:grid; grid-template-rows:1fr auto; grid-template-columns:minmax(0,1fr)}
+.alt-escala{position:relative; border-right:1px solid color-mix(in srgb, var(--nieve) 55%, transparent)}
+.alt-tick{position:absolute; right:0; display:flex; align-items:center; gap:6px; transform:translateY(-50%); font-family:var(--display); font-stretch:125%; font-size:10px; letter-spacing:.08em; color:var(--hielo)}
+.alt-tick::after{content:""; width:7px; height:1px; background:var(--nieve)}
+.alt-tick.menor{font-size:0}
+.alt-tick.menor::after{width:4px; opacity:.6}
+.alt-marca{position:absolute; right:-1px; width:22px; height:2px; background:var(--arrebol); transform:translateY(-50%)}
+.alt-marca::before{content:""; position:absolute; right:-7px; top:-4px; border:5px solid transparent; border-right-color:var(--arrebol); border-left:0}
+.alt-lectura{padding-top:12px; text-align:right; display:flex; flex-direction:column; align-items:flex-end}
+.alt-lectura .alt-n{display:block; font-family:var(--display); font-stretch:125%; font-weight:800; font-size:17px; letter-spacing:.02em}
+.alt-lectura .etiqueta{font-size:9px; color:var(--hielo); letter-spacing:.14em; display:block; white-space:nowrap}
+@media (max-width:899px){ .altimetro{display:none} }
+
+.pie-lamina{position:fixed; left:var(--lado-i); bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:7; pointer-events:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 12px;
+  max-width:calc(100vw - var(--lado-i) - var(--lado-d) - var(--hud)); padding:7px 14px 7px 12px; background:var(--grava);
+  clip-path:polygon(0 0,100% 0,100% 62%,calc(100% - 10px) 100%,0 100%); transition:opacity .5s, transform .5s}
+.pie-lamina > *{transition:opacity .25s}
+.pie-lamina .pl-num{color:var(--arrebol)}
+.pie-lamina .pl-nombre{font-family:var(--display); font-stretch:125%; font-weight:800; font-size:13px; letter-spacing:.1em; text-transform:uppercase}
+.pie-lamina .pl-meta{font-style:italic; font-size:14px; color:var(--hielo)}
+.pie-lamina.oculta{opacity:0; transform:translateY(8px)}
+.pie-lamina.cambia > *{opacity:0}
+@media (max-width:899px){ .pie-lamina .pl-nombre{font-size:11px} .pie-lamina .pl-meta{font-size:12px} .pie-lamina .pl-num{display:none} }
+.alt-movil{display:none}
+@media (max-width:899px){ .alt-movil{display:inline} }
+
+/* ---------- capítulos ---------- */
+main{position:relative; z-index:3}
+.capitulo{position:relative; padding:22vh calc(var(--lado-d) + var(--hud)) 22vh var(--lado-i)}
+.rejilla{display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); column-gap:clamp(16px,2vw,32px); row-gap:clamp(64px,12vh,140px); max-width:1360px; margin-inline:auto; align-items:start}
+.rejilla > *{min-width:0}
+@media (max-width:899px){ .rejilla{grid-template-columns:minmax(0,1fr); row-gap:56px} .rejilla > *{grid-column:1 / -1 !important; justify-self:stretch !important} }
+
+/* lavado de grava a pincel seco bajo el texto de lectura */
+.lavado{position:relative; isolation:isolate; padding:clamp(26px,3vw,44px) clamp(22px,2.8vw,42px); max-width:36em}
+.lavado::before{content:""; position:absolute; inset:-7% -6%; z-index:-1; background:var(--grava); opacity:.88;
+  -webkit-mask:url(img/pincelada.webp) center / 100% 100% no-repeat; mask:url(img/pincelada.webp) center / 100% 100% no-repeat}
+.lavado.ancho::before{-webkit-mask-image:url(img/pincelada-ancha.webp); mask-image:url(img/pincelada-ancha.webp)}
+.lavado p{margin:0 0 .85em}
+.lavado p:last-child{margin-bottom:0}
+.lavado .etiqueta{color:var(--hielo); margin-bottom:14px; display:block}
+.lavado h3{font-family:var(--display); font-stretch:125%; font-weight:800; text-transform:uppercase; letter-spacing:.03em; font-size:var(--t-h3); line-height:1.05; margin:0 0 .6em; text-wrap:balance}
+.lavado em{font-style:italic}
+.entradilla{font-size:calc(var(--t-cuerpo) * 1.12); line-height:1.55}
+.lavado .año{font-family:var(--display); font-stretch:125%; font-weight:800; font-size:var(--t-h1); line-height:.9; color:var(--arrebol); display:block; margin-bottom:12px; letter-spacing:.01em}
+.fuente-nota{font-size:var(--t-nota); color:var(--hielo); font-style:italic}
+
+/* ---------- placas de hielo (plantillas de la marca, sin girar ni deformar) ---------- */
+.placa-w{container-type:inline-size; width:100%; max-width:100%; margin:0}
+.placa{display:grid; grid-template-rows:minmax(0,1fr); grid-template-columns:minmax(0,1fr); width:100%; box-sizing:border-box; min-height:0;
+  background-position:center; background-size:100% 100%; background-repeat:no-repeat; color:var(--h900); --e:1}
+.zona{min-width:0; min-height:0; display:flex; flex-direction:column; justify-content:center; gap:calc(var(--e)*1.4cqi); overflow:visible}
+.bp-bloque-ficha{background-image:url(plantillas/bloque-ficha.webp); aspect-ratio:1600/1100; padding:13.75% 14% 11% 12%}
+.bp-bloque-ancho{background-image:url(plantillas/bloque-ancho.webp); aspect-ratio:2200/820; padding:8.2% 8% 7.45% 7%}
+.bp-esquirla-cita{background-image:url(plantillas/esquirla-cita.webp); aspect-ratio:1100/1500; padding:40.91% 20% 24.55% 22%}
+.bp-lamina-encabezado{background-image:url(plantillas/lamina-encabezado.webp); aspect-ratio:2400/480; padding:5.2% 26% 4.4% 4%}
+.bp-hielo-profundo{background-image:url(plantillas/hielo-profundo.webp); aspect-ratio:1400/900; padding:12.86% 14% 11.57% 12%; color:var(--h100)}
+.bp-astilla-dato{background-image:url(plantillas/astilla-dato.webp); aspect-ratio:900/760; padding:21.96% 22% 18.58% 20%}
+.bp-columna-serac{background-image:url(plantillas/columna-serac.webp); aspect-ratio:900/1800; padding:20% 18% 20% 18%}
+.bp-grieta-separador{background-image:url(plantillas/grieta-separador.webp); aspect-ratio:2400/260; display:block}
+/* en pantallas estrechas los párrafos largos pasan de bloque ancho a columna de serac */
+@media (max-width:640px){
+  .bp-bloque-ancho.a-columna{background-image:url(plantillas/columna-serac.webp); aspect-ratio:900/1800; padding:20% 18% 20% 18%}
+}
+.p-et{font-family:var(--display); font-stretch:125%; font-weight:700; text-transform:uppercase; letter-spacing:.18em; font-size:calc(var(--e)*(7px + .9cqi)); line-height:1.3; margin:0; color:var(--h700)}
+.bp-hielo-profundo .p-et{color:var(--h300)}
+.p-cifra{font-family:var(--display); font-stretch:125%; font-weight:800; text-transform:uppercase; letter-spacing:.01em; font-size:calc(var(--e)*(14px + 6cqi)); line-height:.95; margin:0; white-space:nowrap}
+.p-tit{font-family:var(--display); font-stretch:125%; font-weight:800; text-transform:uppercase; letter-spacing:.03em; font-size:calc(var(--e)*(9px + 2cqi)); line-height:1.05; margin:0; text-wrap:balance}
+.p-txt{font-family:var(--texto); font-size:calc(var(--e)*(8.5px + 1.45cqi)); line-height:1.45; margin:0}
+.bp-bloque-ancho .p-txt{font-size:calc(var(--e)*(8px + 1cqi))}
+.bp-bloque-ancho .p-et{font-size:calc(var(--e)*(7px + .5cqi))}
+.p-txt em{font-style:italic}
+.p-filas{margin:0; display:grid; gap:0}
+.p-filas div{display:flex; justify-content:space-between; align-items:baseline; gap:3cqi; padding:calc(var(--e)*.55cqi) 0; border-bottom:1px solid color-mix(in srgb, var(--h900) 18%, transparent)}
+.p-filas div:last-child{border-bottom:0}
+.p-filas dt{font-family:var(--display); font-stretch:125%; font-weight:600; text-transform:uppercase; letter-spacing:.14em; font-size:calc(var(--e)*(6.5px + .8cqi)); color:var(--h700); white-space:nowrap}
+.p-filas dd{margin:0; font-size:calc(var(--e)*(8px + 1.15cqi)); line-height:1.25; text-align:right}
+.enc-t{font-family:var(--display); font-stretch:125%; font-weight:800; text-transform:uppercase; letter-spacing:.03em; line-height:1; white-space:nowrap; font-size:5.2cqi; display:block}
+.enc-s{font-family:var(--texto); font-style:italic; font-size:max(12px, 1.9cqi); line-height:1.2; color:var(--h700); display:block; margin-top:.5cqi; white-space:nowrap}
+.cita-t{font-family:var(--texto); font-style:italic; font-weight:400; font-size:calc(var(--e)*(8px + 5.6cqi)); line-height:1.08; margin:0; text-wrap:balance}
+.cita-a{font-family:var(--display); font-stretch:125%; font-weight:600; text-transform:uppercase; letter-spacing:.16em; font-size:calc(var(--e)*(7px + 1.2cqi)); color:var(--h700); margin:0}
+.dato-n{font-family:var(--display); font-stretch:125%; font-weight:800; text-transform:uppercase; line-height:.92; margin:0; white-space:nowrap; font-size:15cqi; letter-spacing:0}
+.dato-t{font-family:var(--texto); font-size:calc(var(--e)*(7px + 2.6cqi)); line-height:1.2; margin:0}
+/* móvil: encabezados en bloque ancho (dos líneas), párrafos largos en columna de serac */
+@media (max-width:640px){
+  .bp-lamina-encabezado{background-image:url(plantillas/bloque-ancho.webp); aspect-ratio:2200/820; padding:8.2% 8% 7.45% 7%}
+  .enc-t{white-space:normal; text-wrap:balance; font-size:calc(var(--e)*8.2cqi); line-height:1.02}
+  .enc-s{display:none}
+  .bp-bloque-ancho.a-columna .p-txt{font-size:calc(var(--e)*(8.5px + 1.45cqi))}
+  .bp-bloque-ancho.a-columna .p-et{font-size:calc(var(--e)*(7px + .9cqi))}
+}
+
+/* anchos de placa */
+.w-enc{max-width:min(100%, 760px)}
+.w-ficha{max-width:min(100%, 620px)}
+.w-ancho{max-width:min(100%, 1040px)}
+.w-cita{max-width:min(100%, 380px)}
+.w-hielo{max-width:min(100%, 560px)}
+.w-dato{max-width:min(100%, 330px)}
+.w-col{max-width:min(100%, 300px)}
+.separador{max-width:1200px; margin:0 auto; opacity:.95}
+
+/* entrada de las placas: la placa emerge desde abajo, recortada, sin deformarse */
+.revela{transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform 1.1s cubic-bezier(.16,.84,.24,1), clip-path 1.2s cubic-bezier(.16,.84,.24,1)}
+.revela.pre{opacity:0; transform:translate3d(0,34px,0)}
+.placa-w.revela.pre{clip-path:inset(100% 0 0 0); transform:translate3d(0,24px,0); opacity:1}
+.placa-w.revela{clip-path:inset(0 0 0 0)}
+
+/* ---------- portada ---------- */
+.portada{min-height:100svh; display:flex; flex-direction:column; justify-content:flex-end; padding-top:14vh; padding-bottom:clamp(64px,12vh,128px)}
+.portada-cuerpo{max-width:1360px; width:100%; margin-inline:auto; position:relative}
+.portada-et{color:var(--nieve); margin:0 0 18px}
+.titulo-hero{margin:0; font-size:var(--t-hero); line-height:.88; animation:ensancha 2.4s cubic-bezier(.16,.84,.24,1) .15s both}
+.titulo-hero span{display:inline}
+@keyframes ensancha{ from{font-stretch:62%; letter-spacing:.16em} to{font-stretch:125%; letter-spacing:.03em} }
+.portada-sub{font-style:italic; font-size:clamp(20px,2vw,28px); margin:18px 0 0; color:var(--nieve); max-width:30em}
+.portada-pie{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:24px; margin-top:clamp(28px,5vh,56px)}
+.portada-datos{display:flex; flex-wrap:wrap; gap:14px clamp(24px,3.4vw,56px); margin:0}
+.portada-datos div{display:flex; flex-direction:column; gap:4px}
+.portada-datos dt{font-family:var(--display); font-stretch:125%; font-weight:600; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--hielo)}
+.portada-datos dd{margin:0; font-family:var(--display); font-stretch:125%; font-weight:800; font-size:clamp(16px,1.5vw,21px); letter-spacing:.03em}
+.bajar{display:flex; align-items:center; gap:14px; text-decoration:none; color:var(--nieve)}
+.bajar i{position:relative; width:1px; height:56px; background:color-mix(in srgb, var(--nieve) 35%, transparent); overflow:hidden}
+.bajar i::after{content:""; position:absolute; left:-1px; top:-30%; width:3px; height:30%; background:var(--arrebol); animation:baja 2.2s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes baja{ to{top:100%} }
+.carga{display:inline-block; margin-left:10px; color:var(--hielo); font-style:italic; font-size:14px; letter-spacing:0; text-transform:none; transition:opacity .6s}
+.carga.fuera{display:none}
+@media (max-width:899px){
+  .titulo-hero{font-size:clamp(56px,18.5vw,120px)}
+  .titulo-hero span{display:block}
+}
+
+/* ---------- secciones fijadas (panorama y ruta) ---------- */
+.fijo{padding:0; height:var(--alto,600svh)}
+.fijo-vista{position:sticky; top:0; height:100svh; padding:calc(84px + env(safe-area-inset-top,0px)) calc(var(--lado-d) + var(--hud)) calc(72px + env(safe-area-inset-bottom,0px)) var(--lado-i);
+  display:grid; grid-template-columns:minmax(0,560px) minmax(0,1fr); grid-template-rows:auto 1fr auto; gap:20px 32px; pointer-events:none}
+.fijo-vista > *{pointer-events:auto; min-width:0}
+.fv-cabeza{grid-column:1 / 2; grid-row:1; display:flex; flex-direction:column; gap:14px; align-items:flex-start}
+.fv-cabeza .lavado{padding:18px 22px; font-size:var(--t-nota); max-width:30em}
+.fv-cabeza .w-enc{max-width:min(100%, 560px)}
+@media (max-height:820px) and (min-width:900px){ .fv-cabeza > .lavado:not(.siempre){display:none} }
+.fv-pie-i{grid-column:1; grid-row:3; align-self:end}
+.fv-pie-d{grid-column:2; grid-row:3; align-self:end; justify-self:end}
+.fv-lado{grid-column:1; grid-row:2; align-self:center}
+@media (max-width:899px){
+  .fijo-vista{grid-template-columns:minmax(0,1fr); grid-template-rows:auto 1fr auto; padding-top:calc(64px + env(safe-area-inset-top,0px)); padding-bottom:calc(64px + env(safe-area-inset-bottom,0px)); gap:12px}
+  .fv-cabeza, .fv-pie-i, .fv-pie-d, .fv-lado{grid-column:1}
+  .fv-pie-d{display:none}
+  .fv-lado{display:none}
+  .fv-cabeza .lavado{display:none}
+}
+.foco-ficha{width:min(100%, 480px)}
+.foco-ficha .zona{transition:opacity .35s}
+.foco-ficha.cambia .zona{opacity:0}
+.p-nota{font-family:var(--texto); font-style:italic; font-size:calc(var(--e)*(8px + 1.2cqi)); line-height:1.35; margin:0; color:var(--h800)}
+
+/* instrumentos (perfil de la cresta y de la ruta) */
+.instrumento{padding:16px 20px 14px; width:min(100%, 560px)}
+.instrumento svg{display:block; width:100%; height:auto; overflow:visible}
+.instrumento .etiqueta{margin-bottom:8px}
+.ins-eje{stroke:color-mix(in srgb, var(--nieve) 28%, transparent); stroke-width:1; fill:none}
+.ins-txt{fill:var(--hielo); font-family:var(--display); font-stretch:125%; font-size:9px; letter-spacing:.12em}
+.ins-txt.fuerte{fill:var(--nieve); font-weight:700}
+.ins-linea{fill:none; stroke:var(--nieve); stroke-width:1.6; stroke-linejoin:round}
+.ins-area{fill:color-mix(in srgb, var(--nieve) 9%, transparent)}
+.ins-hecho{fill:none; stroke:var(--arrebol); stroke-width:2.4; stroke-linejoin:round; stroke-linecap:round}
+.ins-punto{fill:var(--arrebol)}
+.ins-cima{fill:var(--nieve)}
+.ins-cima.foco{fill:var(--arrebol)}
+
+/* etapas de la ruta */
+.etapas{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; justify-content:space-between; height:100%}
+.etapas li{display:flex; justify-content:space-between; align-items:baseline; gap:2cqi; padding:1.2cqi 0; border-bottom:1px solid color-mix(in srgb, var(--h900) 16%, transparent); transition:color .35s, opacity .35s; opacity:.55}
+.etapas li:last-child{border-bottom:0}
+.etapas li b{font-family:var(--display); font-stretch:125%; font-weight:800; font-size:5.8cqi; letter-spacing:.06em; text-transform:uppercase}
+.etapas li span{font-size:6.4cqi; font-style:italic}
+.etapas li.hecha{opacity:.9}
+.etapas li.actual{opacity:1}
+.etapas li.actual b{color:var(--h900)}
+.etapas li.actual b::before{content:"▸ "; color:var(--arrebol)}
+.riel{list-style:none; margin:12px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:4px 0}
+.riel li{font-family:var(--display); font-stretch:125%; font-weight:700; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:color-mix(in srgb, var(--hielo) 60%, transparent); padding:3px 0 5px; position:relative; transition:color .35s}
+.riel li + li::before{content:"·"; margin:0 9px; color:var(--granito)}
+.riel li.hecha{color:var(--nieve)}
+.riel li.actual{color:var(--nieve)}
+.riel li.actual::after{content:""; position:absolute; right:0; bottom:0; height:2px; width:calc(100% - 22px); background:var(--arrebol)}
+.riel li:first-child.actual::after{width:100%}
+.ruta-datos{display:flex; gap:22px; flex-wrap:wrap; margin-top:4px}
+.ruta-datos div{display:flex; flex-direction:column}
+.ruta-datos b{font-family:var(--display); font-stretch:125%; font-weight:800; font-size:18px}
+.ruta-datos span{font-size:13px; font-style:italic; color:var(--hielo)}
+
+/* cronología con columna fija */
+.crono{display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr); gap:clamp(32px,6vw,110px); max-width:1240px; margin-inline:auto; margin-top:clamp(64px,12vh,140px)}
+.crono-col{position:sticky; top:calc(50svh - min(300px, 34svh)); align-self:start; max-width:300px}
+.crono-col .w-col{width:min(300px, 34svh)}
+.crono-lista{display:flex; flex-direction:column; gap:clamp(56px,16vh,180px); padding-block:6vh 10vh}
+.anios{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; justify-content:space-between; height:100%}
+.anios li{display:flex; flex-direction:column; transition:opacity .4s; opacity:.5}
+.anios li b{font-family:var(--display); font-stretch:125%; font-weight:800; font-size:9.6cqi; line-height:1; letter-spacing:.01em}
+.anios li span{font-size:5.6cqi; font-style:italic; line-height:1.15}
+.anios li.activo{opacity:1}
+.anios li.activo b{color:var(--arrebol)}
+@media (max-width:899px){ .crono{grid-template-columns:minmax(0,1fr)} .crono-col{display:none} }
+
+/* hazañas */
+.hazana{display:grid; grid-template-columns:minmax(0,330px) minmax(0,1fr); gap:clamp(20px,3vw,48px); align-items:center; max-width:1000px}
+.hazana.d{margin-left:auto}
+@media (max-width:899px){ .hazana{grid-template-columns:minmax(0,1fr)} .hazana .w-dato{max-width:min(100%,300px)} }
+
+/* cumbre */
+.cima-cifra{font-size:clamp(60px,9.4vw,150px); margin:0; line-height:.85}
+.cima-sub{font-style:italic; font-size:clamp(19px,1.8vw,26px); margin:14px 0 0}
+.descender{display:inline-flex; align-items:center; gap:14px; margin-top:28px; padding:16px 22px 15px; background:var(--nieve); color:var(--grava); border:0; cursor:pointer;
+  font-family:var(--display); font-stretch:125%; font-weight:800; font-size:13px; letter-spacing:.16em; text-transform:uppercase;
+  clip-path:polygon(0 0,100% 0,100% 70%,95% 100%,0 100%); transition:background .3s}
+.descender:hover{background:var(--hielo)}
+.creditos{font-size:var(--t-nota); color:var(--hielo); line-height:1.55}
+.creditos h3{font-size:14px; letter-spacing:.14em}
+.creditos a{color:var(--nieve); text-underline-offset:3px; text-decoration-color:color-mix(in srgb, var(--nieve) 40%, transparent)}
+.creditos ul{margin:0; padding-left:1.1em}
+.creditos li{margin:.25em 0}
+
+@media (prefers-reduced-motion:reduce){
+  .titulo-hero{animation:none}
+  .bajar i::after{animation:none; top:35%}
+  .revela, .revela.pre{transition:none; opacity:1; transform:none; clip-path:none}
+}
+</style>
+</head>
+<body>
+
+<div class="escenario" id="escenario" aria-hidden="true"><canvas id="lienzo"></canvas></div>
+<canvas class="capa-trazo" id="trazo" aria-hidden="true"></canvas>
+<div class="cotas" id="cotas" aria-hidden="true"></div>
+
+<header class="barra">
+  <a class="marca" href="#portada" data-ir="portada"><b>Broad Peak</b><span>8&nbsp;051&nbsp;m</span></a>
+  <nav class="indice etiqueta" aria-label="Capítulos">
+    <a href="#nombre" data-ir="nombre">Nombre</a>
+    <a href="#cumbres" data-ir="cumbres">Cumbres</a>
+    <a href="#cultura" data-ir="cultura">Cultura</a>
+    <a href="#ruta" data-ir="ruta">Ruta</a>
+    <a href="#historia" data-ir="historia">Historia</a>
+    <a href="#hazanas" data-ir="hazanas">Hazañas</a>
+    <a href="#anecdotas" data-ir="anecdotas">Anécdotas</a>
+    <a href="#cumbre" data-ir="cumbre">Cumbre</a>
+  </nav>
+  <span class="capitulo-movil etiqueta" id="capMovil">Portada</span>
+</header>
+
+<aside class="altimetro" aria-hidden="true">
+  <div class="alt-escala" id="altEscala"><span class="alt-marca" id="altMarca"></span></div>
+  <div class="alt-lectura"><span class="alt-n num" id="altNum">4&nbsp;600</span><span class="etiqueta" id="altEt">m · lámina</span></div>
+</aside>
+
+<div class="pie-lamina oculta" id="pie" aria-live="polite">
+  <span class="etiqueta pl-num" id="plNum">Lámina I</span>
+  <span class="pl-nombre" id="plNombre">El macizo desde Concordia</span>
+  <span class="pl-meta" id="plMeta">4&nbsp;600 m · atardecer · mirando al NNE</span>
+</div>
+
+<main id="principal">
+
+<!-- PORTADA · lámina I -->
+<section class="capitulo portada" id="portada" data-escena="concordia">
+  <div class="portada-cuerpo">
+    <p class="etiqueta portada-et">Karakórum · Gilgit-Baltistán · Pakistán</p>
+    <h1 class="display titulo-hero" aria-label="Broad Peak"><span>Broad </span><span>Peak</span></h1>
+    <p class="portada-sub">Cresta Ancha — la montaña de las tres cumbres</p>
+    <div class="portada-pie">
+      <dl class="portada-datos num">
+        <div><dt>Altura</dt><dd>8&nbsp;051 m</dd></div>
+        <div><dt>Puesto</dt><dd>12.ª del mundo</dd></div>
+        <div><dt>Primera ascensión</dt><dd>9 jun 1957</dd></div>
+      </dl>
+      <a class="bajar etiqueta" href="#nombre" data-ir="nombre"><i></i><span>Empieza la subida</span><span class="carga" id="carga">pintando la lámina I…</span></a>
+    </div>
+  </div>
+  <p class="sr">Lámina I: el macizo del Broad Peak desde Concordia al atardecer, con el K2 a la izquierda y la cara oeste del Broad Peak encendida por el arrebol; en primer plano, tiendas iluminadas y un caminante entre piedras.</p>
+</section>
+
+<!-- 01 · EL NOMBRE · lámina I -->
+<section class="capitulo" id="nombre" data-escena="concordia">
+  <div class="rejilla">
+    <h2 class="placa-w w-enc revela" style="grid-column:1 / span 8">
+      <span class="placa bp-lamina-encabezado"><span class="zona"><span class="enc-t" data-ajustar-linea>Ancho, no afilado</span><span class="enc-s">01 · El nombre</span></span></span>
+    </h2>
+    <div class="lavado revela" style="grid-column:1 / span 6">
+      <span class="etiqueta">1892 · Concordia</span>
+      <p class="entradilla">En 1892 el explorador británico Martin Conway remontó el glaciar del Baltoro hasta la gran confluencia que él mismo bautizó como Concordia. Al norte se alzaba el K2. A su derecha vio una montaña que no terminaba en punta.</p>
+      <p>Era una cresta de más de kilómetro y medio que une tres cumbres, la más baja por encima de los 7&nbsp;400 metros. Conway pensó en el Breithorn de los Alpes, el «cuerno ancho», y la llamó <em>Broad Peak</em>: la cima ancha. El nombre describe una forma. A esta montaña no se la reconoce por una punta, sino por una línea.</p>
+    </div>
+    <figure class="placa-w w-cita revela" style="grid-column:9 / span 4; margin-top:18vh">
+      <div class="placa bp-esquirla-cita"><div class="zona">
+        <blockquote class="cita-t" style="margin:0">«Un enorme Breithorn».</blockquote>
+        <figcaption class="cita-a">Martin Conway, 1892</figcaption>
+      </div></div>
+    </figure>
+    <div class="placa-w w-dato revela" style="grid-column:2 / span 4">
+      <div class="placa bp-astilla-dato"><div class="zona">
+        <p class="dato-n num" data-ajustar>1,5 km</p>
+        <p class="dato-t">de cresta cimera entre la cumbre Central y la Principal</p>
+      </div></div>
+    </div>
+    <div class="placa-w w-ficha revela" style="grid-column:7 / span 6">
+      <div class="placa bp-bloque-ficha"><div class="zona">
+        <p class="p-et">Ficha técnica</p>
+        <p class="p-cifra num" data-ajustar>8&nbsp;051 m</p>
+        <dl class="p-filas num">
+          <div><dt>Puesto</dt><dd>12.ª montaña de la Tierra</dd></div>
+          <div><dt>Coordenadas</dt><dd>35,8117° N · 76,5656° E</dd></div>
+          <div><dt>Cordillera</dt><dd>Karakórum, Baltoro Muztagh</dd></div>
+          <div><dt>Frontera</dt><dd>Pakistán · China</dd></div>
+          <div><dt>1.ª ascensión</dt><dd>9 de junio de 1957</dd></div>
+        </dl>
+      </div></div>
+    </div>
+    <aside class="placa-w w-hielo revela" style="grid-column:1 / span 6">
+      <div class="placa bp-hielo-profundo"><div class="zona">
+        <p class="p-et">Faichan Kangri</p>
+        <p class="p-tit">Un nombre traducido</p>
+        <p class="p-txt">Los baltis, que hablan una lengua tibetana, adaptaron el nombre inglés a su idioma: Faichan o Falchan Kangri. <em>Kangri</em> significa «montaña de nieve».</p>
+      </div></div>
+    </aside>
+  </div>
+</section>
+
+<!-- 02 · LAS CUMBRES · lámina VIII (panorama nuevo) -->
+<section class="capitulo fijo" id="cumbres" data-escena="panorama" style="--alto:620svh">
+  <div class="fijo-vista">
+    <div class="fv-cabeza">
+      <h2 class="placa-w w-enc">
+        <span class="placa bp-lamina-encabezado"><span class="zona"><span class="enc-t" data-ajustar-linea>Tres cumbres, una cresta</span><span class="enc-s">02 · Picos del macizo</span></span></span>
+      </h2>
+      <p class="lavado">Desde el oeste y al atardecer, la cresta enlaza de norte a sur la cumbre Norte, la Central y la Principal. Entre las dos más altas se abre un collado a 7&nbsp;800 m, y justo antes de la cima espera una antecima de roca, el Rocky Summit.</p>
+    </div>
+    <div class="fv-pie-i">
+      <div class="placa-w foco-ficha" id="focoFicha">
+        <div class="placa bp-bloque-ficha"><div class="zona" id="focoZona"></div></div>
+      </div>
+    </div>
+    <div class="fv-pie-d">
+      <div class="lavado instrumento" id="perfilCresta">
+        <span class="etiqueta">Perfil de la cresta · de norte a sur</span>
+      </div>
+    </div>
+  </div>
+  <p class="sr">Lámina VIII: panorama aéreo al atardecer desde el oeste. A la izquierda el K2; en el centro las cumbres Norte, Central y Principal del Broad Peak con el collado y el Rocky Summit; a la derecha los Gasherbrum.</p>
+</section>
+
+<!-- 03 · CULTURA · lámina II -->
+<section class="capitulo" id="cultura" data-escena="campo_base">
+  <div class="rejilla">
+    <h2 class="placa-w w-enc revela" style="grid-column:1 / span 8">
+      <span class="placa bp-lamina-encabezado"><span class="zona"><span class="enc-t" data-ajustar-linea>Del Baltoro al campo base</span><span class="enc-s">03 · Cultura y camino</span></span></span>
+    </h2>
+    <div class="lavado revela" style="grid-column:1 / span 6">
+      <span class="etiqueta">Baltistán</span>
+      <p class="entradilla">El Broad Peak se alza en Baltistán, el «pequeño Tíbet» de Pakistán. Sus habitantes, los baltis, hablan una lengua tibetana y son musulmanes, en su mayoría chiíes.</p>
+      <p>Askole es la última aldea. Desde allí, porteadores baltis cargan las expediciones durante una semana por el valle del Braldu y el glaciar del Baltoro, hasta Concordia, a 4&nbsp;600 m, donde el Baltoro recibe al glaciar Godwin-Austen. El fotógrafo Galen Rowell la llamó «el salón del trono de los dioses de la montaña». El campo base del Broad Peak queda unos siete kilómetros al norte, sobre la morrena.</p>
+    </div>
+    <div class="placa-w w-dato revela" style="grid-column:9 / span 4; margin-top:12vh">
+      <div class="placa bp-astilla-dato"><div class="zona">
+        <p class="dato-n num" data-ajustar>4 de 14</p>
+        <p class="dato-t">ochomiles a menos de 16 km de Concordia: K2, Broad Peak y Gasherbrum I y II</p>
+      </div></div>
+    </div>
+    <div class="placa-w w-ancho revela" style="grid-column:2 / span 11">
+      <div class="placa bp-bloque-ancho a-columna"><div class="zona">
+        <p class="p-et">La puja</p>
+        <p class="p-txt">Antes de pisar la montaña, muchas expediciones celebran una puja: una bendición budista de tradición sherpa, con humo de enebro y un mástil del que parten las banderas de oración. Sus cinco colores, azul, blanco, rojo, verde y amarillo, representan el cielo, el aire, el fuego, el agua y la tierra. Según la tradición, el viento lleva sus oraciones montaña arriba. Son las banderas que ondean en esta lámina, sobre la morrena del Godwin-Austen.</p>
+      </div></div>
+    </div>
+    <aside class="placa-w w-hielo revela" style="grid-column:6 / span 6">
+      <div class="placa bp-hielo-profundo"><div class="zona">
+        <p class="p-et">El camino</p>
+        <p class="p-tit">63 km de hielo</p>
+        <p class="p-txt">El Baltoro mide unos 63 km y es uno de los glaciares más largos fuera de las regiones polares. Es la única vía de acceso a pie hacia el Broad Peak.</p>
+      </div></div>
+    </aside>
+  </div>
+  <p class="sr">Lámina II: el campo base al mediodía, con tiendas de colores, la tienda comedor, bidones azules y un mástil de banderas de oración frente a la cara oeste del Broad Peak.</p>
+</section>
+
+<!-- 04 · RUTA · lámina VII (vista aérea nueva) -->
+<section class="capitulo fijo" id="ruta" data-escena="ruta" style="--alto:700svh">
+  <div class="fijo-vista">
+    <div class="fv-cabeza">
+      <h2 class="placa-w w-enc">
+        <span class="placa bp-lamina-encabezado"><span class="zona"><span class="enc-t" data-ajustar-linea>La ruta normal</span><span class="enc-s">04 · Espolón oeste, abierta en 1957</span></span></span>
+      </h2>
+      <div class="lavado siempre" style="padding:14px 22px">
+        <div class="ruta-datos num">
+          <div><b>3&nbsp;204 m</b><span>de desnivel</span></div>
+          <div><b>6,7 km</b><span>sobre el relieve</span></div>
+          <div><b>3</b><span>campos de altura</span></div>
+        </div>
+        <ol class="riel" id="etapas" aria-label="Etapas de la ruta"></ol>
+      </div>
+    </div>
+    <div class="fv-pie-i">
+      <div class="placa-w foco-ficha" id="etapaFicha" style="width:min(100%,540px)">
+        <div class="placa bp-hielo-profundo"><div class="zona" id="etapaZona"></div></div>
+      </div>
+    </div>
+    <div class="fv-pie-d">
+      <div class="lavado instrumento" id="perfilRuta">
+        <span class="etiqueta">Perfil de la ruta · altitud y distancia</span>
+      </div>
+    </div>
+  </div>
+  <p class="sr">Lámina VII: vista aérea de la tarde desde el suroeste, con el K2 a la izquierda, el glaciar Godwin-Austen y la cara oeste del Broad Peak. Sobre ella se dibuja la ruta normal desde el campo base hasta la cima.</p>
+</section>
+
+<!-- 05 · HISTORIA · lámina III -->
+<section class="capitulo" id="historia" data-escena="campo_1">
+  <div class="rejilla">
+    <h2 class="placa-w w-enc revela" style="grid-column:1 / span 8">
+      <span class="placa bp-lamina-encabezado"><span class="zona"><span class="enc-t" data-ajustar-linea>Ascensiones que hicieron historia</span><span class="enc-s">05 · Cronología</span></span></span>
+    </h2>
+  </div>
+  <div class="crono">
+    <div class="crono-col">
+      <div class="placa-w w-col">
+        <div class="placa bp-columna-serac"><div class="zona" style="justify-content:stretch">
+          <ol class="anios" id="anios">
+            <li data-a="1892"><b>1892</b><span>El nombre</span></li>
+            <li data-a="1957"><b>1957</b><span>Primera ascensión</span></li>
+            <li data-a="1975"><b>1975</b><span>Cumbre Central</span></li>
+            <li data-a="1983"><b>1983</b><span>Cumbre Norte</span></li>
+            <li data-a="1984"><b>1984</b><span>El regreso</span></li>
+            <li data-a="2013"><b>2013</b><span>Primera invernal</span></li>
+          </ol>
+        </div></div>
+      </div>
+    </div>
+    <div class="crono-lista">
+      <article class="lavado revela" data-a="1892">
+        <span class="año num">1892</span>
+        <h3>Un nombre desde Concordia</h3>
+        <p>Martin Conway cartografía el Baltoro y bautiza la montaña por su cresta. Pasarán más de sesenta años hasta que alguien la pise.</p>
+      </article>
+      <article class="lavado revela" data-a="1957">
+        <span class="año num">1957</span>
+        <h3>Cuatro austriacos, sin oxígeno</h3>
+        <p>El 9 de junio, Marcus Schmuck, Fritz Wintersteller, Kurt Diemberger y Hermann Buhl alcanzaron la cima principal. Eran solo cuatro, sin oxígeno embotellado ni porteadores de altura: un estilo ligero que se adelantó décadas a su tiempo.</p>
+        <p>Once días antes, el 29 de mayo, Wintersteller y Diemberger habían llegado a la antecima, a unos 8&nbsp;030 m, y tuvieron que darse la vuelta.</p>
+      </article>
+      <article class="lavado revela" data-a="1975">
+        <span class="año num">1975</span>
+        <h3>La cumbre Central</h3>
+        <p>El 28 de julio, una expedición polaca de Wrocław pisó por primera vez la cumbre Central, de 8&nbsp;011 m. En el descenso, una tormenta se cobró la vida de tres de los cinco alpinistas de la cordada.</p>
+      </article>
+      <article class="lavado revela" data-a="1983">
+        <span class="año num">1983</span>
+        <h3>La cumbre Norte, en solitario</h3>
+        <p>El 28 de junio, el italiano Renato Casarotto llegó solo a la cumbre Norte por su espolón norte, tras siete días de escalada. Según su propio relato, era probablemente la cima virgen más alta de Pakistán.</p>
+      </article>
+      <article class="lavado revela" data-a="1984">
+        <span class="año num">1984</span>
+        <h3>Veintisiete años después</h3>
+        <p>El 18 de julio, Kurt Diemberger volvió a la cima, ya con 52 años, junto a Julie Tullis, que se convirtió en la primera británica en subir un ochomil.</p>
+      </article>
+      <article class="lavado revela" data-a="2013">
+        <span class="año num">2013</span>
+        <h3>La primera invernal</h3>
+        <p>El 5 de marzo, Maciej Berbeka, Adam Bielecki, Tomasz Kowalski y Artur Małek alcanzaron la cima en pleno invierno, en una expedición polaca dirigida por Krzysztof Wielicki. Berbeka y Kowalski desaparecieron durante el descenso.</p>
+      </article>
+    </div>
+  </div>
+  <p class="sr">Lámina III: el campo 1 a media mañana, con tres tiendas en la ladera nevada y un escalador; al fondo, el glaciar y las cumbres hacia el sur.</p>
+</section>
+
+<!-- 06 · HAZAÑAS · lámina IV -->
+<section class="capitulo" id="hazanas" data-escena="campo_2">
+  <div class="rejilla" style="row-gap:clamp(72px,16vh,170px)">
+    <h2 class="placa-w w-enc revela" style="grid-column:1 / span 8">
+      <span class="placa bp-lamina-encabezado"><span class="zona"><span class="enc-t" data-ajustar-linea>Más rápido, más ligero</span><span class="enc-s">06 · Hazañas</span></span></span>
+    </h2>
+    <div class="hazana revela" style="grid-column:1 / -1">
+      <div class="placa-w w-dato"><div class="placa bp-astilla-dato"><div class="zona">
+        <p class="dato-n num" data-ajustar>3 cimas</p>
+        <p class="dato-t">en una sola travesía, julio de 1984</p>
+      </div></div></div>
+      <div class="lavado">
+        <h3>La travesía de Kukuczka y Kurtyka</h3>
+        <p>Los polacos Jerzy Kukuczka y Wojciech Kurtyka subieron la cumbre Norte por su arista noroeste y siguieron por la cresta: Central, collado y Principal. Las tres cumbres del Broad Peak en estilo alpino, sin campamentos preparados.</p>
+      </div>
+    </div>
+    <div class="hazana d revela" style="grid-column:1 / -1">
+      <div class="placa-w w-dato"><div class="placa bp-astilla-dato"><div class="zona">
+        <p class="dato-n num" data-ajustar>21,5 h</p>
+        <p class="dato-t">del campo base a la cima y vuelta</p>
+      </div></div></div>
+      <div class="lavado">
+        <h3>Un ochomil en un día</h3>
+        <p>En julio de 1984, Krzysztof Wielicki subió y bajó en solitario en una sola jornada. Fue la primera vez que alguien completaba un ochomil en un día.</p>
+      </div>
+    </div>
+    <div class="hazana revela" style="grid-column:1 / -1">
+      <div class="placa-w w-dato"><div class="placa bp-astilla-dato"><div class="zona">
+        <p class="dato-n num" data-ajustar>3 h</p>
+        <p class="dato-t">esquiando de la cima al campo base</p>
+      </div></div></div>
+      <div class="lavado">
+        <h3>Con esquís desde la cumbre</h3>
+        <p>En julio de 2015, Andrzej Bargiel hizo el primer descenso completo con esquís desde la cima principal. Tardó unas tres horas en llegar al campo base.</p>
+      </div>
+    </div>
+    <div class="hazana d revela" style="grid-column:1 / -1">
+      <div class="placa-w w-dato"><div class="placa bp-astilla-dato"><div class="zona">
+        <p class="dato-n num" data-ajustar>7 h 28 min</p>
+        <p class="dato-t">del campo base a la cima, sin oxígeno</p>
+      </div></div></div>
+      <div class="lavado">
+        <h3>Subir corriendo, bajar volando</h3>
+        <p>El 19 de julio de 2022, el francés Benjamin Védrines subió por el espolón oeste sin oxígeno embotellado en 7 horas y 28 minutos, y despegó desde la cima en parapente.</p>
+      </div>
+    </div>
+  </div>
+  <p class="sr">Lámina IV: el campo 2 al alba, con dos tiendas y un escalador frente a un mar de nubes; al fondo, cumbres encendidas por la primera luz.</p>
+</section>
+
+<!-- 07 · ANÉCDOTAS · lámina V -->
+<section class="capitulo" id="anecdotas" data-escena="campo_3">
+  <div class="rejilla">
+    <h2 class="placa-w w-enc revela" style="grid-column:1 / span 8">
+      <span class="placa bp-lamina-encabezado"><span class="zona"><span class="enc-t" data-ajustar-linea>Historias de la arista</span><span class="enc-s">07 · Anécdotas</span></span></span>
+    </h2>
+    <div class="lavado revela" style="grid-column:1 / span 6">
+      <span class="etiqueta">1988 · 2013</span>
+      <h3>Veintitrés metros</h3>
+      <p>El 6 de marzo de 1988, en pleno invierno, Maciej Berbeka llegó al Rocky Summit, a 8&nbsp;028 m. Nadie había subido tan alto en invierno en el Karakórum, pero la cima verdadera seguía al final de la arista, 23 metros más arriba.</p>
+      <p>Volvió veinticinco años después. El 5 de marzo de 2013 completó la primera invernal y no regresó del descenso. Su historia inspiró la película <em>Broad Peak</em> (2022).</p>
+    </div>
+    <figure class="placa-w w-cita revela" style="grid-column:9 / span 4; margin-top:14vh">
+      <div class="placa bp-esquirla-cita"><div class="zona">
+        <blockquote class="cita-t" style="margin:0">«La cima verdadera seguía al final de la arista».</blockquote>
+        <figcaption class="cita-a">Rocky Summit, 8&nbsp;028 m</figcaption>
+      </div></div>
+    </figure>
+    <div class="lavado revela" style="grid-column:6 / span 7">
+      <span class="etiqueta">9 de junio de 1957</span>
+      <h3>Dos veces a la cumbre</h3>
+      <p>Hermann Buhl arrastraba las secuelas de las congelaciones del Nanga Parbat y no podía seguir el ritmo. Kurt Diemberger continuó solo y llegó a la cima. Al bajar se cruzó con Buhl, que seguía subiendo despacio, y dio media vuelta para acompañarle. Llegaron juntos al atardecer.</p>
+    </div>
+    <aside class="placa-w w-hielo revela" style="grid-column:2 / span 6">
+      <div class="placa bp-hielo-profundo"><div class="zona">
+        <p class="p-et">27 de junio de 1957</p>
+        <p class="p-tit">Dieciocho días</p>
+        <p class="p-txt">Tras el Broad Peak, Buhl y Diemberger intentaron el Chogolisa. En plena ventisca, una cornisa cedió bajo Buhl. Su cuerpo nunca se encontró.</p>
+      </div></div>
+    </aside>
+  </div>
+  <p class="sr">Lámina V: el campo 3 a medianoche bajo un cielo estrellado, con tres tiendas iluminadas por dentro y una fila de frontales que sube hacia el collado.</p>
+</section>
+
+<!-- 08 · CUMBRE · lámina VI -->
+<section class="capitulo" id="cumbre" data-escena="cumbre">
+  <div class="rejilla">
+    <div style="grid-column:1 / span 7; max-width:none; padding-block:clamp(28px,4vw,56px)" class="revela lavado ancho">
+      <p class="etiqueta" style="margin:0 0 14px">08 · Cumbre principal</p>
+      <p class="display cima-cifra num">8&nbsp;051&nbsp;m</p>
+      <p class="cima-sub">La cima principal del Broad Peak, en el extremo sur de la cresta.</p>
+    </div>
+    <div class="lavado revela" style="grid-column:1 / span 6">
+      <p class="entradilla">La cumbre principal es una cúpula de nieve al final de la arista. Desde ella, el K2 domina el horizonte a 9 km hacia el nor-noroeste, y la cresta se aleja hacia el norte por el Rocky Summit y la cumbre Central.</p>
+      <p>Quien llega hasta aquí por la ruta normal ha ganado 3&nbsp;204 m de desnivel desde el campo base y ha pasado de largo la antecima, 256 m más al norte y solo 23 m más baja.</p>
+    </div>
+    <div class="placa-w w-ficha revela" style="grid-column:7 / span 6; margin-top:10vh">
+      <div class="placa bp-bloque-ficha"><div class="zona">
+        <p class="p-et">Desde la cima</p>
+        <p class="p-cifra num" data-ajustar>K2 · 9,2 km</p>
+        <dl class="p-filas num">
+          <div><dt>Rumbo al K2</dt><dd>329° · nor-noroeste</dd></div>
+          <div><dt>Rocky Summit</dt><dd>8&nbsp;028 m · 256 m al norte</dd></div>
+          <div><dt>Cumbre Central</dt><dd>8&nbsp;011 m · 1 km al norte</dd></div>
+          <div><dt>Desde Concordia</dt><dd>+3&nbsp;451 m</dd></div>
+        </dl>
+      </div></div>
+    </div>
+    <div class="revela" style="grid-column:1 / span 7">
+      <button class="descender" type="button" id="descender">Descender a Concordia <span aria-hidden="true">↓</span></button>
+    </div>
+  </div>
+  <p class="sr">Lámina VI: la cumbre a primera hora de la tarde; un alpinista celebra junto a un mástil con banderas, con el K2 al fondo sobre un mar de nubes.</p>
+</section>
+
+<!-- CRÉDITOS -->
+<section class="capitulo" id="creditos" data-escena="cumbre" style="padding-top:10vh">
+  <div class="rejilla">
+    <div class="separador placa-w" style="grid-column:1 / -1"><span class="placa bp-grieta-separador" role="presentation"></span></div>
+    <div class="lavado creditos" style="grid-column:1 / span 6">
+      <h3 class="etiqueta">Láminas y relieve</h3>
+      <p>Las seis láminas de la identidad y las dos nuevas de esta página (la ruta normal en vista aérea y el panorama de la cresta al atardecer) están pintadas por programa, en pincel seco, sobre el relieve real del macizo: Copernicus DEM GLO-90, © DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, provisto bajo COPERNICUS por la Unión Europea y la ESA. Alturas oficiales impuestas a las cimas. Campos de la ruta normal según los GPS publicados en UKClimbing.</p>
+      <p>Tipografías: Archivo y Newsreader (SIL Open Font License).</p>
+    </div>
+    <div class="lavado creditos" style="grid-column:7 / span 6">
+      <h3 class="etiqueta">Fuentes de los datos</h3>
+      <ul>
+        <li><a href="https://himalayanclub.org/hj/21/1/broad-peak-and-chogolisa-1957" target="_blank" rel="noopener">Diemberger, «Broad Peak and Chogolisa, 1957», Himalayan Journal</a></li>
+        <li><a href="https://himalayanclub.org/hj/34/20/victory-and-tragedy-on-broad-peak-1975" target="_blank" rel="noopener">Ferenski y Głazek, «Victory and tragedy on Broad Peak, 1975», Himalayan Journal</a></li>
+        <li><a href="https://publications.americanalpineclub.org/articles/12198428902/Asia-Pakistan-Broad-Peak-North-First-Ascent-Solo" target="_blank" rel="noopener">Casarotto, Broad Peak North, American Alpine Journal</a></li>
+        <li><a href="https://publications.americanalpineclub.org/articles/12198531201" target="_blank" rel="noopener">Broad Peak 1984, American Alpine Journal</a></li>
+        <li><a href="https://publications.americanalpineclub.org/articles/13201212507" target="_blank" rel="noopener">Broad Peak, first winter ascent and tragedy, American Alpine Journal</a></li>
+        <li><a href="https://explorersweb.com/review-broad-peak-now-screening-on-netflix/" target="_blank" rel="noopener">Explorersweb, reseña de <em>Broad Peak</em> (2022)</a></li>
+        <li><a href="https://www.planetmountain.com/en/news/alpinism/video-benjamin-vedrines-2022-broad-peak-record-k2-attempt.html" target="_blank" rel="noopener">Planetmountain, récord de Védrines (2022)</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Broad_Peak" target="_blank" rel="noopener">Wikipedia, «Broad Peak»</a></li>
+      </ul>
+      <p class="fuente-nota">Algunas fuentes dan 8&nbsp;047 m para la cima principal; aquí se usa la altura de la identidad, 8&nbsp;051 m.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const DATOS = {"escenas":{"01_concordia":{"asp":1.77778,"anchos":[2560,1600],"puntos":{"K2":{"x":0.1553,"y":0.31464,"p":0.1759},"Broad Peak (principal)":{"x":0.64069,"y":0.09283,"p":0.2365},"Broad Peak (Rocky Summit)":{"x":0.63052,"y":0.11666,"p":0.2337},"Broad Peak Central":{"x":0.58751,"y":0.16438,"p":0.2271},"Broad Peak Norte":{"x":0.48233,"y":0.30398,"p":0.2175},"Gasherbrum I":{"x":5.95454,"y":-1.40271,"p":0.1737},"Gasherbrum II":{"x":2.46271,"y":-0.37895,"p":0.2045},"Gasherbrum III":{"x":2.31149,"y":-0.36906,"p":0.2126},"Gasherbrum IV":{"x":1.99644,"y":-0.45732,"p":0.2354},"Masherbrum":{"x":1.33541,"y":1.06894,"p":0.1378},"Chogolisa":{"x":-0.14962,"y":1.1571,"p":0.1773},"Skyang Kangri":{"x":0.39966,"y":0.53017,"p":0.1474},"Muztagh Tower":{"x":-2.85593,"y":-0.18872,"p":0.1642},"Baltoro Kangri":{"x":-1.49559,"y":1.35197,"p":0.1619},"Sia Kangri":{"x":-8.35026,"y":2.67934,"p":0.1359},"Nanga Parbat":{"x":1.82484,"y":0.77895,"p":0.0},"Collado":{"x":0.61599,"y":0.18669,"p":0.2293},"CB":{"x":0.119,"y":0.70173,"p":0.2561},"C1":{"x":0.34145,"y":0.52986,"p":0.2512},"C2":{"x":0.41003,"y":0.43468,"p":0.2471},"C3":{"x":0.52984,"y":0.28743,"p":0.2416}}},"02_campo_base":{"asp":1.77778,"anchos":[2560,1600],"puntos":{"K2":{"x":-3.61123,"y":-2.51162,"p":0.2347},"Broad Peak (principal)":{"x":0.50679,"y":0.03144,"p":0.3003},"Broad Peak (Rocky Summit)":{"x":0.476,"y":0.04641,"p":0.2988},"Broad Peak Central":{"x":0.38595,"y":0.0472,"p":0.2973},"Broad Peak Norte":{"x":0.17843,"y":0.0834,"p":0.2974},"Gasherbrum I":{"x":0.94419,"y":0.53057,"p":0.1571},"Gasherbrum II":{"x":0.86748,"y":0.46486,"p":0.1908},"Gasherbrum III":{"x":0.87933,"y":0.44792,"p":0.1981},"Gasherbrum IV":{"x":0.93547,"y":0.36718,"p":0.2177},"Masherbrum":{"x":0.12463,"y":0.88427,"p":0.1231},"Chogolisa":{"x":7.14888,"y":-0.76612,"p":0.1406},"Skyang Kangri":{"x":-0.51585,"y":0.35384,"p":0.185},"Muztagh Tower":{"x":0.69738,"y":0.93011,"p":0.1842},"Baltoro Kangri":{"x":1.58501,"y":0.52169,"p":0.1348},"Sia Kangri":{"x":1.06945,"y":0.61655,"p":0.12},"Nanga Parbat":{"x":0.40867,"y":0.75515,"p":0.0},"Collado":{"x":0.42846,"y":0.1118,"p":0.2958},"CB":{"x":-2.6493,"y":-0.13319,"p":0.8346},"C1":{"x":0.47575,"y":0.2682,"p":0.3998},"C2":{"x":0.45744,"y":0.18188,"p":0.3675},"C3":{"x":0.47862,"y":0.12738,"p":0.3276}}},"03_campo_1":{"asp":1.77778,"anchos":[2560,1600],"puntos":{"K2":{"x":0.10823,"y":0.89956,"p":0.2363},"Broad Peak (principal)":{"x":1.64855,"y":2.4455,"p":0.3461},"Broad Peak (Rocky Summit)":{"x":1.43714,"y":2.10986,"p":0.3439},"Broad Peak Central":{"x":1.0634,"y":1.62502,"p":0.3404},"Broad Peak Norte":{"x":0.67382,"y":1.09405,"p":0.3327},"Gasherbrum I":{"x":-2.25409,"y":-0.25103,"p":0.1637},"Gasherbrum II":{"x":-3.68637,"y":-1.05659,"p":0.201},"Gasherbrum III":{"x":-3.08874,"y":-0.90659,"p":0.2089},"Gasherbrum IV":{"x":-1.73397,"y":-0.60431,"p":0.2301},"Masherbrum":{"x":0.81325,"y":0.35681,"p":0.1178},"Chogolisa":{"x":0.14903,"y":0.33743,"p":0.1406},"Skyang Kangri":{"x":0.42295,"y":0.60364,"p":0.1907},"Muztagh Tower":{"x":3.15215,"y":-0.05399,"p":0.174},"Baltoro Kangri":{"x":-0.30022,"y":0.32018,"p":0.1376},"Sia Kangri":{"x":-1.28871,"y":0.22319,"p":0.124},"Nanga Parbat":{"x":1.22881,"y":0.44896,"p":0.0},"Collado":{"x":1.21124,"y":1.64274,"p":0.3389},"CB":{"x":1.46211,"y":1.42928,"p":0.4001},"C1":{"x":0.28312,"y":708.45078,"p":1.0},"C2":{"x":1.22847,"y":1.78307,"p":0.4954},"C3":{"x":1.45671,"y":1.98319,"p":0.3938}}},"04_campo_2":{"asp":1.77778,"anchos":[2560,1600],"puntos":{"K2":{"x":-0.93818,"y":1.34696,"p":0.2368},"Broad Peak (principal)":{"x":1.09834,"y":1.95948,"p":0.3707},"Broad Peak (Rocky Summit)":{"x":0.97199,"y":1.79525,"p":0.3684},"Broad Peak Central":{"x":0.69726,"y":1.56214,"p":0.3639},"Broad Peak Norte":{"x":0.27802,"y":1.17226,"p":0.3495},"Gasherbrum I":{"x":3.8207,"y":1.18727,"p":0.1659},"Gasherbrum II":{"x":3.05595,"y":1.27614,"p":0.2045},"Gasherbrum III":{"x":3.35652,"y":1.39465,"p":0.2126},"Gasherbrum IV":{"x":5.80203,"y":2.48768,"p":0.234},"Masherbrum":{"x":0.52784,"y":0.42575,"p":0.1158},"Chogolisa":{"x":-0.51541,"y":0.34888,"p":0.1401},"Skyang Kangri":{"x":-0.01344,"y":0.67031,"p":0.1931},"Muztagh Tower":{"x":1.36167,"y":0.36091,"p":0.1705},"Baltoro Kangri":{"x":-2.79495,"y":0.19155,"p":0.1382},"Sia Kangri":{"x":6.88146,"y":1.06024,"p":0.1252},"Nanga Parbat":{"x":0.82896,"y":0.50298,"p":0.0},"Collado":{"x":0.81599,"y":1.47718,"p":0.3622},"CB":{"x":0.91471,"y":1.34235,"p":0.3677},"C1":{"x":0.82876,"y":1.61136,"p":0.4954},"C2":{"x":-0.23945,"y":704.37473,"p":1.0},"C3":{"x":1.02304,"y":1.66806,"p":0.4379}}},"05_campo_3":{"asp":1.77778,"anchos":[2560,1600],"puntos":{"K2":{"x":-1.03031,"y":0.23107,"p":0.2338},"Broad Peak (principal)":{"x":0.96361,"y":-0.45838,"p":0.4413},"Broad Peak (Rocky Summit)":{"x":0.78564,"y":-0.20038,"p":0.437},"Broad Peak Central":{"x":0.47821,"y":0.08463,"p":0.4183},"Broad Peak Norte":{"x":0.05045,"y":0.49006,"p":0.3687},"Gasherbrum I":{"x":3.19565,"y":0.4456,"p":0.1708},"Gasherbrum II":{"x":2.68064,"y":0.38017,"p":0.2121},"Gasherbrum III":{"x":3.10439,"y":0.3024,"p":0.2207},"Gasherbrum IV":{"x":10.71668,"y":-1.46381,"p":0.2429},"Masherbrum":{"x":0.52156,"y":0.8049,"p":0.1125},"Chogolisa":{"x":-0.16302,"y":0.82568,"p":0.1401},"Skyang Kangri":{"x":0.05743,"y":0.72514,"p":0.1955},"Muztagh Tower":{"x":1.06434,"y":0.80374,"p":0.164},"Baltoro Kangri":{"x":-1.52282,"y":0.83553,"p":0.1401},"Sia Kangri":{"x":5.70709,"y":0.61865,"p":0.1282},"Nanga Parbat":{"x":0.72062,"y":0.77353,"p":0.0},"Collado":{"x":0.61011,"y":0.19173,"p":0.4215},"CB":{"x":0.80239,"y":0.12514,"p":0.3277},"C1":{"x":0.80156,"y":-0.01387,"p":0.3938},"C2":{"x":0.85309,"y":-0.0271,"p":0.4379},"C3":{"x":-0.03618,"y":-592.13999,"p":1.0}}},"06_cumbre":{"asp":1.77778,"anchos":[2560,1600],"puntos":{"K2":{"x":0.33894,"y":0.23411,"p":0.2275},"Broad Peak (principal)":{"x":0.06569,"y":0.26306,"p":0.7324},"Broad Peak (Rocky Summit)":{"x":0.65583,"y":0.39997,"p":0.5711},"Broad Peak Central":{"x":0.6008,"y":0.35631,"p":0.4471},"Broad Peak Norte":{"x":0.44801,"y":0.59083,"p":0.3598},"Gasherbrum I":{"x":0.05132,"y":0.31141,"p":0.1766},"Gasherbrum II":{"x":0.02902,"y":0.30688,"p":0.2212},"Gasherbrum III":{"x":0.07356,"y":0.2935,"p":0.2304},"Gasherbrum IV":{"x":0.22683,"y":0.28635,"p":0.2535},"Masherbrum":{"x":2.28564,"y":0.27715,"p":0.1097},"Chogolisa":{"x":0.68358,"y":0.28598,"p":0.1406},"Skyang Kangri":{"x":0.72904,"y":0.36242,"p":0.1956},"Muztagh Tower":{"x":-1.1025,"y":0.44339,"p":0.1578},"Baltoro Kangri":{"x":0.39669,"y":0.26585,"p":0.1427},"Sia Kangri":{"x":0.12225,"y":0.27133,"p":0.1317},"Nanga Parbat":{"x":37.61462,"y":-0.51922,"p":0.0},"Collado":{"x":0.73356,"y":0.76868,"p":0.484},"CB":{"x":-3.58656,"y":5.62555,"p":0.2995},"C1":{"x":-2.89459,"y":5.57335,"p":0.3447},"C2":{"x":-2.0664,"y":4.38994,"p":0.3687},"C3":{"x":-1.41651,"y":3.852,"p":0.4372}}},"07_ruta":{"asp":1.77778,"anchos":[2560,1600],"puntos":{"K2":{"x":0.11894,"y":0.20968,"p":0.1984},"Broad Peak (principal)":{"x":0.67468,"y":0.18401,"p":0.2521},"Broad Peak (Rocky Summit)":{"x":0.65762,"y":0.19506,"p":0.2497},"Broad Peak Central":{"x":0.60417,"y":0.21266,"p":0.2448},"Broad Peak Norte":{"x":0.49517,"y":0.29758,"p":0.239},"Gasherbrum I":{"x":2.23892,"y":0.15159,"p":0.1585},"Gasherbrum II":{"x":1.59766,"y":0.17802,"p":0.1888},"Gasherbrum III":{"x":1.57759,"y":0.1769,"p":0.1961},"Gasherbrum IV":{"x":1.56351,"y":0.1278,"p":0.2164},"Masherbrum":{"x":0.65916,"y":0.49417,"p":0.1371},"Chogolisa":{"x":-0.46683,"y":0.55387,"p":0.156},"Skyang Kangri":{"x":0.30765,"y":0.36454,"p":0.1604},"Muztagh Tower":{"x":3.84979,"y":0.75866,"p":0.1848},"Baltoro Kangri":{"x":-3.84661,"y":0.71693,"p":0.1436},"Sia Kangri":{"x":4.59412,"y":0.18278,"p":0.1232},"Nanga Parbat":{"x":0.9424,"y":0.42513,"p":0.0},"Collado":{"x":0.63263,"y":0.23974,"p":0.2458},"CB":{"x":0.30829,"y":0.91562,"p":0.3116},"C1":{"x":0.49038,"y":0.62331,"p":0.2885},"C2":{"x":0.53137,"y":0.50562,"p":0.2786},"C3":{"x":0.60677,"y":0.35157,"p":0.2641}}},"08_panorama":{"asp":3.33333,"anchos":[5120,3200],"puntos":{"K2":{"x":0.08128,"y":0.25339,"p":0.2325},"Broad Peak (principal)":{"x":0.69204,"y":0.36785,"p":0.234},"Broad Peak (Rocky Summit)":{"x":0.67575,"y":0.37325,"p":0.2337},"Broad Peak Central":{"x":0.62963,"y":0.37472,"p":0.2348},"Broad Peak Norte":{"x":0.53802,"y":0.48122,"p":0.2408},"Gasherbrum I":{"x":0.93347,"y":0.49348,"p":0.1372},"Gasherbrum II":{"x":0.88533,"y":0.47374,"p":0.1633},"Gasherbrum III":{"x":0.8895,"y":0.47715,"p":0.1689},"Gasherbrum IV":{"x":0.90946,"y":0.46538,"p":0.1835},"Masherbrum":{"x":1.91897,"y":0.51734,"p":0.1322},"Chogolisa":{"x":1.32523,"y":0.52967,"p":0.1315},"Skyang Kangri":{"x":0.16065,"y":0.51828,"p":0.1764},"Muztagh Tower":{"x":-0.94678,"y":0.53785,"p":0.2203},"Baltoro Kangri":{"x":1.13932,"y":0.55843,"p":0.1216},"Sia Kangri":{"x":1.00171,"y":0.55456,"p":0.1064},"Nanga Parbat":{"x":2.23054,"y":0.58239,"p":0.0},"Collado":{"x":0.64979,"y":0.42285,"p":0.2331},"CB":{"x":0.7815,"y":1.54002,"p":0.3033},"C1":{"x":0.72616,"y":1.03389,"p":0.2726},"C2":{"x":0.70529,"y":0.84943,"p":0.2631},"C3":{"x":0.69229,"y":0.60698,"p":0.2473}}}},"ruta":{"puntos":[[0.30829,0.91533,0.3116,1,0.0,4824.7],[0.31152,0.91253,0.3113,1,22.2,4827.1],[0.31473,0.91401,0.311,1,47.5,4814.8],[0.3179,0.91096,0.3108,1,69.8,4818.2],[0.32106,0.90972,0.3105,1,92.1,4815.4],[0.32418,0.90749,0.3102,1,114.2,4816.2],[0.32728,0.90658,0.3099,1,136.6,4812.3],[0.33035,0.90483,0.3096,1,158.7,4811.4],[0.3334,0.89969,0.3093,1,183.4,4822.7],[0.33642,0.89692,0.309,1,205.7,4825.6],[0.33942,0.89613,0.3087,1,228.2,4821.5],[0.34239,0.89403,0.3084,1,250.2,4822.1],[0.34534,0.89132,0.3081,1,272.5,4825.1],[0.34826,0.88861,0.3078,1,294.8,4828.1],[0.35116,0.88805,0.3075,1,317.4,4823.3],[0.35404,0.88531,0.3072,1,339.7,4826.6],[0.35689,0.88236,0.3069,1,362.1,4830.7],[0.35972,0.87893,0.3066,1,385.0,4836.6],[0.36252,0.87702,0.3063,1,407.1,4837.0],[0.36531,0.87434,0.306,1,429.4,4840.4],[0.36807,0.87283,0.3057,1,451.5,4839.4],[0.37081,0.87161,0.3054,1,473.7,4837.4],[0.37353,0.86962,0.3051,1,495.7,4838.3],[0.37623,0.86797,0.3048,1,517.8,4838.1],[0.37891,0.86595,0.3045,1,539.9,4839.3],[0.38156,0.86403,0.3042,1,562.0,4840.1],[0.3842,0.86238,0.3039,1,584.1,4840.0],[0.38681,0.86063,0.3036,1,606.2,4840.3],[0.38941,0.85879,0.3032,1,628.2,4841.0],[0.39198,0.85677,0.3029,1,650.4,4842.4],[0.39453,0.85557,0.3026,1,672.5,4840.8],[0.39707,0.85348,0.3023,1,694.6,4842.6],[0.39959,0.85035,0.302,1,717.5,4848.6],[0.40208,0.84656,0.3017,1,741.2,4857.3],[0.40456,0.84274,0.3014,1,765.0,4866.2],[0.40702,0.83863,0.301,1,789.3,4876.3],[0.40946,0.83431,0.3007,1,814.1,4887.5],[0.41189,0.82947,0.3004,1,839.9,4900.8],[0.41429,0.82576,0.3001,1,863.7,4909.8],[0.41668,0.81903,0.2998,1,894.3,4931.0],[0.41905,0.81142,0.2995,1,927.6,4956.0],[0.4214,0.80322,0.2991,1,963.0,4983.6],[0.42373,0.79209,0.2988,1,1008.5,5023.4],[0.42605,0.78295,0.2985,1,1047.4,5055.4],[0.42835,0.77202,0.2982,1,1092.7,5095.0],[0.43064,0.76295,0.2979,1,1131.8,5127.3],[0.43291,0.75337,0.2975,1,1172.9,5161.9],[0.43516,0.74443,0.2972,1,1212.0,5194.2],[0.43739,0.73898,0.2969,1,1240.4,5212.2],[0.43961,0.7332,0.2966,1,1269.9,5231.7],[0.44182,0.72783,0.2963,1,1298.4,5249.8],[0.44401,0.7234,0.2959,1,1324.7,5264.0],[0.44618,0.71904,0.2956,1,1350.9,5278.0],[0.44834,0.71399,0.2953,1,1378.8,5295.1],[0.45048,0.70939,0.295,1,1405.7,5310.5],[0.45261,0.70624,0.2946,1,1429.6,5319.7],[0.45472,0.70146,0.2943,1,1457.1,5336.1],[0.45682,0.69699,0.294,1,1483.9,5351.3],[0.4589,0.69176,0.2937,1,1512.7,5369.9],[0.46097,0.68683,0.2934,1,1540.8,5387.3],[0.46303,0.68168,0.293,1,1569.7,5405.9],[0.46507,0.67629,0.2927,1,1599.3,5425.6],[0.46709,0.67312,0.2924,1,1623.6,5435.8],[0.46911,0.66783,0.2921,1,1653.1,5455.4],[0.47111,0.6649,0.2917,1,1677.1,5464.7],[0.47309,0.66067,0.2914,1,1703.9,5479.9],[0.47507,0.6561,0.2911,1,1731.6,5496.8],[0.47703,0.65156,0.2908,1,1759.4,5513.6],[0.47897,0.6483,0.2905,1,1784.2,5524.9],[0.48091,0.64358,0.2901,1,1812.6,5542.7],[0.48283,0.63864,0.2898,1,1841.7,5561.8],[0.48473,0.63449,0.2895,1,1868.7,5577.3],[0.48663,0.63063,0.2892,1,1895.1,5591.8],[0.48851,0.62663,0.2888,1,1921.9,5606.9],[0.49038,0.62309,0.2885,1,1947.6,5620.1],[0.49199,0.61864,0.2882,1,1975.8,5637.2],[0.49359,0.61401,0.2878,1,2004.6,5655.3],[0.49518,0.61041,0.2874,1,2030.8,5668.8],[0.49675,0.6067,0.2871,1,2057.3,5682.9],[0.49831,0.60262,0.2867,1,2084.9,5698.8],[0.49987,0.59737,0.2863,1,2116.0,5720.4],[0.50141,0.59331,0.286,1,2143.6,5736.5],[0.50294,0.58916,0.2856,1,2171.6,5753.2],[0.50445,0.58387,0.2853,1,2203.2,5775.4],[0.50596,0.57898,0.2849,1,2233.6,5795.9],[0.50746,0.57467,0.2845,1,2262.3,5813.8],[0.50895,0.57046,0.2842,1,2290.8,5831.4],[0.51042,0.56605,0.2838,1,2320.0,5850.1],[0.51189,0.56229,0.2835,1,2347.4,5865.8],[0.51334,0.55769,0.2831,1,2377.4,5885.7],[0.51479,0.55439,0.2828,1,2403.8,5899.5],[0.51622,0.54928,0.2824,1,2435.6,5922.1],[0.51765,0.54621,0.2821,1,2461.6,5935.0],[0.51906,0.54211,0.2817,1,2490.3,5953.0],[0.52047,0.53636,0.2814,1,2524.8,5979.2],[0.52186,0.53126,0.281,1,2557.2,6002.5],[0.52325,0.52379,0.2807,1,2598.8,6037.5],[0.52463,0.51931,0.2803,1,2629.2,6058.1],[0.526,0.51461,0.28,1,2660.5,6079.9],[0.52735,0.51076,0.2796,1,2689.1,6097.6],[0.5287,0.50965,0.2793,1,2712.0,6101.8],[0.53004,0.50851,0.2789,1,2734.8,6106.2],[0.53137,0.50542,0.2786,1,2761.4,6120.4],[0.53309,0.50173,0.2783,1,2789.8,6137.9],[0.53479,0.49817,0.278,1,2817.9,6154.9],[0.53649,0.49482,0.2777,1,2845.4,6170.9],[0.53818,0.4921,0.2774,1,2871.2,6183.8],[0.53985,0.48838,0.2771,1,2900.0,6201.9],[0.54152,0.48465,0.2768,1,2928.8,6220.1],[0.54318,0.48133,0.2765,1,2956.4,6236.4],[0.54483,0.47822,0.2762,1,2983.5,6251.6],[0.54647,0.47436,0.2759,1,3013.0,6270.9],[0.5481,0.47068,0.2756,1,3041.9,6289.2],[0.54972,0.46742,0.2753,1,3069.6,6305.5],[0.55134,0.46354,0.2751,1,3099.3,6325.1],[0.55294,0.45949,0.2748,1,3129.8,6345.8],[0.55454,0.45519,0.2745,1,3161.2,6367.8],[0.55613,0.45077,0.2742,1,3193.1,6390.6],[0.55771,0.44602,0.2739,1,3226.3,6415.2],[0.55928,0.44161,0.2736,1,3258.4,6438.2],[0.56084,0.43815,0.2733,1,3287.2,6456.3],[0.56239,0.43542,0.273,1,3313.7,6470.7],[0.56394,0.43121,0.2727,1,3345.3,6492.9],[0.56548,0.42693,0.2724,1,3377.2,6515.7],[0.56701,0.42332,0.2721,1,3406.7,6535.0],[0.56853,0.42017,0.2719,1,3434.8,6551.9],[0.57004,0.41713,0.2716,1,3462.5,6568.4],[0.57155,0.41452,0.2713,1,3489.0,6582.6],[0.57305,0.41311,0.271,1,3512.7,6590.4],[0.57454,0.41244,0.2707,1,3535.4,6594.3],[0.57602,0.41127,0.2704,1,3558.7,6600.9],[0.57749,0.40966,0.2701,1,3582.8,6609.9],[0.57896,0.40572,0.2698,1,3614.0,6631.7],[0.58042,0.40215,0.2695,1,3643.9,6651.5],[0.58187,0.39788,0.2693,1,3676.6,6675.3],[0.58331,0.39463,0.269,1,3705.4,6693.5],[0.58475,0.39123,0.2687,1,3734.9,6712.8],[0.58618,0.38778,0.2684,1,3764.6,6732.4],[0.5876,0.38423,0.2681,1,3794.8,6752.6],[0.58902,0.38112,0.2678,1,3823.4,6770.5],[0.59042,0.37827,0.2675,1,3851.2,6787.0],[0.59182,0.37508,0.2672,1,3880.3,6805.6],[0.59322,0.37326,0.267,1,3905.2,6816.5],[0.5946,0.37093,0.2667,1,3931.5,6830.4],[0.59598,0.36809,0.2664,1,3959.4,6847.1],[0.59736,0.36511,0.2661,1,3987.9,6864.8],[0.59872,0.3629,0.2658,1,4014.0,6878.2],[0.60008,0.36061,0.2655,1,4040.3,6892.1],[0.60143,0.35872,0.2653,1,4065.6,6903.8],[0.60278,0.35733,0.265,1,4089.6,6912.7],[0.60412,0.35581,0.2647,1,4114.0,6922.5],[0.60545,0.35355,0.2644,1,4140.3,6936.4],[0.60677,0.3514,0.2641,1,4166.4,6949.9],[0.60756,0.34965,0.2638,1,4191.7,6961.3],[0.60833,0.34822,0.2635,1,4216.3,6971.0],[0.60911,0.34709,0.2631,1,4240.3,6979.0],[0.60987,0.34665,0.2628,1,4263.2,6983.0],[0.61064,0.34705,0.2625,1,4285.8,6982.2],[0.61139,0.34683,0.2622,1,4308.5,6985.0],[0.61215,0.34506,0.2618,1,4334.1,6996.9],[0.6129,0.34305,0.2615,1,4360.3,7010.2],[0.61364,0.34127,0.2612,1,4385.9,7022.2],[0.61438,0.3381,0.2609,1,4416.2,7042.5],[0.61512,0.33584,0.2605,1,4443.3,7057.5],[0.61585,0.33326,0.2602,1,4471.6,7074.6],[0.61658,0.33051,0.2599,1,4500.6,7092.7],[0.6173,0.32721,0.2596,1,4531.7,7114.2],[0.61802,0.32361,0.2593,1,4564.3,7137.6],[0.61873,0.31984,0.2589,1,4597.7,7162.2],[0.61944,0.31543,0.2586,1,4634.1,7190.8],[0.62015,0.3116,0.2583,1,4667.9,7216.0],[0.62085,0.30868,0.258,1,4697.9,7235.7],[0.62155,0.30611,0.2577,1,4726.7,7253.6],[0.62224,0.30386,0.2574,1,4754.3,7269.5],[0.62293,0.30271,0.2571,1,4778.7,7278.8],[0.62361,0.30186,0.2568,1,4802.5,7286.3],[0.6243,0.30105,0.2564,1,4826.3,7293.6],[0.62497,0.30073,0.2561,1,4849.2,7297.9],[0.62565,0.29871,0.2558,1,4876.2,7312.7],[0.62632,0.29683,0.2555,1,4902.8,7326.7],[0.62698,0.29268,0.2552,1,4939.0,7355.0],[0.62764,0.28817,0.2549,1,4977.0,7385.5],[0.6283,0.28241,0.2546,1,5021.7,7424.1],[0.62896,0.27896,0.2543,1,5054.9,7448.5],[0.62961,0.27652,0.254,1,5083.8,7466.5],[0.63026,0.276,0.2537,1,5107.2,7472.6],[0.6309,0.27739,0.2534,1,5130.6,7466.5],[0.63154,0.27743,0.2531,1,5153.3,7469.0],[0.63217,0.27642,0.2528,1,5177.6,7478.1],[0.63281,0.27272,0.2525,1,5212.3,7504.5],[0.6328,0.2687,0.2522,1,5249.1,7533.5],[0.63279,0.26661,0.2519,1,5277.2,7550.1],[0.63278,0.26509,0.2515,1,5303.4,7563.3],[0.63277,0.26229,0.2512,1,5334.5,7584.7],[0.63277,0.2601,0.2509,1,5363.2,7602.3],[0.63276,0.2575,0.2506,1,5393.7,7622.7],[0.63275,0.25608,0.2503,1,5419.6,7635.4],[0.63274,0.25483,0.25,1,5445.2,7647.2],[0.63273,0.25263,0.2497,1,5474.1,7665.2],[0.63273,0.25011,0.2494,1,5504.4,7685.4],[0.63272,0.24849,0.2491,1,5531.2,7699.7],[0.63271,0.24571,0.2488,1,5562.8,7721.8],[0.6327,0.24155,0.2485,1,5601.5,7753.2],[0.6327,0.24008,0.2482,1,5627.9,7766.8],[0.63269,0.24122,0.2479,1,5650.9,7763.1],[0.63268,0.24129,0.2476,1,5673.8,7766.4],[0.63267,0.24171,0.2473,1,5696.4,7767.4],[0.63266,0.24292,0.247,1,5719.5,7763.1],[0.63266,0.24423,0.2467,1,5742.7,7758.0],[0.63265,0.2452,0.2464,1,5765.5,7755.2],[0.63264,0.24447,0.2461,1,5789.7,7763.9],[0.63263,0.23974,0.2458,1,5832.3,7800],[0.63406,0.24088,0.246,1,5858.7,7788.7],[0.6355,0.2379,0.2462,1,5887.9,7805.5],[0.63694,0.23602,0.2464,1,5913.5,7814.7],[0.63839,0.23497,0.2467,1,5937.6,7818.2],[0.63985,0.23421,0.2469,1,5961.5,7819.8],[0.64131,0.23267,0.2471,1,5986.3,7826.6],[0.64279,0.23085,0.2473,1,6011.6,7835.1],[0.6441,0.2292,0.2475,1,6035.2,7842.6],[0.64542,0.22732,0.2478,1,6059.3,7851.6],[0.64675,0.22511,0.248,1,6084.3,7862.6],[0.64808,0.22289,0.2482,1,6109.3,7873.7],[0.64942,0.22027,0.2484,1,6135.5,7887.4],[0.65077,0.21794,0.2486,1,6160.7,7899.0],[0.65212,0.21587,0.2488,1,6185.1,7908.8],[0.65349,0.21379,0.2491,1,6209.6,7918.7],[0.65485,0.2116,0.2493,1,6234.3,7929.2],[0.65623,0.20939,0.2495,1,6259.0,7939.7],[0.65762,0.19521,0.2497,1,6350.1,8028],[0.65918,0.20489,0.2499,1,6421.3,7960.9],[0.66076,0.2032,0.2502,1,6446.1,7967.7],[0.66235,0.20188,0.2504,1,6470.4,7972.1],[0.66394,0.20162,0.2506,1,6494.4,7969.6],[0.66555,0.20063,0.2508,1,6518.3,7971.8],[0.66716,0.19866,0.251,1,6543.6,7980.2],[0.66878,0.19652,0.2512,1,6569.3,7989.6],[0.67025,0.19297,0.2515,1,6598.3,8008.0],[0.67172,0.18887,0.2517,1,6629.5,8029.9],[0.6732,0.18692,0.2519,1,6653.3,8037.9],[0.67468,0.18417,0.2521,1,6679.2,8051]],"marcas":{"CB":0.0,"C1":1947.6,"C2":2761.4,"C3":4166.4,"Collado":5832.3,"Rocky":6350.1,"Cima":6679.2},"total":6679.2},"cresta":[[35.81,7955],[35.8102,7966],[35.8104,7975],[35.8106,7989],[35.8108,8001],[35.811,8012],[35.8112,8023],[35.8114,8033],[35.8116,8045],[35.8118,8047],[35.812,8039],[35.8122,8035],[35.8124,8032],[35.8126,8019],[35.8128,8019],[35.813,8020],[35.8132,8020],[35.8134,8028],[35.8136,8032],[35.8138,8030],[35.814,8019],[35.8142,8009],[35.8144,7999],[35.8146,7989],[35.8148,7978],[35.815,7967],[35.8152,7953],[35.8154,7945],[35.8156,7930],[35.8158,7915],[35.816,7906],[35.8162,7891],[35.8164,7874],[35.8166,7864],[35.8168,7846],[35.817,7840],[35.8172,7826],[35.8174,7814],[35.8176,7803],[35.8178,7797],[35.818,7814],[35.8182,7832],[35.8184,7846],[35.8186,7864],[35.8188,7879],[35.819,7889],[35.8192,7900],[35.8194,7913],[35.8196,7924],[35.8198,7937],[35.82,7950],[35.8202,7970],[35.8204,7988],[35.8206,8007],[35.8208,8011],[35.821,7993],[35.8212,7976],[35.8214,7952],[35.8216,7935],[35.8218,7918],[35.822,7922],[35.8222,7922],[35.8224,7906],[35.8226,7876],[35.8228,7824],[35.823,7773],[35.8232,7724],[35.8234,7689],[35.8236,7658],[35.8238,7628],[35.824,7597],[35.8242,7574],[35.8244,7557],[35.8246,7546],[35.8248,7533],[35.825,7516],[35.8252,7498],[35.8254,7478],[35.8256,7460],[35.8258,7443],[35.826,7427],[35.8262,7402],[35.8264,7377],[35.8266,7358],[35.8268,7343],[35.827,7336],[35.8272,7342],[35.8274,7343],[35.8276,7344],[35.8278,7346],[35.828,7345],[35.8282,7344],[35.8284,7343],[35.8286,7341],[35.8288,7342],[35.829,7334],[35.8292,7329],[35.8294,7323],[35.8296,7308],[35.8298,7290],[35.83,7257],[35.8302,7222],[35.8304,7187],[35.8306,7156],[35.8308,7120],[35.831,7103],[35.8312,7246],[35.8314,7423],[35.8316,7453],[35.8318,7475],[35.832,7489],[35.8322,7488],[35.8324,7473],[35.8326,7450],[35.8328,7422],[35.833,7395],[35.8332,7367],[35.8334,7340],[35.8336,7315],[35.8338,7291],[35.834,7267],[35.8342,7243],[35.8344,7219],[35.8346,7200],[35.8348,7176],[35.835,7153],[35.8352,7136],[35.8354,7116],[35.8356,7097],[35.8358,7076],[35.836,7054]]};
+</script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const suave = t => t * t * (3 - 2 * t);
+const MQ_REDUCE = matchMedia('(prefers-reduced-motion: reduce)');
+let reduce = MQ_REDUCE.matches;
+MQ_REDUCE.addEventListener?.('change', e => { reduce = e.matches; });
+const fmtMil = n => { const s = String(Math.round(n)); return s.length > 3 ? s.slice(0, -3) + ' ' + s.slice(-3) : s; };
+
+/* ------------------------------------------------------------ láminas */
+const LAM = {
+  concordia:  { id: '01_concordia',  num: 'I',    nombre: 'El macizo desde Concordia', alt: 4600, hora: 'atardecer', mira: 'mirando al NNE', foco: .24, amp: 1 },
+  campo_base: { id: '02_campo_base', num: 'II',   nombre: 'Campo Base', alt: 4850, hora: 'mediodía', mira: 'mirando al E', foco: .3, amp: 1 },
+  campo_1:    { id: '03_campo_1',    num: 'III',  nombre: 'Campo 1', alt: 5700, hora: 'media mañana', mira: 'mirando al S', foco: .25, amp: 1 },
+  campo_2:    { id: '04_campo_2',    num: 'IV',   nombre: 'Campo 2', alt: 6200, hora: 'alba', mira: 'mirando al SO', foco: .2, amp: 1 },
+  campo_3:    { id: '05_campo_3',    num: 'V',    nombre: 'Campo 3', alt: 7000, hora: 'medianoche', mira: 'mirando al NE', foco: .4, amp: .9 },
+  cumbre:     { id: '06_cumbre',     num: 'VI',   nombre: 'Cumbre', alt: 8051, hora: 'primera hora de la tarde', mira: 'mirando al NNO', foco: .36, amp: .9 },
+  ruta:       { id: '07_ruta',       num: 'VII',  nombre: 'La ruta normal', alt: 6500, hora: 'tarde', mira: 'vista aérea al NE', foco: .25, amp: 3.2 },
+  panorama:   { id: '08_panorama',   num: 'VIII', nombre: 'La Cresta Ancha', alt: 7100, hora: 'atardecer', mira: 'vista aérea al E', foco: .23, amp: 3.2 },
+};
+for (const k in LAM) {
+  const e = DATOS.escenas[LAM[k].id];
+  LAM[k].asp = e.asp; LAM[k].anchos = e.anchos; LAM[k].puntos = e.puntos; LAM[k].clave = k;
+}
+const P = (esc, n) => LAM[esc].puntos[n];
+
+/* ------------------------------------------------------------ cámara por capítulo: [p, cx, cy, zoom] */
+const CAM = {
+  portada:   [[0, .52, .52, 1.08], [1, .55, .47, 1.16]],
+  nombre:    [[0, .55, .47, 1.16], [.55, .62, .36, 1.42], [1, .64, .3, 1.55]],
+  cultura:   [[0, .5, .52, 1.07], [1, .47, .58, 1.2]],
+  historia:  [[0, .5, .5, 1.07], [1, .6, .48, 1.22]],
+  hazanas:   [[0, .5, .56, 1.07], [1, .52, .44, 1.24]],
+  anecdotas: [[0, .5, .52, 1.07], [1, .56, .32, 1.28]],
+  cumbre:    [[0, .3, .52, 1.5], [.7, .3, .48, 1.66], [1, .3, .5, 1.6]],
+  creditos:  [[0, .3, .5, 1.6], [1, .45, .5, 1.15]],
+};
+const camKeys = (keys, p) => {
+  if (p <= keys[0][0]) return { x: keys[0][1], y: keys[0][2], z: keys[0][3] };
+  for (let i = 1; i < keys.length; i++) {
+    const a = keys[i - 1], b = keys[i];
+    if (p <= b[0]) {
+      const t = suave((p - a[0]) / (b[0] - a[0]));
+      return { x: lerp(a[1], b[1], t), y: lerp(a[2], b[2], t), z: lerp(a[3], b[3], t) };
+    }
+  }
+  const l = keys[keys.length - 1]; return { x: l[1], y: l[2], z: l[3] };
+};
+
+/* panorama: paradas en cada cumbre */
+const PANO = [
+  { p: 0.0,  x: .48,  y: .45, z: 1.0, o: 0 },
+  { p: .1,   x: .5,   y: .44, z: 1.02, foco: 'vista', o: 0 },
+  { p: .24,  x: .538, y: .48, z: 1.5,  foco: 'norte', o: 1 },
+  { p: .37,  x: .630, y: .4,  z: 1.65, foco: 'central', o: 1 },
+  { p: .49,  x: .650, y: .43, z: 1.75, foco: 'collado', o: 1 },
+  { p: .61,  x: .676, y: .39, z: 1.85, foco: 'rocky', o: 1 },
+  { p: .73,  x: .692, y: .39, z: 1.75, foco: 'principal', o: 1 },
+  { p: .87,  x: .909, y: .47, z: 1.4,  foco: 'gasherbrum', o: 1 },
+  { p: 1.0,  x: .7,   y: .45, z: 1.06, o: 0 },
+];
+const desplaza = () => VW >= 900 ? { ox: .16, oy: -.03 } : { ox: 0, oy: -.07 };
+const FICHAS_CUMBRE = {
+  vista: { et: 'Desde el oeste', nom: 'Cresta', alt: '3 cumbres', filas: [['De norte a sur', 'Norte · Central · Principal'], ['Collado', '7 800 m']], nota: 'El K2, a la izquierda, y los Gasherbrum, a la derecha, enmarcan la cresta al atardecer.' },
+  norte: { et: 'Cumbre Norte', nom: 'Norte', alt: '7 490 m', filas: [['1.ª ascensión', '28 jun 1983'], ['Por', 'Renato Casarotto, solo']], nota: 'La más baja de las tres, separada de la Central por una larga arista.' },
+  central: { et: 'Cumbre Central', nom: 'Central', alt: '8 011 m', filas: [['1.ª ascensión', '28 jul 1975'], ['Por', 'Expedición polaca']], nota: 'Supera los 8 000 m, pero se alza solo unos 200 m sobre el collado: no cuenta entre los catorce.' },
+  collado: { et: 'Collado', nom: 'Collado', alt: '7 800 m', filas: [['Entre', 'Central y Principal'], ['Ruta normal', 'Llega aquí a la cresta']], nota: 'Desde aquí la ruta normal recorre la arista hacia el sur.' },
+  rocky: { et: 'Antecima', nom: 'Rocky Summit', alt: '8 028 m', filas: [['A la cima', '256 m de arista'], ['Diferencia', '23 m']], nota: 'Muchos creen haber llegado al pisarla. La cumbre verdadera sigue más al sur.' },
+  principal: { et: 'Cumbre Principal', nom: 'Principal', alt: '8 051 m', filas: [['1.ª ascensión', '9 jun 1957'], ['Por', 'Expedición austriaca']], nota: 'Una cúpula de nieve en el extremo sur de la cresta.' },
+  gasherbrum: { et: 'Al sureste', nom: 'Gasherbrum', alt: '8 080 m', filas: [['G I · G II', '8 080 · 8 035 m'], ['G IV', '7 925 m']], nota: 'El macizo vecino cierra el panorama por el sureste, sobre el alto Baltoro.' },
+};
+
+/* ruta: etapas y cámara que sigue la cabeza del trazo */
+const RUTA = DATOS.ruta;
+const ETAPAS = [
+  { k: 'CB', nom: 'Campo base', alt: 4847, txt: 'Sobre la morrena del glaciar Godwin-Austen, al pie de la cara oeste. Desde aquí quedan 3 204 m de desnivel.' },
+  { k: 'C1', nom: 'Campo 1', alt: 5686, txt: 'Tras cruzar el glaciar, la ruta remonta el espolón oeste por laderas de nieve y roca equipadas con cuerdas fijas.' },
+  { k: 'C2', nom: 'Campo 2', alt: 6184, txt: 'Un rellano en el espolón, a menudo por encima del mar de nubes.' },
+  { k: 'C3', nom: 'Campo 3', alt: 7014, txt: 'El último campamento, en las pendientes nevadas bajo el collado. El día de cumbre se sale de noche, con frontal.' },
+  { k: 'Collado', nom: 'Collado', alt: 7800, txt: 'Un corredor de nieve lleva a la brecha entre la cumbre Central y la Principal. Aquí la ruta alcanza la cresta.' },
+  { k: 'Rocky', nom: 'Rocky Summit', alt: 8028, txt: 'Una antecima de roca. Muchos creen haber llegado: la cima sigue 256 m más al sur por la arista.' },
+  { k: 'Cima', nom: 'Cima', alt: 8051, txt: 'La cumbre principal del Broad Peak. Ahora toca bajar por el mismo camino.' },
+];
+const RP = RUTA.puntos; // [x, y, disp, vis, s, z]
+const RT = RUTA.total;
+const marcas = ETAPAS.map(e => RUTA.marcas[e.k]);
+const R0 = .07, R1 = .93; // tramo de scroll en el que se dibuja
+function rutaS(p) { // distancia recorrida según el progreso de la sección
+  const q = clamp((p - R0) / (R1 - R0), 0, 1) * (ETAPAS.length - 1);
+  const i = Math.min(ETAPAS.length - 2, Math.floor(q));
+  const t = q - i;
+  return lerp(marcas[i], marcas[i + 1], t);
+}
+function rutaEn(s) { // punto interpolado en la distancia s
+  let lo = 0, hi = RP.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (RP[m][4] <= s) lo = m; else hi = m; }
+  const a = RP[lo], b = RP[hi], t = b[4] > a[4] ? clamp((s - a[4]) / (b[4] - a[4]), 0, 1) : 0;
+  return { x: lerp(a[0], b[0], t), y: lerp(a[1], b[1], t), p: lerp(a[2], b[2], t), z: lerp(a[5], b[5], t), i: lo, t };
+}
+function camRuta(p) {
+  const vista = { x: .5, y: .52, z: 1.06 };
+  if (p < R0) return vista;
+  const s = rutaS(p), h = rutaEn(s);
+  const entra = suave(clamp((p - R0) / .08, 0, 1));
+  const sale = suave(clamp((p - .9) / .1, 0, 1));
+  const z = lerp(vista.z, 1.65, entra);
+  const d = desplaza(), o = entra * (1 - sale);
+  const c = { x: lerp(vista.x, h.x, entra), y: lerp(vista.y, h.y, entra), z };
+  const fin = { x: .56, y: .45, z: 1.14 };
+  return { x: lerp(c.x, fin.x, sale), y: lerp(c.y, fin.y, sale), z: lerp(c.z, fin.z, sale), ox: d.ox * o, oy: d.oy * o };
+}
+
+/* ------------------------------------------------------------ capítulos */
+const CAP = $$('main > section').map(el => ({ el, id: el.id, esc: el.dataset.escena, fijo: el.classList.contains('fijo'), top: 0, h: 1 }));
+let VW = innerWidth, VH = innerHeight;
+function medir() {
+  VW = innerWidth; VH = innerHeight;
+  for (const c of CAP) { const r = c.el.getBoundingClientRect(); c.top = r.top + scrollY; c.h = r.height; }
+}
+function camCap(c, p) {
+  if (c.id === 'cumbres') {
+    const d = desplaza();
+    for (let i = 1; i < PANO.length; i++) if (p <= PANO[i].p) {
+      const a = PANO[i - 1], b = PANO[i], t = suave((p - a.p) / (b.p - a.p)), o = lerp(a.o, b.o, t);
+      return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), z: lerp(a.z, b.z, t), ox: d.ox * o, oy: d.oy * o };
+    }
+    const l = PANO[PANO.length - 1]; return { x: l.x, y: l.y, z: l.z };
+  }
+  if (c.id === 'ruta') return camRuta(p);
+  return camKeys(CAM[c.id] || [[0, .5, .5, 1.07], [1, .5, .5, 1.12]], p);
+}
+function progreso(c, y) {
+  if (c.fijo) return clamp((y - c.top) / Math.max(1, c.h - VH), 0, 1);
+  return clamp((y + VH * .5 - c.top) / Math.max(1, c.h), 0, 1);
+}
+function estado(y) {
+  const cy = y + VH * .5;
+  let i = 0;
+  while (i < CAP.length - 1 && cy >= CAP[i].top + CAP[i].h) i++;
+  const c = CAP[i], p = progreso(c, y);
+  const A = { esc: c.esc, cam: camCap(c, p) };
+  const half = VH * .34;
+  if (i > 0 && CAP[i - 1].esc !== c.esc && cy - c.top < half) {
+    const pr = CAP[i - 1];
+    return { A: { esc: pr.esc, cam: camCap(pr, 1) }, B: A, mix: suave(clamp(.5 + (cy - c.top) / (2 * half), 0, 1)), cap: c, i, p, semilla: (i * .618) % 1 };
+  }
+  if (i < CAP.length - 1 && CAP[i + 1].esc !== c.esc && c.top + c.h - cy < half) {
+    const nx = CAP[i + 1];
+    return { A, B: { esc: nx.esc, cam: camCap(nx, 0) }, mix: suave(clamp(.5 - (c.top + c.h - cy) / (2 * half), 0, 1)), cap: c, i, p, semilla: ((i + 1) * .618) % 1 };
+  }
+  return { A, B: null, mix: 0, cap: c, i, p, semilla: 0 };
+}
+
+/* encuadre «cover» con zoom y margen para el paralaje */
+const MARGEN = .022;
+function encuadre(esc, cam) {
+  const a = LAM[esc].asp, s = VW / VH;
+  let fw, fh;
+  if (s > a) { fw = 1; fh = a / s; } else { fh = 1; fw = s / a; }
+  const z = Math.max(cam.z, 1.05);
+  fw /= z; fh /= z;
+  const x0 = cam.x - (cam.ox || 0) * fw, y0 = cam.y - (cam.oy || 0) * fh;
+  const cx = fw / 2 + MARGEN >= 1 - fw / 2 - MARGEN ? .5 : clamp(x0, fw / 2 + MARGEN, 1 - fw / 2 - MARGEN);
+  const cy = fh / 2 + MARGEN >= 1 - fh / 2 - MARGEN ? .5 : clamp(y0, fh / 2 + MARGEN, 1 - fh / 2 - MARGEN);
+  return { cx, cy, fw, fh };
+}
+function proyecta(E, par, pt) {
+  const bx = pt.x + par[0] * E.fw * (pt.p - par[2]);
+  const by = pt.y + par[1] * E.fh * (pt.p - par[2]);
+  return [(.5 + (bx - E.cx) / E.fw) * VW, (.5 + (by - E.cy) / E.fh) * VH];
+}
+
+/* ------------------------------------------------------------ WebGL */
+const lienzo = $('#lienzo');
+let gl = null, prog = null, U = {}, gl2 = false, maxTex = 4096;
+const VERT = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+const FRAG = `precision highp float;
+uniform vec2 uRes;
+uniform sampler2D uColA,uDepA,uColB,uDepB;
+uniform vec4 uCamA,uCamB,uParA,uParB;
+uniform float uMix,uSeed,uIntro,uScrim,uTop;
+const vec3 GRAVA=vec3(.1098,.1137,.1294);
+float hash(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*vn(p);p=p*2.03+17.17;a*=.5;}return v;}
+vec3 escena(sampler2D col,sampler2D dep,vec4 cam,vec4 par,vec2 s,out float d){
+  vec2 base=cam.xy+(s-.5)*cam.zw;
+  vec2 off=par.xy*cam.zw;
+  vec2 uv=base;
+  for(int i=0;i<4;i++){float q=texture2D(dep,uv).r;uv=base-off*(q-par.z);}
+  uv=clamp(uv,vec2(.001),vec2(.999));
+  d=texture2D(dep,uv).r;
+  return texture2D(col,uv).rgb;
+}
+vec3 suelo(vec2 s,float asp){float n=fbm(vec2(s.x*asp*2.2,s.y*46.));return GRAVA*(.8+.42*n);}
+vec3 pinta(vec3 c0,vec3 c1,float m,float d,vec2 s,float asp,float seed){
+  float an=-.30+.38*(seed-.5);
+  mat2 R=mat2(cos(an),sin(an),-sin(an),cos(an));
+  vec2 p=R*vec2(s.x*asp,s.y);
+  float n=.62*fbm(p*vec2(1.25,6.4)+seed*31.)+.26*fbm(p*vec2(3.6,23.)+seed*7.)+.12*vn(p*vec2(8.,150.)+seed*3.);
+  n=mix(n,d,.42);
+  float w=.085,t=m*(1.+2.*w)-w;
+  float k=1.-smoothstep(t-w,t+w,n);
+  float banda=1.-abs(2.*k-1.);
+  float cer=smoothstep(.3,.8,vn(p*vec2(5.,260.)+11.));
+  vec3 c=mix(c0,c1,k);
+  return mix(c,GRAVA,banda*banda*(.5+.45*cer));
+}
+void main(){
+  vec2 s=vec2(gl_FragCoord.x/uRes.x,1.-gl_FragCoord.y/uRes.y);
+  float asp=uRes.x/uRes.y;
+  float dA=0.,dB=0.;
+  vec3 g=suelo(s,asp);
+  vec3 col=uParA.w>.5?escena(uColA,uDepA,uCamA,uParA,s,dA):g;
+  float dTop=dA;
+  if(uMix>.0005){
+    vec3 cB=uParB.w>.5?escena(uColB,uDepB,uCamB,uParB,s,dB):g;
+    col=uMix>.9995?cB:pinta(col,cB,uMix,dB,s,asp,uSeed);
+    dTop=mix(dA,dB,step(.5,uMix));
+  }
+  if(uIntro<.9995) col=pinta(g,col,uIntro,dTop,s,asp,.37);
+  float vet=fbm(vec2(s.x*asp*1.8,s.y*34.)+5.);
+  float bajo=smoothstep(.62,1.04,s.y)*uScrim;
+  float alto=smoothstep(.17,0.,s.y)*uTop;
+  col=mix(col,GRAVA,clamp(max(bajo,alto)*(.5+.75*vet),0.,.9));
+  gl_FragColor=vec4(col,1.);
+}`;
+function initGL() {
+  const opts = { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' };
+  gl = lienzo.getContext('webgl2', opts);
+  gl2 = !!gl;
+  if (!gl) gl = lienzo.getContext('webgl', opts) || lienzo.getContext('experimental-webgl', opts);
+  if (!gl) return false;
+  const sh = (t, src) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'a');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  for (const n of ['uRes', 'uColA', 'uDepA', 'uColB', 'uDepB', 'uCamA', 'uCamB', 'uParA', 'uParB', 'uMix', 'uSeed', 'uIntro', 'uScrim', 'uTop']) U[n] = gl.getUniformLocation(prog, n);
+  gl.uniform1i(U.uColA, 0); gl.uniform1i(U.uDepA, 1); gl.uniform1i(U.uColB, 2); gl.uniform1i(U.uDepB, 3);
+  maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096;
+  vacia = textura(null);
+  lienzo.addEventListener('webglcontextlost', e => { e.preventDefault(); perdido = true; });
+  lienzo.addEventListener('webglcontextrestored', () => { location.reload(); });
+  return true;
+}
+let vacia = null, perdido = false;
+function textura(img) {
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  if (img) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([28, 29, 33, 255]));
+  const mip = gl2 && img;
+  if (mip) gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+
+/* carga progresiva de láminas: primero la portada, después en orden de lectura */
+const ORDEN = ['concordia', 'panorama', 'campo_base', 'ruta', 'campo_1', 'campo_2', 'campo_3', 'cumbre'];
+const TEX = {};     // esc → {col, dep, listo}
+const IMG = {};     // esc → {col:HTMLImageElement, dep}
+let modoDom = false;
+function anchoPara(esc) {
+  const L = LAM[esc], dpr = Math.min(devicePixelRatio || 1, 2);
+  const necesario = Math.max(VW, VH * L.asp) * dpr * 1.25;
+  const op = L.anchos.slice().sort((a, b) => a - b).filter(w => w <= maxTex);
+  return op.find(w => w >= necesario) || op[op.length - 1];
+}
+function cargaImg(src) {
+  return new Promise((res, rej) => { const i = new Image(); i.decoding = 'async'; i.onload = () => res(i); i.onerror = rej; i.src = src; });
+}
+async function cargaLamina(esc) {
+  if (IMG[esc]) return IMG[esc].p;
+  const L = LAM[esc], w = anchoPara(esc);
+  const base = `img/${L.id}-${w}`;
+  const p = (async () => {
+    let col;
+    try { col = await cargaImg(base + '.avif'); } catch (e) { col = await cargaImg(base + '.webp'); }
+    const dep = modoDom ? null : await cargaImg(`img/${L.id}-prof.png`);
+    try { await col.decode?.(); } catch (e) {}
+    IMG[esc].col = col; IMG[esc].dep = dep;
+    if (modoDom) domLamina(esc, col);
+    return IMG[esc];
+  })();
+  IMG[esc] = { p };
+  return p;
+}
+const subidas = [];
+async function cargaTodo() {
+  for (const esc of ORDEN) {
+    try {
+      await cargaLamina(esc);
+      if (!modoDom) subidas.push(esc);
+      if (esc === 'concordia') { const c = $('#carga'); c.style.opacity = 0; setTimeout(() => c.classList.add('fuera'), 700); }
+    } catch (e) { console.warn('lámina', esc, e); }
+  }
+}
+function subeUna() { // una subida a GPU por fotograma para no trabar el scroll
+  const esc = subidas.shift();
+  if (!esc) return;
+  const I = IMG[esc];
+  TEX[esc] = { col: textura(I.col), dep: textura(I.dep), listo: true, t0: performance.now() };
+}
+
+/* modo sin WebGL: imágenes apiladas con fundido */
+const DOMI = {};
+function domLamina(esc, img) {
+  img.className = 'dom-lam'; img.alt = '';
+  $('#escenario').appendChild(img); DOMI[esc] = img;
+}
+
+/* ------------------------------------------------------------ cotas (etiquetas ancladas a cumbres) */
+const COTAS = [
+  ['concordia', 'K2', 'K2', '8 611 m', 'n', 46],
+  ['concordia', 'Broad Peak (principal)', 'Broad Peak', '8 051 m', 's', 40],
+  ['panorama', 'K2', 'K2', '8 611 m', 'n', 40, 'k2'],
+  ['panorama', 'Broad Peak Norte', 'Norte', '7 490 m', 'n', 52, 'norte'],
+  ['panorama', 'Broad Peak Central', 'Central', '8 011 m', 'n', 92, 'central'],
+  ['panorama', 'Collado', 'Collado', '7 800 m', 's', 70, 'collado'],
+  ['panorama', 'Broad Peak (Rocky Summit)', 'Rocky Summit', '8 028 m', 'o', 40, 'rocky'],
+  ['panorama', 'Broad Peak (principal)', 'Principal', '8 051 m', 'e', 64, 'principal'],
+  ['panorama', 'Gasherbrum IV', 'Gasherbrum IV', '7 925 m', 'n', 54, 'gasherbrum'],
+  ['panorama', 'Gasherbrum I', 'Gasherbrum I', '8 080 m', 'e', 28, 'gasherbrum'],
+  ['ruta', 'Broad Peak Norte', 'Norte', '7 490 m', 'n', 44],
+  ['ruta', 'Broad Peak Central', 'Central', '8 011 m', 'n', 74],
+  ['ruta', 'Broad Peak (principal)', 'Principal', '8 051 m', 'e', 30],
+  ['campo_3', 'Broad Peak Central', 'Cumbre Central', '8 011 m', 's', 36],
+  ['campo_3', 'Broad Peak Norte', 'Cumbre Norte', '7 490 m', 'e', 40],
+  ['cumbre', 'K2', 'K2', '8 611 m', 'n', 44],
+  ['cumbre', 'Broad Peak (Rocky Summit)', 'Rocky Summit', '8 028 m', 'e', 40],
+  ['cumbre', 'Broad Peak Central', 'Central', '8 011 m', 'n', 70],
+].map(([esc, punto, nom, cota, dir, largo, foco]) => ({ esc, pt: P(esc, punto), nom, cota, dir, largo, foco }));
+const capaCotas = $('#cotas');
+for (const c of COTAS) {
+  const el = document.createElement('div');
+  el.className = 'cota';
+  el.innerHTML = `<span class="cota-linea"></span><span class="cota-punto"></span><span class="cota-chip"><b>${c.nom}</b><i>${c.cota.replace(' ', ' ')}</i></span>`;
+  capaCotas.appendChild(el);
+  c.el = el; c.linea = el.firstChild; c.chip = el.lastChild; c.a = 0;
+}
+function colocaCota(c) {
+  const L = c.largo, ch = c.chip, ln = c.linea;
+  if (c.dir === 'n') { ln.style.cssText = `top:${-L}px;height:${L - 5}px`; ch.style.cssText = `left:-12px;bottom:${L}px`; }
+  else if (c.dir === 's') { ln.style.cssText = `top:5px;height:${L - 5}px`; ch.style.cssText = `left:-12px;top:${L}px`; }
+  else if (c.dir === 'o') { ln.style.cssText = `top:${-L}px;height:${L - 5}px`; ch.style.cssText = `right:-6px;bottom:${L - 2}px`; }
+  else { ln.style.cssText = `top:${-L}px;height:${L - 5}px`; ch.style.cssText = `left:6px;bottom:${L - 2}px`; }
+}
+COTAS.forEach(colocaCota);
+const BLOQUES = $$('main .lavado, main .placa-w, main .display, main .cima-sub, main .descender');
+function mideChips() { for (const c of [...COTAS, ...COTAS_RUTA]) { const r = c.chip.getBoundingClientRect(); if (r.width) { c.cw = r.width; c.chh = r.height; } } }
+function ajustaChipsMovil() {
+  const movil = VW < 600;
+  for (const c of COTAS) c.el.style.fontSize = movil ? '90%' : '';
+}
+/* campos de la ruta, también como cotas */
+const COTAS_RUTA = ETAPAS.slice(0, 4).map((e, i) => {
+  const r = rutaEn(marcas[i]);
+  const el = document.createElement('div');
+  el.className = 'cota';
+  el.innerHTML = `<span class="cota-linea"></span><span class="cota-punto"></span><span class="cota-chip"><b>${e.k === 'CB' ? 'Campo base' : e.nom}</b><i>${fmtMil(e.alt)} m</i></span>`;
+  capaCotas.appendChild(el);
+  const c = { el, linea: el.firstChild, chip: el.lastChild, pt: { x: r.x, y: r.y, p: r.p }, dir: i % 2 ? 'e' : 'n', largo: 34, a: 0, s: marcas[i] };
+  colocaCota(c);
+  return c;
+});
+
+/* ------------------------------------------------------------ trazo de la ruta (canvas 2D) */
+const trazo = $('#trazo'), tctx = trazo.getContext('2d');
+let dprT = 1;
+function limpiaTrazo() { tctx.setTransform(1, 0, 0, 1, 0, 0); tctx.clearRect(0, 0, trazo.width, trazo.height); }
+/* ventisca: pinceladas cortas de nieve arrastradas por el viento */
+const COPOS = Array.from({ length: 150 }, () => ({ x: Math.random(), y: Math.random(), z: Math.random() ** 1.6, f: Math.random() * 6.28 }));
+const VIENTO = { campo_3: { v: .018, cae: .022, ang: .5, a: .55 }, cumbre: { v: .11, cae: .012, ang: .12, a: .7 } };
+function dibujaVentisca(esc, w, t, dt) {
+  const V = VIENTO[esc];
+  if (!V || w < .02 || reduce) return;
+  tctx.setTransform(dprT, 0, 0, dprT, 0, 0);
+  tctx.lineCap = 'round';
+  const k = dt / 1000;
+  for (const c of COPOS) {
+    const vel = V.v * (.35 + c.z);
+    c.x += vel * k + Math.sin(t * .0007 + c.f) * .0004;
+    c.y += V.cae * (.4 + c.z) * k + Math.cos(t * .0011 + c.f) * .0003;
+    if (c.x > 1.05) c.x -= 1.1; if (c.y > 1.05) { c.y -= 1.1; c.x = Math.random(); }
+    const x = c.x * VW, y = c.y * VH, L = (3 + 16 * c.z) * (V.v > .05 ? 1.6 : 1);
+    tctx.globalAlpha = (.12 + .5 * c.z) * V.a * w;
+    tctx.strokeStyle = '#F2F0EA';
+    tctx.lineWidth = .7 + 1.8 * c.z;
+    tctx.beginPath(); tctx.moveTo(x, y); tctx.lineTo(x - L, y - L * V.ang); tctx.stroke();
+  }
+  tctx.globalAlpha = 1;
+}
+function dibujaRuta(E, par, w, sCab) {
+  if (w < .01) return;
+  tctx.setTransform(dprT, 0, 0, dprT, 0, 0);
+  tctx.globalAlpha = w;
+  const pts = RP.map(q => proyecta(E, par, { x: q[0], y: q[1], p: q[2] }));
+  const camino = (hasta) => {
+    tctx.beginPath();
+    tctx.moveTo(pts[0][0], pts[0][1]);
+    for (let k = 1; k < pts.length; k++) {
+      if (RP[k][4] > hasta) {
+        const h = rutaEn(hasta), q = proyecta(E, par, h);
+        tctx.lineTo(q[0], q[1]);
+        return q;
+      }
+      tctx.lineTo(pts[k][0], pts[k][1]);
+    }
+    return pts[pts.length - 1];
+  };
+  tctx.lineJoin = 'round'; tctx.lineCap = 'round';
+  // ruta completa, pendiente: discontinua y tenue
+  tctx.setLineDash([2, 7]);
+  tctx.strokeStyle = 'rgba(242,240,234,.75)'; tctx.lineWidth = 1.6;
+  camino(RT + 1); tctx.stroke();
+  tctx.setLineDash([]);
+  if (sCab > 0) {
+    tctx.strokeStyle = 'rgba(28,29,33,.75)'; tctx.lineWidth = 6.5;
+    camino(sCab); tctx.stroke();
+    tctx.strokeStyle = '#D9733F'; tctx.lineWidth = 3;
+    const cab = camino(sCab); tctx.stroke();
+    tctx.fillStyle = '#1C1D21'; tctx.beginPath(); tctx.arc(cab[0], cab[1], 7, 0, 6.2832); tctx.fill();
+    tctx.fillStyle = '#D9733F'; tctx.beginPath(); tctx.arc(cab[0], cab[1], 4.2, 0, 6.2832); tctx.fill();
+  }
+  tctx.globalAlpha = 1;
+}
+
+/* ------------------------------------------------------------ instrumentos SVG */
+const NS = 'http://www.w3.org/2000/svg';
+function svg(tag, at, padre) { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); if (padre) padre.appendChild(e); return e; }
+// perfil de la ruta
+const PR = { W: 520, H: 132, l: 34, r: 8, t: 10, b: 22 };
+const prX = s => PR.l + (s / RT) * (PR.W - PR.l - PR.r);
+const prY = z => PR.t + (1 - (z - 4600) / (8200 - 4600)) * (PR.H - PR.t - PR.b);
+const svgR = svg('svg', { viewBox: `0 0 ${PR.W} ${PR.H}`, role: 'img', 'aria-label': 'Perfil de altitud de la ruta normal, de 4 847 a 8 051 m en 6,7 km' }, $('#perfilRuta'));
+for (const z of [5000, 6000, 7000, 8000]) {
+  svg('line', { x1: PR.l, x2: PR.W - PR.r, y1: prY(z), y2: prY(z), class: 'ins-eje', 'stroke-dasharray': '2 4' }, svgR);
+  svg('text', { x: PR.l - 6, y: prY(z) + 3, 'text-anchor': 'end', class: 'ins-txt' }, svgR).textContent = fmtMil(z);
+}
+for (const km of [0, 2, 4, 6]) svg('text', { x: prX(km * 1000), y: PR.H - 6, 'text-anchor': 'middle', class: 'ins-txt' }, svgR).textContent = km + ' km';
+const dPerfil = RP.map((q, i) => (i ? 'L' : 'M') + prX(q[4]).toFixed(1) + ' ' + prY(q[5]).toFixed(1)).join('');
+svg('path', { d: dPerfil + `L${prX(RT)} ${prY(4600)}L${prX(0)} ${prY(4600)}Z`, class: 'ins-area' }, svgR);
+svg('path', { d: dPerfil, class: 'ins-linea' }, svgR);
+const clipR = svg('clipPath', { id: 'clipRuta' }, svg('defs', {}, svgR));
+const clipRect = svg('rect', { x: 0, y: 0, width: 0, height: PR.H }, clipR);
+svg('path', { d: dPerfil, class: 'ins-hecho', 'clip-path': 'url(#clipRuta)' }, svgR);
+ETAPAS.forEach((e, i) => { svg('circle', { cx: prX(marcas[i]), cy: prY(e.alt), r: 2.4, class: 'ins-cima' }, svgR); });
+const prPunto = svg('circle', { r: 4.5, class: 'ins-punto', cx: prX(0), cy: prY(4847) }, svgR);
+
+// perfil de la cresta (norte a la izquierda, como se ve desde el oeste)
+const CR = DATOS.cresta; // [lat, z]
+const PC = { W: 520, H: 120, l: 34, r: 8, t: 22, b: 8 };
+const la0 = 35.836, la1 = 35.809;
+const pcX = la => PC.l + (la0 - la) / (la0 - la1) * (PC.W - PC.l - PC.r);
+const pcY = z => PC.t + (1 - (z - 7000) / (8150 - 7000)) * (PC.H - PC.t - PC.b);
+const svgC = svg('svg', { viewBox: `0 0 ${PC.W} ${PC.H}`, role: 'img', 'aria-label': 'Perfil de la cresta del Broad Peak de norte a sur: cumbre Norte 7 490 m, Central 8 011 m, collado 7 800 m, Rocky Summit 8 028 m y Principal 8 051 m' }, $('#perfilCresta'));
+for (const z of [7000, 7500, 8000]) {
+  svg('line', { x1: PC.l, x2: PC.W - PC.r, y1: pcY(z), y2: pcY(z), class: 'ins-eje', 'stroke-dasharray': '2 4' }, svgC);
+  svg('text', { x: PC.l - 6, y: pcY(z) + 3, 'text-anchor': 'end', class: 'ins-txt' }, svgC).textContent = fmtMil(z);
+}
+const crPts = CR.filter(q => q[0] <= la0 && q[0] >= la1);
+const dCresta = crPts.map((q, i) => (i ? 'L' : 'M') + pcX(q[0]).toFixed(1) + ' ' + pcY(Math.max(7000, q[1])).toFixed(1)).join('');
+svg('path', { d: dCresta + `L${pcX(crPts[crPts.length - 1][0])} ${pcY(7000)}L${pcX(crPts[0][0])} ${pcY(7000)}Z`, class: 'ins-area' }, svgC);
+svg('path', { d: dCresta, class: 'ins-linea' }, svgC);
+const CIMAS_CR = [
+  ['norte', 35.8322, 7490, 'Norte'], ['central', 35.8207, 8011, 'Central'], ['collado', 35.8178, 7800, 'Collado'],
+  ['rocky', 35.8140, 8028, 'Rocky'], ['principal', 35.8117, 8051, 'Principal'],
+].map(([k, la, z, n]) => {
+  const g = svg('g', {}, svgC);
+  const c = svg('circle', { cx: pcX(la), cy: pcY(z), r: 3.2, class: 'ins-cima' }, g);
+  const t = svg('text', { x: pcX(la), y: k === 'collado' ? pcY(z) + 16 : pcY(z) - 8, 'text-anchor': k === 'principal' ? 'end' : (k === 'rocky' ? 'end' : 'middle'), class: 'ins-txt' }, g);
+  t.textContent = n.toUpperCase();
+  if (k === 'principal') t.setAttribute('x', pcX(la) + 14);
+  if (k === 'rocky') t.setAttribute('x', pcX(la) - 6);
+  return { k, c, t };
+});
+
+/* ------------------------------------------------------------ fichas dinámicas */
+function fichaCumbreHTML(f) {
+  return `<p class="p-et">${f.et}</p><p class="p-cifra num" data-ajustar>${f.alt.replace(' ', ' ')}</p>` +
+    `<dl class="p-filas num">${f.filas.map(([a, b]) => `<div><dt>${a}</dt><dd>${b.replace(/(\d) (\d)/g, '$1 $2')}</dd></div>`).join('')}</dl>` +
+    `<p class="p-nota">${f.nota.replace(/(\d) (\d)/g, '$1 $2')}</p>`;
+}
+function etapaHTML(i) {
+  const e = ETAPAS[i], prev = ETAPAS[i - 1];
+  const sub = prev ? `+${fmtMil(e.alt - prev.alt)} m desde ${prev.k === 'CB' ? 'el campo base' : prev.nom.replace('Campo', 'el campo').replace('Collado', 'el collado').replace('Rocky Summit', 'el Rocky Summit')}` : 'Punto de partida';
+  return `<p class="p-et">${sub}</p><p class="p-tit">${e.nom} · ${fmtMil(e.alt)} m</p><p class="p-txt">${e.txt.replace(/(\d) (\d)/g, '$1 $2')}</p>`;
+}
+const etapasOl = $('#etapas');
+etapasOl.innerHTML = ETAPAS.map(e => `<li title="${e.nom} · ${fmtMil(e.alt)} m">${e.k === 'Rocky' ? 'Rocky' : e.k === 'Collado' ? 'Col' : e.k}</li>`).join('');
+const etapasLi = $$('li', etapasOl);
+let focoActual = null, etapaActual = -1;
+function cambiaFicha(cont, zona, html) {
+  cont.classList.add('cambia');
+  clearTimeout(cont._t);
+  cont._t = setTimeout(() => { zona.innerHTML = html; ajustaTodo(cont); cont.classList.remove('cambia'); }, reduce ? 0 : 220);
+}
+
+/* ------------------------------------------------------------ ajuste del texto a la zona segura de cada placa */
+function ajustaLinea(el) {
+  el.style.fontSize = '';
+  const cw = el.parentElement.clientWidth;
+  const w = el.scrollWidth;
+  if (w > cw && cw > 0) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * cw / w * .985) + 'px';
+}
+function ajustaPlaca(pl) {
+  const z = $('.zona', pl);
+  if (!z) return;
+  let e = 1;
+  pl.style.setProperty('--e', 1);
+  $$('[data-ajustar]', pl).forEach(ajustaLinea);
+  for (let k = 0; k < 14 && (z.scrollHeight > z.clientHeight + 1 || z.scrollWidth > z.clientWidth + 1); k++) {
+    e -= .04; pl.style.setProperty('--e', e.toFixed(2));
+    $$('[data-ajustar]', pl).forEach(ajustaLinea);
+  }
+}
+function ajustaTodo(raiz = document) {
+  $$('.placa', raiz).forEach(ajustaPlaca);
+  $$('.enc-t[data-ajustar-linea]', raiz).forEach(el => { if (getComputedStyle(el).whiteSpace === 'nowrap') ajustaLinea(el); });
+}
+
+/* ------------------------------------------------------------ altímetro */
+const altEscala = $('#altEscala'), altMarca = $('#altMarca'), altNum = $('#altNum'), altEt = $('#altEt');
+const ALT0 = 4500, ALT1 = 8200;
+const altY = a => (1 - (a - ALT0) / (ALT1 - ALT0)) * 100;
+for (let a = 4500; a <= 8000; a += 250) {
+  const t = document.createElement('span');
+  t.className = 'alt-tick' + (a % 1000 ? ' menor' : '');
+  t.style.top = altY(a) + '%';
+  t.textContent = a % 1000 ? '' : fmtMil(a);
+  altEscala.appendChild(t);
+}
+let altVis = 4600, altObj = 4600;
+
+/* ------------------------------------------------------------ pie de lámina y capítulo activo */
+const pie = $('#pie'), plNum = $('#plNum'), plNombre = $('#plNombre'), plMeta = $('#plMeta'), capMovil = $('#capMovil');
+let escPie = null, capPie = null;
+const NOMBRES = { portada: 'Portada', nombre: 'El nombre', cumbres: 'Cumbres', cultura: 'Cultura', ruta: 'La ruta', historia: 'Historia', hazanas: 'Hazañas', anecdotas: 'Anécdotas', cumbre: 'Cumbre', creditos: 'Créditos' };
+const enlaces = $$('.indice a');
+function actualizaPie(esc, cap) {
+  if (cap !== capPie) {
+    capPie = cap;
+    capMovil.textContent = NOMBRES[cap] || '';
+    for (const a of enlaces) a.setAttribute('aria-current', a.dataset.ir === cap ? 'true' : 'false');
+  }
+  pie.classList.toggle('oculta', cap === 'portada');
+  if (esc === escPie) return;
+  escPie = esc;
+  const L = LAM[esc];
+  pie.classList.add('cambia');
+  setTimeout(() => {
+    plNum.textContent = 'Lámina ' + L.num;
+    plNombre.textContent = L.nombre;
+    plMeta.innerHTML = `<span class="alt-movil">${fmtMil(L.alt)} m · </span>${L.hora} · ${L.mira}`;
+    pie.classList.remove('cambia');
+  }, reduce ? 0 : 260);
+}
+
+/* ------------------------------------------------------------ revelado al entrar en pantalla */
+const revela = $$('.revela');
+if (!reduce && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) { e.target.classList.remove('pre'); io.unobserve(e.target); } }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+  for (const el of revela) {
+    const r = el.getBoundingClientRect();
+    if (r.top > innerHeight * .95) { el.classList.add('pre'); io.observe(el); }
+  }
+}
+// cronología: año activo en la columna
+const anios = $$('#anios li');
+if ('IntersectionObserver' in window) {
+  const io2 = new IntersectionObserver(es => {
+    for (const e of es) if (e.isIntersecting) {
+      const a = e.target.dataset.a;
+      anios.forEach(li => li.classList.toggle('activo', li.dataset.a === a));
+    }
+  }, { rootMargin: '-45% 0px -45% 0px' });
+  $$('.crono-lista article').forEach(a => io2.observe(a));
+}
+
+/* ------------------------------------------------------------ navegación */
+function ir(id) {
+  const c = CAP.find(c => c.id === id); if (!c) return;
+  const y = id === 'portada' ? 0 : c.top + (c.fijo ? VH * .02 : VH * .05);
+  scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+}
+$$('[data-ir]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); ir(a.dataset.ir); }));
+$('#descender').addEventListener('click', () => ir('portada'));
+
+/* ------------------------------------------------------------ ratón y deriva */
+let mx = 0, my = 0, tmx = 0, tmy = 0;
+addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { tmx = (e.clientX / VW - .5) * 2; tmy = (e.clientY / VH - .5) * 2; } }, { passive: true });
+document.addEventListener('pointerleave', () => { tmx = 0; tmy = 0; });
+
+/* ------------------------------------------------------------ tamaño */
+function redimensiona() {
+  medir();
+  const dpr = Math.min(devicePixelRatio || 1, 1.75);
+  const escala = Math.min(1, Math.sqrt(3.4e6 / (VW * VH * dpr * dpr)));
+  lienzo.width = Math.round(VW * dpr * escala); lienzo.height = Math.round(VH * dpr * escala);
+  dprT = Math.min(devicePixelRatio || 1, 2);
+  trazo.width = Math.round(VW * dprT); trazo.height = Math.round(VH * dprT);
+  ajustaTodo();
+  ajustaChipsMovil();
+  requestAnimationFrame(mideChips);
+}
+let tRes = 0;
+addEventListener('resize', () => { clearTimeout(tRes); tRes = setTimeout(redimensiona, 120); });
+new ResizeObserver(() => { medir(); }).observe($('#principal'));
+
+/* ------------------------------------------------------------ bucle */
+let ys = scrollY, tPrev = performance.now(), intro = 0, introIni = 0;
+function parDe(esc, t, p) {
+  const L = LAM[esc];
+  const amp = .016 * L.amp;
+  const deriva = reduce ? [0, 0] : [Math.sin(t * .00013) * .35, Math.cos(t * .0001) * .25];
+  return [(mx + deriva[0]) * amp, (my * .7 + deriva[1] + (p - .5) * 1.1) * amp, L.foco];
+}
+function fotograma(t) {
+  const dt = Math.min(250, Math.max(0, t - tPrev)); tPrev = t;
+  const k = reduce ? 1 : 1 - Math.exp(-dt / 1000 * 8.5);
+  ys += (scrollY - ys) * k;
+  if (Math.abs(scrollY - ys) < .3) ys = scrollY;
+  const km = 1 - Math.exp(-dt / 1000 * 3);
+  mx += (tmx - mx) * km; my += (tmy - my) * km;
+  subeUna();
+  const st = estado(ys);
+  const escs = st.B ? [st.A, st.B] : [st.A];
+  const pesos = st.B ? [1 - st.mix, st.mix] : [1];
+  const E = escs.map(s => encuadre(s.esc, s.cam));
+  const PAR = escs.map(s => parDe(s.esc, t, st.p));
+  // intro: la primera lámina se pinta sobre la grava
+  const lista = TEX[st.A.esc] && TEX[st.A.esc].listo;
+  if (lista && !introIni) introIni = t;
+  intro = reduce ? (lista ? 1 : 0) : (introIni ? clamp((t - introIni) / 2600, 0, 1) : 0);
+
+  if (gl && !modoDom && !perdido) {
+    gl.viewport(0, 0, lienzo.width, lienzo.height);
+    gl.uniform2f(U.uRes, lienzo.width, lienzo.height);
+    const bind = (slot, esc) => {
+      const T = TEX[esc];
+      gl.activeTexture(gl.TEXTURE0 + slot); gl.bindTexture(gl.TEXTURE_2D, T ? T.col : vacia);
+      gl.activeTexture(gl.TEXTURE0 + slot + 1); gl.bindTexture(gl.TEXTURE_2D, T ? T.dep : vacia);
+      return T ? 1 : 0;
+    };
+    const hasA = bind(0, st.A.esc);
+    const hasB = st.B ? bind(2, st.B.esc) : (bind(2, st.A.esc), 0);
+    gl.uniform4f(U.uCamA, E[0].cx, E[0].cy, E[0].fw, E[0].fh);
+    gl.uniform4f(U.uParA, PAR[0][0], PAR[0][1], PAR[0][2], hasA);
+    if (st.B) { gl.uniform4f(U.uCamB, E[1].cx, E[1].cy, E[1].fw, E[1].fh); gl.uniform4f(U.uParB, PAR[1][0], PAR[1][1], PAR[1][2], hasB); }
+    gl.uniform1f(U.uMix, st.B ? st.mix : 0);
+    gl.uniform1f(U.uSeed, st.semilla);
+    gl.uniform1f(U.uIntro, intro);
+    gl.uniform1f(U.uScrim, st.cap.id === 'portada' ? .95 : .55);
+    gl.uniform1f(U.uTop, .55);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  } else if (modoDom) {
+    for (const esc in DOMI) {
+      const i = escs.findIndex(s => s.esc === esc);
+      const img = DOMI[esc];
+      if (i < 0) { img.style.opacity = 0; continue; }
+      const e = E[i], z = Math.max(1.05, escs[i].cam.z);
+      img.style.opacity = pesos[i];
+      img.style.transform = `translate3d(${(-(e.cx - .5) / e.fw * VW).toFixed(1)}px,${(-(e.cy - .5) / e.fh * VH).toFixed(1)}px,0) scale(${z.toFixed(3)})`;
+    }
+  }
+
+  // bloques de contenido visibles (para no dejar cotas debajo del texto)
+  const tapas = [];
+  for (const b of BLOQUES) { const r = b.getBoundingClientRect(); if (r.bottom > 0 && r.top < VH && r.width) tapas.push(r); }
+  const tapada = (x, y, c) => {
+    const w = c.cw || 120, h = c.chh || 40, L = c.largo || 30;
+    let x0, y0;
+    if (c.dir === 'n') { x0 = x - 12; y0 = y - L - h; } else if (c.dir === 's') { x0 = x - 12; y0 = y + L; }
+    else if (c.dir === 'o') { x0 = x - w - 6; y0 = y - L - h; } else { x0 = x + 6; y0 = y - L - h; }
+    for (const r of tapas) if (x0 < r.right && x0 + w > r.left && Math.min(y0, y) < r.bottom && Math.max(y0 + h, y) > r.top) return true;
+    return false;
+  };
+  // cotas
+  const visto = (esc) => { const i = escs.findIndex(s => s.esc === esc); return i < 0 ? null : { E: E[i], par: PAR[i], w: suave(clamp((pesos[i] - .55) / .4, 0, 1)) }; };
+  let focoPano = null;
+  if (st.cap.id === 'cumbres') {
+    let mejor = null;
+    for (const s of PANO) if (s.foco && Math.abs(s.p - st.p) < (mejor ? Math.abs(mejor.p - st.p) : 9)) mejor = s;
+    focoPano = mejor && mejor.foco;
+  }
+  for (const c of COTAS) {
+    const v = visto(c.esc);
+    let a = 0;
+    if (v) {
+      const [x, y] = proyecta(v.E, v.par, c.pt);
+      const dentro = x > -40 && x < VW + 40 && y > 70 && y < VH - 40;
+      a = dentro && !tapada(x, y, c) ? v.w * intro : 0;
+      if (c.esc === 'panorama' && st.cap.id === 'cumbres') a *= c.foco === focoPano ? 1 : (st.A.cam.z > 1.45 ? .6 : 0);
+      c.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+      c.el.classList.toggle('foco', c.esc === 'panorama' && c.foco === focoPano);
+    }
+    c.a += (a - c.a) * (reduce ? 1 : .18);
+    c.el.style.opacity = c.a.toFixed(3);
+    c.el.style.visibility = c.a < .01 ? 'hidden' : 'visible';
+  }
+
+  // ruta
+  const vr = visto('ruta');
+  const pRuta = st.cap.id === 'ruta' ? st.p : (CAP.findIndex(c => c.id === 'ruta') < st.i ? 1 : 0);
+  const sCab = rutaS(pRuta);
+  limpiaTrazo();
+  if (vr) dibujaRuta(vr.E, vr.par, vr.w, sCab);
+  for (const ve of ['campo_3', 'cumbre']) { const v = visto(ve); if (v) dibujaVentisca(ve, v.w, t, dt); }
+  for (const c of COTAS_RUTA) {
+    let a = 0;
+    if (vr) {
+      const [x, y] = proyecta(vr.E, vr.par, c.pt);
+      c.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+      a = (sCab >= c.s - 1 && !tapada(x, y, c) ? 1 : 0) * vr.w;
+    }
+    c.a += (a - c.a) * (reduce ? 1 : .2);
+    c.el.style.opacity = c.a.toFixed(3);
+    c.el.style.visibility = c.a < .01 ? 'hidden' : 'visible';
+  }
+  if (st.cap.id === 'ruta') {
+    const h = rutaEn(sCab);
+    clipRect.setAttribute('width', prX(sCab).toFixed(1));
+    prPunto.setAttribute('cx', prX(sCab).toFixed(1)); prPunto.setAttribute('cy', prY(h.z).toFixed(1));
+    let et = 0; for (let k = 0; k < marcas.length; k++) if (sCab >= marcas[k] - 1) et = k;
+    const sig = Math.min(ETAPAS.length - 1, sCab >= marcas[et] - 1 && st.p > R0 ? (et === ETAPAS.length - 1 ? et : et + 1) : et);
+    const mostrar = st.p < R0 ? 0 : sig;
+    etapasLi.forEach((li, k) => { li.classList.toggle('hecha', k <= et); li.classList.toggle('actual', k === mostrar); });
+    if (mostrar !== etapaActual) { etapaActual = mostrar; cambiaFicha($('#etapaFicha'), $('#etapaZona'), etapaHTML(mostrar)); }
+  }
+  if (st.cap.id === 'cumbres' && focoPano && focoPano !== focoActual) {
+    focoActual = focoPano;
+    cambiaFicha($('#focoFicha'), $('#focoZona'), fichaCumbreHTML(FICHAS_CUMBRE[focoPano]));
+    CIMAS_CR.forEach(c => { c.c.classList.toggle('foco', c.k === focoPano); c.t.classList.toggle('fuerte', c.k === focoPano); });
+  }
+
+  // altímetro
+  const dom = st.B && st.mix > .5 ? st.B.esc : st.A.esc;
+  altObj = st.cap.id === 'ruta' && st.p > R0 * .5 ? rutaEn(sCab).z : LAM[dom].alt;
+  altVis += (altObj - altVis) * (reduce ? 1 : 1 - Math.exp(-dt / 1000 * 5));
+  if (Math.abs(altObj - altVis) < .6) altVis = altObj;
+  const altTxt = fmtMil(altVis);
+  if (altTxt !== altNum._t) { altNum.textContent = altTxt; altNum._t = altTxt; }
+  altMarca.style.top = altY(altVis) + '%';
+  altEt.textContent = st.cap.id === 'ruta' && st.p > R0 * .5 ? 'm · en la ruta' : (LAM[dom].clave === 'ruta' || LAM[dom].clave === 'panorama' ? 'm · vista aérea' : 'm · lámina');
+  actualizaPie(dom, st.cap.id);
+  requestAnimationFrame(fotograma);
+}
+
+/* ------------------------------------------------------------ arranque */
+try { if (!initGL()) modoDom = true; } catch (e) { console.warn('WebGL no disponible:', e); modoDom = true; gl = null; }
+if (modoDom) { $('#lienzo').remove(); }
+redimensiona();
+const primera = $('#focoZona'); primera.innerHTML = fichaCumbreHTML(FICHAS_CUMBRE.vista);
+$('#etapaZona').innerHTML = etapaHTML(0);
+(document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => { ajustaTodo(); medir(); mideChips(); });
+addEventListener('load', () => { ajustaTodo(); medir(); });
+cargaTodo();
+if (modoDom) { cargaLamina('concordia').then(() => { TEX.concordia = { listo: true }; }); }
+requestAnimationFrame(fotograma);
+})();
+</script>
+</body>
+</html>

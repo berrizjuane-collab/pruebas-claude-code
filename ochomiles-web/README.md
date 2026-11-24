@@ -10,8 +10,8 @@ Las cumbres que aún no tienen web aparecen como círculos punteados («sin leva
 ochomiles-web/
 ├── index.html              la antesala (HTML + CSS + JS en un archivo, sin dependencias)
 ├── assets/                 el mapa en 1600, 2560 y 3840 px (webp) y mapa.json
-├── annapurna/  k2/  nanga-parbat/  manaslu/  makalu/  kangchenjunga/  lhotse/
-│                           las siete webs ya hechas, tal como se sirven
+├── annapurna/  k2/  nanga-parbat/  manaslu/  makalu/  kangchenjunga/  lhotse/  broad-peak/
+│                           las ocho webs ya hechas, tal como se sirven
 ├── herramientas/
 │   └── pintar_mapa.py      el pintor del mapa (no se despliega)
 ├── vercel.json             caché de imágenes y barra final en las rutas
@@ -83,7 +83,7 @@ copiadas en `PICOS` y `GEO`. Si se cambia la extensión, hay que copiarlas de nu
 
 El círculo punteado pasa a ser un vértice, el contador sube y el índice lo enlaza.
 
-## Procedencia de las siete webs
+## Procedencia de las ocho webs
 
 | Carpeta | Rama de origen | Notas |
 |---|---|---|
@@ -94,6 +94,7 @@ El círculo punteado pasa a ser un vértice, el contador sube y el índice lo en
 | `makalu/` | `claude/optimistic-mccarthy-76ssx0` (`makalu/`) | |
 | `kangchenjunga/` | `main` (`kangchenjunga/site/`) | se le añadió la cabecera `<!doctype>` + `charset` + `viewport` que antes ponía la plataforma de artifacts |
 | `lhotse/` | `main` (`lhotse/`) | |
+| `broad-peak/` | `main` (`broad-peak/`) | `index.html`, `img/` y `plantillas/`; sin `src/` ni `herramientas/` |
 
 Solo se copian los archivos que la web necesita en el navegador; el código que genera
 las láminas sigue en cada rama.
