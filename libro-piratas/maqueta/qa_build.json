@@ -1,0 +1,728 @@
+{
+ "images": [
+  {
+   "page": 2,
+   "file": "art_contracubierta.jpg",
+   "px": "2550x3300",
+   "w_mm": 221.9,
+   "h_mm": 287.2,
+   "ppi": 292,
+   "ratio_ok": true,
+   "kind": "arte vectorial original (render 300 ppp)"
+  },
+  {
+   "page": 13,
+   "file": "I-1_barco_niebla.png",
+   "px": "374x619",
+   "w_mm": 47.5,
+   "h_mm": 78.6,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "recorte (silueta)"
+  },
+  {
+   "page": 14,
+   "file": "I-2_duelo_herreria.jpg",
+   "px": "682x395",
+   "w_mm": 86.6,
+   "h_mm": 50.2,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "fotograma"
+  },
+  {
+   "page": 15,
+   "file": "I-3_perla_noche.png",
+   "px": "466x568",
+   "w_mm": 59.2,
+   "h_mm": 72.1,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración"
+  },
+  {
+   "page": 18,
+   "file": "I-4_cofre.png",
+   "px": "472x427",
+   "w_mm": 59.9,
+   "h_mm": 54.2,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "recorte (silueta)"
+  },
+  {
+   "page": 19,
+   "file": "I-5_isla_desierta.jpg",
+   "px": "1394x762",
+   "w_mm": 114.4,
+   "h_mm": 62.6,
+   "ppi": 309,
+   "ratio_ok": true,
+   "kind": "ilustración"
+  },
+  {
+   "page": 20,
+   "file": "I-6_cueva.jpg",
+   "px": "912x882",
+   "w_mm": 114.4,
+   "h_mm": 110.7,
+   "ppi": 202,
+   "ratio_ok": true,
+   "kind": "fotograma tratado"
+  },
+  {
+   "page": 17,
+   "file": "K-I.jpg",
+   "px": "2490x3222",
+   "w_mm": 114.4,
+   "h_mm": 148.1,
+   "ppi": 553,
+   "ratio_ok": true,
+   "kind": "lámina"
+  },
+  {
+   "page": 25,
+   "file": "II-1_will_elizabeth.png",
+   "px": "368x476",
+   "w_mm": 46.7,
+   "h_mm": 60.5,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "recorte (silueta)"
+  },
+  {
+   "page": 26,
+   "file": "II-2_perla_negra.jpg",
+   "px": "760x1072",
+   "w_mm": 96.5,
+   "h_mm": 136.1,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración (fondo blanco, multiplicar)"
+  },
+  {
+   "page": 27,
+   "file": "II-3_bote.png",
+   "px": "2335x1631",
+   "w_mm": 114.4,
+   "h_mm": 79.9,
+   "ppi": 518,
+   "ratio_ok": true,
+   "kind": "ilustración vectorial original (render 400 ppp)"
+  },
+  {
+   "page": 30,
+   "file": "II-4_holandes.png",
+   "px": "542x461",
+   "w_mm": 68.8,
+   "h_mm": 58.5,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración"
+  },
+  {
+   "page": 31,
+   "file": "II-5_isla_cruz.jpg",
+   "px": "735x490",
+   "w_mm": 93.3,
+   "h_mm": 62.2,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "fotograma"
+  },
+  {
+   "page": 32,
+   "file": "II-6_kraken_grabado.png",
+   "px": "418x456",
+   "w_mm": 53.1,
+   "h_mm": 57.9,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "grabado"
+  },
+  {
+   "page": 29,
+   "file": "K-II.jpg",
+   "px": "912x1179",
+   "w_mm": 114.4,
+   "h_mm": 147.9,
+   "ppi": 202,
+   "ratio_ok": true,
+   "kind": "lámina"
+  },
+  {
+   "page": 37,
+   "file": "III-1_banco_arena.jpg",
+   "px": "736x368",
+   "w_mm": 93.5,
+   "h_mm": 46.7,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "fotograma"
+  },
+  {
+   "page": 38,
+   "file": "III-2_carta_navegacion.jpg",
+   "px": "736x1288",
+   "w_mm": 79.5,
+   "h_mm": 139.1,
+   "ppi": 235,
+   "ratio_ok": true,
+   "kind": "acuarela"
+  },
+  {
+   "page": 39,
+   "file": "III-3_jack_corre.png",
+   "px": "387x460",
+   "w_mm": 49.1,
+   "h_mm": 58.4,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "recorte (silueta)"
+  },
+  {
+   "page": 42,
+   "file": "III-4_hermandad.jpg",
+   "px": "735x493",
+   "w_mm": 93.3,
+   "h_mm": 62.6,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración de aficionado (firmada)"
+  },
+  {
+   "page": 43,
+   "file": "III-5_barcos.png",
+   "px": "3400x1231",
+   "w_mm": 114.4,
+   "h_mm": 41.4,
+   "ppi": 755,
+   "ratio_ok": true,
+   "kind": "ilustración vectorial original (render 400 ppp)"
+  },
+  {
+   "page": 44,
+   "file": "III-6_duelo.png",
+   "px": "2847x2287",
+   "w_mm": 114.4,
+   "h_mm": 91.9,
+   "ppi": 632,
+   "ratio_ok": true,
+   "kind": "ilustración vectorial original (render 400 ppp)"
+  },
+  {
+   "page": 41,
+   "file": "K-III.jpg",
+   "px": "912x1178",
+   "w_mm": 114.4,
+   "h_mm": 147.8,
+   "ppi": 202,
+   "ratio_ok": true,
+   "kind": "lámina"
+  },
+  {
+   "page": 49,
+   "file": "IV-1_barbossa.png",
+   "px": "364x563",
+   "w_mm": 46.2,
+   "h_mm": 71.5,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "recorte (silueta)"
+  },
+  {
+   "page": 50,
+   "file": "IV-2_jack_angelica.png",
+   "px": "554x363",
+   "w_mm": 70.4,
+   "h_mm": 46.1,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración"
+  },
+  {
+   "page": 51,
+   "file": "IV-3_calices.png",
+   "px": "1514x1584",
+   "w_mm": 102.4,
+   "h_mm": 107.2,
+   "ppi": 375,
+   "ratio_ok": true,
+   "kind": "ilustración vectorial original (render 400 ppp)"
+  },
+  {
+   "page": 54,
+   "file": "IV-4_sirena.png",
+   "px": "1743x2722",
+   "w_mm": 89.1,
+   "h_mm": 139.1,
+   "ppi": 497,
+   "ratio_ok": true,
+   "kind": "ilustración vectorial original (render 400 ppp)"
+  },
+  {
+   "page": 55,
+   "file": "IV-5_velero_acuarela.png",
+   "px": "433x450",
+   "w_mm": 55.0,
+   "h_mm": 57.1,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "acuarela (silueta)"
+  },
+  {
+   "page": 56,
+   "file": "IV-6_perla_botella.jpg",
+   "px": "736x488",
+   "w_mm": 93.5,
+   "h_mm": 62.0,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración (fondo blanco, multiplicar)"
+  },
+  {
+   "page": 53,
+   "file": "K-IV.jpg",
+   "px": "2490x3222",
+   "w_mm": 114.4,
+   "h_mm": 148.1,
+   "ppi": 553,
+   "ratio_ok": true,
+   "kind": "lámina"
+  },
+  {
+   "page": 61,
+   "file": "V-1_galeon.jpg",
+   "px": "453x477",
+   "w_mm": 57.5,
+   "h_mm": 60.6,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración (fondo blanco, multiplicar)"
+  },
+  {
+   "page": 62,
+   "file": "V-2_rosa_vientos.png",
+   "px": "1121x961",
+   "w_mm": 94.9,
+   "h_mm": 81.4,
+   "ppi": 300,
+   "ratio_ok": true,
+   "kind": "ilustración vectorial original (render 400 ppp)"
+  },
+  {
+   "page": 63,
+   "file": "V-3_olas.png",
+   "px": "612x349",
+   "w_mm": 77.7,
+   "h_mm": 44.3,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración"
+  },
+  {
+   "page": 66,
+   "file": "V-4_mono.png",
+   "px": "539x372",
+   "w_mm": 68.5,
+   "h_mm": 47.2,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "recorte (silueta)"
+  },
+  {
+   "page": 67,
+   "file": "V-5_isla.jpg",
+   "px": "500x474",
+   "w_mm": 63.5,
+   "h_mm": 60.2,
+   "ppi": 200,
+   "ratio_ok": true,
+   "kind": "ilustración (fondo blanco, multiplicar)"
+  },
+  {
+   "page": 68,
+   "file": "V-6_tridente.png",
+   "px": "491x1646",
+   "w_mm": 41.5,
+   "h_mm": 139.1,
+   "ppi": 301,
+   "ratio_ok": true,
+   "kind": "ilustración vectorial original (render 400 ppp)"
+  },
+  {
+   "page": 65,
+   "file": "K-V.jpg",
+   "px": "2490x3222",
+   "w_mm": 114.4,
+   "h_mm": 148.1,
+   "ppi": 553,
+   "ratio_ok": true,
+   "kind": "lámina"
+  }
+ ],
+ "index": {
+  "Sparrow, Jack|": [
+   8,
+   9,
+   12,
+   14,
+   15,
+   19,
+   20,
+   21,
+   23,
+   24,
+   25,
+   26,
+   27,
+   31,
+   32,
+   33,
+   36,
+   37,
+   38,
+   39,
+   44,
+   48,
+   49,
+   50,
+   55,
+   56,
+   57,
+   59,
+   61,
+   62,
+   63,
+   66,
+   67
+  ],
+  "Turner, Will|": [
+   8,
+   12,
+   13,
+   14,
+   15,
+   19,
+   20,
+   21,
+   24,
+   25,
+   30,
+   31,
+   33,
+   38,
+   44,
+   45,
+   60,
+   61,
+   68
+  ],
+  "Swann, Elizabeth|": [
+   8,
+   12,
+   13,
+   14,
+   15,
+   19,
+   20,
+   21,
+   25,
+   31,
+   32,
+   38,
+   42,
+   44,
+   45,
+   60,
+   61
+  ],
+  "Barbossa, Héctor|": [
+   8,
+   12,
+   15,
+   18,
+   19,
+   20,
+   32,
+   38,
+   43,
+   44,
+   48,
+   49,
+   55,
+   56,
+   57,
+   60,
+   66,
+   67,
+   68
+  ],
+  "Hermandad, Corte de la|institución": [
+   8,
+   9,
+   35,
+   36,
+   42,
+   43
+  ],
+  "Barbanegra|": [
+   9,
+   47,
+   48,
+   49,
+   50,
+   51,
+   54,
+   55,
+   56,
+   57
+  ],
+  "Salazar, Armando|": [
+   9,
+   59,
+   60,
+   61,
+   63,
+   66,
+   68
+  ],
+  "Perla Negra|nave": [
+   9,
+   11,
+   12,
+   15,
+   17,
+   20,
+   26,
+   32,
+   41,
+   44,
+   49,
+   56
+  ],
+  "Holandés Errante|nave": [
+   9,
+   23,
+   24,
+   26,
+   30,
+   36,
+   37,
+   38,
+   41,
+   44,
+   61,
+   68
+  ],
+  "Fuente de la Juventud|lugar": [
+   9,
+   44,
+   47,
+   49,
+   50,
+   51,
+   55
+  ],
+  "cofre del hombre muerto|objeto": [
+   9,
+   23,
+   27
+  ],
+  "Tridente de Poseidón|objeto": [
+   9,
+   59,
+   61,
+   62,
+   65,
+   66,
+   68
+  ],
+  "Compañía de las Indias Orientales|institución": [
+   9,
+   24,
+   25,
+   35,
+   37,
+   42
+  ],
+  "Port Royal|lugar": [
+   12,
+   13,
+   14,
+   15,
+   16,
+   17
+  ],
+  "tesoro azteca|objeto": [
+   12,
+   18,
+   20,
+   42
+  ],
+  "medallón azteca|objeto": [
+   13,
+   15
+  ],
+  "Norrington, James|": [
+   14,
+   20,
+   31,
+   32
+  ],
+  "Turner, Bill|": [
+   18,
+   24,
+   30
+  ],
+  "Isla de Muerta|lugar": [
+   19,
+   20
+  ],
+  "Jones, Davy|": [
+   24,
+   26,
+   27,
+   30,
+   36,
+   37,
+   44,
+   68
+  ],
+  "Beckett, Cutler|": [
+   24,
+   25,
+   32,
+   33,
+   36,
+   37,
+   42,
+   44
+  ],
+  "Tía Dalma|": [
+   24,
+   27,
+   38,
+   43
+  ],
+  "brújula de Jack|objeto": [
+   25,
+   62,
+   63,
+   70
+  ],
+  "Kraken|criatura": [
+   26,
+   28,
+   29,
+   32
+  ],
+  "corazón de Davy Jones|objeto": [
+   26,
+   27,
+   31,
+   32,
+   36,
+   37,
+   44,
+   57
+  ],
+  "Cabo de Buena Esperanza|lugar": [
+   30
+  ],
+  "Isla Cruz|lugar": [
+   31
+  ],
+  "Calypso|": [
+   36,
+   41,
+   43
+  ],
+  "Sao Feng|": [
+   36,
+   38
+  ],
+  "Teague, capitán|": [
+   36
+  ],
+  "Singapur|lugar": [
+   36,
+   38
+  ],
+  "Cofre de Davy Jones|lugar": [
+   37
+  ],
+  "Cala del Naufragio|lugar": [
+   42
+  ],
+  "monedas de ocho|objeto": [
+   42
+  ],
+  "Angélica|": [
+   48,
+   50,
+   56
+  ],
+  "Syrena|": [
+   48,
+   54
+  ],
+  "Philip|": [
+   48,
+   54
+  ],
+  "Queen Anne’s Revenge|nave": [
+   48,
+   50,
+   56
+  ],
+  "sirenas|criatura": [
+   48,
+   51,
+   52,
+   53,
+   54
+  ],
+  "Jorge, rey|": [
+   49
+  ],
+  "Londres|lugar": [
+   49
+  ],
+  "cálices de Ponce de León|objeto": [
+   51,
+   53,
+   56
+  ],
+  "Whitecap, bahía de|lugar": [
+   54
+  ],
+  "Turner, Henry|": [
+   60,
+   61,
+   66,
+   67
+  ],
+  "Smyth, Carina|": [
+   60,
+   62,
+   66,
+   67,
+   68
+  ],
+  "Silent Mary|nave": [
+   63
+  ],
+  "Triángulo del Diablo|lugar": [
+   63
+  ]
+ },
+ "geometry": {
+  "COL": 25.233333333333334,
+  "ROW": 34.572222222222216,
+  "LH": 4.938888888888888,
+  "BLOCK_W": 173.9,
+  "BLOCK_H": 232.12777777777774,
+  "M_BOTTOM": 25.27222222222224
+ }
+}

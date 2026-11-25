@@ -1,0 +1,7 @@
+# Material con fotogramas e ilustraciones de terceros: no se publica en este repositorio público.
+entregables/
+maqueta/img/
+maqueta/out/
+maqueta/node_modules/
+maqueta/preview/
+*.pdf

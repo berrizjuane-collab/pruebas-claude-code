@@ -1,0 +1,10 @@
+{
+  "name": "libro-piratas-maqueta",
+  "private": true,
+  "description": "Maqueta HTML/CSS del libro «Piratas del Caribe. Las cinco travesías» (impresión a PDF con Chromium)",
+  "dependencies": {
+    "@fontsource/libre-caslon-display": "^5.0.0",
+    "@fontsource/libre-caslon-text": "^5.0.0",
+    "@fontsource/source-sans-3": "^5.0.0"
+  }
+}
