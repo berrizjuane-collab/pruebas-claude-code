@@ -322,11 +322,13 @@ main { position: relative; z-index: 4; overflow-x: clip; }
 .paso { margin-block: 0 58lvh; }
 .paso:first-child { margin-top: 30lvh; }
 .paso.lona { max-width: 540px; }
+.paso.lona.centro { max-width: 780px; justify-self: center; width: 100%; }
 
 /* tabla de cimas */
 .cimas { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .cimas th { text-align: left; font: 800 .86rem/1.2 var(--f-titulo); letter-spacing: .12em; text-transform: uppercase; color: var(--cobalto); padding: 0 .4rem .5rem 0; }
-.cimas td { padding: .42rem .4rem .42rem 0; border-top: 1px solid rgba(23,25,31,.2); vertical-align: middle; font-size: .98rem; }
+.cimas td { padding: .42rem .5rem .42rem 0; border-top: 1px solid rgba(23,25,31,.2); vertical-align: middle; font-size: .98rem; white-space: nowrap; }
+.cimas th { white-space: nowrap; }
 .cimas td.n { font: 800 1.2rem/1.1 var(--f-titulo); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; }
 .cimas td.barra { width: 40%; }
 .cimas .b { height: 10px; border-radius: 1px; background: var(--grava); width: var(--w); }

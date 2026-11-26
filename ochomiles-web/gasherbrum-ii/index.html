@@ -1,0 +1,1735 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gasherbrum II</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Gasherbrum II, el K4 del Karakórum: la caravana de porteadores por el Baltoro, la ruta normal campo a campo, sus ascensiones y sus hazañas, pintado a pincel seco sobre el relieve real.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:opsz,wght@10..72,600..900&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* Concepto: la lámina pintada ocupa siempre la pantalla y cambia a pinceladas de pincel seco; el texto llega
+   dentro de la carga de los porteadores: lona para el relato, fichas para los datos, fardos para las hazañas,
+   la tapa de un bidón como altímetro y la morrena del Baltoro como estructura. */
+:root {
+  color-scheme: dark;
+  --cobalto: #2645B0; --cobalto-700: #1A3182; --cobalto-900: #101C4A; --cobalto-claro: #9DB0F5; --cobalto-200: #C9D3F2;
+  --morrena: #17191F; --morrena-700: #23252D; --morrena-500: #34363D;
+  --hielo: #EEF0F3; --hielo-200: #D7DBE3;
+  --carton: #DCD5C6; --carton-700: #8E8473;
+  --grava: #6B6E79; --grava-200: #A6A9B3;
+  --tinta: #17191F;
+  --velo: rgba(23, 25, 31, .86);
+
+  --f-titulo: 'Big Shoulders Stencil', 'Arial Narrow', Impact, sans-serif;
+  --f-texto: 'Literata', Georgia, 'Times New Roman', serif;
+
+  --t-display: clamp(3.4rem, 8vw + 1rem, 7.4rem);
+  --t-h1: clamp(2.6rem, 4vw + 1rem, 4.4rem);
+  --t-h2: clamp(1.9rem, 2.4vw + .9rem, 2.8rem);
+  --t-cuerpo: 1.0625rem;
+  --t-etiqueta: .86rem;
+  --friso-h: 58px;
+  --gl: max(16px, env(safe-area-inset-left, 0px));
+  --gr: max(16px, env(safe-area-inset-right, 0px));
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+body {
+  background: var(--morrena); color: var(--hielo);
+  font: 400 var(--t-cuerpo)/1.62 var(--f-texto);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+::selection { background: var(--cobalto); color: var(--hielo); }
+a { color: var(--cobalto-200); text-underline-offset: .18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--hielo); }
+:focus-visible { outline: 2px solid var(--cobalto-claro); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+.ojo { font: 700 var(--t-etiqueta)/1.15 var(--f-titulo); text-transform: uppercase; letter-spacing: .12em; color: var(--cobalto-claro); }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ------------------------------------------------------------------ capas fijas */
+#fondo, #respaldo, #nieve, #marcas { position: fixed; inset: 0; width: 100%; height: 100lvh; }
+#fondo { z-index: 0; display: block; background: var(--morrena); }
+#respaldo { z-index: 0; overflow: hidden; background: var(--morrena); }
+#respaldo::after { content: ""; position: absolute; inset: 0; background: #000; opacity: var(--oscuro, .1); }
+#respaldo .rl { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0;
+  transition: opacity 1.1s ease, transform 1.6s ease; will-change: opacity, transform; }
+#nieve { z-index: 1; pointer-events: none; }
+#marcas { z-index: 2; pointer-events: none; overflow: hidden; }
+#trazo { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+/* ------------------------------------------------------------ friso superior: cinta de lona */
+.friso-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  height: calc(var(--friso-h) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: calc(var(--gl) + 8px); padding-right: calc(var(--gr) + 8px);
+  display: flex; align-items: center; gap: 1rem;
+  background: url(plantillas/friso_lona.webp) repeat-x left bottom / auto calc(var(--friso-h) + 14px), var(--cobalto-700);
+  box-shadow: 0 6px 22px rgba(0,0,0,.45);
+  transform: translateY(0); transition: transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.friso-nav.escondido { transform: translateY(-112%); }
+.friso-nav .marca { font: 800 1.35rem/1 var(--f-titulo); letter-spacing: .04em; text-transform: uppercase; color: var(--hielo);
+  text-decoration: none; white-space: nowrap; text-shadow: 0 1px 0 rgba(0,0,0,.5); padding: .35rem .55rem; margin-top: -6px; }
+.friso-nav nav { display: flex; gap: .15rem; margin-inline: auto; margin-top: -6px; }
+.friso-nav nav a { font: 700 .92rem/1 var(--f-titulo); letter-spacing: .1em; text-transform: uppercase; color: var(--hielo);
+  text-decoration: none; padding: .5rem .62rem; border-radius: 3px; white-space: nowrap; transition: background .25s, color .25s; }
+.friso-nav nav a:hover { background: rgba(238,240,243,.14); }
+.friso-nav nav a[aria-current="true"] { background: var(--hielo); color: var(--cobalto); }
+.friso-nav .capitulo { display: none; font: 700 .92rem/1 var(--f-titulo); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--hielo); padding: .45rem .6rem; margin-inline: auto; margin-top: -6px; white-space: nowrap; }
+.friso-nav .carga { font: 800 .82rem/1 var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--morrena);
+  background: var(--carton); padding: .42rem .55rem .38rem 1.1rem; margin-top: -6px; position: relative;
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 calc(100% - 8px), 0 8px); }
+.friso-nav .carga::before { content: ""; position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%;
+  background: var(--cobalto-700); }
+.friso-nav .alt-chip { display: none; font: 800 .9rem/1 var(--f-titulo); letter-spacing: .08em; color: var(--hielo);
+  background: url(plantillas/bidon_aro.webp) center / 100% 100% no-repeat; padding: .6rem .9rem; white-space: nowrap; margin-top: -6px; }
+.friso-nav .avance { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--hielo);
+  transform-origin: left; transform: scaleX(var(--avance, 0)); opacity: .85; }
+@media (max-width: 1180px) { .friso-nav nav { display: none; } .friso-nav .capitulo { display: block; } }
+@media (max-width: 700px) {
+  .friso-nav { gap: .5rem; }
+  .friso-nav .carga, .friso-nav .marca { display: none; }
+  .friso-nav .capitulo { margin-inline: 0 auto; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+  .friso-nav .alt-chip { display: block; }
+  #altimetro { display: none; }
+}
+
+/* ------------------------------------------------------- altímetro: tapa de bidón */
+.altimetro {
+  position: fixed; z-index: 20;
+  right: calc(var(--gr) + 6px); bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  width: clamp(100px, 10vw, 140px); aspect-ratio: 1;
+  background: url(plantillas/bidon_cobalto.webp) center / 100% 100% no-repeat;
+  display: grid; place-items: center; text-align: center; container-type: inline-size;
+  transition: transform .6s cubic-bezier(.2,.7,.2,1), opacity .6s;
+}
+.altimetro.oculto { transform: translateY(30px) scale(.9); opacity: 0; }
+.altimetro .dentro { display: grid; gap: 1cqw; margin-top: -1cqw; }
+.altimetro .lam { font: 700 8cqw/1 var(--f-titulo); color: var(--cobalto-200); letter-spacing: .12em; }
+.altimetro .valor { font: 900 19cqw/.9 var(--f-titulo); color: var(--hielo); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.altimetro .ud { font: 700 6.4cqw/1.1 var(--f-titulo); color: var(--cobalto-200); letter-spacing: .14em; text-transform: uppercase; }
+
+/* --------------------------------------------------------------- telón: dos lonas que se apartan */
+#telon { display: none; position: fixed; inset: 0; z-index: 50; pointer-events: auto; overflow: hidden; background: var(--morrena); }
+.js #telon { display: block; animation: seguro 0s linear 7s forwards; }
+@keyframes seguro { to { visibility: hidden; pointer-events: none; } }
+#telon .lienzo { position: absolute; top: -2vh; bottom: -2vh; width: 53%; background-repeat: no-repeat; background-size: cover;
+  transition: transform 1.9s cubic-bezier(.68,.01,.2,1); will-change: transform; filter: drop-shadow(0 0 30px rgba(0,0,0,.6)); }
+#telon .lienzo.izq { left: 0; background-image: url(plantillas/telon_izq.webp); background-position: right center; }
+#telon .lienzo.der { right: 0; background-image: url(plantillas/telon_der.webp); background-position: left center; }
+#telon .centro { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: .7rem; transition: opacity .6s ease; }
+#telon .centro .n { font: 900 clamp(2.4rem, 6vw, 4.6rem)/.9 var(--f-titulo); text-transform: uppercase; color: var(--hielo);
+  text-shadow: 0 3px 0 rgba(0,0,0,.35), 0 0 34px rgba(0,0,0,.55); }
+#telon .centro .e { font: 700 .86rem/1 var(--f-titulo); letter-spacing: .2em; text-transform: uppercase; color: var(--cobalto-200); }
+#telon.abierto { pointer-events: none; background: transparent; transition: background .9s ease .5s; }
+#telon.abierto .centro { opacity: 0; }
+#telon.abierto .lienzo.izq { transform: translateX(-106%); }
+#telon.abierto .lienzo.der { transform: translateX(106%); }
+.js #telon.fuera { display: none; }
+
+/* --------------------------------------------------------------- estructura */
+main { position: relative; z-index: 4; overflow-x: clip; }
+.escena { position: relative; }
+.capa {
+  position: relative; max-width: 1360px; margin-inline: auto;
+  padding-left: var(--gl); padding-right: var(--gr);
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 28px);
+}
+.capa > * { grid-column: 1 / -1; min-width: 0; }
+.izq { grid-column: 1 / span 5 !important; }
+.der { grid-column: 8 / span 5 !important; }
+.izq6 { grid-column: 1 / span 6 !important; }
+.der6 { grid-column: 7 / span 6 !important; }
+.centro { grid-column: 3 / span 8 !important; }
+.ancho { grid-column: 2 / span 10 !important; }
+@media (max-width: 860px) { .izq, .der, .izq6, .der6, .centro, .ancho { grid-column: 1 / -1 !important; } }
+.aire { height: var(--aire, 55lvh); }
+.sombra-texto { text-shadow: 0 1px 2px rgba(0,0,0,.9), 0 0 22px rgba(0,0,0,.65); }
+
+/* ======================================================= PLANTILLAS DE CARGA */
+/* lona: 9-slice (corte 200 px de 616; 66 px de margen para amarres y sombra) + tela repetible dentro */
+.lona {
+  --b: clamp(62px, 7vw, 96px);
+  position: relative; color: var(--hielo);
+  border-style: solid; border-color: transparent;
+  border-width: calc(var(--b) * .67);
+  border-image: url(plantillas/lona_cobalto_9.webp) 200 / var(--b) / calc(var(--b) * .33) round;
+  background: url(plantillas/lona_cobalto_tela.webp) 0 0 / 384px repeat, #2846b0; background-clip: padding-box;
+  padding: clamp(.2rem, .8vw, .7rem) clamp(.3rem, 1vw, .9rem);
+}
+.lona.cruda { color: var(--tinta); border-image-source: url(plantillas/lona_cruda_9.webp);
+  background: url(plantillas/lona_cruda_tela.webp) 0 0 / 384px repeat, #d7cebb; background-clip: padding-box; }
+.lona.grava { border-image-source: url(plantillas/lona_grava_9.webp);
+  background: url(plantillas/lona_grava_tela.webp) 0 0 / 384px repeat, #43454e; background-clip: padding-box; }
+.lona.fina { --b: clamp(54px, 5.6vw, 78px); }
+.lona h3 { font: 900 var(--t-h2)/.95 var(--f-titulo); text-transform: uppercase; letter-spacing: .01em; margin-bottom: .6rem; }
+.lona h3.peq { font-size: clamp(1.55rem, 1.4vw + 1rem, 2.1rem); }
+.lona p + p { margin-top: .8em; }
+.lona .ojo { display: block; margin-bottom: .5rem; color: var(--cobalto-200); }
+.lona.cruda .ojo { color: var(--cobalto); }
+.lona.grava .ojo { color: var(--cobalto-claro); }
+.lona.cruda a { color: var(--cobalto-700); }
+.lona .dato { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; margin-top: .9rem; padding-top: .7rem;
+  border-top: 1px dashed rgba(238,240,243,.45); font: 700 1rem/1.25 var(--f-titulo); letter-spacing: .08em; text-transform: uppercase; color: var(--cobalto-200); }
+.lona.cruda .dato { border-top-color: rgba(23,25,31,.3); color: var(--cobalto); }
+
+/* cinta: pancarta de capítulo (2600x620; zona de texto entre las dos filas de ojales) */
+.cinta { position: relative; width: min(100%, var(--ancho, 780px)); aspect-ratio: 2600 / 620;
+  background: url(plantillas/cinta_cobalto.webp) center / 100% 100% no-repeat; container-type: inline-size; }
+.cinta.cruda { background-image: url(plantillas/cinta_cruda.webp); }
+.cinta .rotulo { position: absolute; left: 9%; width: 82%; top: 32.5%; height: 35%;
+  display: grid; place-items: center; text-align: center; overflow: hidden;
+  font: 900 7cqw/.92 var(--f-titulo); text-transform: uppercase; letter-spacing: .01em; color: var(--hielo);
+  text-shadow: 0 2px 0 rgba(0,0,0,.25); padding-inline: 1cqw; }
+.cinta.cruda .rotulo { color: var(--tinta); text-shadow: none; }
+.cinta .rotulo.una { white-space: nowrap; }
+@media (max-width: 700px) { .cinta.desborda { width: 128vw; max-width: none; margin-inline: calc(50% - 64vw); } }
+
+/* ficha vertical: etiqueta colgada de su cordel (1100x1800) */
+.ficha { position: relative; width: min(100%, var(--ancho, 330px)); aspect-ratio: 1100 / 1800;
+  background: url(plantillas/ficha_v_carton.webp) center / 100% 100% no-repeat; container-type: inline-size; color: var(--tinta); }
+.ficha.blanca { background-image: url(plantillas/ficha_v_blanca.webp); }
+.ficha.azul { background-image: url(plantillas/ficha_v_cobalto.webp); color: var(--hielo); }
+.ficha .cab { position: absolute; left: 19.8%; top: 28.4%; width: 60.4%; height: 6.6%; display: flex; align-items: center; justify-content: center;
+  font: 800 7.4cqw/1 var(--f-titulo); letter-spacing: .1em; text-transform: uppercase; color: var(--hielo); overflow: hidden; white-space: nowrap; }
+.ficha.azul .cab { color: var(--cobalto); }
+.ficha .zona { position: absolute; left: 21.5%; top: 37%; width: 57%; height: 36.5%; overflow: hidden;
+  font-size: 5.4cqw; line-height: 1.32; display: flex; flex-direction: column; justify-content: center; }
+.ficha dl { margin: 0; display: grid; gap: .5em; }
+.ficha dt { font: 700 .74em/1.15 var(--f-titulo); letter-spacing: .12em; text-transform: uppercase; color: var(--cobalto); }
+.ficha.azul dt { color: var(--cobalto-200); }
+.ficha dd { margin: 0; font-weight: 500; }
+.ficha dd.grande { font: 900 1.9em/.95 var(--f-titulo); letter-spacing: .01em; }
+.ficha .no { position: absolute; left: 21.5%; top: 78.3%; width: 14.9%; height: 10%; display: grid; place-items: center;
+  font: 900 7cqw/1 var(--f-titulo); color: var(--cobalto); }
+.ficha.azul .no { color: var(--hielo); }
+.ficha .tal { position: absolute; left: 39.5%; width: 40%; font: 800 4.6cqw/1 var(--f-titulo); letter-spacing: .1em; text-transform: uppercase;
+  overflow: hidden; white-space: nowrap; }
+.ficha .tal.t1 { top: 77%; } .ficha .tal.t2 { top: 82%; }
+
+/* ficha horizontal con talón (1700x1000) */
+.ficha-h { position: relative; width: min(100%, var(--ancho, 440px)); aspect-ratio: 1700 / 1000;
+  background: url(plantillas/ficha_h_carton.webp) center / 100% 100% no-repeat; container-type: inline-size; color: var(--tinta); }
+.ficha-h.blanca { background-image: url(plantillas/ficha_h_blanca.webp); }
+.ficha-h.azul { background-image: url(plantillas/ficha_h_cobalto.webp); color: var(--hielo); }
+.ficha-h .cab { position: absolute; left: 30%; top: 15.6%; width: 44.9%; height: 9%; display: flex; align-items: center; padding-left: 1.2cqw;
+  font: 800 3.6cqw/1 var(--f-titulo); letter-spacing: .12em; text-transform: uppercase; color: var(--hielo); overflow: hidden; white-space: nowrap; }
+.ficha-h.azul .cab { color: var(--cobalto); }
+.ficha-h .zona { position: absolute; left: 31.5%; top: 28%; width: 42%; height: 56%; overflow: hidden;
+  font-size: 2.9cqw; line-height: 1.38; display: flex; flex-direction: column; justify-content: center; }
+.ficha-h .zona .grande { font: 900 2.6em/.9 var(--f-titulo); color: var(--cobalto); letter-spacing: .01em; }
+.ficha-h.azul .zona .grande { color: var(--hielo); }
+.ficha-h .zona h4 { font: 900 1.6em/.95 var(--f-titulo); text-transform: uppercase; margin-bottom: .3em; }
+.ficha-h .tal { position: absolute; left: 79%; width: 12%; font: 800 2.5cqw/1 var(--f-titulo); letter-spacing: .08em; text-transform: uppercase;
+  overflow: hidden; white-space: nowrap; text-align: center; }
+.ficha-h .tal.t0 { top: 27%; font-size: 4.6cqw; color: var(--cobalto); } .ficha-h.azul .tal.t0 { color: var(--hielo); }
+.ficha-h .tal.t1 { top: 37.5%; } .ficha-h .tal.t2 { top: 52.5%; } .ficha-h .tal.t3 { top: 67.5%; }
+
+/* fardo: saco de rafia atado en cruz (hazañas); zona dentro del marco de cuerda */
+.fardo { position: relative; width: 100%; aspect-ratio: 1600 / 1150;
+  background: url(plantillas/fardo_blanco_h.webp) center / 100% 100% no-repeat; container-type: inline-size; color: var(--tinta); }
+.fardo.azul { background-image: url(plantillas/fardo_azul_h.webp); color: var(--hielo); }
+.fardo .zona { position: absolute; left: 21%; top: 28.5%; width: 58%; height: 43%; overflow: hidden;
+  font-size: 2.25cqw; line-height: 1.45; display: flex; flex-direction: column; justify-content: center; }
+.fardo.v { aspect-ratio: 1150 / 1500; background-image: url(plantillas/fardo_blanco_v.webp); width: min(100%, var(--ancho, 380px)); }
+.fardo.v.azul { background-image: url(plantillas/fardo_azul_v.webp); }
+.fardo.v .zona { left: 22.5%; top: 27%; width: 55%; height: 46%; font-size: 4.4cqw; }
+.fardo h3 { font: 900 1.85em/.95 var(--f-titulo); text-transform: uppercase; margin-bottom: .4em; }
+.fardo .ojo { display: block; font-size: .78em; color: var(--cobalto); margin-bottom: .45em; }
+.fardo.azul .ojo { color: var(--cobalto-200); }
+@media (max-width: 760px) {
+  /* en estrecho el fardo apaisado se vuelve vertical: el texto necesita alto */
+  .fardo:not(.v) { aspect-ratio: 1150 / 1500; background-image: url(plantillas/fardo_blanco_v.webp); }
+  .fardo.azul:not(.v) { background-image: url(plantillas/fardo_azul_v.webp); }
+  .fardo:not(.v) .zona { left: 22.5%; top: 27%; width: 55%; height: 46%; font-size: 4.4cqw; }
+}
+
+/* bidón: tapa con aro de cierre (cifras) */
+.bidon { position: relative; width: min(100%, var(--ancho, 220px)); aspect-ratio: 1;
+  background: url(plantillas/bidon_cobalto.webp) center / 100% 100% no-repeat; container-type: inline-size;
+  display: grid; place-items: center; text-align: center; }
+.bidon.blanco { background-image: url(plantillas/bidon_blanco.webp); }
+.bidon > div { display: grid; gap: 1.2cqw; place-items: center; margin-top: -1cqw; }
+.bidon .cifra { font: 900 20cqw/.86 var(--f-titulo); color: var(--hielo); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.bidon .ud { font: 700 6.4cqw/1.1 var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--cobalto-200); }
+.bidon.blanco .cifra { color: var(--cobalto); }
+.bidon.blanco .ud { color: var(--grava); }
+
+/* morrena: separadores */
+.morrena { height: clamp(34px, 4vw, 54px); background: url(plantillas/morrena_ancha.webp) repeat-x center / auto 100%; }
+.morrena.fina { height: clamp(18px, 2vw, 26px); background-image: url(plantillas/morrena_fina.webp); }
+
+/* marco de lámina: lona cruda en 9-slice */
+.marco { --b: clamp(40px, 3.8vw, 56px); position: relative; margin: 0;
+  border-style: solid; border-color: transparent; border-width: calc(var(--b) * .67);
+  border-image: url(plantillas/lona_cruda_9.webp) 200 / var(--b) / calc(var(--b) * .33) round; }
+.marco img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--morrena-700); }
+
+/* --------------------------------------------------------------- revelado */
+.js .revela { transform: translateY(34px) scale(.985); transition: transform 1.1s cubic-bezier(.2,.7,.2,1); }
+.js .revela.visto { transform: none; }
+.js .revela.d1 { transition-delay: .08s; } .js .revela.d2 { transition-delay: .16s; } .js .revela.d3 { transition-delay: .24s; }
+.letras .pal { display: inline-block; white-space: nowrap; vertical-align: top; }
+.letras .l { display: inline-block; vertical-align: top; transition: transform .9s cubic-bezier(.2,.8,.2,1), opacity .9s ease; }
+.cinta .rotulo .txt { display: inline-block; line-height: .9; }
+.js .letras:not(.visto) .l { transform: translateY(.18em); opacity: .35; }
+
+/* --------------------------------------------------------------- portada */
+.portada { min-height: 100svh; display: grid; align-items: center; padding-top: calc(var(--friso-h) + 2rem); padding-bottom: 5rem; }
+.portada > .capa { width: 100%; }
+.portada .capa { row-gap: 1.1rem; justify-items: center; text-align: center; }
+.portada .ojo { color: var(--hielo); font-size: 1rem; letter-spacing: .2em; }
+.portada .cinta { --ancho: 900px; }
+.portada .cinta .rotulo { font-size: 10cqw; }
+.portada .lema { font: 400 clamp(1.1rem, .9vw + .85rem, 1.45rem)/1.45 var(--f-texto); max-width: 36ch; color: var(--hielo); }
+.acciones { display: flex; flex-wrap: wrap; gap: .8rem 1.4rem; justify-content: center; align-items: center; margin-top: .4rem; }
+.boton { display: inline-flex; align-items: center; gap: .6em; background: var(--cobalto); color: var(--hielo);
+  font: 800 1.12rem/1 var(--f-titulo); letter-spacing: .12em; text-transform: uppercase; padding: .9em 1.4em .85em; border-radius: 3px; text-decoration: none;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.25), 0 10px 26px rgba(0,0,0,.4); transition: transform .25s, background .25s; }
+.boton:hover { background: #3053c4; color: var(--hielo); transform: translateY(-2px); }
+.enlace-suave { font: 700 1rem/1 var(--f-titulo); letter-spacing: .12em; text-transform: uppercase; color: var(--hielo); text-decoration: none;
+  border-bottom: 2px solid rgba(238,240,243,.55); padding-bottom: .25em; }
+.desliza { position: absolute; left: 50%; bottom: calc(1.6rem + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  display: grid; justify-items: center; gap: .6rem; font: 700 .8rem/1 var(--f-titulo); letter-spacing: .2em; text-transform: uppercase; color: var(--hielo); }
+.desliza i { width: 2px; height: 46px; background: linear-gradient(var(--hielo), transparent); transform-origin: top; animation: gota 2.4s ease-in-out infinite; }
+@keyframes gota { 0% { transform: scaleY(0); } 45% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+.pie-lamina { position: absolute; left: var(--gl); bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)); max-width: 46ch;
+  font: italic 400 .84rem/1.4 var(--f-texto); color: var(--hielo); opacity: .88; }
+@media (max-width: 700px) { .portada .cinta { width: 136vw; max-width: none; margin-inline: calc(50% - 68vw); } .pie-lamina { display: none; } }
+
+/* ------------------------------------------------------------- cabeceras */
+.cabecera { display: grid; justify-items: center; gap: 1rem; text-align: center; padding-top: 18lvh; }
+.cabecera .entradilla { max-width: 54ch; font-size: clamp(1.05rem, .5vw + .9rem, 1.2rem); color: var(--hielo); }
+.cabecera .num-cap { font: 800 1rem/1 var(--f-titulo); letter-spacing: .22em; text-transform: uppercase; color: var(--hielo); }
+.cabecera .cinta { --ancho: 760px; }
+
+/* --------------------------------------------------------------- cifras */
+.cifras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 2.5vw, 40px); align-items: start; }
+.cifras figure { margin: 0; display: grid; justify-items: center; gap: 1rem; text-align: center; }
+.cifras figcaption { max-width: 24ch; font-size: .98rem; line-height: 1.5; }
+.cifras .bidon { --ancho: 210px; }
+.coordenadas { text-align: center; margin-top: 2.6rem; font: 700 1rem/1.6 var(--f-titulo); letter-spacing: .1em; text-transform: uppercase; color: var(--cobalto-200); }
+@media (max-width: 860px) { .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 2.4rem; } .cifras .bidon { --ancho: 170px; } }
+
+/* --------------------------------------------------------------- pasos */
+.pasos { display: grid; grid-template-columns: inherit; }
+.paso { margin-block: 0 58lvh; }
+.paso:first-child { margin-top: 30lvh; }
+.paso.lona { max-width: 540px; }
+.paso.lona.centro { max-width: 780px; justify-self: center; width: 100%; }
+
+/* tabla de cimas */
+.cimas { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.cimas th { text-align: left; font: 800 .86rem/1.2 var(--f-titulo); letter-spacing: .12em; text-transform: uppercase; color: var(--cobalto); padding: 0 .4rem .5rem 0; }
+.cimas td { padding: .42rem .5rem .42rem 0; border-top: 1px solid rgba(23,25,31,.2); vertical-align: middle; font-size: .98rem; white-space: nowrap; }
+.cimas th { white-space: nowrap; }
+.cimas td.n { font: 800 1.2rem/1.1 var(--f-titulo); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; }
+.cimas td.barra { width: 40%; }
+.cimas .b { height: 10px; border-radius: 1px; background: var(--grava); width: var(--w); }
+.cimas tr.yo .b { background: var(--cobalto); }
+.cimas tr.yo td.n { color: var(--cobalto); }
+.cimas caption { caption-side: bottom; text-align: left; font-size: .84rem; padding-top: .6rem; color: #4a4d58; }
+@media (max-width: 560px) { .cimas td.barra { display: none; } .cimas td, .cimas th { white-space: nowrap; font-size: .9rem; } .cimas td.n { font-size: 1rem; } }
+
+/* --------------------------------------------------------------- caravana */
+.camino { list-style: none; margin: .6rem 0 0; padding: 0; position: relative; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.camino::before { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 26px;
+  background: url(plantillas/morrena_fina.webp) repeat-x center / auto 100%; }
+.camino li { display: grid; justify-items: center; text-align: center; gap: .45rem; position: relative; font-size: .9rem; line-height: 1.25; padding-top: 0; }
+.camino li::before { content: ""; width: 20px; height: 20px; border-radius: 50%; background: var(--carton); border: 4px solid var(--cobalto); margin-top: 13px; position: relative; z-index: 1; box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+.camino li.fin::before { background: var(--cobalto); border-color: var(--hielo); width: 24px; height: 24px; margin-top: 11px; }
+.camino b { font: 800 1.15rem/1.05 var(--f-titulo); text-transform: uppercase; letter-spacing: .03em; }
+.camino span { color: var(--cobalto); font: 700 .95rem/1 var(--f-titulo); letter-spacing: .06em; }
+@media (max-width: 760px) {
+  .camino { grid-template-columns: 1fr; gap: .8rem; }
+  .camino::before { left: 0; top: 0; bottom: 0; right: auto; width: 26px; height: auto; background: url(plantillas/morrena_v.webp) repeat-y center / 100% auto; }
+  .camino li { grid-template-columns: 26px auto 1fr; justify-items: start; text-align: left; align-items: center; gap: .7rem; }
+  .camino li::before { margin-top: 0; justify-self: center; }
+  .camino span { justify-self: end; }
+}
+.par-cifra { display: flex; flex-wrap: wrap; gap: clamp(18px, 3vw, 44px); align-items: center; justify-content: center; }
+.par-cifra .ficha-h { --ancho: 420px; flex: 0 1 420px; }
+.par-cifra .bidon { --ancho: 220px; }
+.compartido { margin-top: .9rem; font-size: .94rem; }
+
+/* --------------------------------------------------------------- ruta */
+.ruta-rejilla { display: grid; grid-template-columns: inherit; }
+.instrumento { grid-column: 1 / span 4; grid-row: 1 / span 9; align-self: start; position: sticky; top: calc(var(--friso-h) + 28px); z-index: 2; }
+.ruta-rejilla .paso { grid-column: 8 / span 5; }
+.perfil svg { display: block; width: 100%; height: auto; overflow: visible; }
+.perfil .ejes text { font: 700 12px var(--f-titulo); letter-spacing: .04em; fill: var(--cobalto-200); font-variant-numeric: tabular-nums; }
+.perfil .tit { display: block; }
+.perfil .leyenda { font-size: .82rem; color: var(--hielo-200); margin-top: .4rem; }
+.perfil .tramo { font: 900 1.45rem/1 var(--f-titulo); text-transform: uppercase; margin-top: .25rem; min-height: 1.4em; }
+@media (max-width: 860px) {
+  .instrumento { position: relative; top: auto; grid-column: 1 / -1; grid-row: auto; order: 9; margin-top: 4rem; }
+  .ruta-rejilla .paso { grid-column: 1 / -1; }
+}
+.plano svg { display: block; width: 100%; height: auto; }
+.lona.cruda.plano { background: linear-gradient(rgba(221,214,198,.66), rgba(221,214,198,.66)), url(plantillas/lona_cruda_tela.webp) 0 0 / 384px repeat, #d7cebb; background-clip: padding-box; }
+.plano .pie { font-size: .84rem; margin-top: .6rem; color: #4a4d58; }
+
+/* ------------------------------------------------------------- campamentos */
+.campo { display: grid; grid-template-columns: inherit; align-items: end; padding-top: 70lvh; padding-bottom: 10lvh; row-gap: 2rem; }
+.campo .ficha { --ancho: 300px; flex: 0 0 auto; }
+.campo .par { display: flex; gap: clamp(18px, 3vw, 44px); align-items: flex-end; flex-wrap: wrap; }
+.campo .par.dcha { justify-content: flex-end; }
+.campo .par .lona { flex: 1 1 360px; max-width: 580px; }
+@media (max-width: 860px) { .campo .par { justify-content: center !important; } .campo .ficha { --ancho: 280px; } }
+
+/* --------------------------------------------------------------- historia: la morrena como hilo */
+.linea-tiempo { list-style: none; margin: 0; padding: 0; position: relative; display: grid; gap: clamp(2.2rem, 7lvh, 5rem); }
+.linea-tiempo::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 30px; margin-left: -15px;
+  background: url(plantillas/morrena_v.webp) repeat-y center top / 100% auto; opacity: .9;
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(var(--hilo, 0) * 100%) no-repeat, linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3));
+          mask: linear-gradient(#000, #000) top / 100% calc(var(--hilo, 0) * 100%) no-repeat, linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)); }
+.linea-tiempo li { display: grid; grid-template-columns: 1fr 70px 1fr; align-items: start; }
+.linea-tiempo .ano { grid-column: 1; justify-self: end; text-align: right; font: 900 clamp(2.8rem, 3.8vw + 1rem, 5rem)/.88 var(--f-titulo);
+  color: var(--cobalto-claro); font-variant-numeric: tabular-nums; text-shadow: 0 2px 14px rgba(0,0,0,.6); }
+.linea-tiempo .nudo { grid-column: 2; justify-self: center; width: 22px; height: 22px; margin-top: .8rem; border-radius: 50%;
+  background: var(--carton); border: 5px solid var(--grava); box-shadow: 0 0 0 4px rgba(23,25,31,.65); }
+.linea-tiempo .hecho { grid-column: 3; max-width: 46ch; padding: 1rem 1.2rem 1.05rem 1.5rem; position: relative;
+  background: var(--velo); border: 1px solid rgba(157,176,245,.28); backdrop-filter: blur(4px);
+  clip-path: polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px), 0 12px); }
+.linea-tiempo li:nth-child(even) .ano { grid-column: 3; justify-self: start; text-align: left; grid-row: 1; }
+.linea-tiempo li:nth-child(even) .hecho { grid-column: 1; justify-self: end; grid-row: 1; }
+.linea-tiempo .hecho h3 { font: 900 1.55rem/.95 var(--f-titulo); text-transform: uppercase; margin-bottom: .45rem; }
+.linea-tiempo .hecho p { font-size: .98rem; line-height: 1.58; }
+.linea-tiempo li.clave .ano { color: var(--hielo); }
+.linea-tiempo li.clave .nudo { background: var(--cobalto); border-color: var(--hielo); }
+@media (max-width: 760px) {
+  .linea-tiempo::before { left: 13px; }
+  .linea-tiempo li, .linea-tiempo li:nth-child(even) { grid-template-columns: 26px 1fr; column-gap: .9rem; }
+  .linea-tiempo .ano, .linea-tiempo li:nth-child(even) .ano { grid-column: 2; grid-row: 1; justify-self: start; text-align: left; }
+  .linea-tiempo .nudo { grid-column: 1; grid-row: 1; margin-top: .4rem; }
+  .linea-tiempo .hecho, .linea-tiempo li:nth-child(even) .hecho { grid-column: 2; grid-row: 2; justify-self: stretch; margin-top: .6rem; }
+}
+
+/* --------------------------------------------------------------- hazañas */
+.hazanas { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px) clamp(18px, 2.4vw, 34px); align-items: center; }
+.hazanas > * { min-width: 0; }
+.hazanas .h1 { grid-column: 1 / span 7; }
+.hazanas .h2 { grid-column: 8 / span 5; justify-self: center; }
+.hazanas .h3 { grid-column: 1 / span 4; justify-self: center; }
+.hazanas .h4 { grid-column: 5 / span 8; }
+.hazanas .h5 { grid-column: 1 / span 6; justify-self: center; }
+.hazanas .h6 { grid-column: 7 / span 6; }
+.hazanas .h2.fardo.v { --ancho: 360px; }
+.hazanas .h5 .ficha-h { --ancho: 460px; }
+.hazanas .med { display: grid; justify-items: center; gap: 1rem; text-align: center; justify-self: stretch !important; }
+.hazanas .med .bidon { --ancho: 230px; }
+.hazanas .med p { max-width: 26ch; font-size: .98rem; }
+@media (max-width: 960px) { .hazanas > * { grid-column: 1 / -1 !important; justify-self: center; } .hazanas .fardo:not(.v) { max-width: 560px; } }
+
+/* --------------------------------------------------------------- láminas */
+.laminas { position: relative; }
+.laminas .fijo { position: sticky; top: 0; height: 100lvh; overflow: hidden; display: grid; align-content: center; gap: 1.6rem; padding-top: var(--friso-h); }
+.laminas .cab-lam { display: flex; align-items: end; justify-content: space-between; gap: 1rem 2rem; flex-wrap: wrap;
+  padding-left: calc(var(--gl) + 2vw); padding-right: calc(var(--gr) + 2vw); }
+.laminas .cab-lam h2 { font: 900 var(--t-h1)/.9 var(--f-titulo); text-transform: uppercase; margin-top: .4rem; }
+.laminas .cab-lam p { max-width: 58ch; color: var(--hielo-200); font-size: 1rem; }
+.pista { display: flex; gap: clamp(28px, 3vw, 48px); padding-inline: calc(var(--gl) + 4vw); width: max-content; will-change: transform; }
+.pista figure { margin: 0; width: clamp(300px, 46vw, 760px); display: grid; gap: .9rem; }
+.pista figcaption { display: grid; gap: .25rem; padding-inline: .3rem; }
+.pista figcaption b { font: 900 1.5rem/1 var(--f-titulo); text-transform: uppercase; color: var(--hielo); }
+.pista figcaption span { font-size: .88rem; color: var(--hielo-200); line-height: 1.45; }
+.pista .rom { color: var(--cobalto-claro); margin-right: .4em; }
+@media (max-width: 760px) {
+  .laminas { height: auto !important; }
+  .laminas .fijo { position: relative; height: auto; padding-block: 18lvh 8lvh; }
+  .pista-caja { overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .pista-caja::-webkit-scrollbar { display: none; }
+  .pista { transform: none !important; padding-inline: var(--gl) var(--gr); }
+  .pista figure { width: 84vw; scroll-snap-align: center; }
+}
+
+/* --------------------------------------------------------------- colofón */
+.colofon { padding-block: 16lvh 12lvh; }
+.colofon .lona { margin-top: 2rem; }
+.colofon .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem 2.4rem; font-size: .95rem; line-height: 1.6; }
+.colofon h4 { font: 900 1.35rem/1 var(--f-titulo); text-transform: uppercase; margin-bottom: .5rem; color: var(--cobalto); }
+.colofon ul { margin: 0; padding-left: 1.1rem; }
+.colofon li + li { margin-top: .35rem; }
+@media (max-width: 700px) { .colofon .cols { grid-template-columns: 1fr; } }
+.colofon .final { display: flex; justify-content: center; gap: 1rem 1.6rem; flex-wrap: wrap; align-items: center; margin-top: 3rem; }
+
+/* --------------------------------------------------------------- marcas sobre la lámina */
+.pin { position: absolute; left: 0; top: 0; transform: translate3d(-999px, -999px, 0); opacity: 0; transition: opacity .55s ease; will-change: transform; }
+.pin.on { opacity: 1; }
+.pin .tallo { position: absolute; left: -1px; bottom: 0; width: 2px; height: var(--h, 38px);
+  background: repeating-linear-gradient(to top, rgba(238,240,243,.95) 0 5px, rgba(238,240,243,.55) 5px 7px); transform-origin: bottom;
+  transform: scaleY(0); transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+.pin.on .tallo { transform: scaleY(1); }
+.pin .punto { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--hielo);
+  box-shadow: 0 0 0 3px rgba(23,25,31,.55), 0 0 14px rgba(238,240,243,.7); }
+.pin .rotulo { position: absolute; left: 0; bottom: var(--h, 38px); transform: translate(-50%, -3px) translateY(8px); opacity: 0;
+  white-space: nowrap; font: 800 .86rem/1 var(--f-titulo); letter-spacing: .08em; text-transform: uppercase; color: var(--tinta);
+  padding: .45em .7em .42em 1.25em; background: var(--carton);
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  transition: opacity .5s ease .25s, transform .6s cubic-bezier(.2,.8,.2,1) .25s; filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+.pin .rotulo::before { content: ""; position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: var(--grava); }
+.pin.on .rotulo { opacity: 1; transform: translate(-50%, -3px); }
+.pin .rotulo i { font-style: normal; color: var(--cobalto); margin-left: .5em; font-variant-numeric: tabular-nums; }
+.pin.destacado .rotulo { background: var(--cobalto); color: var(--hielo); }
+.pin.destacado .rotulo i { color: var(--cobalto-200); }
+.pin.destacado .rotulo::before { background: var(--hielo); }
+.pin.destacado .punto { background: var(--cobalto-claro); box-shadow: 0 0 0 3px rgba(23,25,31,.6), 0 0 18px rgba(157,176,245,.9); }
+.pin.pcampo .punto { width: 14px; height: 14px; left: -7px; top: -7px; background: var(--morrena); border: 3px solid var(--cobalto-claro); box-shadow: 0 0 0 2px rgba(0,0,0,.4); }
+.pin.pcampo .rotulo { font-size: .8rem; }
+.pin.prasgo .punto, .pin.prasgo .tallo { display: none; }
+.pin.prasgo .rotulo { bottom: 0; background: none; clip-path: none; filter: none; padding: 0; font: italic 500 .9rem/1 var(--f-texto); letter-spacing: 0; text-transform: none;
+  color: var(--hielo); text-shadow: 0 1px 2px #000, 0 0 10px rgba(0,0,0,.9); transform: translate(-50%, 50%); }
+.pin.prasgo .rotulo::before { display: none; }
+.pin.prasgo.on .rotulo { transform: translate(-50%, 50%); }
+#trazo .halo { fill: none; stroke: rgba(238,240,243,.85); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+#trazo .vis { fill: none; stroke: var(--cobalto); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+#trazo .ocu { fill: none; stroke: var(--hielo); stroke-width: 2.2; stroke-dasharray: 2 7; stroke-linecap: round; opacity: .85; }
+#trazo .cabeza { fill: var(--hielo); stroke: var(--cobalto); stroke-width: 3; }
+#trazo .cabeza-halo { fill: rgba(157,176,245,.35); }
+@media (max-width: 700px) { .pin .rotulo { font-size: .76rem; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .revela, .js .letras .l { transform: none !important; opacity: 1 !important; transition: none !important; }
+  .desliza i { animation: none; }
+  #telon { display: none; }
+}
+</style>
+
+<div id="telon" aria-hidden="true">
+  <div class="lienzo izq"></div>
+  <div class="lienzo der"></div>
+  <div class="centro"><p class="n">Gasherbrum II</p><p class="e" id="telon-estado">Soltando los amarres</p></div>
+</div>
+
+<canvas id="fondo" aria-hidden="true"></canvas>
+<div id="respaldo" aria-hidden="true" hidden><div class="rl"></div><div class="rl"></div></div>
+<canvas id="nieve" aria-hidden="true"></canvas>
+<div id="marcas" aria-hidden="true"><svg id="trazo"><path class="halo" d=""/><path class="ocu" d=""/><path class="vis" d=""/><circle class="cabeza-halo" r="0"/><circle class="cabeza" r="0"/></svg></div>
+
+<header class="friso-nav" id="friso">
+  <a class="marca" href="#inicio">Gasherbrum II</a>
+  <nav aria-label="Capítulos">
+    <a href="#macizo">El macizo</a>
+    <a href="#caravana">La caravana</a>
+    <a href="#ruta">La ruta</a>
+    <a href="#campo-base">Ascensión</a>
+    <a href="#historia">Historia</a>
+    <a href="#hazanas">Hazañas</a>
+    <a href="#laminas">Láminas</a>
+  </nav>
+  <span class="capitulo" id="capitulo">Gasherbrum II</span>
+  <span class="alt-chip num" id="alt-chip" aria-hidden="true">Lám. I · 5 585 m</span>
+  <span class="carga" aria-hidden="true">Carga K4</span>
+  <span class="avance" aria-hidden="true"></span>
+</header>
+
+<div class="altimetro" id="altimetro" aria-live="off">
+  <div class="dentro"><span class="lam" id="alt-lam">LÁM. I</span><span class="valor" id="alt-valor">5 585</span><span class="ud">m · desde</span></div>
+</div>
+
+<main id="contenido">
+
+<!-- ================================================================ PORTADA -->
+<section class="escena portada" id="inicio" data-lamina="gondogoro" data-kb="1.06 .5 .55 1.16 .52 .5" data-kb-v="1.04 .5 .5 1.12 .5 .46"
+  data-dim=".06" data-alt="5585" data-num="I" data-capitulo="Gasherbrum II">
+  <div class="capa">
+    <p class="ojo sombra-texto">K4 · 8 035 m · Karakórum</p>
+    <div class="cinta"><h1 class="rotulo letras una" id="titulo">Gasherbrum II</h1></div>
+    <p class="lema sombra-texto">La pirámide de nieve del fondo del Baltoro, y la caravana que carga la expedición hasta su pie.</p>
+    <div class="acciones">
+      <a class="boton" href="#ruta">Recorrer la ruta</a>
+      <a class="enlace-suave sombra-texto" href="#caravana">Empezar por la caravana</a>
+    </div>
+  </div>
+  <p class="pie-lamina sombra-texto">Lámina I · El macizo desde el Gondogoro La, a 5 585 m, con el último sol de la tarde.</p>
+  <div class="desliza sombra-texto" aria-hidden="true">Desliza para subir<i></i></div>
+</section>
+
+<!-- ================================================================ CIFRAS -->
+<section class="escena" id="cifras" data-lamina="gondogoro" data-kb="1.16 .5 .45 1.22 .55 .48" data-kb-v="1.12 .5 .45 1.16 .5 .45"
+  data-dim=".44" data-alt="5585" data-num="I" data-capitulo="En cifras">
+  <div class="capa" style="padding-block: 22lvh 24lvh">
+    <p class="ojo" style="text-align:center;margin-bottom:2.6rem;font-size:1rem;color:var(--hielo)">En cifras</p>
+    <div class="cifras">
+      <figure class="revela"><div class="bidon"><div><div class="cifra num" data-cuenta="8035">8 035</div><div class="ud">metros</div></div></div>
+        <figcaption>La decimotercera montaña más alta de la Tierra.</figcaption></figure>
+      <figure class="revela d1"><div class="bidon blanco"><div><div class="cifra num">K4</div><div class="ud">1856</div></div></div>
+        <figcaption>El número que le puso el Gran Levantamiento Trigonométrico de la India.</figcaption></figure>
+      <figure class="revela d2"><div class="bidon"><div><div class="cifra num" data-cuenta="1956">1956</div><div class="ud">7 de julio</div></div></div>
+        <figcaption>Primera ascensión, de tres austriacos. Fue el segundo ochomil del Karakórum en caer, tras el K2.</figcaption></figure>
+      <figure class="revela d3"><div class="bidon blanco"><div><div class="cifra num" data-cuenta="2011">2011</div><div class="ud">2 de febrero</div></div></div>
+        <figcaption>Primera ascensión invernal de un ochomil de Pakistán.</figcaption></figure>
+    </div>
+    <p class="coordenadas num">35° 45′ 27″ N · 76° 39′ 09″ E<br>En la frontera entre Gilgit-Baltistán (Pakistán) y Xinjiang (China)</p>
+  </div>
+</section>
+
+<!-- ================================================================ EL MACIZO -->
+<section class="escena" id="macizo" data-lamina="gondogoro" data-kb="1.04 .5 .52 1.08 .52 .5" data-kb-v="1.02 .5 .5 1.06 .5 .48"
+  data-dim=".04" data-alt="5585" data-num="I" data-capitulo="El macizo" data-pines="macizo">
+  <div class="capa">
+    <header class="cabecera">
+      <span class="num-cap sombra-texto">Capítulo I</span>
+      <div class="cinta desborda"><h2 class="rotulo letras una">El macizo</h2></div>
+      <p class="entradilla sombra-texto">Desde el Gondogoro La, el paso que cierra el Baltoro por el sur, el grupo entero de los Gasherbrum recibe el último sol. Del Broad Peak, a la izquierda, al G I, a la derecha. En medio, la pirámide del G II.</p>
+    </header>
+    <div class="pasos">
+      <article class="paso lona cruda izq revela" data-paso="0">
+        <span class="ojo">Broad Peak · 8 051 m</span>
+        <h3 class="peq">El vecino ancho</h3>
+        <p>Asoma en el borde del macizo, al otro lado del glaciar. Su cresta de tres cumbres mide casi un kilómetro y medio, y desde la cima del G II se ve a 10 km, al noroeste, delante del K2.</p>
+        <p class="dato num"><span>A 10 km del G II</span><span>1.ª ascensión 1957</span></p>
+      </article>
+      <article class="paso lona cruda izq revela" data-paso="1">
+        <span class="ojo">Gasherbrum IV · 7 925 m</span>
+        <h3 class="peq">La pared luminosa</h3>
+        <p>Su cara oeste se enciende al atardecer sobre Concordia, y de ahí viene la traducción popular de «Gasherbrum» como «pared luminosa». En balti el nombre suena distinto: <i>rgasha</i>, «hermosa», y <i>brum</i>, «montaña».</p>
+        <p class="dato num"><span>A 3,4 km del G II</span><span>1.ª ascensión 1958</span></p>
+      </article>
+      <article class="paso lona cruda izq revela" data-paso="2">
+        <span class="ojo">Gasherbrum III · 7 952 m</span>
+        <h3 class="peq">El hermano pegado</h3>
+        <p>A menos de un kilómetro de la cima del G II, unido a ella por una arista. Lo subió por primera vez, en 1975, la misma expedición polaca que llevó a dos mujeres a la cumbre del G II.</p>
+        <p class="dato num"><span>A 1 km del G II</span><span>1.ª ascensión 1975</span></p>
+      </article>
+      <article class="paso lona izq revela" data-paso="3">
+        <span class="ojo">Gasherbrum II · 8 035 m</span>
+        <h3 class="peq">La pirámide</h3>
+        <p>La forma más limpia del grupo: una pirámide de nieve con aristas regulares. Su ruta normal, el espolón suroeste, se considera una de las más asequibles entre los ochomiles, y eso la ha convertido en una de las cumbres más visitadas del Karakórum.</p>
+        <p class="dato num"><span>Decimotercera de la Tierra</span><span>1.ª ascensión 1956</span></p>
+      </article>
+      <article class="paso lona cruda izq revela" data-paso="4">
+        <span class="ojo">Gasherbrum I · 8 080 m</span>
+        <h3 class="peq">El escondido</h3>
+        <p>El más alto del grupo queda retrasado hacia el este, sobre la frontera china. Comparte con el G II el campo base y el primer campamento, y muchas expediciones intentan los dos en la misma temporada.</p>
+        <p class="dato num"><span>A 5,4 km del G II</span><span>1.ª ascensión 1958</span></p>
+      </article>
+      <article class="paso lona cruda centro revela" data-paso="5" style="margin-bottom:40lvh">
+        <span class="ojo">Las cimas del grupo</span>
+        <table class="cimas">
+          <thead><tr><th scope="col">Cima</th><th scope="col">Altura</th><th scope="col" class="barra"><span class="sr">Comparación de altura</span></th><th scope="col">Al G II</th></tr></thead>
+          <tbody>
+            <tr><td class="n">Gasherbrum I</td><td>8 080 m</td><td class="barra"><div class="b" style="--w:98.8%"></div></td><td>5,4 km</td></tr>
+            <tr class="yo"><td class="n">Gasherbrum II</td><td>8 035 m</td><td class="barra"><div class="b" style="--w:95.9%"></div></td><td>—</td></tr>
+            <tr><td class="n">Gasherbrum III</td><td>7 952 m</td><td class="barra"><div class="b" style="--w:90.8%"></div></td><td>1 km</td></tr>
+            <tr><td class="n">Gasherbrum IV</td><td>7 925 m</td><td class="barra"><div class="b" style="--w:89.1%"></div></td><td>3,4 km</td></tr>
+            <tr><td class="n">Gasherbrum II Este</td><td>7 772 m</td><td class="barra"><div class="b" style="--w:79.5%"></div></td><td>1,4 km</td></tr>
+            <tr><td class="n">Gasherbrum V</td><td>7 147 m</td><td class="barra"><div class="b" style="--w:40.4%"></div></td><td>4,4 km</td></tr>
+            <tr><td class="n">Gasherbrum VI</td><td>6 979 m</td><td class="barra"><div class="b" style="--w:29.9%"></div></td><td>5,8 km</td></tr>
+          </tbody>
+          <caption>Barras medidas desde 6 500 m. Distancias en línea recta entre cumbres, sobre el relieve Copernicus.</caption>
+        </table>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ LA CARAVANA -->
+<section class="escena" id="caravana" data-lamina="caravana" data-kb="1.04 .55 .5 1.1 .62 .52" data-kb-v="1.02 .5 .5 1.06 .5 .52"
+  data-dim=".04" data-ang="12" data-alt="5200" data-num="VIII" data-capitulo="La caravana" data-pines="caravana">
+  <div class="capa">
+    <header class="cabecera">
+      <span class="num-cap sombra-texto">Capítulo II</span>
+      <div class="cinta desborda"><h2 class="rotulo letras una">La caravana</h2></div>
+      <p class="entradilla sombra-texto">Ninguna expedición llega sola al Gasherbrum II. Todo lo que hay en el campo base, de la última carpa al último bidón, ha subido a la espalda de un porteador balti.</p>
+    </header>
+    <div class="aire" style="--aire:40lvh"></div>
+    <article class="lona der6 revela">
+      <span class="ojo">Lámina VIII · Morrena del Abruzzi</span>
+      <h3>Ocho jornadas</h3>
+      <p>Desde Askole, el último pueblo del valle del Braldu, hasta el campo base hay unos ocho días de marcha, casi todos sobre los 63 km del glaciar del Baltoro. Cada porteador carga unos 25 kilos: un bidón azul, un fardo de rafia atado en cruz o una caja con su número pintado.</p>
+      <p>Cobran por jornada. Al llegar al campo base dejan la carga, recogen su paga y emprenden la vuelta hacia Askole. Desde ahí siguen los alpinistas y los porteadores de altura.</p>
+      <p class="dato num"><span>≈ 25 kg por carga</span><span>8 jornadas</span><span>63 km de glaciar</span></p>
+    </article>
+    <div class="aire" style="--aire:44lvh"></div>
+    <div class="ancho revela"><div class="par-cifra">
+      <div class="bidon"><div><div class="cifra num" data-cuenta="25">25</div><div class="ud">kilos</div></div></div>
+      <div class="ficha-h">
+        <div class="cab">Carga · expedición G II</div>
+        <div class="zona ajusta" data-fit=".03">
+          <span class="grande num">Nº 061</span>
+          <p>Cada carga lleva su número, y cada porteador responde de la suya hasta el campo base.</p>
+        </div>
+        <span class="tal t0 num">061</span><span class="tal t1">25 kg</span><span class="tal t2">Askole</span><span class="tal t3">CB</span>
+      </div>
+    </div></div>
+    <div class="aire" style="--aire:44lvh"></div>
+    <article class="lona cruda ancho revela">
+      <span class="ojo">El camino de las cargas</span>
+      <h3 class="peq">De Askole al campo base</h3>
+      <ol class="camino num">
+        <li><b>Askole</b><span>≈ 3 000 m</span></li>
+        <li><b>Jhola</b><span>≈ 3 200 m</span></li>
+        <li><b>Paiju</b><span>≈ 3 450 m</span></li>
+        <li><b>Urdukas</b><span>≈ 4 050 m</span></li>
+        <li><b>Goro II</b><span>≈ 4 300 m</span></li>
+        <li><b>Concordia</b><span>≈ 4 600 m</span></li>
+        <li class="fin"><b>Campo Base</b><span>5 120 m</span></li>
+      </ol>
+      <p style="margin-top:1.2rem;font-size:.95rem">Un día de jeep desde Skardu hasta Askole y luego a pie por el Baltoro, sobre las franjas de morrena que rayan el glaciar. En Concordia, donde se cruzan los glaciares bajo el K2, el camino gira hacia el glaciar Abruzzi, que sube hasta el campo base que comparten el G I y el G II.</p>
+      <p class="compartido" id="enlace-g1" hidden>La marcha es la misma que lleva al <a href="../gasherbrum-i/">Gasherbrum I</a>.</p>
+    </article>
+    <div class="aire" style="--aire:44lvh"></div>
+    <div class="izq6 revela"><div class="fardo">
+      <div class="zona ajusta" data-fit=".026">
+        <span class="ojo">Las noches de marcha</span>
+        <h3>Bidones como tambores</h3>
+        <p>En los campamentos del Baltoro, al caer la noche, los porteadores suelen juntarse a cantar canciones baltis y a marcar el ritmo golpeando los bidones vacíos. El balti es una lengua de raíz tibetana, y Baltistán, el país balti, se conoce como el «pequeño Tíbet».</p>
+      </div>
+    </div></div>
+    <div class="aire" style="--aire:48lvh"></div>
+  </div>
+</section>
+
+<!-- ================================================================ LA RUTA -->
+<section class="escena" id="ruta" data-lamina="ruta" data-kb="1.03 .5 .55 1.07 .5 .52" data-kb-v="1.02 .5 .5 1.05 .5 .48"
+  data-dim=".02" data-ang="-82" data-alt="12500" data-num="VII" data-capitulo="La ruta" data-pines="ruta">
+  <div class="capa">
+    <header class="cabecera">
+      <span class="num-cap sombra-texto">Capítulo III</span>
+      <div class="cinta desborda"><h2 class="rotulo letras una">La ruta normal</h2></div>
+      <p class="entradilla sombra-texto">Por el espolón suroeste: 9 km de recorrido y 2 915 m de desnivel entre el campo base y la cima, con cuatro campamentos por el camino.</p>
+    </header>
+    <div class="ruta-rejilla">
+      <aside class="instrumento lona grava fina perfil" id="perfil">
+        <span class="ojo tit">Perfil real de la ruta</span>
+        <p class="tramo" id="perfil-tramo">Campo Base · 5 120 m</p>
+        <svg id="perfil-svg" viewBox="0 0 420 220" role="img" aria-label="Perfil de altitud de la ruta normal: Campo Base 5 120 m en el kilómetro 0; Campo 1 5 880 m en el 5; Campo 2 6 410 m en el 6,7; Campo 3 7 010 m en el 7,4; Campo 4 7 425 m en el 7,8; cima 8 035 m en el 9."></svg>
+        <p class="leyenda">Muestreado cada 25 m sobre el relieve Copernicus, a lo largo del trazado.</p>
+      </aside>
+      <article class="paso lona fina revela" data-tramo="0">
+        <span class="ojo">Punto de partida</span>
+        <h3 class="peq">Campo Base · 5 120 m</h3>
+        <p>Sobre la morrena del glaciar Abruzzi, al pie de la cascada de hielo del glaciar Gasherbrum Sur. Desde aquí la ruta sube hacia el norte, cruza el circo y trepa por el espolón suroeste hasta la pirámide.</p>
+      </article>
+      <article class="paso lona fina revela" data-tramo="1">
+        <span class="ojo">Tramo 1 · CB → C1</span>
+        <h3 class="peq">La cascada de hielo</h3>
+        <p>El glaciar Gasherbrum Sur se derrumba hacia el Abruzzi en un laberinto de grietas y seracs. Es el mismo laberinto que lleva al G I, y se cruza de madrugada, cuando el frío sujeta los puentes de nieve.</p>
+        <p class="dato num"><span>+760 m</span><span>5 km</span><span>Grietas y seracs</span></p>
+      </article>
+      <article class="paso lona fina revela" data-tramo="2">
+        <span class="ojo">Tramo 2 · C1 → C2</span>
+        <h3 class="peq">El circo y la Banana Ridge</h3>
+        <p>Una travesía llana por el circo hasta el pie del espolón, a unos 5 950 m, y después la cresta curva que los alpinistas llaman Banana Ridge, hasta una repisa colgada sobre el vacío.</p>
+        <p class="dato num"><span>+530 m</span><span>1,6 km</span><span>Aludes en el circo</span></p>
+      </article>
+      <article class="paso lona fina revela" data-tramo="3">
+        <span class="ojo">Tramo 3 · C2 → C3</span>
+        <h3 class="peq">El espolón</h3>
+        <p>La arista sube recta, con tramos de roca y nieve dura donde se instalan cuerdas fijas, hasta el hombro que queda bajo la pirámide cimera.</p>
+        <p class="dato num"><span>+600 m</span><span>0,7 km</span><span>Pendiente y viento</span></p>
+      </article>
+      <article class="paso lona fina revela" data-tramo="4">
+        <span class="ojo">Tramo 4 · C3 → C4</span>
+        <h3 class="peq">Bajo la pirámide</h3>
+        <p>Una rampa corta hasta el último campamento, donde arranca la travesía. Muchas expediciones se lo saltan y salen hacia la cima directamente desde el Campo 3.</p>
+        <p class="dato num"><span>+415 m</span><span>0,4 km</span><span>Altura</span></p>
+      </article>
+      <article class="paso lona fina revela" data-tramo="5">
+        <span class="ojo">Tramo 5 · C4 → cima</span>
+        <h3 class="peq">La travesía y la arista final</h3>
+        <p>Una larga diagonal hacia el este por debajo de la pirámide, expuesta a aludes, y después la subida final por su vertiente este hasta la cima. La bajada se hace el mismo día.</p>
+        <p class="dato num"><span>+610 m</span><span>1,3 km</span><span>Aludes, frío, cansancio</span></p>
+      </article>
+    </div>
+    <div class="aire" style="--aire:30lvh"></div>
+    <article class="lona cruda ancho plano revela" id="plano">
+      <span class="ojo">Plano del macizo</span>
+      <h3 class="peq">La ruta vista desde arriba</h3>
+      <svg id="plano-svg" viewBox="0 0 1000 1146" role="img" aria-label="Plano con curvas de nivel del macizo de los Gasherbrum y la ruta normal del G II, del Campo Base al sur hasta la cumbre al norte."></svg>
+      <p class="pie">Curvas de nivel cada 200 m y maestras cada 1 000 m, trazadas sobre el modelo Copernicus GLO-90. No hay coordenadas publicadas de los campos: están situados a partir de las descripciones de la ruta, con un margen de unos 200 a 300 m.</p>
+    </article>
+    <div class="aire" style="--aire:40lvh"></div>
+  </div>
+</section>
+
+<!-- ================================================================ CAMPO BASE -->
+<section class="escena" id="campo-base" data-lamina="campo_base" data-kb="1.04 .5 .5 1.1 .52 .42" data-kb-v="1.02 .5 .5 1.08 .5 .46"
+  data-dim=".04" data-ang="8" data-alt="5120" data-num="II" data-capitulo="Campo Base" data-pines="campobase">
+  <div class="capa campo">
+    <div class="par">
+      <div class="ficha revela"><div class="cab">Campo Base</div><div class="zona ajusta" data-fit=".062"><dl>
+        <div><dt>Altitud</dt><dd class="grande num">5 120 m</dd></div>
+        <div><dt>Dónde</dt><dd>Morrena del Abruzzi</dd></div>
+        <div><dt>Llegada</dt><dd>8 jornadas desde Askole</dd></div>
+        <div><dt>Compartido con</dt><dd>Gasherbrum I</dd></div>
+      </dl></div><span class="no num">01</span><span class="tal t1">25 kg</span><span class="tal t2">Askole → CB</span></div>
+      <article class="lona revela d1">
+        <span class="ojo">Lámina II · Mañana</span>
+        <h3>Una ciudad de lona</h3>
+        <p>Las carpas se levantan sobre la morrena, y en temporada conviven aquí las expediciones al G I y al G II. Encima asoma la pirámide del G II, entre el G III y el G II Este, por encima de la cascada de hielo.</p>
+        <p>Antes de pisar la cascada, muchos equipos celebran una puja, la ceremonia del altar de piedras y las banderas de oración que trajeron los sherpas.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ CAMPO 1 -->
+<section class="escena" id="campo-1" data-lamina="campo_1" data-kb="1.04 .5 .45 1.1 .5 .4" data-kb-v="1.02 .5 .5 1.06 .5 .44"
+  data-dim=".04" data-ang="-14" data-alt="5880" data-num="III" data-capitulo="Campo 1" data-pines="campo1">
+  <div class="capa campo">
+    <div class="par dcha">
+      <article class="lona cruda revela">
+        <span class="ojo">Lámina III · Tarde</span>
+        <h3>El circo</h3>
+        <p>Una cuenca de nieve encerrada por el G II, el G III y el G II Este. Por el centro sube el espolón suroeste, la ruta normal, y una cordada cruza el circo hacia su pie. Arriba se distinguen las repisas del Campo 3 y del Campo 4.</p>
+        <p>Este campo también es el primero de la ruta al G I: a partir de aquí, cada expedición tira hacia su montaña.</p>
+      </article>
+      <div class="ficha blanca revela d1"><div class="cab">Campo 1</div><div class="zona ajusta" data-fit=".062"><dl>
+        <div><dt>Altitud</dt><dd class="grande num">5 880 m</dd></div>
+        <div><dt>Dónde</dt><dd>Circo del Gasherbrum Sur</dd></div>
+        <div><dt>Desde el CB</dt><dd>+760 m</dd></div>
+        <div><dt>Peligro</dt><dd>Grietas tapadas</dd></div>
+      </dl></div><span class="no num">02</span><span class="tal t1">C1</span><span class="tal t2">5 km del CB</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ CAMPO 2 -->
+<section class="escena" id="campo-2" data-lamina="campo_2" data-kb="1.05 .4 .5 1.12 .36 .46" data-kb-v="1.02 .5 .5 1.08 .5 .46"
+  data-dim=".02" data-ang="190" data-nieve=".25" data-alt="6410" data-num="IV" data-capitulo="Campo 2" data-pines="campo2">
+  <div class="capa campo">
+    <div class="par dcha">
+      <div class="ficha revela"><div class="cab">Campo 2</div><div class="zona ajusta" data-fit=".062"><dl>
+        <div><dt>Altitud</dt><dd class="grande num">6 410 m</dd></div>
+        <div><dt>Dónde</dt><dd>Repisa del espolón</dd></div>
+        <div><dt>Desde C1</dt><dd>+530 m</dd></div>
+        <div><dt>Peligro</dt><dd>Aludes y viento</dd></div>
+      </dl></div><span class="no num">03</span><span class="tal t1">C2</span><span class="tal t2">Banana Ridge</span></div>
+      <article class="lona revela d1">
+        <span class="ojo">Lámina IV · Tarde dorada</span>
+        <h3>La repisa del espolón</h3>
+        <p>La luz baja de la tarde enciende la cara oeste del Gasherbrum I, al otro lado del circo, que abajo ya está en sombra. Las carpas ocupan una repisa estrecha del espolón, y cada una se ata a la nieve para que el viento no se la lleve.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ CAMPO 3 -->
+<section class="escena" id="campo-3" data-lamina="campo_3" data-kb="1.04 .6 .5 1.1 .62 .46" data-kb-v="1.02 .5 .5 1.06 .5 .46"
+  data-dim=".03" data-ang="-70" data-nieve=".5" data-alt="7010" data-num="V" data-capitulo="Campo 3" data-pines="campo3">
+  <div class="capa campo">
+    <div class="par">
+      <article class="lona grava revela">
+        <span class="ojo">Lámina V · Medianoche</span>
+        <h3>El hombro</h3>
+        <p>Medianoche bajo la pirámide cimera. Los valles duermen bajo un mar de nubes, y la luna, baja en el sursuroeste, alumbra el Gasherbrum VI, el Chogolisa y el Gasherbrum V. Las cordadas que van a cumbre salen de aquí, o del Campo 4, un poco más arriba, con el frontal encendido.</p>
+        <p>El aire tiene apenas un 40&#8239;% del oxígeno del nivel del mar.</p>
+      </article>
+      <div class="ficha azul revela d1"><div class="cab">Campo 3</div><div class="zona ajusta" data-fit=".062"><dl>
+        <div><dt>Altitud</dt><dd class="grande num">7 010 m</dd></div>
+        <div><dt>Dónde</dt><dd>Hombro bajo la pirámide</dd></div>
+        <div><dt>Desde C2</dt><dd>+600 m</dd></div>
+        <div><dt>Campo 4</dt><dd>7 425 m, opcional</dd></div>
+      </dl></div><span class="no num">04</span><span class="tal t1">C3</span><span class="tal t2">Salida 0:00</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ CUMBRE -->
+<section class="escena" id="cumbre" style="padding-bottom:45lvh" data-lamina="cumbre" data-kb="1.04 .5 .45 1.1 .48 .4" data-kb-v="1.02 .5 .45 1.06 .5 .42"
+  data-dim=".03" data-ang="-90" data-nieve=".8" data-alt="8035" data-num="VI" data-capitulo="Cumbre" data-pines="cumbre">
+  <div class="capa campo">
+    <div class="par">
+      <div class="bidon revela" style="--ancho:230px"><div><div class="cifra num" data-cuenta="8035">8 035</div><div class="ud">metros</div></div></div>
+      <article class="lona revela d1">
+        <span class="ojo">Lámina VI · Primera hora de la tarde</span>
+        <h3>La cima</h3>
+        <p>Un pico de nieve sobre la frontera entre Pakistán y China. Hacia el noroeste, el Broad Peak a 10 km y, a su derecha, el K2 a 19 km, 576 m más alto. Alrededor, el Karakórum asoma sobre un mar de nubes.</p>
+        <p>El aire tiene un tercio del oxígeno del nivel del mar. Llegar es solo la mitad del trabajo, porque queda toda la bajada.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ HISTORIA -->
+<section class="escena" id="historia" data-lamina="cumbre" data-kb="1.1 .5 .4 1.2 .5 .34" data-kb-v="1.06 .5 .4 1.14 .5 .36"
+  data-dim=".3" data-noche=".88" data-nieve=".2" data-alt="8035" data-num="VI" data-capitulo="Ascensiones">
+  <div class="capa">
+    <header class="cabecera" style="padding-bottom:12lvh">
+      <span class="num-cap sombra-texto">Capítulo IV</span>
+      <div class="cinta desborda"><h2 class="rotulo letras una">Ascensiones</h2></div>
+      <p class="entradilla sombra-texto">Cae la noche sobre la cumbre. Siglo y medio de gente subiendo hacia ella, de un topógrafo a doscientos kilómetros a tres alpinistas en pleno invierno.</p>
+    </header>
+    <ol class="linea-tiempo ancho" id="linea">
+      <li class="revela"><span class="ano">1856</span><span class="nudo"></span><div class="hecho"><h3>K4</h3><p>Thomas George Montgomerie, del Gran Levantamiento Trigonométrico de la India, numera desde muy lejos las cumbres del Karakórum. Esta es la cuarta.</p></div></li>
+      <li class="revela"><span class="ano">1892</span><span class="nudo"></span><div class="hecho"><h3>Concordia</h3><p>La expedición de Martin Conway remonta el Baltoro y bautiza Concordia, el cruce de glaciares donde la caravana gira hacia los Gasherbrum.</p></div></li>
+      <li class="revela"><span class="ano">1909</span><span class="nudo"></span><div class="hecho"><h3>El duque de los Abruzos</h3><p>Luis Amadeo de Saboya explora el alto Baltoro con el fotógrafo Vittorio Sella. El glaciar donde se monta el campo base lleva su nombre.</p></div></li>
+      <li class="revela clave"><span class="ano">1956</span><span class="nudo"></span><div class="hecho"><h3>Primera ascensión</h3><p>La expedición austriaca de Fritz Moravec sube por el espolón suroeste. El 7 de julio, tras un vivac por encima del último campamento, Moravec, Josef Larch y Hans Willenpart llegan a la cima. Es el segundo ochomil del Karakórum escalado, después del K2.</p></div></li>
+      <li class="revela clave"><span class="ano">1975</span><span class="nudo"></span><div class="hecho"><h3>Dos mujeres en la cima</h3><p>El 12 de agosto, Halina Krüger-Syrokomska y Anna Okopińska, de la expedición polaca de Wanda Rutkiewicz, llegan a la cumbre: es la primera ascensión de un ochomil por una cordada solo de mujeres.</p></div></li>
+      <li class="revela"><span class="ano">1983</span><span class="nudo"></span><div class="hecho"><h3>Por el sureste</h3><p>El 1 de julio, Jerzy Kukuczka y Wojciech Kurtyka abren en estilo alpino una vía nueva por la arista sureste, pasando por la cima del G II Este. Ese mismo mes suben el G I por otra vía nueva.</p></div></li>
+      <li class="revela"><span class="ano">1984</span><span class="nudo"></span><div class="hecho"><h3>Dos ochomiles de un tirón</h3><p>Reinhold Messner y Hans Kammerlander suben el G II, bajan por otra vertiente, cruzan el circo y suben el G I sin volver al campo base. Werner Herzog los filma.</p></div></li>
+      <li class="revela clave"><span class="ano">2011</span><span class="nudo"></span><div class="hecho"><h3>Invierno</h3><p>El 2 de febrero, a las 11:28, Simone Moro, Denis Urubko y Cory Richards llegan a la cima por la ruta normal. Es la primera ascensión invernal de un ochomil de Pakistán. Al bajar, un alud los sepulta y Moro desentierra a sus compañeros.</p></div></li>
+    </ol>
+    <div class="aire" style="--aire:34lvh"></div>
+  </div>
+</section>
+
+<!-- ================================================================ HAZAÑAS -->
+<section class="escena" id="hazanas" data-lamina="ruta" data-kb="1.2 .5 .4 1.08 .5 .4" data-kb-v="1.14 .5 .45 1.04 .5 .45"
+  data-dim=".36" data-noche=".55" data-ang="160" data-nieve=".1" data-alt="12500" data-num="VII" data-capitulo="Hazañas y anécdotas">
+  <div class="capa">
+    <header class="cabecera" style="padding-bottom:14lvh">
+      <span class="num-cap sombra-texto">Capítulo V</span>
+      <div class="cinta desborda"><h2 class="rotulo letras">Hazañas y anécdotas</h2></div>
+    </header>
+    <div class="hazanas">
+      <div class="h1 revela"><div class="fardo">
+        <div class="zona ajusta" data-fit=".026">
+          <span class="ojo">12 de agosto de 1975</span>
+          <h3>Una cordada de mujeres</h3>
+          <p>La expedición de Wanda Rutkiewicz, organizada en el Año Internacional de la Mujer, tenía permiso para el G III. Lo subieron el 11 de agosto. Al día siguiente, Halina Krüger-Syrokomska y Anna Okopińska llegaban a la cima del G II por la vía de los austriacos: el primer ochomil subido por una cordada solo de mujeres.</p>
+        </div>
+      </div></div>
+      <div class="h2 fardo v azul revela d1">
+        <div class="zona ajusta" data-fit=".05">
+          <span class="ojo">1984</span>
+          <h3>La travesía</h3>
+          <p>Messner y Kammerlander encadenan el G II y el G I sin volver al campo base. Herzog lo cuenta en «Gasherbrum – Der leuchtende Berg».</p>
+        </div>
+      </div>
+      <div class="h3 med revela"><div class="bidon blanco"><div><div class="cifra num">11:28</div><div class="ud">2 · II · 2011</div></div></div>
+        <p>La hora de la primera cumbre invernal, según el relato de los tres alpinistas.</p></div>
+      <div class="h4 revela d1"><div class="fardo azul">
+        <div class="zona ajusta" data-fit=".026">
+          <span class="ojo">2 de febrero de 2011 · Moro, Urubko y Richards</span>
+          <h3>Bajo el alud</h3>
+          <p>Bajaban de la primera invernal del Karakórum cuando un alud los alcanzó y los dejó medio enterrados. Simone Moro, el menos cubierto, se desencordó y sacó de la nieve a Denis Urubko y a Cory Richards. La foto que Richards se hizo después, con la cara cubierta de nieve, dio la vuelta al mundo.</p>
+        </div>
+      </div></div>
+      <div class="h5 revela"><div class="ficha-h blanca">
+        <div class="cab">Kukuczka · Kurtyka · 1983</div>
+        <div class="zona ajusta" data-fit=".03">
+          <span class="grande num">4 días</span>
+          <p>Unos cuatro días para abrir en estilo alpino la arista sureste y bajar, sin cuerdas fijas ni campamentos montados.</p>
+        </div>
+        <span class="tal t0 num">83</span><span class="tal t1">Alpino</span><span class="tal t2">G II Este</span><span class="tal t3">1 · VII</span>
+      </div></div>
+      <div class="h6 revela d1"><div class="fardo">
+        <div class="zona ajusta" data-fit=".026">
+          <span class="ojo">7 de julio de 1956</span>
+          <h3>El vivac de los austriacos</h3>
+          <p>Moravec, Larch y Willenpart decidieron jugárselo todo a un ataque de dos días. Pasaron la noche en un vivac, por encima del último campamento, y al día siguiente tardaron unas siete horas en llegar a la cima. Moravec y Larch volvieron con congelaciones leves.</p>
+        </div>
+      </div></div>
+    </div>
+    <div class="aire" style="--aire:36lvh"></div>
+  </div>
+</section>
+
+<!-- ================================================================ LÁMINAS -->
+<section class="escena laminas" id="laminas" data-lamina="ruta" data-kb="1.06 .5 .45 1.1 .5 .45"
+  data-dim=".76" data-noche=".9" data-alt="12500" data-num="VII" data-capitulo="Cuaderno de láminas">
+  <div class="fijo">
+    <div class="cab-lam">
+      <div>
+        <span class="num-cap ojo" style="font-size:1rem;color:var(--hielo)">Capítulo VI</span>
+        <h2>Cuaderno de láminas</h2>
+      </div>
+      <p>Ocho vistas pintadas por programa a pincel seco sobre el relieve real. La forma de cada montaña sale del modelo Copernicus; la luz, del sol a 35,7° N a la hora de cada lámina, con sus sombras exactas.</p>
+    </div>
+    <div class="pista-caja"><div class="pista" id="pista">
+      <figure><div class="marco"><img src="laminas/gondogoro-g.webp" alt="Lámina I: el macizo de los Gasherbrum al atardecer desde el Gondogoro La" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">I</span>El macizo desde el Gondogoro La</b><span>5 585 m · mira al NE · atardecer</span></figcaption></figure>
+      <figure><div class="marco"><img src="laminas/campo_base-g.webp" alt="Lámina II: el campo base con carpas y banderas de oración frente a la cascada de hielo" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">II</span>Campo Base</b><span>5 120 m, glaciar Abruzzi · mira al N · mañana</span></figcaption></figure>
+      <figure><div class="marco"><img src="laminas/campo_1-g.webp" alt="Lámina III: el Campo 1 en el circo, con la pared sur del G II" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">III</span>Campo 1</b><span>5 880 m, circo del Gasherbrum Sur · mira al NNE · tarde</span></figcaption></figure>
+      <figure><div class="marco"><img src="laminas/campo_2-g.webp" alt="Lámina IV: el Campo 2 en el espolón con la cara oeste del G I encendida" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">IV</span>Campo 2</b><span>6 410 m, repisa del espolón · mira al ESE · tarde dorada</span></figcaption></figure>
+      <figure><div class="marco"><img src="laminas/campo_3-g.webp" alt="Lámina V: el Campo 3 a medianoche, con la luna sobre el mar de nubes" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">V</span>Campo 3</b><span>7 010 m, hombro bajo la pirámide · mira al SSO · medianoche</span></figcaption></figure>
+      <figure><div class="marco"><img src="laminas/cumbre-g.webp" alt="Lámina VI: vista desde la cumbre hacia el Broad Peak y el K2" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">VI</span>Cumbre</b><span>8 035 m · mira al NO · primera hora de la tarde</span></figcaption></figure>
+      <figure><div class="marco"><img src="laminas/ruta-g.webp" alt="Lámina VII: vista aérea de toda la ruta normal, del campo base a la cumbre" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">VII</span>La ruta normal</b><span>Desde 12 500 m al sur-suroeste · mira al N · media mañana · lámina nueva</span></figcaption></figure>
+      <figure><div class="marco"><img src="laminas/caravana-g.webp" alt="Lámina VIII: porteadores con bidones y fardos bajando por la morrena del Abruzzi, con el macizo al fondo" loading="lazy" decoding="async"></div>
+        <figcaption><b><span class="rom">VIII</span>La caravana</b><span>≈ 5 200 m, morrena del Abruzzi · mira al NE · mañana · lámina nueva</span></figcaption></figure>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================================================================ COLOFÓN -->
+<section class="escena colofon" id="colofon" data-lamina="gondogoro" data-kb="1.1 .5 .5 1.1 .5 .5" data-dim=".84" data-noche="1" data-alt="5585" data-num="I" data-capitulo="Colofón">
+  <div class="capa">
+    <div class="morrena ancho" aria-hidden="true"></div>
+    <article class="lona cruda ancho">
+      <span class="ojo">Colofón</span>
+      <h3>Cómo está hecha esta página</h3>
+      <div class="cols">
+        <div>
+          <h4>Las láminas</h4>
+          <p>Pintadas por programa a pincel seco sobre el relieve real, con el motor del G II reconstruido a 5 120 × 2 880 píxeles. Las cámaras están en la posición y la altura de cada campo de la ruta normal, situados a partir de las descripciones publicadas. Las láminas VII y VIII son nuevas, con la misma tubería; la VIII añade al motor la figura del porteador.</p>
+        </div>
+        <div>
+          <h4>El relieve</h4>
+          <p>Copernicus DEM GLO-90. © DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, provisto bajo COPERNICUS por la Unión Europea y la ESA. Teselas reempaquetadas por el proyecto Vershiny. Cotas oficiales impuestas a las cimas.</p>
+        </div>
+        <div>
+          <h4>La identidad</h4>
+          <p>Identidad «Caravana»: la carga de los porteadores como contenedor. Lona, fichas de carga, fardos de rafia, la tapa de un bidón y la morrena del Baltoro, generados por programa. Tipografías Big Shoulders Stencil y Literata, con licencia SIL Open Font.</p>
+        </div>
+        <div>
+          <h4>Fuentes</h4>
+          <ul>
+            <li><a href="https://himalayanclub.org/hj/20/3/austrian-karakoram-expedition-1956/" target="_blank" rel="noopener">Himalayan Journal 20: Austrian Karakoram Expedition, 1956</a></li>
+            <li><a href="https://himalayanclub.org/hj/34/18/polish-ascents-of-gasherbrum-ii-and-iii-1975" target="_blank" rel="noopener">Himalayan Journal 34: Polish ascents of Gasherbrum II and III, 1975</a></li>
+            <li><a href="https://publications.americanalpineclub.org/articles/12198403700/Gasherbrum-II-and-Hidden-Peak-New-Routes" target="_blank" rel="noopener">AAJ 1984: Gasherbrum II and Hidden Peak, new routes</a></li>
+            <li><a href="https://publications.americanalpineclub.org/articles/12201127202" target="_blank" rel="noopener">AAJ 2011: Gasherbrum II, first winter ascent</a></li>
+            <li><a href="https://www.guinnessworldrecords.com/world-records/665623-first-ascent-of-gasherbrum-ii-female" target="_blank" rel="noopener">Guinness World Records: first female ascent of Gasherbrum II</a></li>
+          </ul>
+        </div>
+      </div>
+    </article>
+    <div class="final">
+      <a class="boton" href="#inicio" id="volver">Volver a la portada</a>
+      <a class="enlace-suave" href="../" id="volver-serie" hidden>Los 14 ochomiles</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(() => {
+'use strict';
+const D = document, R = D.documentElement;
+R.lang = 'es';
+R.classList.add('js');
+const $ = (s, r = D) => r.querySelector(s);
+const $$ = (s, r = D) => [...r.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const suave = t => t * t * (3 - 2 * t);
+const miles = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ------------------------------------------------------------------ orientación y tamaños
+const TAM = { h: [2560, 1440], v: [1440, 2880] };
+const orientar = () => (innerWidth / innerHeight < 0.8 ? 'v' : 'h');
+let ORI = orientar();
+let VW = innerWidth, VH = innerHeight;
+
+// ------------------------------------------------------------------ escenas
+const nums = s => (s ? s.trim().split(/\s+/).map(Number) : null);
+const escenas = $$('section.escena').map((el, i) => {
+  const d = el.dataset;
+  return {
+    el, i, id: el.id, lamina: d.lamina,
+    kbh: nums(d.kb) || [1.04, .5, .5, 1.1, .5, .5], kbv: nums(d.kbV) || nums(d.kb) || [1.04, .5, .5, 1.1, .5, .5],
+    dim: +(d.dim || .1), noche: +(d.noche || 0), nieve: +(d.nieve || 0), ang: +(d.ang || -8) * Math.PI / 180,
+    alt: d.alt ? +d.alt : null, num: d.num || '', cap: d.capitulo || '', pines: d.pines || null, top: 0, h: 1,
+  };
+});
+const pasosMacizo = $$('#macizo .paso');
+const pasosRuta = $$('#ruta .paso');
+let pasosTop = new Map();
+function medir() {
+  VW = innerWidth; VH = innerHeight;
+  const y = scrollY;
+  for (const e of escenas) { const r = e.el.getBoundingClientRect(); e.top = r.top + y; e.h = r.height; }
+  for (const p of [...pasosMacizo, ...pasosRuta]) pasosTop.set(p, p.getBoundingClientRect().top + y);
+  medirGaleria();
+}
+
+// ------------------------------------------------------------------ texturas y WebGL
+const lienzo = $('#fondo');
+let gl = null, prog = null, U = {}, esGL2 = false;
+try {
+  gl = lienzo.getContext('webgl2', { antialias: false, alpha: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
+  esGL2 = !!gl;
+  if (!gl) gl = lienzo.getContext('webgl', { antialias: false, alpha: false, premultipliedAlpha: false }) || lienzo.getContext('experimental-webgl');
+} catch (e) { gl = null; }
+
+const VS = `attribute vec2 p; varying vec2 vUv;
+void main(){ vUv = vec2(p.x * .5 + .5, .5 - p.y * .5); gl_Position = vec4(p, 0., 1.); }`;
+const FS = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec2 vUv;
+uniform sampler2D uA, uB;
+uniform vec4 uTA, uTB;
+uniform float uP, uT, uDim, uNoche, uAng, uLA, uLB, uAsp, uSem, uSuave;
+uniform vec3 uFondo;
+float h21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float ruido(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+  return mix(mix(h21(i), h21(i + vec2(1., 0.)), u.x), mix(h21(i + vec2(0., 1.)), h21(i + vec2(1., 1.)), u.x), u.y); }
+float fbm(vec2 p){ float a = .5, s = 0.; for (int i = 0; i < 4; i++){ s += a * ruido(p); p = p * 2.03 + 17.1; a *= .5; } return s; }
+vec3 lamina(sampler2D t, vec4 T, vec2 uv, float listo){
+  vec2 q = T.xy + uv * T.zw;
+  vec3 c = texture2D(t, clamp(q, vec2(.0005), vec2(.9995))).rgb;
+  return mix(uFondo, c, listo);
+}
+vec3 noche(vec3 c){
+  float L = clamp(dot(c, vec3(.299, .587, .114)) * 1.45, 0., 1.);
+  vec3 base = mix(vec3(10., 14., 34.) / 255., vec3(190., 204., 238.) / 255., pow(L, 1.35));
+  return .78 * base + .22 * c * vec3(.40, .52, .90);
+}
+void main(){
+  vec2 uv = vUv;
+  vec3 col;
+  if (uP <= .0005) col = lamina(uA, uTA, uv, uLA);
+  else if (uP >= .9995) col = lamina(uB, uTB, uv, uLB);
+  else {
+    vec2 q = uv - .5; q.x *= uAsp;
+    float ca = cos(uAng), sa = sin(uAng);
+    vec2 r = vec2(ca * q.x + sa * q.y, -sa * q.x + ca * q.y);
+    float ex = .5 * (abs(ca) * uAsp + abs(sa));
+    float ey = .5 * (abs(sa) * uAsp + abs(ca));
+    float f = r.x / ex * .5 + .5;
+    float g = r.y / ey * .5 + .5;
+    float gw = g + (fbm(vec2(f * 2.6, g * 3.0 + uSem)) - .5) * .06;
+    float banda = floor(gw * 7.);
+    float retraso = h21(vec2(banda, uSem)) * .34;
+    float t = uP * 1.62 - retraso;
+    float cerda = ruido(vec2(f * 5., g * 260.)) * .55 + ruido(vec2(f * 1.6, g * 74.)) * .45;
+    float seco = (cerda - .5) * .085 + (fbm(vec2(f * 7., g * 18.)) - .5) * .12;
+    float m = smoothstep(0., .07, t - f + seco);
+    m = mix(m, smoothstep(0., 1., uP), uSuave);
+    vec2 dir = vec2(ca, sa) / vec2(uAsp, 1.);
+    float borde = m * (1. - m) * 4.;
+    vec3 a = lamina(uA, uTA, uv, uLA);
+    vec3 b = lamina(uB, uTB, uv - dir * (1. - m) * .008 * (1. - uSuave), uLB);
+    col = mix(a, b, m);
+    col *= 1. - .2 * borde * (1. - uSuave);
+  }
+  col = mix(col, noche(col), uNoche);
+  vec2 d = vUv - .5; d.x *= mix(1., uAsp, .6);
+  float vig = smoothstep(.98, .28, length(d));
+  col *= mix(1., .58 + .42 * vig, .75);
+  col *= 1. - uDim;
+  col += (h21(vUv * vec2(1733., 977.) + fract(uT * .37)) - .5) * .018;
+  gl_FragColor = vec4(col, 1.);
+}`;
+
+function compilar(tipo, src) {
+  const s = gl.createShader(tipo); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+if (gl) {
+  try {
+    prog = gl.createProgram();
+    gl.attachShader(prog, compilar(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, compilar(gl.FRAGMENT_SHADER, FS));
+    gl.bindAttribLocation(prog, 0, 'p');
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    for (const n of ['uA', 'uB', 'uTA', 'uTB', 'uP', 'uT', 'uDim', 'uNoche', 'uAng', 'uLA', 'uLB', 'uAsp', 'uSem', 'uSuave', 'uFondo'])
+      U[n] = gl.getUniformLocation(prog, n);
+    gl.uniform1i(U.uA, 0); gl.uniform1i(U.uB, 1);
+    gl.uniform3f(U.uFondo, 23 / 255, 25 / 255, 31 / 255);
+    gl.uniform1f(U.uSuave, reducido ? 1 : 0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  } catch (err) { console.warn('WebGL no disponible:', err); gl = null; }
+}
+if (!gl) { lienzo.hidden = true; $('#respaldo').hidden = false; }
+
+const texturas = new Map();
+function pedir(clave, ori = ORI, subirYa = true) {
+  const key = clave + '-' + ori;
+  let T = texturas.get(key);
+  if (!T) {
+    T = { key, img: new Image(), tex: null, cargada: false, lista: false, t0: 0, uso: 0 };
+    T.img.decoding = 'async';
+    T.img.onload = () => { T.cargada = true; pintarPronto(); };
+    T.img.src = `laminas/${key}.webp`;
+    texturas.set(key, T);
+  }
+  T.uso = performance.now();
+  if (subirYa && gl && T.cargada && !T.tex) subir(T);
+  return T;
+}
+function subir(T) {
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, T.img);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  if (esGL2) { gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); }
+  else gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  T.tex = tex; T.lista = true; T.t0 = T.vista ? performance.now() - 2000 : performance.now(); T.vista = true;
+  const vivas = [...texturas.values()].filter(t => t.tex).sort((a, b) => b.uso - a.uso);
+  for (const t of vivas.slice(5)) { gl.deleteTexture(t.tex); t.tex = null; t.lista = false; }
+}
+const aparicion = T => (T && (gl ? T.lista : T.cargada) ? clamp((performance.now() - T.t0) / 700) : 0);
+
+function encuadre(z, fx, fy) {
+  const [iw, ih] = TAM[ORI];
+  const rs = VW / VH, ri = iw / ih;
+  let sx = 1, sy = 1;
+  if (rs > ri) sy = ri / rs; else sx = rs / ri;
+  sx /= z; sy /= z;
+  const cx = clamp(fx, sx / 2, 1 - sx / 2), cy = clamp(fy, sy / 2, 1 - sy / 2);
+  return [cx - sx / 2, cy - sy / 2, sx, sy];
+}
+const aPantalla = (T, u, v) => [(u - T[0]) / T[2] * VW, (v - T[1]) / T[3] * VH];
+
+// ------------------------------------------------------------------ estado por scroll
+let raton = [0, 0], ratonS = [0, 0];
+addEventListener('pointermove', e => { if (e.pointerType === 'mouse') raton = [e.clientX / VW * 2 - 1, e.clientY / VH * 2 - 1]; }, { passive: true });
+
+function kbDe(e, t) {
+  const k = ORI === 'v' ? e.kbv : e.kbh;
+  return [lerp(k[0], k[3], t), lerp(k[1], k[4], t), lerp(k[2], k[5], t)];
+}
+const progEscena = (e, y) => clamp((y + VH - e.top) / (e.h + VH));
+let EST = null;
+function calcular(t) {
+  const y = scrollY;
+  let cur = 0;
+  for (const e of escenas) if (e.top - y < VH * .9) cur = e.i;
+  const E = escenas[cur], P = escenas[cur - 1];
+  const ent = P ? suave(clamp((VH * .9 - (E.top - y)) / (VH * .72))) : 1;
+  let A, B, p, kA, kB;
+  const kE = kbDe(E, progEscena(E, y));
+  if (P && P.lamina !== E.lamina) { A = P.lamina; B = E.lamina; p = ent; kA = kbDe(P, progEscena(P, y)); kB = kE; }
+  else if (P) { A = B = E.lamina; p = 1; const kP = kbDe(P, progEscena(P, y)); kB = kA = kP.map((v, j) => lerp(v, kE[j], ent)); }
+  else { A = B = E.lamina; p = 1; kA = kB = kE; }
+  const v = (k) => lerp(P ? P[k] : E[k], E[k], ent);
+  ratonS[0] += (raton[0] - ratonS[0]) * .05; ratonS[1] += (raton[1] - ratonS[1]) * .05;
+  const vida = reducido ? 0 : 1;
+  const resp = 1 + .006 * Math.sin(t * .00021) * vida;
+  const par = (k) => [k[0] * resp * (1 + .012 * vida), k[1] + ratonS[0] * .008 * vida / k[0], k[2] + ratonS[1] * .006 * vida / k[0]];
+  EST = { cur, E, P, ent, A, B, p, TA: encuadre(...par(kA)), TB: encuadre(...par(kB)),
+    dim: v('dim'), noche: v('noche'), nieve: v('nieve'), ang: E.ang, y };
+  return EST;
+}
+
+// ------------------------------------------------------------------ dibujo del fondo
+const respaldo = $$('#respaldo .rl');
+let semilla = 1.7, ultimaTransicion = '';
+function dibujarFondo(t) {
+  const S = EST;
+  const TA = pedir(S.A), TB = pedir(S.B);
+  const clave = S.A + '>' + S.B;
+  if (clave !== ultimaTransicion) { ultimaTransicion = clave; semilla = (semilla * 7.31 + 3.17) % 97; }
+  if (!gl) {
+    const [ra, rb] = respaldo;
+    const ponerFondo = (el, T, z) => {
+      if (el.dataset.k !== T.key) { el.style.backgroundImage = `url(laminas/${T.key}.webp)`; el.dataset.k = T.key; }
+      el.style.transform = `scale(${z.toFixed(3)})`;
+    };
+    const k = kbDe(S.E, progEscena(S.E, S.y));
+    ponerFondo(ra, TA, k[0]); ponerFondo(rb, TB, k[0]);
+    ra.style.opacity = TA.cargada ? 1 - S.p : 0; rb.style.opacity = TB.cargada ? S.p : 0;
+    $('#respaldo').style.setProperty('--oscuro', S.dim + S.noche * .35);
+    return;
+  }
+  const dpr = Math.min(devicePixelRatio || 1, 1.6);
+  const w = Math.round(lienzo.clientWidth * dpr), h = Math.round(lienzo.clientHeight * dpr);
+  if (lienzo.width !== w || lienzo.height !== h) { lienzo.width = w; lienzo.height = h; }
+  gl.viewport(0, 0, w, h);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, TA.tex || null);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, TB.tex || null);
+  gl.uniform4fv(U.uTA, S.TA); gl.uniform4fv(U.uTB, S.TB);
+  gl.uniform1f(U.uP, S.p); gl.uniform1f(U.uT, t / 1000);
+  gl.uniform1f(U.uDim, S.dim); gl.uniform1f(U.uNoche, S.noche);
+  gl.uniform1f(U.uAng, S.ang); gl.uniform1f(U.uAsp, VW / VH); gl.uniform1f(U.uSem, semilla);
+  gl.uniform1f(U.uLA, aparicion(TA)); gl.uniform1f(U.uLB, aparicion(TB));
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  for (const j of [S.cur + 1, S.cur - 1, S.cur + 2]) {
+    const e = escenas[j]; if (!e) continue;
+    const T = texturas.get(e.lamina + '-' + ORI);
+    if (T && T.cargada && !T.tex) { T.uso = performance.now() - 1; subir(T); break; }
+  }
+}
+
+function precargar() {
+  const i = EST ? EST.cur : 0;
+  const orden = [];
+  for (let d = 0; d < escenas.length; d++) for (const j of [i + d, i - d]) if (escenas[j] && !orden.includes(escenas[j].lamina)) orden.push(escenas[j].lamina);
+  let k = 0;
+  const siguiente = () => { if (k >= orden.length) return; const T = pedir(orden[k++], ORI, false); if (T.cargada) siguiente(); else T.img.addEventListener('load', siguiente, { once: true }); };
+  siguiente();
+}
+
+// ------------------------------------------------------------------ marcas: cimas, campos, ruta
+let PROY = null;
+fetch('datos/proyecciones.json').then(r => r.json()).then(j => { PROY = j; construirPerfil(); construirPlano(); montarMarcas(); pintarPronto(); })
+  .catch(err => console.warn('Sin proyecciones:', err));
+
+const NOMBRE_CORTO = { g1: 'G I', g2: 'G II', g2e: 'G II Este', g3: 'G III', g4: 'G IV', g5: 'G V', g6: 'G VI', bp: 'Broad Peak',
+  bpc: 'Broad Peak Central', k2: 'K2', chog: 'Chogolisa', bk: 'Baltoro Kangri' };
+const CAMPOS_TXT = { CB: 'Campo Base', C1: 'Campo 1', C2: 'Campo 2', C3: 'Campo 3', C4: 'Campo 4', Cima: 'Cima' };
+const CAMPOS_Z = { CB: 5120, C1: 5880, C2: 6410, C3: 7010, C4: 7425, Cima: 8035 };
+const TRAMOS_TXT = ['Campo Base · 5 120 m', 'La cascada de hielo', 'El circo y la Banana Ridge', 'El espolón', 'Bajo la pirámide', 'La travesía final'];
+const NTRAMOS = 5;
+const GRUPOS = {
+  macizo: { lamina: 'gondogoro', cimas: ['bp', 'g4', 'g3', 'g2', 'g1'], destacar: 'g2' },
+  caravana: { lamina: 'caravana', cimas: ['g2', 'g6', 'g1'], campos: ['CB'], destacar: 'g2' },
+  ruta: { lamina: 'ruta', cimas: ['g2', 'g1', 'g3', 'g4'], ruta: 'paso', destacar: 'g2' },
+  campobase: { lamina: 'campo_base', cimas: ['g2', 'g3', 'g2e'], destacar: 'g2' },
+  campo1: { lamina: 'campo_1', cimas: ['g2', 'g2e'], campos: ['C3', 'C4', 'Cima'], destacar: 'g2' },
+  campo2: { lamina: 'campo_2', cimas: ['g1'] },
+  campo3: { lamina: 'campo_3', cimas: ['g6', 'g5', 'chog', 'bk'] },
+  cumbre: { lamina: 'cumbre', cimas: ['k2', 'bp'], destacar: 'k2' },
+};
+const capaMarcas = $('#marcas');
+const trazo = { svg: $('#trazo'), halo: $('#trazo .halo'), vis: $('#trazo .vis'), ocu: $('#trazo .ocu'), cab: $('#trazo .cabeza'), cabH: $('#trazo .cabeza-halo') };
+let marcas = [];
+function crearPin(clase, html) {
+  const el = D.createElement('div'); el.className = 'pin ' + clase; el.innerHTML = `<span class="tallo"></span><span class="punto"></span><span class="rotulo">${html}</span>`;
+  capaMarcas.appendChild(el); return el;
+}
+function montarMarcas() {
+  for (const m of marcas) m.el.remove();
+  marcas = [];
+  if (!PROY) return;
+  for (const [g, cfg] of Object.entries(GRUPOS)) {
+    const L = PROY.laminas[cfg.lamina] && PROY.laminas[cfg.lamina][ORI];
+    if (!L) continue;
+    cfg.L = L;
+    cfg.cimas.forEach((id, k) => {
+      const c = L.cimas.find(x => x.id === id); if (!c || !c.vis || c.u < 0 || c.u > 1) return;
+      const html = `<b>${NOMBRE_CORTO[id] || c.nombre}</b><i>${miles(c.cota)} m</i>`;
+      const el = crearPin(cfg.destacar === id ? 'destacado' : '', html);
+      marcas.push({ el, grupo: g, tipo: 'cima', id, u: c.u, v: c.v, orden: k, h: 38 });
+    });
+    for (const id of (cfg.campos || [])) {
+      const c = L.campos.find(x => x.id === id); if (!c || c.u < 0 || c.u > 1) continue;
+      const el = crearPin('pcampo', `<b>${id === 'Cima' ? 'Cima' : id}</b><i>${miles(CAMPOS_Z[id])} m</i>`);
+      el.style.setProperty('--h', '24px');
+      marcas.push({ el, grupo: g, tipo: 'campo', id, u: c.u, v: c.v, h: 24, fijo: true });
+    }
+    if (cfg.ruta === 'paso' && L.ruta) {
+      for (const c of L.campos) {
+        if (c.u < -0.02 || c.u > 1.02) continue;
+        const el = crearPin('pcampo', `<b>${c.id === 'Cima' ? 'Cima' : c.id}</b><i>${miles(CAMPOS_Z[c.id])} m</i>`);
+        el.style.setProperty('--h', '24px');
+        marcas.push({ el, grupo: g, tipo: 'campo', id: c.id, u: c.u, v: c.v, h: 24 });
+      }
+      for (const r of L.rasgos) {
+        const el = crearPin('prasgo', r.nombre);
+        marcas.push({ el, grupo: g, tipo: 'rasgo', id: r.id, u: r.u, v: r.v, h: 0 });
+      }
+      const idx = (u, v) => { let b = 0, bd = 1e9; L.ruta.forEach((p, k) => { const d = (p[0] - u) ** 2 + (p[1] - v) ** 2; if (d < bd) { bd = d; b = k; } }); return b; };
+      const ids = ['CB', 'C1', 'C2', 'C3', 'C4', 'Cima'];
+      cfg.idxCampos = ids.map(id => { const c = L.campos.find(x => x.id === id); return c ? idx(c.u, c.v) : 0; });
+      cfg.idxCampos[0] = 0; cfg.idxCampos[NTRAMOS] = L.ruta.length - 1;
+      for (const m of marcas) if (m.grupo === g && m.tipo === 'rasgo') m.idx = idx(m.u, m.v);
+      for (const m of marcas) if (m.grupo === g && m.tipo === 'campo') m.idx = cfg.idxCampos[ids.indexOf(m.id)];
+    }
+  }
+  for (const m of marcas) m.ancho = 0;
+}
+function escalonar(lista) {
+  lista.sort((a, b) => a.y - b.y);
+  const cajas = [];
+  for (const m of lista) {
+    const ro = m.el.querySelector('.rotulo');
+    if (!m.ancho) { m.ancho = ro.offsetWidth || 110; m.alto = ro.offsetHeight || 26; }
+    let h = 30;
+    const choca = (hh) => {
+      const x0 = m.x - m.ancho / 2 - 5, x1 = m.x + m.ancho / 2 + 5, y1 = m.y - hh - 3, y0 = y1 - m.alto - 4;
+      return cajas.some(c => x0 < c[2] && x1 > c[0] && y0 < c[3] && y1 > c[1]);
+    };
+    while (h < 200 && choca(h)) h += 8;
+    const y1 = m.y - h - 3;
+    cajas.push([m.x - m.ancho / 2 - 5, y1 - m.alto - 4, m.x + m.ancho / 2 + 5, y1]);
+    if (Math.abs(h - m.h) > 1) { m.h = h; m.el.style.setProperty('--h', h + 'px'); }
+  }
+}
+function progresoRuta(y) {
+  let R = 0;
+  for (const p of pasosRuta) {
+    const k = +p.dataset.tramo; if (!k) continue;
+    const top = pasosTop.get(p) - y;
+    R += suave(clamp((VH * .86 - top) / (VH * .46)));
+  }
+  return R;
+}
+function rutaHasta(cfg, R) {
+  const c = cfg.idxCampos; if (!c) return 0;
+  const k = Math.min(NTRAMOS - 1, Math.floor(R)), f = R - k;
+  return R >= NTRAMOS ? c[NTRAMOS] : lerp(c[k], c[k + 1], f);
+}
+function dibujarTrazo(cfg, T, hasta, alfa) {
+  const pts = cfg.L.ruta;
+  let dv = '', doc = '', tipoPrev = null, cab = null;
+  const n = Math.min(pts.length - 1, hasta);
+  for (let k = 0; k < Math.ceil(n); k++) {
+    const f = Math.min(1, n - k);
+    const a = pts[k], b = pts[k + 1];
+    const [x0, y0] = aPantalla(T, a[0], a[1]);
+    let [x1, y1] = aPantalla(T, b[0], b[1]);
+    x1 = lerp(x0, x1, f); y1 = lerp(y0, y1, f);
+    const vis = a[2] && b[2];
+    if (vis) { if (tipoPrev !== true) dv += `M${x0.toFixed(1)} ${y0.toFixed(1)}`; dv += `L${x1.toFixed(1)} ${y1.toFixed(1)}`; }
+    else { if (tipoPrev !== false) doc += `M${x0.toFixed(1)} ${y0.toFixed(1)}`; doc += `L${x1.toFixed(1)} ${y1.toFixed(1)}`; }
+    tipoPrev = vis; cab = [x1, y1];
+  }
+  trazo.vis.setAttribute('d', dv); trazo.halo.setAttribute('d', dv); trazo.ocu.setAttribute('d', doc);
+  trazo.svg.style.opacity = alfa;
+  if (cab && hasta > 0.5) {
+    const pul = reducido ? 0 : (Math.sin(performance.now() / 260) + 1) / 2;
+    trazo.cab.setAttribute('cx', cab[0]); trazo.cab.setAttribute('cy', cab[1]); trazo.cab.setAttribute('r', 6);
+    trazo.cabH.setAttribute('cx', cab[0]); trazo.cabH.setAttribute('cy', cab[1]); trazo.cabH.setAttribute('r', 11 + pul * 8);
+  } else { trazo.cab.setAttribute('r', 0); trazo.cabH.setAttribute('r', 0); }
+}
+function actualizarMarcas() {
+  if (!PROY) return;
+  const S = EST;
+  let g = S.E.pines, apagado = 1;
+  if (!g && S.P && S.P.pines && S.P.lamina === S.E.lamina) { g = S.P.pines; apagado = clamp(1 - S.ent * 1.6); }
+  const cfg = g ? GRUPOS[g] : null;
+  const pleno = cfg && S.B === cfg.lamina ? clamp((S.p - .82) / .18) * apagado : 0;
+  let pasoMacizo = -1;
+  if (g === 'macizo' && S.E.pines !== 'macizo') pasoMacizo = 9;
+  else if (g === 'macizo') for (const p of pasosMacizo) if (pasosTop.get(p) - S.y < VH * .62) pasoMacizo = +p.dataset.paso;
+  const R = g === 'ruta' ? progresoRuta(S.y) : 0;
+  const hasta = cfg && cfg.ruta === 'paso' ? rutaHasta(cfg, R) : 0;
+  const cimasActivas = [];
+  for (const m of marcas) {
+    const activo = m.grupo === g && pleno > 0;
+    let on = activo;
+    if (activo && m.grupo === 'macizo') on = pasoMacizo >= 5 || m.orden <= pasoMacizo;
+    if (activo && m.grupo === 'ruta' && m.tipo !== 'cima') on = (m.idx ?? 0) <= hasta + 1;
+    if (activo && m.grupo === 'ruta' && m.tipo === 'cima') on = R > NTRAMOS - .4;
+    m.el.classList.toggle('on', on);
+    if (activo) {
+      const [x, yy] = aPantalla(S.TB, m.u, m.v);
+      m.el.style.transform = `translate3d(${x.toFixed(1)}px, ${yy.toFixed(1)}px, 0)`;
+      if (m.tipo !== 'rasgo' && on) { m.x = x; m.y = yy; cimasActivas.push(m); }
+    }
+  }
+  if (cimasActivas.length > 1) escalonar(cimasActivas);
+  capaMarcas.style.opacity = pleno;
+  if (cfg && cfg.ruta === 'paso' && cfg.L && cfg.L.ruta && pleno > 0) dibujarTrazo(cfg, S.TB, hasta, 1);
+  else trazo.svg.style.opacity = 0;
+  if (g === 'ruta') actualizarPerfil(R);
+}
+
+// ------------------------------------------------------------------ perfil y plano (SVG)
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, at = {}, padre) => { const e = D.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); if (padre) padre.appendChild(e); return e; };
+let PERF = null;
+function construirPerfil() {
+  const svg = $('#perfil-svg'); if (!svg || !PROY) return;
+  svg.innerHTML = '';
+  const { puntos, paradas } = PROY.perfil;
+  const W = 420, H = 220, m = { l: 42, r: 14, t: 18, b: 28 };
+  const kmMax = puntos[puntos.length - 1][0];
+  const X = km => m.l + km / kmMax * (W - m.l - m.r);
+  const Y = z => m.t + (1 - (z - 4900) / (8250 - 4900)) * (H - m.t - m.b);
+  const defs = el('defs', {}, svg);
+  const gr = el('linearGradient', { id: 'grad-perfil', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  el('stop', { offset: 0, 'stop-color': '#9DB0F5', 'stop-opacity': .55 }, gr);
+  el('stop', { offset: 1, 'stop-color': '#2645B0', 'stop-opacity': .06 }, gr);
+  const cp = el('clipPath', { id: 'corte-perfil' }, defs);
+  const rect = el('rect', { x: 0, y: 0, width: X(0), height: H }, cp);
+  const ejes = el('g', { class: 'ejes' }, svg);
+  for (const z of [5000, 6000, 7000, 8000]) {
+    el('line', { x1: m.l, x2: W - m.r, y1: Y(z), y2: Y(z), stroke: 'rgba(238,240,243,.16)', 'stroke-width': 1 }, ejes);
+    const t = el('text', { x: m.l - 6, y: Y(z) + 4, 'text-anchor': 'end' }, ejes); t.textContent = miles(z);
+  }
+  for (const km of [0, 2, 4, 6, 8]) { const t = el('text', { x: X(km), y: H - 8, 'text-anchor': 'middle' }, ejes); t.textContent = km + (km === 8 ? ' km' : ''); }
+  const linea = puntos.map((p, k) => `${k ? 'L' : 'M'}${X(p[0]).toFixed(1)} ${Y(p[1]).toFixed(1)}`).join('');
+  el('path', { d: linea + `L${X(kmMax)} ${Y(4900)}L${X(0)} ${Y(4900)}Z`, fill: 'rgba(238,240,243,.05)' }, svg);
+  el('path', { d: linea, fill: 'none', stroke: 'rgba(238,240,243,.35)', 'stroke-width': 1.5, 'stroke-dasharray': '3 4' }, svg);
+  const g = el('g', { 'clip-path': 'url(#corte-perfil)' }, svg);
+  el('path', { d: linea + `L${X(kmMax)} ${Y(4900)}L${X(0)} ${Y(4900)}Z`, fill: 'url(#grad-perfil)' }, g);
+  el('path', { d: linea, fill: 'none', stroke: '#EEF0F3', 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, g);
+  const marcador = el('line', { x1: X(0), x2: X(0), y1: m.t - 4, y2: H - m.b, stroke: '#9DB0F5', 'stroke-width': 1.6 }, svg);
+  for (const p of paradas) {
+    const cx = X(p.km), cy = Y(p.z);
+    el('circle', { cx, cy, r: 4.8, fill: '#17191F', stroke: '#9DB0F5', 'stroke-width': 2.4 }, svg);
+    if (p.id === 'C4') continue;
+    const t = el('text', { x: cx + (p.id === 'CB' ? 7 : -7), y: cy - 9, 'text-anchor': p.id === 'CB' ? 'start' : 'end',
+      style: 'font:800 12px var(--f-titulo);fill:#EEF0F3;letter-spacing:.06em' }, svg);
+    t.textContent = (p.id === 'Cima' ? 'Cima' : p.id) + ' ' + miles(CAMPOS_Z[p.id]);
+  }
+  PERF = { X, rect, marcador, paradas, kmMax };
+  actualizarPerfil(0);
+}
+function actualizarPerfil(R) {
+  if (!PERF) return;
+  const k = Math.min(NTRAMOS - 1, Math.floor(R)), f = R - k;
+  const km = R >= NTRAMOS ? PERF.kmMax : lerp(PERF.paradas[k].km, PERF.paradas[k + 1].km, f);
+  const x = PERF.X(km);
+  PERF.rect.setAttribute('width', x); PERF.marcador.setAttribute('x1', x); PERF.marcador.setAttribute('x2', x);
+  const idx = R <= .02 ? 0 : Math.min(NTRAMOS, Math.ceil(R - .001));
+  const txt = $('#perfil-tramo'); const nuevo = TRAMOS_TXT[idx];
+  if (txt && txt.textContent !== nuevo) txt.textContent = nuevo;
+}
+function construirPlano() {
+  const svg = $('#plano-svg'); if (!svg || !PROY) return;
+  const P = PROY.plano;
+  svg.setAttribute('viewBox', `0 0 ${P.vw} ${P.vh}`);
+  svg.innerHTML = '';
+  const tinta = '#17191F';
+  const g = el('g', {}, svg);
+  for (const c of P.curvas) {
+    const maestra = c.z % 1000 === 0;
+    el('path', { d: c.d, fill: 'none', stroke: tinta, 'stroke-width': maestra ? 1.7 : .75, 'stroke-opacity': maestra ? .6 : .3, 'stroke-linejoin': 'round' }, g);
+  }
+  const ruta = 'M' + P.ruta.map(p => p.join(' ')).join('L');
+  el('path', { d: ruta, fill: 'none', stroke: 'rgba(238,240,243,.92)', 'stroke-width': 10, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
+  const rp = el('path', { d: ruta, fill: 'none', stroke: '#2645B0', 'stroke-width': 5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
+  for (const c of P.cimas) {
+    const [x, y] = c.xy;
+    el('path', { d: `M${x} ${y - 10}L${x + 9} ${y + 6}L${x - 9} ${y + 6}Z`, fill: c.id === 'g2' ? '#2645B0' : tinta }, svg);
+    const izq = x > P.vw - 190;
+    const t = el('text', { x: izq ? x - 13 : x + 13, y: y + 5, 'text-anchor': izq ? 'end' : 'start', style: `font:900 ${c.id === 'g2' ? 30 : 24}px var(--f-titulo);fill:${c.id === 'g2' ? '#2645B0' : tinta};text-transform:uppercase` }, svg);
+    t.textContent = (NOMBRE_CORTO[c.id] || c.nombre);
+    const t2 = el('text', { x: izq ? x - 13 : x + 13, y: y + 25, 'text-anchor': izq ? 'end' : 'start', style: `font:800 15px var(--f-titulo);fill:#4a4d58;letter-spacing:.06em` }, svg);
+    t2.textContent = miles(c.cota) + ' m';
+  }
+  for (const c of P.campos) {
+    const [x, y] = c.xy;
+    if (c.id === 'Cima') continue;
+    el('circle', { cx: x, cy: y, r: 9, fill: '#EEF0F3', stroke: '#2645B0', 'stroke-width': 3.5 }, svg);
+    const t = el('text', { x: x - 15, y: y + 6, 'text-anchor': 'end', style: `font:900 18px var(--f-titulo);fill:${tinta};letter-spacing:.06em` }, svg);
+    t.textContent = c.id;
+  }
+  for (const r of P.rasgos) {
+    const [x, y] = r.xy;
+    const t = el('text', { x: x + 16, y: y + 22, style: `font:italic 500 16px var(--f-texto);fill:#34363D` }, svg);
+    t.textContent = r.nombre;
+  }
+  const sx = 40, sy = P.vh - 40;
+  el('rect', { x: sx, y: sy - 7, width: P.km, height: 7, fill: tinta }, svg);
+  el('rect', { x: sx + P.km, y: sy - 7, width: P.km, height: 7, fill: 'none', stroke: tinta, 'stroke-width': 1.6 }, svg);
+  const te = el('text', { x: sx, y: sy + 22, style: `font:800 16px var(--f-titulo);fill:${tinta}` }, svg); te.textContent = '0';
+  const te2 = el('text', { x: sx + 2 * P.km, y: sy + 22, 'text-anchor': 'middle', style: `font:800 16px var(--f-titulo);fill:${tinta}` }, svg); te2.textContent = '2 KM';
+  const nx = P.vw - 52, ny = P.vh - 92;
+  el('path', { d: `M${nx} ${ny - 28}L${nx + 11} ${ny + 6}L${nx} ${ny}L${nx - 11} ${ny + 6}Z`, fill: tinta }, svg);
+  const tn = el('text', { x: nx, y: ny + 30, 'text-anchor': 'middle', style: `font:900 24px var(--f-titulo);fill:${tinta}` }, svg); tn.textContent = 'N';
+  const largo = rp.getTotalLength ? rp.getTotalLength() : 3000;
+  rp.style.strokeDasharray = largo; rp.style.strokeDashoffset = reducido ? 0 : largo;
+  rp.style.transition = 'stroke-dashoffset 3.2s cubic-bezier(.4,.1,.2,1)';
+  new IntersectionObserver((en, ob) => { for (const e of en) if (e.isIntersecting) { rp.style.strokeDashoffset = 0; ob.disconnect(); } }, { threshold: .35 }).observe(svg);
+}
+
+// ------------------------------------------------------------------ nieve (polvo de nieve y ventisca)
+const cvN = $('#nieve'), cN = cvN.getContext('2d');
+const copos = Array.from({ length: 240 }, () => ({ x: Math.random(), y: Math.random(), z: .25 + Math.random() * .75, f: Math.random() * 6.28 }));
+let nieveVisible = 0;
+function dibujarNieve(dt, t) {
+  const objetivo = reducido ? 0 : EST.nieve * (EST.p > .5 ? 1 : 0.4);
+  nieveVisible += (objetivo - nieveVisible) * .04;
+  const w = cvN.clientWidth, h = cvN.clientHeight;
+  if (cvN.width !== w || cvN.height !== h) { cvN.width = w; cvN.height = h; }
+  cN.clearRect(0, 0, w, h);
+  if (nieveVisible < .01) return;
+  const n = Math.round(copos.length * Math.min(1, nieveVisible));
+  const viento = .25 + nieveVisible * 1.6;
+  cN.fillStyle = '#F2F4F7'; cN.strokeStyle = '#F2F4F7'; cN.lineCap = 'round';
+  for (let k = 0; k < n; k++) {
+    const c = copos[k];
+    c.x += (viento * .00011 * c.z + Math.sin(c.f + t * .0011) * .00002) * dt;
+    c.y += (.000035 + .00005 * c.z + Math.cos(c.f + t * .0007) * .00001) * dt;
+    if (c.x > 1.05) { c.x = -.05; c.y = Math.random(); }
+    if (c.y > 1.05) { c.y = -.05; c.x = Math.random(); }
+    const x = c.x * w, y = c.y * h, a = (.18 + .5 * c.z) * Math.min(1, nieveVisible * 1.4);
+    cN.globalAlpha = a;
+    if (viento > 1.1) { cN.lineWidth = .6 + c.z * 1.3; cN.beginPath(); cN.moveTo(x, y); cN.lineTo(x - viento * 7 * c.z, y - viento * .8 * c.z); cN.stroke(); }
+    else { const r = .5 + c.z * 1.5; cN.fillRect(x - r / 2, y - r / 2, r, r); }
+  }
+  cN.globalAlpha = 1;
+}
+
+// ------------------------------------------------------------------ altímetro y friso
+const alt = { el: $('#altimetro'), lam: $('#alt-lam'), val: $('#alt-valor'), actual: 5585, objetivo: 5585, num: 'I' };
+const friso = $('#friso'), capituloEl = $('#capitulo'), altChip = $('#alt-chip');
+const enlaces = $$('.friso-nav nav a');
+let ultimoY = 0, ultimaCap = '';
+const lineaT = $('#linea');
+const DESTINO = { inicio: '', cifras: '', macizo: '#macizo', caravana: '#caravana', ruta: '#ruta',
+  'campo-base': '#campo-base', 'campo-1': '#campo-base', 'campo-2': '#campo-base', 'campo-3': '#campo-base', cumbre: '#campo-base',
+  historia: '#historia', hazanas: '#hazanas', laminas: '#laminas', colofon: '#laminas' };
+function interfaz(dt) {
+  const S = EST, E = S.E;
+  if (E.alt != null) alt.objetivo = E.alt;
+  if (E.num !== alt.num) { alt.num = E.num; alt.lam.textContent = 'LÁM. ' + E.num; }
+  const chipTxt = 'Lám. ' + E.num + ' · ' + miles(alt.objetivo) + ' m';
+  if (altChip.textContent !== chipTxt) altChip.textContent = chipTxt;
+  alt.actual += (alt.objetivo - alt.actual) * Math.min(1, dt * .006);
+  if (Math.abs(alt.objetivo - alt.actual) < 1) alt.actual = alt.objetivo;
+  const txt = miles(Math.abs(alt.objetivo - alt.actual) < 5 ? alt.objetivo : Math.round(alt.actual / 10) * 10);
+  if (alt.val.textContent !== txt) alt.val.textContent = txt;
+  alt.el.classList.toggle('oculto', E.id === 'laminas' || E.id === 'colofon');
+  if (E.cap !== ultimaCap) {
+    ultimaCap = E.cap; capituloEl.textContent = E.cap;
+    const destino = DESTINO[E.id];
+    for (const a of enlaces) a.setAttribute('aria-current', a.getAttribute('href') === destino ? 'true' : 'false');
+  }
+  const total = D.documentElement.scrollHeight - VH;
+  friso.style.setProperty('--avance', clamp(S.y / Math.max(1, total)).toFixed(4));
+  const dy = S.y - ultimoY;
+  if (Math.abs(dy) > 6) { friso.classList.toggle('escondido', dy > 0 && S.y > VH * .8); ultimoY = S.y; }
+  if (lineaT && E.id === 'historia') {
+    const r = lineaT.getBoundingClientRect();
+    lineaT.style.setProperty('--hilo', clamp((VH * .6 - r.top) / r.height).toFixed(4));
+  }
+}
+
+// ------------------------------------------------------------------ galería horizontal
+const galeria = $('#laminas'), pista = $('#pista');
+let galeriaMovil = false, galeriaRecorrido = 0;
+function medirGaleria() {
+  galeriaMovil = innerWidth <= 760;
+  if (galeriaMovil) { galeria.style.height = ''; pista.style.transform = ''; return; }
+  galeriaRecorrido = Math.max(0, pista.scrollWidth - innerWidth);
+  galeria.style.height = `${innerHeight + galeriaRecorrido * 1.1}px`;
+}
+function moverGaleria() {
+  if (galeriaMovil) return;
+  const top = galeria.getBoundingClientRect().top;
+  const f = clamp(-top / Math.max(1, galeria.offsetHeight - innerHeight));
+  pista.style.transform = `translate3d(${(-f * galeriaRecorrido).toFixed(1)}px,0,0)`;
+}
+
+// ------------------------------------------------------------------ ajuste de texto a la plantilla
+function ajustar(z) {
+  const caja = z.parentElement;
+  const max = Math.max(11, (+z.dataset.fit || .05) * caja.clientWidth);
+  const cabe = () => z.scrollHeight <= z.clientHeight + 1 && z.scrollWidth <= z.clientWidth + 1;
+  z.style.fontSize = max + 'px';
+  if (getComputedStyle(z).position === 'static') { z.style.fontSize = ''; return; }
+  if (cabe()) return;
+  let lo = 8, hi = max;
+  for (let k = 0; k < 11; k++) { const m = (lo + hi) / 2; z.style.fontSize = m + 'px'; if (cabe()) lo = m; else hi = m; }
+  z.style.fontSize = lo + 'px';
+}
+function ajustarRotulo(r) {
+  // mide la caja de maquetación del texto (offset*), que no cambia con la animación de las letras
+  const t = r.firstElementChild || r;
+  const cs = getComputedStyle(r);
+  const libre = () => r.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const cabe = () => t.offsetHeight <= r.clientHeight + 1 && t.offsetWidth <= libre() + 1;
+  const caja = r.parentElement.clientWidth;
+  let lo = 10, hi = caja * (r.closest('.portada') ? .16 : .11);
+  r.style.fontSize = hi + 'px';
+  if (cabe()) return;
+  for (let k = 0; k < 11; k++) { const m = (lo + hi) / 2; r.style.fontSize = m + 'px'; if (cabe()) lo = m; else hi = m; }
+  r.style.fontSize = lo + 'px';
+}
+function ajustarCampo(c) {
+  // textos sueltos de una línea (cabecera y talón de las fichas)
+  const cabe = () => c.scrollWidth <= c.clientWidth + 1;
+  c.style.fontSize = '';
+  if (cabe()) return;
+  const base = parseFloat(getComputedStyle(c).fontSize);
+  let lo = 6, hi = base;
+  for (let k = 0; k < 9; k++) { const m = (lo + hi) / 2; c.style.fontSize = m + 'px'; if (cabe()) lo = m; else hi = m; }
+  c.style.fontSize = lo + 'px';
+}
+function ajustarTodo() {
+  $$('.ajusta').forEach(ajustar);
+  $$('.cinta .rotulo').forEach(ajustarRotulo);
+  $$('.ficha .cab, .ficha .tal, .ficha-h .cab, .ficha-h .tal').forEach(ajustarCampo);
+}
+
+// letras del título
+for (const h of $$('.letras')) {
+  const txt = h.textContent.trim(); h.textContent = '';
+  h.setAttribute('aria-label', txt);
+  let k = 0;
+  const caja = D.createElement('span'); caja.className = 'txt'; h.appendChild(caja);
+  txt.split(/\s+/).forEach((palabra, w) => {
+    if (w) caja.appendChild(D.createTextNode(' '));
+    const p = D.createElement('span'); p.className = 'pal'; p.setAttribute('aria-hidden', 'true');
+    for (const ch of palabra) { const s = D.createElement('span'); s.className = 'l'; s.textContent = ch; s.style.transitionDelay = (k++ * 42) + 'ms'; p.appendChild(s); }
+    caja.appendChild(p);
+  });
+}
+const cuenta = (n) => {
+  const fin = +n.dataset.cuenta, ini = performance.now(), dur = 1400;
+  const fmtN = v => (fin >= 5000 && fin < 9000 ? miles(v) : String(v));
+  const paso = t => { const f = clamp((t - ini) / dur); n.textContent = fmtN(Math.round(fin * (1 - Math.pow(1 - f, 3)))); if (f < 1) requestAnimationFrame(paso); };
+  requestAnimationFrame(paso);
+};
+const io = 'IntersectionObserver' in window ? new IntersectionObserver((en) => {
+  for (const e of en) if (e.isIntersecting) {
+    e.target.classList.add('visto');
+    if (!reducido) for (const n of $$('[data-cuenta]', e.target)) if (!n.dataset.hecho) { n.dataset.hecho = 1; cuenta(n); }
+    io.unobserve(e.target);
+  }
+}, { threshold: .18, rootMargin: '0px 0px -6% 0px' }) : null;
+for (const r of $$('.revela, .letras:not(#titulo)')) { if (io && !reducido) io.observe(r); else r.classList.add('visto'); }
+
+// enlaces a la serie, solo si la página se sirve dentro de «Los 14 ochomiles» o junto al G I
+const existe = (url) => fetch(url, { method: 'HEAD' }).then(r => r.ok).catch(() => false);
+existe('../assets/mapa.json').then(ok => { if (ok) $('#volver-serie').hidden = false; });
+existe('../gasherbrum-i/index.html').then(ok => { if (ok) $('#enlace-g1').hidden = false; });
+
+// ------------------------------------------------------------------ bucle
+let pendiente = true, tPrev = performance.now(), visible = !D.hidden;
+function pintarPronto() { pendiente = true; }
+D.addEventListener('visibilitychange', () => { visible = !D.hidden; tPrev = performance.now(); });
+function bucle(t) {
+  requestAnimationFrame(bucle);
+  if (!visible) return;
+  const dt = Math.min(64, t - tPrev); tPrev = t;
+  calcular(t);
+  dibujarFondo(t);
+  actualizarMarcas();
+  dibujarNieve(dt, t);
+  interfaz(dt);
+  moverGaleria();
+}
+
+// ------------------------------------------------------------------ tamaño y orientación
+let tRes = 0;
+function alRedimensionar() {
+  clearTimeout(tRes);
+  tRes = setTimeout(() => {
+    const o = orientar();
+    medir(); ajustarTodo();
+    if (o !== ORI) { ORI = o; montarMarcas(); precargar(); }
+    else for (const m of marcas) m.ancho = 0;
+  }, 120);
+}
+addEventListener('resize', alRedimensionar);
+if ('ResizeObserver' in window) new ResizeObserver(alRedimensionar).observe(D.body);
+
+for (const a of $$('a[href^="#"]')) a.addEventListener('click', e => {
+  const id = a.getAttribute('href').slice(1); const t = D.getElementById(id); if (!t) return;
+  e.preventDefault();
+  const y = id === 'inicio' ? 0 : t.getBoundingClientRect().top + scrollY + (id === 'ruta' || id === 'macizo' ? VH * .02 : 0);
+  scrollTo({ top: y, behavior: reducido ? 'auto' : 'smooth' });
+});
+
+// ------------------------------------------------------------------ telón
+const telon = $('#telon');
+function abrirTelon() {
+  if (telon.classList.contains('abierto')) return;
+  telon.classList.add('abierto');
+  $('#titulo').classList.add('visto');
+  setTimeout(() => telon.classList.add('fuera'), 2100);
+}
+function arrancar() {
+  try { arrancar2(); } catch (err) { console.error(err); abrirTelon(); }
+}
+function arrancar2() {
+  medir(); ajustarTodo(); calcular(performance.now()); precargar();
+  requestAnimationFrame(bucle);
+  const inicio = performance.now();
+  const primera = pedir(EST.A);
+  const listo = () => { const dt = performance.now() - inicio; setTimeout(abrirTelon, Math.max(0, 900 - dt)); };
+  if (reducido) { telon.classList.add('fuera'); $('#titulo').classList.add('visto'); }
+  else if (primera.cargada) listo(); else { primera.img.addEventListener('load', listo, { once: true }); setTimeout(abrirTelon, 4200); }
+}
+if (D.fonts && D.fonts.ready) D.fonts.ready.then(() => { ajustarTodo(); medir(); for (const m of marcas) m.ancho = 0; });
+if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', arrancar); else arrancar();
+addEventListener('load', () => { medir(); ajustarTodo(); });
+})();
+</script>
