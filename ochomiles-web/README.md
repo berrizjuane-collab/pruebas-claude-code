@@ -10,8 +10,8 @@ Las cumbres que aún no tienen web aparecen como círculos punteados («sin leva
 ochomiles-web/
 ├── index.html              la antesala (HTML + CSS + JS en un archivo, sin dependencias)
 ├── assets/                 el mapa en 1600, 2560 y 3840 px (webp) y mapa.json
-├── annapurna/  k2/  nanga-parbat/  manaslu/  makalu/  kangchenjunga/  lhotse/
-│                           las siete webs ya hechas, tal como se sirven
+├── annapurna/  k2/  nanga-parbat/  manaslu/  makalu/  kangchenjunga/  lhotse/  gasherbrum-ii/
+│                           las ocho webs ya hechas, tal como se sirven
 ├── herramientas/
 │   └── pintar_mapa.py      el pintor del mapa (no se despliega)
 ├── vercel.json             caché de imágenes y barra final en las rutas
