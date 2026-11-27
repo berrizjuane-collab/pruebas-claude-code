@@ -1,0 +1,1648 @@
+<!doctype html>
+<html lang="es">
+<head>
+<!-- standalone:start -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EDF0F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161719" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Calculadora de Ingeniería Económica (Unidad II): factores, VA, VF, PAGO, NPER, TASA, VNA, TIR, TIRM, TIR incremental, CAUE, costo capitalizado, bonos y conversión de tasas. Un solo archivo, sin conexión.">
+<!-- standalone:end -->
+<title>Calculadora de Ingeniería Económica</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: una sola columna de 36rem, como una calculadora financiera:
+   arriba el teclado (función y campos), debajo la pantalla LCD con el resultado,
+   la fórmula y su equivalente en Excel. Sin fuentes externas: funciona offline. */
+:root {
+  --bg: #EDF0F3;
+  --surface: #FFFFFF;
+  --field: #F5F7F9;
+  --ink: #18202B;
+  --muted: #586473;
+  --line: #D3DAE2;
+  --gold: #C78A17;
+  --gold-ink: #1C1404;
+  --blue: #2C5A88;
+  --on-blue: #FFFFFF;
+  --xl: #1E6A42;
+  --lcd-bg: #CDD7C3;
+  --lcd-ink: #1B2316;
+  --lcd-shade: rgba(27, 35, 22, .22);
+  --pos-bg: #DDF1E4;
+  --pos-ink: #175232;
+  --neg-bg: #FBE3DF;
+  --neg-ink: #8A2414;
+  --warn-bg: #FFF2D6;
+  --warn-ink: #5F4300;
+  --err-bg: #FBE3DF;
+  --err-ink: #8A2414;
+
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-num: ui-monospace, "SF Mono", SFMono-Regular, "Roboto Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  color-scheme: light;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161719;
+    --surface: #202125;
+    --field: #292A2F;
+    --ink: #ECEDEF;
+    --muted: #A2A7AF;
+    --line: #393B42;
+    --gold: #E2A73C;
+    --gold-ink: #1C1404;
+    --blue: #3C6E9F;
+    --on-blue: #FFFFFF;
+    --xl: #82D2A2;
+    --lcd-bg: #2A3326;
+    --lcd-ink: #D9E7C9;
+    --lcd-shade: rgba(0, 0, 0, .45);
+    --pos-bg: #1D3828;
+    --pos-ink: #9FDDB5;
+    --neg-bg: #43211C;
+    --neg-ink: #F3AFA3;
+    --warn-bg: #3A3018;
+    --warn-ink: #F1D58E;
+    --err-bg: #43211C;
+    --err-ink: #F3AFA3;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161719;
+  --surface: #202125;
+  --field: #292A2F;
+  --ink: #ECEDEF;
+  --muted: #A2A7AF;
+  --line: #393B42;
+  --gold: #E2A73C;
+  --gold-ink: #1C1404;
+  --blue: #3C6E9F;
+  --on-blue: #FFFFFF;
+  --xl: #82D2A2;
+  --lcd-bg: #2A3326;
+  --lcd-ink: #D9E7C9;
+  --lcd-shade: rgba(0, 0, 0, .45);
+  --pos-bg: #1D3828;
+  --pos-ink: #9FDDB5;
+  --neg-bg: #43211C;
+  --neg-ink: #F3AFA3;
+  --warn-bg: #3A3018;
+  --warn-ink: #F1D58E;
+  --err-bg: #43211C;
+  --err-ink: #F3AFA3;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+[hidden] { display: none !important; }
+
+.wrap {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Cabecera */
+.top { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow {
+  margin: 0;
+  font-size: .75rem;
+  font-weight: 650;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  text-wrap: balance;
+}
+.signs {
+  margin: 4px 0 0;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: .875rem;
+  color: var(--muted);
+}
+.chip {
+  flex: none;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--blue);
+  color: var(--on-blue);
+}
+
+/* Teclado: función y campos */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lbl {
+  font-size: .8125rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+.opt { font-weight: 500; opacity: .85; }
+.select { position: relative; min-width: 0; }
+.select::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+select, input, textarea {
+  font: inherit;
+  font-size: 1.0625rem; /* >= 16px: iOS no hace zoom al enfocar */
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  margin: 0;
+}
+select { appearance: none; -webkit-appearance: none; padding-right: 40px; }
+#fn { font-weight: 650; padding-block: 13px; }
+input, textarea { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+textarea { resize: vertical; min-height: 7.2em; line-height: 1.45; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
+select:focus-visible, input:focus-visible, textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.fn-desc { margin: -6px 0 0; font-size: .875rem; color: var(--muted); }
+.example-note {
+  margin: 0;
+  font-size: .8125rem;
+  color: var(--warn-ink);
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 12px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.control { display: flex; gap: 6px; min-width: 0; }
+.box { position: relative; flex: 1; min-width: 0; }
+.unit {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: .9375rem;
+  pointer-events: none;
+}
+input.has-unit { padding-right: 34px; }
+.pm, .tool {
+  flex: none;
+  border: 1px solid var(--line);
+  background: var(--field);
+  color: var(--ink);
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pm { width: 50px; font-size: 1.2rem; }
+.pm:active, .tool:active { background: var(--line); }
+.toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+.tool { min-width: 46px; height: 38px; padding: 0 12px; font-size: 1rem; font-family: var(--font-num); }
+.hint { margin: 0; font-size: .8125rem; color: var(--muted); }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-primary {
+  flex: 1 1 100%;
+  height: 54px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 750;
+  letter-spacing: .02em;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.btn-primary:active { filter: brightness(.92); }
+.btn-ghost {
+  flex: 1 1 0;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: .9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Pantalla: resultado */
+.result { scroll-margin-top: 12px; }
+.res-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.res-title { font-size: .9375rem; font-weight: 700; min-width: 0; }
+.tag {
+  font-size: .75rem;
+  font-weight: 650;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--field);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+.tag.pos { background: var(--pos-bg); color: var(--pos-ink); border-color: transparent; }
+.tag.neg { background: var(--neg-bg); color: var(--neg-ink); border-color: transparent; }
+.lcd {
+  background: var(--lcd-bg);
+  color: var(--lcd-ink);
+  border-radius: 10px;
+  padding: 14px 16px 12px;
+  box-shadow: inset 0 2px 7px var(--lcd-shade);
+  min-width: 0;
+}
+.res-value {
+  display: block;
+  font-family: var(--font-num);
+  font-size: clamp(1.85rem, 9vw, 2.6rem);
+  font-weight: 650;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.res-sub {
+  margin-top: 4px;
+  font-family: var(--font-num);
+  font-size: .875rem;
+  opacity: .8;
+  overflow-wrap: anywhere;
+}
+.res-second {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--lcd-shade);
+  font-family: var(--font-num);
+  font-size: 1.25rem;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.res-second small { display: block; font-size: .8125rem; font-weight: 500; opacity: .8; }
+.result.stale .lcd { opacity: .45; }
+.stale-note { margin: 0; font-size: .8125rem; font-weight: 650; color: var(--warn-ink); }
+.result.error .lcd { background: var(--err-bg); color: var(--err-ink); box-shadow: none; }
+.result.error .res-value { font-family: var(--font-ui); font-size: 1.0625rem; font-weight: 600; line-height: 1.4; }
+
+.rows { margin: 0; display: flex; flex-direction: column; }
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+  font-size: .9375rem;
+}
+.row:first-child { border-top: 0; }
+.row dt { color: var(--muted); min-width: 0; }
+.row dd {
+  margin: 0;
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.row.hi dt, .row.hi dd { color: var(--ink); font-weight: 750; }
+.row.wide { flex-direction: column; gap: 2px; }
+.row.wide dd { text-align: left; font-size: .875rem; }
+
+.block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.block h2 {
+  margin: 0;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.fx {
+  margin: 0;
+  font-family: var(--font-num);
+  font-size: .875rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.fx + .fx { color: var(--muted); }
+.fx sup, .fx sub { font-size: .72em; line-height: 0; }
+.xl {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 10px 9px 12px;
+  background: var(--field);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.xl-label { margin: 0; font-size: .8125rem; color: var(--muted); }
+.xl-line { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.xl-es {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-num);
+  font-size: .9375rem;
+  font-weight: 650;
+  color: var(--xl);
+  overflow-wrap: anywhere;
+  user-select: all;
+  -webkit-user-select: all;
+}
+.xl-en { font-family: var(--font-num); font-size: .8125rem; color: var(--muted); overflow-wrap: anywhere; }
+.copy {
+  flex: none;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: .8125rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.notes { margin: 0; padding-left: 1.1em; font-size: .875rem; display: flex; flex-direction: column; gap: 4px; }
+.warn {
+  margin: 0;
+  font-size: .875rem;
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+.data { margin: 0; font-size: .8125rem; color: var(--muted); overflow-wrap: anywhere; }
+.data b { font-weight: 650; color: var(--ink); }
+
+.foot { font-size: .8125rem; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+.foot p { margin: 0; }
+
+@media (max-width: 340px) {
+  .fields { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lcd { transition: opacity .15s ease; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <p class="eyebrow">Unidad II · VP · VA · CC · TIR · Bonos</p>
+    <h1>Calculadora de Ingeniería Económica</h1>
+    <p class="signs"><span class="chip">Signos Excel</span><span>Lo que sale (inversión, pagos, costos) va negativo; lo que entra va positivo.</span></p>
+  </header>
+
+  <form id="calc" class="panel" novalidate autocomplete="off">
+    <label class="lbl" for="fn">Función</label>
+    <div class="select"><select id="fn"></select></div>
+    <p id="fn-desc" class="fn-desc"></p>
+    <p id="example-note" class="example-note" hidden>Valores de ejemplo cargados. Escribe los tuyos o pulsa Limpiar.</p>
+    <div id="fields" class="fields"></div>
+    <div class="actions">
+      <button type="submit" class="btn-primary" id="go">Calcular</button>
+      <button type="button" class="btn-ghost" id="example">Cargar ejemplo</button>
+      <button type="button" class="btn-ghost" id="clear">Limpiar</button>
+    </div>
+  </form>
+
+  <section id="result" class="panel result" aria-live="polite" hidden></section>
+
+  <footer class="foot">
+    <p>Tasas en %, escritas como 12 o 12,5. Acepta coma o punto decimal. En flujos, separa con ; o salto de línea, y repite con 300x5.</p>
+    <p>Fórmulas de Excel en español (separador ;). Debajo va la versión en inglés (separador ,).</p>
+    <p>Todo se calcula en el teléfono: una vez abierta, la página funciona sin conexión.</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+"use strict";
+
+/* ===== MATH-START ===== */
+// ---- Lectura de números: coma o punto decimal, % opcional ----
+function parseNum(raw) {
+  if (raw === null || raw === undefined) return { v: null };
+  var s = String(raw).replace(/[−‒–—]/g, "-").replace(/\s+/g, "").replace(/%$/, "");
+  if (s === "") return { v: null };
+  var ambiguous = null;
+  var hasDot = s.indexOf(".") >= 0, hasComma = s.indexOf(",") >= 0;
+  if (hasDot && hasComma) {
+    // El último separador es el decimal; el otro, de miles.
+    if (s.lastIndexOf(",") > s.lastIndexOf(".")) s = s.replace(/\./g, "").replace(",", ".");
+    else s = s.replace(/,/g, "");
+  } else if (hasDot || hasComma) {
+    var sep = hasDot ? "." : ",";
+    var parts = s.split(sep);
+    if (parts.length > 2) {
+      s = parts.join(""); // 1.000.000 → miles
+    } else {
+      if (/^[-+]?[1-9]\d{0,2}$/.test(parts[0]) && /^\d{3}$/.test(parts[1])) ambiguous = String(raw).trim();
+      s = parts[0] + "." + parts[1];
+    }
+  }
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s)) return { v: NaN };
+  return { v: Number(s), ambiguous: ambiguous };
+}
+
+// Flujos: "-1000; 300; 400" o uno por línea; "300x5" repite 300 cinco veces.
+function parseFlows(text) {
+  var out = [], ambiguous = [];
+  var tokens = String(text || "").split(/[;\n\r\t]+/);
+  for (var t = 0; t < tokens.length; t++) {
+    var tok = tokens[t].replace(/[−‒–—]/g, "-").trim();
+    if (!tok) continue;
+    var count = 1;
+    var m = tok.match(/^(.*?)\s*[x×*]\s*(\d+)$/i);
+    if (m) {
+      tok = m[1].trim();
+      count = parseInt(m[2], 10);
+      if (!(count >= 1 && count <= 1000)) throw new Error("La repetición «" + tokens[t].trim() + "» debe ser entre 1 y 1000 veces.");
+    }
+    if (/[\d.,]\s+[-+]?[\d.,]/.test(tok) && !/^[-+]?\d{1,3}( \d{3})+([.,]\d+)?$/.test(tok)) {
+      throw new Error("«" + tok + "» parece tener dos números. Sepáralos con ; o con un salto de línea.");
+    }
+    var p = parseNum(tok);
+    if (p.v === null || isNaN(p.v)) throw new Error("No entiendo «" + tokens[t].trim() + "» como flujo.");
+    if (p.ambiguous) ambiguous.push(p.ambiguous);
+    for (var k = 0; k < count; k++) out.push(p.v);
+  }
+  return { flows: out, ambiguous: ambiguous };
+}
+
+// ---- Factores de interés compuesto ----
+function factors(i, n) {
+  if (Math.abs(i) < 1e-12) return { "P/F": 1, "F/P": 1, "P/A": n, "A/P": 1 / n, "A/F": 1 / n, "F/A": n };
+  var g = Math.pow(1 + i, n);
+  return {
+    "P/F": 1 / g,
+    "F/P": g,
+    "P/A": (g - 1) / (i * g),
+    "A/P": (i * g) / (g - 1),
+    "A/F": i / (g - 1),
+    "F/A": (g - 1) / i
+  };
+}
+
+// ---- Funciones de Excel (misma convención de signos) ----
+function fvF(r, n, pmt, pv, t) {
+  if (Math.abs(r) < 1e-12) return -(pv + pmt * n);
+  var g = Math.pow(1 + r, n);
+  return -(pv * g + pmt * (1 + r * t) * (g - 1) / r);
+}
+function pvF(r, n, pmt, fv, t) {
+  if (Math.abs(r) < 1e-12) return -(fv + pmt * n);
+  var g = Math.pow(1 + r, n);
+  return -(fv + pmt * (1 + r * t) * (g - 1) / r) / g;
+}
+function pmtF(r, n, pv, fv, t) {
+  if (Math.abs(r) < 1e-12) return -(pv + fv) / n;
+  var g = Math.pow(1 + r, n);
+  return -(pv * g + fv) * r / ((1 + r * t) * (g - 1));
+}
+function nperF(r, pmt, pv, fv, t) {
+  if (Math.abs(r) < 1e-12) {
+    if (pmt === 0) throw new Error("Con i = 0 y PAGO = 0 no hay solución.");
+    return -(pv + fv) / pmt;
+  }
+  var a = pmt * (1 + r * t);
+  var num = a - fv * r, den = a + pv * r;
+  if (den === 0 || !(num / den > 0)) {
+    throw new Error("No hay solución con estos signos. VA y PAGO suelen ir con signos opuestos: uno entra y el otro sale.");
+  }
+  return Math.log(num / den) / Math.log(1 + r);
+}
+// Ecuación de valor que TASA iguala a cero.
+function tvmRes(r, n, pmt, pv, fv, t) {
+  if (Math.abs(r) < 1e-10) return pv + pmt * n + fv;
+  var g = Math.pow(1 + r, n);
+  return pv * g + pmt * (1 + r * t) * (g - 1) / r + fv;
+}
+function npv0(r, cfs) { // cfs[0] es el año 0
+  var s = 0;
+  for (var k = 0; k < cfs.length; k++) s += cfs[k] / Math.pow(1 + r, k);
+  return s;
+}
+
+// ---- Raíces: Newton con respaldo de bisección ----
+var GRID = null;
+function grid() {
+  if (GRID) return GRID;
+  var g = [], k;
+  for (k = 0; k <= 1990; k++) g.push(-0.99 + k * 0.001);   // −99 % … 100 %, paso 0,1 %
+  for (k = 1; k <= 180; k++) g.push(1 + k * 0.05);          // 100 % … 1000 %
+  GRID = g;
+  return g;
+}
+function bisect(f, a, b, fa) {
+  for (var k = 0; k < 200; k++) {
+    var m = (a + b) / 2, fm = f(m);
+    if (fm === 0) return m;
+    if ((fa < 0) === (fm < 0)) { a = m; fa = fm; } else { b = m; }
+    if (b - a < 1e-14) break;
+  }
+  return (a + b) / 2;
+}
+function findRoots(f) {
+  var G = grid(), roots = [];
+  var prev = G[0], fp = f(prev);
+  for (var k = 1; k < G.length; k++) {
+    var r = G[k], fr = f(r);
+    if (isFinite(fr) && isFinite(fp)) {
+      if (fr === 0) roots.push(r);
+      else if (fp !== 0 && ((fp < 0) !== (fr < 0))) roots.push(bisect(f, prev, r, fp));
+    }
+    prev = r; fp = fr;
+  }
+  var out = [];
+  roots.sort(function (a, b) { return a - b; });
+  roots.forEach(function (x) { if (!out.length || Math.abs(x - out[out.length - 1]) > 1e-7) out.push(x); });
+  return out;
+}
+function newton(f, x0) {
+  var x = x0;
+  for (var k = 1; k <= 100; k++) {
+    var fx = f(x);
+    var h = 1e-6 * Math.max(1, Math.abs(x));
+    var d = (f(x + h) - f(x - h)) / (2 * h);
+    if (!isFinite(fx) || !isFinite(d) || d === 0) return null;
+    var nx = x - fx / d;
+    if (!isFinite(nx) || nx <= -1) return null;
+    if (Math.abs(nx - x) < 1e-11 * Math.max(1, Math.abs(x))) return { x: nx, it: k };
+    x = nx;
+  }
+  return null;
+}
+function solveRate(f, guess, scale) {
+  var tol = 1e-7 * Math.max(1, scale);
+  var roots = findRoots(f);
+  var nw = newton(f, guess);
+  if (nw && Math.abs(f(nw.x)) <= tol) {
+    if (!roots.some(function (r) { return Math.abs(r - nw.x) < 1e-6; })) {
+      roots.push(nw.x);
+      roots.sort(function (a, b) { return a - b; });
+    }
+    return { rate: nw.x, method: "Newton", it: nw.it, roots: roots };
+  }
+  if (!roots.length) return null;
+  var best = roots.slice().sort(function (a, b) { return Math.abs(a - guess) - Math.abs(b - guess); })[0];
+  return { rate: best, method: "bisección", it: 0, roots: roots };
+}
+function rateF(n, pmt, pv, fv, t, guess) {
+  return solveRate(function (r) { return tvmRes(r, n, pmt, pv, fv, t); },
+    guess == null ? 0.1 : guess, Math.abs(pv) + Math.abs(pmt) * n + Math.abs(fv));
+}
+function irrF(cfs, guess) {
+  var scale = cfs.reduce(function (s, c) { return s + Math.abs(c); }, 0);
+  return solveRate(function (r) { return npv0(r, cfs); }, guess == null ? 0.1 : guess, scale);
+}
+function mirrF(cfs, fr, rr) {
+  var N = cfs.length - 1;
+  if (N < 1) throw new Error("TIRM necesita al menos dos flujos (año 0 y año 1).");
+  var fvPos = 0, pvNeg = 0;
+  for (var k = 0; k <= N; k++) {
+    if (cfs[k] > 0) fvPos += cfs[k] * Math.pow(1 + rr, N - k);
+    else if (cfs[k] < 0) pvNeg += cfs[k] / Math.pow(1 + fr, k);
+  }
+  if (fvPos === 0 || pvNeg === 0) throw new Error("TIRM necesita al menos un flujo positivo y uno negativo.");
+  return { mirr: Math.pow(fvPos / (-pvNeg), 1 / N) - 1, fvPos: fvPos, pvNeg: pvNeg, N: N };
+}
+function signChanges(cfs) {
+  var c = 0, last = 0;
+  cfs.forEach(function (x) { if (x !== 0) { var s = x > 0 ? 1 : -1; if (last && s !== last) c++; last = s; } });
+  return c;
+}
+
+// ---- Formato: miles con punto, decimales con coma ----
+function fmt(x, dec) {
+  if (dec === undefined) dec = 2;
+  if (x === null || x === undefined || !isFinite(x)) return "—";
+  if (Math.abs(x) < 0.5 * Math.pow(10, -dec)) x = 0;
+  var neg = x < 0;
+  var parts = Math.abs(x).toFixed(dec).split(".");
+  var int = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return (neg ? "−" : "") + int + (parts[1] ? "," + parts[1] : "");
+}
+function fmtT(x, maxDec) { // recorta ceros finales
+  var s = fmt(x, maxDec === undefined ? 6 : maxDec);
+  if (s.indexOf(",") >= 0) s = s.replace(/0+$/, "").replace(/,$/, "");
+  return s;
+}
+function fmtPct(r, dec) { return fmt(r * 100, dec === undefined ? 2 : dec) + " %"; }
+function pctT(r) { return fmtT(r * 100, 6) + " %"; }
+// Número literal para una fórmula de Excel ("es": coma decimal; "en": punto)
+function xn(x, loc) {
+  var v = Math.round(x * 1e10) / 1e10;
+  if (v === 0) v = 0;
+  var s = String(v);
+  if (/e/i.test(s)) s = v.toFixed(12).replace(/0+$/, "").replace(/\.$/, "");
+  return loc === "es" ? s.replace(".", ",") : s;
+}
+function xlArg(a, loc) {
+  if (a == null) return "";
+  if (a.raw) return a.raw[loc];
+  if (a.p !== undefined) return xn(a.p * 100, loc) + "%";
+  return xn(a.n, loc);
+}
+function xlCall(es, en, args) {
+  args = args.slice();
+  while (args.length && args[args.length - 1] == null) args.pop();
+  function f(loc) { return args.map(function (a) { return xlArg(a, loc); }).join(loc === "es" ? ";" : ","); }
+  return { es: "=" + es + "(" + f("es") + ")", en: "=" + en + "(" + f("en") + ")" };
+}
+/* ===== MATH-END ===== */
+
+// ---------------------------------------------------------------------------
+// Utilidades de presentación
+// ---------------------------------------------------------------------------
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function pn(x, dec) { // número para sustituir en una fórmula; negativos entre paréntesis
+  var s = fmtT(x, dec === undefined ? 4 : dec);
+  return x < 0 ? "(" + s + ")" : s;
+}
+function sup(x) { return "<sup>" + x + "</sup>"; }
+function signTag(x) {
+  if (!isFinite(x) || Math.abs(x) < 0.005) return null;
+  return x < 0 ? { text: "Sale dinero (−)", cls: "neg" } : { text: "Entra dinero (+)", cls: "pos" };
+}
+function N(x) { return { n: x }; }
+function P(r) { return { p: r }; }
+function RAW(es, en) { return { raw: { es: es, en: en === undefined ? es : en } }; }
+function flowsList(cfs) {
+  return cfs.map(function (c, k) { return k + ": " + fmtT(c, 4); }).join(" · ");
+}
+// Literal de Excel con un término negativo bien escrito: "+(-5000)"
+function xTerm(x, loc, first) {
+  var s = xn(x, loc);
+  if (first) return s;
+  return x < 0 ? "+(" + s + ")" : "+" + s;
+}
+function arrConst(cfs, loc) {
+  return "{" + cfs.map(function (c) { return xn(c, loc); }).join(";") + "}";
+}
+
+// ---------------------------------------------------------------------------
+// Definición de las funciones
+// ---------------------------------------------------------------------------
+var TIPO = { key: "tipo", kind: "select", label: "Tipo · cuándo ocurre el pago", sym: "tipo",
+  options: [["0", "0 · al final del periodo (vencido)"], ["1", "1 · al inicio del periodo (anticipado)"]], def: "0", full: true };
+function fI(o) { return Object.assign({ key: "i", kind: "rate", label: "Tasa por periodo", sym: "i", ph: "10" }, o || {}); }
+function fN(o) { return Object.assign({ key: "n", kind: "num", label: "Periodos", sym: "n", ph: "5", positive: true }, o || {}); }
+function fM(key, label, sym, o) { return Object.assign({ key: key, kind: "money", label: label, sym: sym, full: true }, o || {}); }
+function fFlows(key, label, o) {
+  return Object.assign({ key: key, kind: "flows", label: label, sym: "flujos", full: true,
+    ph: "-10000; 3000; 4200; 6800", hint: "El primero es el año 0. Separa con ; o salto de línea. 300x5 = cinco veces 300." }, o || {});
+}
+var PERIODS = [["1", "Anual (1)"], ["2", "Semestral (2)"], ["3", "Cuatrimestral (3)"], ["4", "Trimestral (4)"],
+  ["6", "Bimestral (6)"], ["12", "Mensual (12)"], ["24", "Quincenal (24)"], ["52", "Semanal (52)"],
+  ["360", "Diaria comercial (360)"], ["365", "Diaria (365)"]];
+var PERIOD_NAMES = { "1": "año", "2": "semestre", "3": "cuatrimestre", "4": "trimestre", "6": "bimestre",
+  "12": "mes", "24": "quincena", "52": "semana", "360": "día", "365": "día", "inf": "instante" };
+var FACTOR_ORDER = ["P/F", "F/P", "P/A", "A/P", "A/F", "F/A"];
+
+function tipoFactor(i, t) { return t === 1 ? "·(1 + " + pn(i, 6) + ")" : ""; }
+
+var FUNCS = {
+  // ---------------- Factores y funciones de Excel ----------------
+  factor: {
+    group: "Factores y funciones de Excel",
+    label: "Factores P/F, F/P, P/A, A/P, A/F, F/A",
+    desc: "Factor con 4 decimales y, si das un monto, su conversión. (X/Y) da X a partir de Y.",
+    fields: [
+      { key: "tipo", kind: "select", label: "Factor", sym: "factor", full: true, def: "P/A",
+        options: [["P/A", "P/A · P dado A"], ["P/F", "P/F · P dado F"], ["F/P", "F/P · F dado P"],
+          ["A/P", "A/P · A dado P"], ["A/F", "A/F · A dado F"], ["F/A", "F/A · F dado A"]] },
+      fI({ ph: "12" }),
+      fN(),
+      fM("m", "Monto a convertir", "monto", { optional: true, ph: "opcional", hint: "Para P/A escribe A y obtienes P; para A/P escribe P y obtienes A." })
+    ],
+    example: { tipo: "P/A", i: "12", n: "5" },
+    compute: function (v) {
+      var F = factors(v.i, v.n), t = v.tipo, f = F[t];
+      var name = "(" + t + ", " + pctT(v.i) + ", " + fmtT(v.n) + ")";
+      var gi = fmtT(1 + v.i, 6), ii = fmtT(v.i, 6), nn = fmtT(v.n);
+      var gen = {
+        "P/F": ["1 / (1 + i)" + sup("n"), "1 / (" + gi + ")" + sup(nn)],
+        "F/P": ["(1 + i)" + sup("n"), "(" + gi + ")" + sup(nn)],
+        "P/A": ["[(1 + i)" + sup("n") + " − 1] / [i·(1 + i)" + sup("n") + "]", "[(" + gi + ")" + sup(nn) + " − 1] / [" + ii + "·(" + gi + ")" + sup(nn) + "]"],
+        "A/P": ["[i·(1 + i)" + sup("n") + "] / [(1 + i)" + sup("n") + " − 1]", "[" + ii + "·(" + gi + ")" + sup(nn) + "] / [(" + gi + ")" + sup(nn) + " − 1]"],
+        "A/F": ["i / [(1 + i)" + sup("n") + " − 1]", ii + " / [(" + gi + ")" + sup(nn) + " − 1]"],
+        "F/A": ["[(1 + i)" + sup("n") + " − 1] / i", "[(" + gi + ")" + sup(nn) + " − 1] / " + ii]
+      }[t];
+      var xlMap = {
+        "P/F": function (M) { return xlCall("VA", "PV", [P(v.i), N(v.n), N(0), N(-M)]); },
+        "F/P": function (M) { return xlCall("VF", "FV", [P(v.i), N(v.n), N(0), N(-M)]); },
+        "P/A": function (M) { return xlCall("VA", "PV", [P(v.i), N(v.n), N(-M)]); },
+        "A/P": function (M) { return xlCall("PAGO", "PMT", [P(v.i), N(v.n), N(-M)]); },
+        "A/F": function (M) { return xlCall("PAGO", "PMT", [P(v.i), N(v.n), N(0), N(-M)]); },
+        "F/A": function (M) { return xlCall("VF", "FV", [P(v.i), N(v.n), N(-M)]); }
+      };
+      var R = {
+        title: "Factor " + name,
+        value: fmt(f, 4),
+        sub: "= " + fmtT(f, 8),
+        rows: FACTOR_ORDER.map(function (k) { return ["(" + k + ", " + pctT(v.i) + ", " + nn + ")", fmt(F[k], 4), k === t]; }),
+        formula: [name + " = " + gen[0], "= " + gen[1] + " = " + fmt(f, 4)],
+        excel: [Object.assign({ label: "Factor" }, xlMap[t](1))]
+      };
+      if (!v._blank.m) {
+        var X = t.split("/")[0], Y = t.split("/")[1], res = v.m * f;
+        R.second = { label: X + " = " + Y + "·" + name + " = " + pn(v.m, 2) + " × " + fmt(f, 4), value: X + " = " + fmt(res, 2) };
+        R.excel.push(Object.assign({ label: X + " a partir de " + Y + " = " + fmtT(v.m, 2) }, xlMap[t](v.m)));
+      }
+      if (Math.abs(v.i) < 1e-12) R.warns = ["Con i = 0 los factores son límites: P/A = F/A = n y A/P = A/F = 1/n."];
+      return R;
+    }
+  },
+
+  va: {
+    group: "Factores y funciones de Excel",
+    label: "VA · valor actual (PV)",
+    desc: "Valor presente de un pago periódico y/o un valor futuro. Igual que =VA de Excel.",
+    fields: [fI(), fN(),
+      fM("pago", "Pago periódico", "PAGO", { optional: true, ph: "0", hint: "Con signo: si lo pagas, negativo." }),
+      fM("vf", "Valor futuro", "VF", { optional: true, ph: "0" }), TIPO],
+    example: { i: "10", n: "5", pago: "1000", tipo: "0" },
+    compute: function (v) {
+      var t = Number(v.tipo), val = pvF(v.i, v.n, v.pago, v.vf, t), F = factors(v.i, v.n);
+      return {
+        title: "Valor actual · VA", value: fmt(val, 2), tag: signTag(val),
+        formula: [
+          "VA = −[PAGO·(P/A, i, n)" + (t ? "·(1 + i)" : "") + " + VF·(P/F, i, n)]",
+          "= −[" + pn(v.pago, 2) + "·" + fmt(F["P/A"], 4) + tipoFactor(v.i, t) + " + " + pn(v.vf, 2) + "·" + fmt(F["P/F"], 4) + "] = " + fmt(val, 2)
+        ],
+        excel: [xlCall("VA", "PV", [P(v.i), N(v.n), N(v.pago), (v.vf || t) ? N(v.vf) : null, t ? N(1) : null])]
+      };
+    }
+  },
+
+  vf: {
+    group: "Factores y funciones de Excel",
+    label: "VF · valor futuro (FV)",
+    desc: "Valor futuro de un valor actual y/o un pago periódico. Igual que =VF de Excel.",
+    fields: [fI(), fN(),
+      fM("pago", "Pago periódico", "PAGO", { optional: true, ph: "0" }),
+      fM("va", "Valor actual", "VA", { optional: true, ph: "0", hint: "Con signo: si lo depositas o inviertes, negativo." }), TIPO],
+    example: { i: "0,5", n: "10", pago: "-200", va: "-500", tipo: "1" },
+    compute: function (v) {
+      var t = Number(v.tipo), val = fvF(v.i, v.n, v.pago, v.va, t), F = factors(v.i, v.n);
+      return {
+        title: "Valor futuro · VF", value: fmt(val, 2), tag: signTag(val),
+        formula: [
+          "VF = −[VA·(F/P, i, n) + PAGO·(F/A, i, n)" + (t ? "·(1 + i)" : "") + "]",
+          "= −[" + pn(v.va, 2) + "·" + fmt(F["F/P"], 4) + " + " + pn(v.pago, 2) + "·" + fmt(F["F/A"], 4) + tipoFactor(v.i, t) + "] = " + fmt(val, 2)
+        ],
+        excel: [xlCall("VF", "FV", [P(v.i), N(v.n), N(v.pago), (v.va || t) ? N(v.va) : null, t ? N(1) : null])]
+      };
+    }
+  },
+
+  pago: {
+    group: "Factores y funciones de Excel",
+    label: "PAGO · cuota periódica (PMT)",
+    desc: "Pago uniforme equivalente a un VA y/o un VF. Igual que =PAGO de Excel.",
+    fields: [fI(), fN(),
+      fM("va", "Valor actual", "VA", { optional: true, ph: "0", hint: "Ej.: préstamo recibido, positivo." }),
+      fM("vf", "Valor futuro", "VF", { optional: true, ph: "0" }), TIPO],
+    example: { i: "10", n: "3", va: "20000", vf: "-4000", tipo: "0" },
+    compute: function (v) {
+      var t = Number(v.tipo), val = pmtF(v.i, v.n, v.va, v.vf, t), F = factors(v.i, v.n);
+      return {
+        title: "Pago periódico · PAGO", value: fmt(val, 2), tag: signTag(val),
+        sub: "= " + fmtT(val, 6),
+        formula: [
+          "PAGO = −[VA·(A/P, i, n) + VF·(A/F, i, n)]" + (t ? " / (1 + i)" : ""),
+          "= −[" + pn(v.va, 2) + "·" + fmt(F["A/P"], 4) + " + " + pn(v.vf, 2) + "·" + fmt(F["A/F"], 4) + "]" + (t ? " / " + fmtT(1 + v.i, 6) : "") + " = " + fmt(val, 2)
+        ],
+        excel: [xlCall("PAGO", "PMT", [P(v.i), N(v.n), N(v.va), (v.vf || t) ? N(v.vf) : null, t ? N(1) : null])]
+      };
+    }
+  },
+
+  nper: {
+    group: "Factores y funciones de Excel",
+    label: "NPER · número de periodos",
+    desc: "Cuántos periodos hacen equivalentes VA, PAGO y VF. Igual que =NPER de Excel.",
+    fields: [fI({ full: true }),
+      fM("pago", "Pago periódico", "PAGO", { optional: true, ph: "0" }),
+      fM("va", "Valor actual", "VA", { optional: true, ph: "0" }),
+      fM("vf", "Valor futuro", "VF", { optional: true, ph: "0" }), TIPO],
+    example: { i: "1", pago: "-100", va: "-1000", vf: "10000", tipo: "1" },
+    compute: function (v) {
+      var t = Number(v.tipo), n = nperF(v.i, v.pago, v.va, v.vf, t);
+      var a = v.pago * (1 + v.i * t);
+      var R = {
+        title: "Número de periodos · NPER", value: fmt(n, 4), sub: "periodos",
+        formula: [
+          "n = ln[(PAGO·(1 + i·tipo) − VF·i) / (PAGO·(1 + i·tipo) + VA·i)] / ln(1 + i)",
+          "= ln[(" + pn(a, 4) + " − " + pn(v.vf, 2) + "·" + fmtT(v.i, 6) + ") / (" + pn(a, 4) + " + " + pn(v.va, 2) + "·" + fmtT(v.i, 6) + ")] / ln(" + fmtT(1 + v.i, 6) + ") = " + fmt(n, 4)
+        ],
+        excel: [xlCall("NPER", "NPER", [P(v.i), N(v.pago), N(v.va), (v.vf || t) ? N(v.vf) : null, t ? N(1) : null])]
+      };
+      if (n < 0) R.warns = ["n salió negativo: revisa los signos de VA, PAGO y VF."];
+      else if (Math.abs(n - Math.round(n)) > 1e-6) R.notes = ["No es entero: con " + Math.ceil(n) + " periodos completos se alcanza (o supera) la meta."];
+      return R;
+    }
+  },
+
+  tasa: {
+    group: "Factores y funciones de Excel",
+    label: "TASA · tasa por periodo (RATE)",
+    desc: "Tasa por periodo que hace equivalentes los flujos. Newton desde la estimación; si no converge, bisección.",
+    fields: [fN({ label: "Periodos", sym: "nper", full: true }),
+      fM("pago", "Pago periódico", "PAGO", { optional: true, ph: "0" }),
+      fM("va", "Valor actual", "VA", { optional: true, ph: "0" }),
+      fM("vf", "Valor futuro", "VF", { optional: true, ph: "0" }), TIPO,
+      fI({ key: "guess", label: "Estimación", sym: "estimar", optional: true, ph: "10", full: true, hint: "Por defecto 10 %, como Excel." })],
+    example: { n: "3", pago: "7000", va: "-20000", vf: "8000", tipo: "0" },
+    compute: function (v) {
+      var t = Number(v.tipo);
+      if (!v.pago && !v.va && !v.vf) throw new Error("Escribe al menos dos de PAGO, VA y VF, con signos opuestos.");
+      var s = rateF(v.n, v.pago, v.va, v.vf, t, v.guess);
+      if (!s) throw new Error("No encontré una tasa entre −99 % y 1.000 %. Revisa los signos: debe haber dinero que sale y dinero que entra.");
+      var r = s.rate, F = factors(r, v.n);
+      var check = v.va + v.pago * (1 + r * t) * F["P/A"] + v.vf * F["P/F"];
+      var R = {
+        title: "Tasa por periodo · TASA", value: fmtPct(r, 2),
+        sub: "i = " + fmtT(r, 8) + " · " + (s.method === "Newton" ? "Newton, " + s.it + " iteraciones" : "bisección (Newton no convergió)"),
+        rows: [["Tasa con 4 decimales", fmtPct(r, 4)], ["Comprobación (≈ 0)", fmt(check, 4)]],
+        formula: [
+          "Resuelve 0 = VA + PAGO·(P/A, i, n)" + (t ? "·(1 + i)" : "") + " + VF·(P/F, i, n)",
+          "0 = " + pn(v.va, 2) + " + " + pn(v.pago, 2) + "·(P/A, i, " + fmtT(v.n) + ")" + (t ? "·(1 + i)" : "") + " + " + pn(v.vf, 2) + "·(P/F, i, " + fmtT(v.n) + ") → i = " + fmtPct(r, 4)
+        ],
+        excel: [xlCall("TASA", "RATE", [N(v.n), N(v.pago), N(v.va), (v.vf || t || v.guess != null) ? N(v.vf) : null,
+          (t || v.guess != null) ? N(t) : null, v.guess != null ? P(v.guess) : null])]
+      };
+      var others = s.roots.filter(function (x) { return Math.abs(x - r) > 1e-6; });
+      if (others.length) R.warns = ["Hay otras tasas que también cumplen la ecuación: " + others.map(function (x) { return fmtPct(x, 2); }).join(", ") + "."];
+      return R;
+    }
+  },
+
+  // ---------------- Flujos de efectivo ----------------
+  vna: {
+    group: "Flujos de efectivo",
+    label: "VP de flujos · VNA + año 0",
+    desc: "Valor presente de una serie de flujos a la tasa dada (TMAR). Excel: VNA desde el año 1, más el año 0.",
+    fields: [fI({ label: "Tasa (TMAR)", full: true }), fFlows("cf", "Flujos de efectivo")],
+    example: { i: "10", cf: "-10000; 3000; 4200; 6800" },
+    compute: function (v) {
+      var cfs = v.cf, n = cfs.length - 1;
+      var vp = npv0(v.i, cfs);
+      var F = factors(v.i, Math.max(n, 1));
+      var terms = cfs.slice(0, 4).map(function (c, k) {
+        return k === 0 ? pn(c, 2) : pn(c, 2) + "/" + fmtT(1 + v.i, 6) + sup(k);
+      }).join(" + ") + (cfs.length > 4 ? " + …" : "");
+      var R = {
+        title: "Valor presente · VP", value: fmt(vp, 2),
+        tag: vp >= 0 ? { text: "VP ≥ 0 · se justifica", cls: "pos" } : { text: "VP < 0 · no se justifica", cls: "neg" },
+        rows: [["Valor anual equivalente VP·(A/P, i, " + n + ")", n >= 1 ? fmt(vp * F["A/P"], 2) : "—"],
+          ["Valor futuro equivalente VP·(F/P, i, " + n + ")", fmt(vp * Math.pow(1 + v.i, n), 2)],
+          ["Flujos leídos (año: valor)", flowsList(cfs), false, true]],
+        formula: ["VP = Σ F" + "<sub>t</sub> / (1 + i)" + sup("t") + ",  t = 0 … " + n, "= " + terms + " = " + fmt(vp, 2)],
+        excel: [
+          { label: "Con los flujos en B1:B" + (n + 1) + " (año 0 en B1)",
+            es: "=VNA(" + xn(v.i * 100, "es") + "%;B2:B" + (n + 1) + ")+B1", en: "=NPV(" + xn(v.i * 100, "en") + "%,B2:B" + (n + 1) + ")+B1" },
+          n >= 1 && n <= 250 ? {
+            label: "Sin celdas",
+            es: "=" + xn(cfs[0], "es") + "+VNA(" + xn(v.i * 100, "es") + "%;" + cfs.slice(1).map(function (c) { return xn(c, "es"); }).join(";") + ")",
+            en: "=" + xn(cfs[0], "en") + "+NPV(" + xn(v.i * 100, "en") + "%," + cfs.slice(1).map(function (c) { return xn(c, "en"); }).join(",") + ")"
+          } : null
+        ].filter(Boolean),
+        notes: ["VNA de Excel descuenta desde el año 1; por eso el año 0 se suma aparte."]
+      };
+      return R;
+    }
+  },
+
+  tir: {
+    group: "Flujos de efectivo",
+    label: "TIR de flujos",
+    desc: "Tasa que anula el VP de los flujos. Newton desde la estimación, con bisección de respaldo; avisa si hay varias TIR.",
+    fields: [fFlows("cf", "Flujos de efectivo", { ph: "-70000; 12000; 15000; 18000; 21000; 26000" }),
+      fI({ key: "guess", label: "Estimación", sym: "estimar", optional: true, ph: "10", full: true, hint: "Por defecto 10 %, como Excel." })],
+    example: { cf: "-70000; 12000; 15000; 18000; 21000; 26000" },
+    compute: function (v) {
+      var cfs = v.cf, n = cfs.length - 1;
+      if (n < 1) throw new Error("La TIR necesita al menos dos flujos.");
+      if (!cfs.some(function (c) { return c > 0; }) || !cfs.some(function (c) { return c < 0; })) {
+        throw new Error("La TIR necesita al menos un flujo negativo y uno positivo.");
+      }
+      var s = irrF(cfs, v.guess);
+      if (!s) throw new Error("No encontré una TIR real entre −99 % y 1.000 %.");
+      var sc = signChanges(cfs);
+      var R = {
+        title: "Tasa interna de retorno · TIR", value: fmtPct(s.rate, 2),
+        sub: "i* = " + fmtT(s.rate, 8) + " · " + (s.method === "Newton" ? "Newton, " + s.it + " iteraciones" : "bisección"),
+        rows: [["TIR con 4 decimales", fmtPct(s.rate, 4)],
+          ["VP a la TIR (≈ 0)", fmt(npv0(s.rate, cfs), 4)],
+          ["Cambios de signo", String(sc)],
+          ["Flujos leídos (año: valor)", flowsList(cfs), false, true]],
+        formula: ["0 = Σ F<sub>t</sub> / (1 + i*)" + sup("t") + ",  t = 0 … " + n],
+        excel: [
+          { label: "Con los flujos en B1:B" + (n + 1), es: "=TIR(B1:B" + (n + 1) + ")", en: "=IRR(B1:B" + (n + 1) + ")" },
+          { label: "Sin celdas (matriz constante)", es: "=TIR(" + arrConst(cfs, "es") + ")", en: "=IRR(" + arrConst(cfs, "en") + ")" }
+        ]
+      };
+      var others = s.roots.filter(function (x) { return Math.abs(x - s.rate) > 1e-6; });
+      R.warns = [];
+      if (others.length) R.warns.push("Hay " + s.roots.length + " tasas que anulan el VP: " + s.roots.map(function (x) { return fmtPct(x, 2); }).join(", ") + ". Con flujos no convencionales usa TIRM o VP.");
+      else if (sc > 1) R.warns.push("Flujo no convencional (" + sc + " cambios de signo): podría haber varias TIR.");
+      return R;
+    }
+  },
+
+  tirm: {
+    group: "Flujos de efectivo",
+    label: "TIRM · TIR modificada",
+    desc: "Negativos traídos al año 0 con la tasa de financiamiento; positivos llevados al año n con la tasa de reinversión.",
+    fields: [fFlows("cf", "Flujos de efectivo", { ph: "-120000; 39000; 30000; 21000; 37000; 46000" }),
+      fI({ key: "fin", label: "Tasa de financiamiento", sym: "i fin", ph: "10" }),
+      fI({ key: "reinv", label: "Tasa de reinversión", sym: "i reinv", ph: "12" })],
+    example: { cf: "-120000; 39000; 30000; 21000; 37000; 46000", fin: "10", reinv: "12" },
+    compute: function (v) {
+      var m = mirrF(v.cf, v.fin, v.reinv), n = m.N;
+      return {
+        title: "TIR modificada · TIRM", value: fmtPct(m.mirr, 2), sub: "= " + fmtT(m.mirr, 8),
+        rows: [["VF de los positivos a " + pctT(v.reinv), fmt(m.fvPos, 2)],
+          ["VP de los negativos a " + pctT(v.fin), fmt(m.pvNeg, 2)],
+          ["Periodos n", String(n)],
+          ["Flujos leídos (año: valor)", flowsList(v.cf), false, true]],
+        formula: ["TIRM = [VF<sub>+</sub>(i reinv) / |VP<sub>−</sub>(i fin)|]" + sup("1/n") + " − 1",
+          "= [" + fmt(m.fvPos, 2) + " / " + fmt(-m.pvNeg, 2) + "]" + sup("1/" + n) + " − 1 = " + fmtPct(m.mirr, 4)],
+        excel: [
+          { label: "Con los flujos en B1:B" + (n + 1), es: "=TIRM(B1:B" + (n + 1) + ";" + xn(v.fin * 100, "es") + "%;" + xn(v.reinv * 100, "es") + "%)",
+            en: "=MIRR(B1:B" + (n + 1) + "," + xn(v.fin * 100, "en") + "%," + xn(v.reinv * 100, "en") + "%)" },
+          { label: "Sin celdas (matriz constante)", es: "=TIRM(" + arrConst(v.cf, "es") + ";" + xn(v.fin * 100, "es") + "%;" + xn(v.reinv * 100, "es") + "%)",
+            en: "=MIRR(" + arrConst(v.cf, "en") + "," + xn(v.fin * 100, "en") + "%," + xn(v.reinv * 100, "en") + "%)" }
+        ]
+      };
+    }
+  },
+
+  incremental: {
+    group: "Flujos de efectivo",
+    label: "TIR incremental · ΔVP (B − A)",
+    desc: "Resta la alternativa de menor inversión a la de mayor inversión y calcula la TIR y el VP del incremento.",
+    fields: [fFlows("fa", "Flujos de la alternativa A", { sym: "flujos A", ph: "-10000; 3000x5", hint: "El primero es el año 0. 3000x5 = cinco años de 3000." }),
+      fFlows("fb", "Flujos de la alternativa B", { sym: "flujos B", ph: "-15000; 4300x5", hint: "Misma vida que A (si no, usa el mínimo común múltiplo)." }),
+      fI({ key: "tmar", label: "TMAR", sym: "TMAR", optional: true, ph: "10", full: true, hint: "Opcional: con ella decido qué alternativa elegir." })],
+    example: { fa: "-10000; 3000x5", fb: "-15000; 4300x5", tmar: "10" },
+    compute: function (v) {
+      var A = v.fa.slice(), B = v.fb.slice(), warns = [];
+      if (A.length !== B.length) {
+        warns.push("Las vidas no coinciden (" + (A.length - 1) + " y " + (B.length - 1) + " años): completé con ceros. Para vidas distintas repite los ciclos hasta el mínimo común múltiplo.");
+        while (A.length < B.length) A.push(0);
+        while (B.length < A.length) B.push(0);
+      }
+      var bigIsB = B[0] <= A[0];
+      var big = bigIsB ? B : A, small = bigIsB ? A : B;
+      var bigN = bigIsB ? "B" : "A", smallN = bigIsB ? "A" : "B";
+      var d = big.map(function (x, k) { return x - small[k]; });
+      var n = d.length - 1;
+      var s = (d.some(function (c) { return c > 0; }) && d.some(function (c) { return c < 0; })) ? irrF(d) : null;
+      var tA = irrF(A), tB = irrF(B);
+      var R = {
+        title: "TIR incremental · Δ(" + bigN + " − " + smallN + ")",
+        value: s ? fmtPct(s.rate, 2) : "Sin TIR real",
+        sub: s ? "Δi* = " + fmtT(s.rate, 8) : "El incremento no cambia de signo",
+        rows: [["Δ flujos (año: valor)", flowsList(d), false, true],
+          ["TIR de A", tA ? fmtPct(tA.rate, 2) : "—"],
+          ["TIR de B", tB ? fmtPct(tB.rate, 2) : "—"]],
+        formula: ["Δ = (" + bigN + ", mayor inversión) − (" + smallN + ")", "0 = Σ ΔF<sub>t</sub> / (1 + Δi*)" + sup("t")],
+        excel: [
+          { label: "Con A en B1:B" + (n + 1) + ", B en C1:C" + (n + 1) + " y D1 = " + (bigIsB ? "C1-B1" : "B1-C1") + " (copiado hacia abajo)",
+            es: "=TIR(D1:D" + (n + 1) + ")", en: "=IRR(D1:D" + (n + 1) + ")" },
+          { label: "Sin celdas (matriz constante)", es: "=TIR(" + arrConst(d, "es") + ")", en: "=IRR(" + arrConst(d, "en") + ")" }
+        ],
+        warns: warns
+      };
+      if (v.tmar != null) {
+        var vpA = npv0(v.tmar, A), vpB = npv0(v.tmar, B), dvp = npv0(v.tmar, d);
+        R.rows.push(["VP de A a " + pctT(v.tmar), fmt(vpA, 2)], ["VP de B a " + pctT(v.tmar), fmt(vpB, 2)],
+          ["ΔVP a " + pctT(v.tmar), fmt(dvp, 2), true]);
+        var chooseBig = s ? s.rate >= v.tmar : dvp >= 0;
+        var pick = chooseBig ? bigN : smallN;
+        R.tag = { text: "Elige " + pick, cls: "pos" };
+        R.notes = [s
+          ? "Δi* = " + fmtPct(s.rate, 2) + (chooseBig ? " ≥ " : " < ") + "TMAR = " + pctT(v.tmar) + (chooseBig
+            ? ": la inversión adicional se justifica. Elige " + bigN + "."
+            : ": la inversión adicional no se justifica. Elige " + smallN + ".")
+          : "Sin Δi* real, decido con ΔVP = " + fmt(dvp, 2) + ": elige " + pick + "."];
+        var pickVp = pick === "A" ? vpA : vpB;
+        if (pickVp < 0) warns.push("Ojo: " + pick + " tiene VP < 0 a la TMAR. Si hacer nada es una opción, ninguna se justifica.");
+      }
+      if (s && s.roots.length > 1) warns.push("El incremento tiene varias TIR: " + s.roots.map(function (x) { return fmtPct(x, 2); }).join(", ") + ". Decide con ΔVP.");
+      return R;
+    }
+  },
+
+  // ---------------- Alternativas ----------------
+  caue: {
+    group: "Comparación de alternativas",
+    label: "VA (CAUE) de una alternativa",
+    desc: "Valor anual: VA = −P(A/P, i, n) − A + S(A/F, i, n). Aquí P, A y S van en positivo: la fórmula pone los signos.",
+    fields: [fM("P", "Costo inicial", "P", { ph: "10000" }),
+      fM("A", "Costo anual de operación", "A", { optional: true, ph: "0", hint: "Positivo si es costo; negativo si es ingreso." }),
+      fM("S", "Valor de salvamento", "S", { optional: true, ph: "0" }),
+      fN({ label: "Vida (años)" }), fI({ ph: "10" })],
+    example: { P: "10000", A: "500", S: "2000", n: "5", i: "10" },
+    compute: function (v) {
+      var F = factors(v.i, v.n);
+      var va = -v.P * F["A/P"] - v.A + v.S * F["A/F"];
+      var R = {
+        title: "Valor anual · VA (CAUE)", value: fmt(va, 2),
+        tag: va < 0 ? { text: "Costo anual equivalente", cls: "neg" } : { text: "Beneficio anual equivalente", cls: "pos" },
+        rows: [["(A/P, " + pctT(v.i) + ", " + fmtT(v.n) + ")", fmt(F["A/P"], 4)],
+          ["(A/F, " + pctT(v.i) + ", " + fmtT(v.n) + ")", fmt(F["A/F"], 4)],
+          ["Recuperación de capital −P(A/P) + S(A/F)", fmt(-v.P * F["A/P"] + v.S * F["A/F"], 2)],
+          ["VP equivalente VA·(P/A, i, n)", fmt(va * F["P/A"], 2)]],
+        formula: ["VA = −P(A/P, i, n) − A + S(A/F, i, n)",
+          "= −" + pn(v.P, 2) + "(" + fmt(F["A/P"], 4) + ") − " + pn(v.A, 2) + " + " + pn(v.S, 2) + "(" + fmt(F["A/F"], 4) + ") = " + fmt(va, 2)],
+        excel: [{
+          es: "=PAGO(" + xn(v.i * 100, "es") + "%;" + xn(v.n, "es") + ";" + xn(v.P, "es") + ";" + xn(-v.S, "es") + ")" + xTerm(-v.A, "es"),
+          en: "=PMT(" + xn(v.i * 100, "en") + "%," + xn(v.n, "en") + "," + xn(v.P, "en") + "," + xn(-v.S, "en") + ")" + xTerm(-v.A, "en")
+        }],
+        notes: ["Con vidas distintas, compara el VA de cada alternativa y elige el mayor (el menos negativo)."]
+      };
+      if (v.P < 0 || v.S < 0) R.warns = ["Aquí P y S se escriben en positivo; la fórmula ya les pone el signo."];
+      return R;
+    }
+  },
+
+  cc: {
+    group: "Comparación de alternativas",
+    label: "Costo capitalizado · CC = P + A/i",
+    desc: "Valor presente de una alternativa perpetua. Usa signos: costos negativos. Un costo cada k años se anualiza con (A/F, i, k).",
+    fields: [fM("P", "Inversión inicial (año 0)", "P", { optional: true, ph: "-150000" }),
+      fM("A", "Costo anual perpetuo", "A", { optional: true, ph: "-5000" }),
+      fI({ full: true, label: "Tasa por periodo" }),
+      fM("X", "Costo periódico cada k años", "X", { optional: true, ph: "opcional", hint: "Ej.: una reparación de −20000 cada 10 años." }),
+      fN({ key: "k", label: "Cada k años", sym: "k", optional: true, ph: "10", positive: true, full: true })],
+    example: { P: "-150000", A: "-5000", i: "8", X: "-20000", k: "10" },
+    compute: function (v) {
+      if (v.i <= 0) throw new Error("En costo capitalizado la tasa debe ser mayor que 0.");
+      var hasX = !v._blank.X && v.X !== 0;
+      if (hasX && v.k == null) throw new Error("Falta: cada cuántos años (k) ocurre el costo periódico X.");
+      var AX = hasX ? v.X * factors(v.i, v.k)["A/F"] : 0;
+      var CC = v.P + v.A / v.i + AX / v.i;
+      var R = {
+        title: "Costo capitalizado · CC", value: fmt(CC, 2), tag: signTag(CC),
+        rows: [["P", fmt(v.P, 2)], ["A / i", fmt(v.A / v.i, 2)]],
+        formula: ["CC = P + A/i" + (hasX ? " + X·(A/F, i, k)/i" : ""),
+          "= " + pn(v.P, 2) + " + " + pn(v.A, 2) + "/" + fmtT(v.i, 6) + (hasX ? " + " + pn(v.X, 2) + "·" + fmt(factors(v.i, v.k)["A/F"], 4) + "/" + fmtT(v.i, 6) : "") + " = " + fmt(CC, 2)],
+        excel: [{
+          es: "=" + xTerm(v.P, "es", true) + xTerm(v.A, "es") + "/" + xn(v.i * 100, "es") + "%" + (hasX ? "+PAGO(" + xn(v.i * 100, "es") + "%;" + xn(v.k, "es") + ";0;" + xn(-v.X, "es") + ")/" + xn(v.i * 100, "es") + "%" : ""),
+          en: "=" + xTerm(v.P, "en", true) + xTerm(v.A, "en") + "/" + xn(v.i * 100, "en") + "%" + (hasX ? "+PMT(" + xn(v.i * 100, "en") + "%," + xn(v.k, "en") + ",0," + xn(-v.X, "en") + ")/" + xn(v.i * 100, "en") + "%" : "")
+        }]
+      };
+      if (hasX) R.rows.push(["X·(A/F, " + pctT(v.i) + ", " + fmtT(v.k) + ")", fmt(AX, 2)], ["X·(A/F)/i", fmt(AX / v.i, 2)]);
+      R.rows.push(["Anualidad perpetua equivalente CC·i", fmt(CC * v.i, 2), true]);
+      return R;
+    }
+  },
+
+  perp: {
+    group: "Comparación de alternativas",
+    label: "Perpetuidad · A = P·i",
+    desc: "Escribe P o A (deja el otro vacío): A = P·i y P = A/i.",
+    fields: [fM("P", "Valor presente (capitalizado)", "P", { optional: true, ph: "100000" }),
+      fM("A", "Anualidad perpetua", "A", { optional: true, ph: "o déjalo vacío" }),
+      fI({ full: true, ph: "8" })],
+    example: { P: "100000", i: "8" },
+    compute: function (v) {
+      if (v.i <= 0) throw new Error("La tasa debe ser mayor que 0.");
+      if (v._blank.P && v._blank.A) throw new Error("Escribe P (para obtener A) o A (para obtener P).");
+      if (!v._blank.P) {
+        var A = v.P * v.i;
+        var R = {
+          title: "Anualidad perpetua · A = P·i", value: fmt(A, 2),
+          formula: ["A = P·i", "= " + pn(v.P, 2) + " × " + fmtT(v.i, 6) + " = " + fmt(A, 2)],
+          excel: [{ es: "=" + xn(v.P, "es") + "*" + xn(v.i * 100, "es") + "%", en: "=" + xn(v.P, "en") + "*" + xn(v.i * 100, "en") + "%" }]
+        };
+        if (!v._blank.A) R.notes = ["Escribiste P y A; usé P. Para obtener P desde A, deja P vacío."];
+        return R;
+      }
+      var Pv = v.A / v.i;
+      return {
+        title: "Valor presente de la perpetuidad · P = A/i", value: fmt(Pv, 2),
+        formula: ["P = A/i", "= " + pn(v.A, 2) + " / " + fmtT(v.i, 6) + " = " + fmt(Pv, 2)],
+        excel: [{ es: "=" + xn(v.A, "es") + "/" + xn(v.i * 100, "es") + "%", en: "=" + xn(v.A, "en") + "/" + xn(v.i * 100, "en") + "%" }]
+      };
+    }
+  },
+
+  // ---------------- Bonos ----------------
+  bono: {
+    group: "Bonos",
+    label: "Bono · I = V·b/c e i* por periodo",
+    desc: "Interés del bono y la tasa i* que gana quien lo compra a precio P: 0 = −P + I(P/A, i*, N) + V(P/F, i*, N).",
+    fields: [fM("V", "Valor nominal del bono", "V", { ph: "10000" }),
+      fI({ key: "b", label: "Tasa del bono (anual)", sym: "b", ph: "6" }),
+      { key: "c", kind: "select", label: "Pagos por año", sym: "c", def: "2",
+        options: [["1", "Anual (1)"], ["2", "Semestral (2)"], ["3", "Cuatrimestral (3)"], ["4", "Trimestral (4)"], ["6", "Bimestral (6)"], ["12", "Mensual (12)"]] },
+      fN({ label: "Años al vencimiento", sym: "años", ph: "5", full: true }),
+      fM("P", "Precio de compra", "P", { optional: true, ph: "8000", hint: "Positivo. Si lo dejas vacío, no calculo i*." }),
+      fM("Vf", "Valor recibido al vencer", "V final", { optional: true, ph: "igual a V", hint: "Opcional: si se vende antes o se redime a otro valor." }),
+      fI({ key: "id", label: "Tasa deseada por periodo", sym: "i deseada", optional: true, ph: "opcional", full: true, hint: "Opcional: calcula cuánto pagar hoy por el bono para ganar esa tasa." })],
+    example: { V: "10000", b: "6", c: "4", n: "5", P: "8000" },
+    compute: function (v) {
+      var c = Number(v.c), Nn = v.n * c, I = v.V * v.b / c, Vf = v._blank.Vf ? v.V : v.Vf;
+      var R = {
+        title: "Bono", rows: [["I = V·b/c = " + fmtT(v.V, 2) + " × " + pctT(v.b) + " / " + c, fmt(I, 2)],
+          ["N = años × c = " + fmtT(v.n) + " × " + c, fmtT(Nn, 4)]],
+        formula: ["I = V·b/c = " + pn(v.V, 2) + " × " + fmtT(v.b, 6) + " / " + c + " = " + fmt(I, 2)],
+        excel: [{ label: "Interés por periodo I", es: "=" + xn(v.V, "es") + "*" + xn(v.b * 100, "es") + "%/" + c, en: "=" + xn(v.V, "en") + "*" + xn(v.b * 100, "en") + "%/" + c }],
+        warns: []
+      };
+      if (!v._blank.P) {
+        if (v.P <= 0) R.warns.push("Escribe el precio de compra en positivo; yo le pongo el signo (sale dinero).");
+        var Pp = Math.abs(v.P);
+        var s = rateF(Nn, I, -Pp, Vf, 0, 0.05);
+        if (!s) throw new Error("No encontré i* para este bono. Revisa precio, V y años.");
+        var r = s.rate;
+        R.title = "Bono · i* por periodo";
+        R.value = fmtPct(r, 2);
+        R.sub = "i* = " + fmtT(r, 8) + " por " + PERIOD_NAMES[String(c)];
+        R.second = { label: "Interés del bono por periodo", value: "I = " + fmt(I, 2) };
+        R.rows.push(["i* con 4 decimales", fmtPct(r, 4), true],
+          ["Nominal anual i*·c", fmtPct(r * c, 4)],
+          ["Efectiva anual (1 + i*)" + sup("c") + " − 1", fmtPct(Math.pow(1 + r, c) - 1, 4)]);
+        R.formula.push("0 = −P + I(P/A, i*, N) + V(P/F, i*, N)",
+          "0 = −" + fmtT(Pp, 2) + " + " + fmtT(I, 2) + "(P/A, i*, " + fmtT(Nn) + ") + " + fmtT(Vf, 2) + "(P/F, i*, " + fmtT(Nn) + ") → i* = " + fmtPct(r, 4));
+        R.excel.push(Object.assign({ label: "i* por periodo" }, xlCall("TASA", "RATE", [N(Nn), N(I), N(-Pp), N(Vf)])));
+      }
+      if (v.id != null) {
+        var price = -pvF(v.id, Nn, I, Vf, 0);
+        if (v._blank.P) {
+          R.title = "Bono · precio para ganar " + pctT(v.id) + " por periodo";
+          R.value = fmt(price, 2);
+          R.second = { label: "Interés del bono por periodo", value: "I = " + fmt(I, 2) };
+        }
+        R.rows.push(["Precio para ganar " + pctT(v.id) + " por periodo", fmt(price, 2), v._blank.P]);
+        R.formula.push("Precio = I(P/A, i, N) + V(P/F, i, N) = " + fmt(price, 2));
+        R.excel.push(Object.assign({ label: "Precio (Excel lo da negativo: lo pagas)" }, xlCall("VA", "PV", [P(v.id), N(Nn), N(I), N(Vf)])));
+      }
+      if (v._blank.P && v.id == null) {
+        R.title = "Bono · interés por periodo";
+        R.value = fmt(I, 2);
+        R.sub = "I por " + PERIOD_NAMES[String(c)] + " · " + fmtT(Nn, 4) + " pagos";
+        R.notes = ["Escribe el precio de compra para obtener i*, o una tasa deseada para obtener el precio."];
+      }
+      if (!R.warns.length) delete R.warns;
+      return R;
+    }
+  },
+
+  // ---------------- Tasas ----------------
+  nom2ef: {
+    group: "Conversión de tasas",
+    label: "Nominal → efectiva",
+    desc: "De una tasa nominal anual r capitalizable m veces al año, a la efectiva anual y por periodo.",
+    fields: [fI({ key: "r", label: "Tasa nominal anual", sym: "r", ph: "12", full: true }),
+      { key: "m", kind: "select", label: "Capitalización (m por año)", sym: "m", def: "12", full: true, options: PERIODS.concat([["inf", "Continua (∞)"]]) },
+      { key: "k", kind: "select", label: "Periodo de pago (opcional)", sym: "k", def: "", full: true, optional: true,
+        options: [["", "— sin periodo de pago"]].concat(PERIODS) }],
+    example: { r: "12", m: "12", k: "4" },
+    compute: function (v) {
+      var cont = v.m === "inf", m = cont ? Infinity : Number(v.m), r = v.r;
+      var ie = cont ? Math.exp(r) - 1 : Math.pow(1 + r / m, m) - 1;
+      var R = {
+        title: "Tasa efectiva anual", value: fmtPct(ie, 2), sub: "= " + fmtPct(ie, 6),
+        rows: [], formula: [], excel: []
+      };
+      if (cont) {
+        R.formula.push("i<sub>ef</sub> = e" + sup("r") + " − 1 = e" + sup(fmtT(r, 6)) + " − 1 = " + fmtPct(ie, 4));
+        R.excel.push({ label: "Efectiva anual", es: "=EXP(" + xn(r * 100, "es") + "%)-1", en: "=EXP(" + xn(r * 100, "en") + "%)-1" });
+      } else {
+        R.rows.push(["Tasa por periodo de capitalización r/m (por " + PERIOD_NAMES[v.m] + ")", fmtPct(r / m, 4)]);
+        R.formula.push("i<sub>ef</sub> = (1 + r/m)" + sup("m") + " − 1 = (1 + " + fmtT(r, 6) + "/" + m + ")" + sup(m) + " − 1 = " + fmtPct(ie, 4));
+        R.excel.push(Object.assign({ label: "Efectiva anual" }, xlCall("INT.EFECTIVO", "EFFECT", [P(r), N(m)])));
+        R.excel.push({ label: "Tasa por periodo de capitalización", es: "=" + xn(r * 100, "es") + "%/" + m, en: "=" + xn(r * 100, "en") + "%/" + m });
+      }
+      R.rows.push(["Efectiva anual", fmtPct(ie, 4), true]);
+      if (v.k) {
+        var k = Number(v.k);
+        var ik = cont ? Math.exp(r / k) - 1 : Math.pow(1 + r / m, m / k) - 1;
+        R.rows.push(["Efectiva por " + PERIOD_NAMES[v.k] + " (pagos k = " + k + ")", fmtPct(ik, 4), true]);
+        R.second = { label: "Efectiva por periodo de pago (" + PERIOD_NAMES[v.k] + ")", value: fmtPct(ik, 4) };
+        if (cont) {
+          R.formula.push("i<sub>k</sub> = e" + sup("r/k") + " − 1 = " + fmtPct(ik, 4));
+          R.excel.push({ label: "Efectiva por " + PERIOD_NAMES[v.k], es: "=EXP(" + xn(r * 100, "es") + "%/" + k + ")-1", en: "=EXP(" + xn(r * 100, "en") + "%/" + k + ")-1" });
+        } else {
+          R.formula.push("i<sub>k</sub> = (1 + r/m)" + sup("m/k") + " − 1 = (1 + " + fmtT(r, 6) + "/" + m + ")" + sup(m + "/" + k) + " − 1 = " + fmtPct(ik, 4));
+          R.excel.push({ label: "Efectiva por " + PERIOD_NAMES[v.k], es: "=(1+" + xn(r * 100, "es") + "%/" + m + ")^(" + m + "/" + k + ")-1", en: "=(1+" + xn(r * 100, "en") + "%/" + m + ")^(" + m + "/" + k + ")-1" });
+        }
+      }
+      return R;
+    }
+  },
+
+  ef2nom: {
+    group: "Conversión de tasas",
+    label: "Efectiva anual → nominal",
+    desc: "De una tasa efectiva anual a la nominal anual capitalizable m veces y a la tasa por periodo.",
+    fields: [fI({ key: "ie", label: "Tasa efectiva anual", sym: "i ef", ph: "10", full: true }),
+      { key: "m", kind: "select", label: "Capitalización (m por año)", sym: "m", def: "12", full: true, options: PERIODS.concat([["inf", "Continua (∞)"]]) }],
+    example: { ie: "10", m: "12" },
+    compute: function (v) {
+      var cont = v.m === "inf", ie = v.ie;
+      if (cont) {
+        var rc = Math.log(1 + ie);
+        return {
+          title: "Tasa nominal anual (continua)", value: fmtPct(rc, 4),
+          formula: ["r = ln(1 + i<sub>ef</sub>) = ln(" + fmtT(1 + ie, 6) + ") = " + fmtPct(rc, 4)],
+          excel: [{ es: "=LN(1+" + xn(ie * 100, "es") + "%)", en: "=LN(1+" + xn(ie * 100, "en") + "%)" }]
+        };
+      }
+      var m = Number(v.m), ip = Math.pow(1 + ie, 1 / m) - 1, r = m * ip;
+      return {
+        title: "Tasa nominal anual capitalizable m = " + m, value: fmtPct(r, 4),
+        second: { label: "Tasa por " + PERIOD_NAMES[v.m], value: fmtPct(ip, 4) },
+        rows: [["Tasa efectiva por " + PERIOD_NAMES[v.m], fmtPct(ip, 6)], ["Nominal anual r = m·i", fmtPct(r, 6), true]],
+        formula: ["i<sub>m</sub> = (1 + i<sub>ef</sub>)" + sup("1/m") + " − 1 = (" + fmtT(1 + ie, 6) + ")" + sup("1/" + m) + " − 1 = " + fmtPct(ip, 4),
+          "r = m·i<sub>m</sub> = " + m + " × " + fmtPct(ip, 4) + " = " + fmtPct(r, 4)],
+        excel: [Object.assign({ label: "Nominal anual" }, xlCall("TASA.NOMINAL", "NOMINAL", [P(ie), N(m)])),
+          { label: "Tasa por " + PERIOD_NAMES[v.m], es: "=(1+" + xn(ie * 100, "es") + "%)^(1/" + m + ")-1", en: "=(1+" + xn(ie * 100, "en") + "%)^(1/" + m + ")-1" }]
+      };
+    }
+  },
+
+  efef: {
+    group: "Conversión de tasas",
+    label: "Efectiva de un periodo a otro",
+    desc: "Cambia una tasa efectiva de periodo: por ejemplo, de mensual a trimestral o a anual.",
+    fields: [fI({ key: "i1", label: "Tasa efectiva por periodo de origen", sym: "i origen", ph: "2", full: true }),
+      { key: "p1", kind: "select", label: "Periodo de origen", sym: "origen", def: "12", options: PERIODS },
+      { key: "p2", kind: "select", label: "Periodo de destino", sym: "destino", def: "4", options: PERIODS }],
+    example: { i1: "2", p1: "12", p2: "4" },
+    compute: function (v) {
+      var p1 = Number(v.p1), p2 = Number(v.p2);
+      var i2 = Math.pow(1 + v.i1, p1 / p2) - 1, ia = Math.pow(1 + v.i1, p1) - 1;
+      return {
+        title: "Tasa efectiva por " + PERIOD_NAMES[v.p2], value: fmtPct(i2, 4),
+        rows: [["Efectiva anual", fmtPct(ia, 4)], ["Nominal anual capitalizable " + p2 + " (i·" + p2 + ")", fmtPct(i2 * p2, 4)]],
+        formula: ["i<sub>2</sub> = (1 + i<sub>1</sub>)" + sup("p₁/p₂") + " − 1 = (" + fmtT(1 + v.i1, 6) + ")" + sup(p1 + "/" + p2) + " − 1 = " + fmtPct(i2, 4)],
+        excel: [{ es: "=(1+" + xn(v.i1 * 100, "es") + "%)^(" + p1 + "/" + p2 + ")-1", en: "=(1+" + xn(v.i1 * 100, "en") + "%)^(" + p1 + "/" + p2 + ")-1" }],
+        notes: ["p₁ y p₂ son periodos por año (mes = 12, trimestre = 4, semestre = 2…)."]
+      };
+    }
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Estado, interfaz y eventos
+// ---------------------------------------------------------------------------
+var STORE = "calc-ingenieria-economica-v1";
+var state = { fn: "factor", values: {}, example: null };
+var $ = function (s) { return document.querySelector(s); };
+var fnSel = $("#fn"), fieldsEl = $("#fields"), resultEl = $("#result");
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* sin almacenamiento */ } }
+function load() {
+  try {
+    var s = JSON.parse(localStorage.getItem(STORE));
+    if (s && FUNCS[s.fn] && s.values) { state = s; return true; }
+  } catch (e) { /* sin almacenamiento */ }
+  return false;
+}
+function vals() { return state.values[state.fn] || (state.values[state.fn] = {}); }
+
+function buildMenu() {
+  var groups = {}, order = [];
+  Object.keys(FUNCS).forEach(function (k) {
+    var g = FUNCS[k].group;
+    if (!groups[g]) { groups[g] = []; order.push(g); }
+    groups[g].push(k);
+  });
+  fnSel.innerHTML = order.map(function (g) {
+    return '<optgroup label="' + esc(g) + '">' + groups[g].map(function (k) {
+      return '<option value="' + k + '">' + esc(FUNCS[k].label) + "</option>";
+    }).join("") + "</optgroup>";
+  }).join("");
+}
+
+function fieldHTML(f, raw) {
+  var id = "f-" + state.fn + "-" + f.key;
+  var cls = "field" + (f.full || f.kind === "money" || f.kind === "flows" ? " full" : "");
+  var label = '<label class="lbl" for="' + id + '">' + esc(f.label) +
+    (f.sym && f.kind !== "select" && f.kind !== "flows" ? " · " + esc(f.sym) : "") +
+    (f.optional ? ' <span class="opt">(opcional)</span>' : "") + "</label>";
+  var hint = f.hint ? '<p class="hint">' + esc(f.hint) + "</p>" : "";
+  var ctrl;
+  if (f.kind === "select") {
+    var cur = raw == null ? f.def : raw;
+    ctrl = '<div class="select"><select id="' + id + '" data-key="' + f.key + '">' + f.options.map(function (o) {
+      return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(cur) ? " selected" : "") + ">" + esc(o[1]) + "</option>";
+    }).join("") + "</select></div>";
+  } else if (f.kind === "flows") {
+    ctrl = '<textarea id="' + id + '" data-key="' + f.key + '" inputmode="decimal" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="' + esc(f.ph || "") + '">' + esc(raw || "") + "</textarea>" +
+      '<div class="toolbar" role="group" aria-label="Insertar en los flujos">' +
+      '<button type="button" class="tool" data-ins="-" data-for="' + id + '" aria-label="Insertar signo menos">−</button>' +
+      '<button type="button" class="tool" data-ins="; " data-for="' + id + '" aria-label="Insertar punto y coma">;</button>' +
+      '<button type="button" class="tool" data-ins="x" data-for="' + id + '" aria-label="Insertar repetición">x n</button>' +
+      '<button type="button" class="tool" data-ins="\n" data-for="' + id + '" aria-label="Insertar salto de línea">↵</button>' +
+      "</div>";
+  } else {
+    var unit = f.kind === "rate" ? "%" : "";
+    ctrl = '<div class="control"><div class="box"><input id="' + id + '" data-key="' + f.key + '" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false"' +
+      (unit ? ' class="has-unit"' : "") + ' placeholder="' + esc(f.ph || "") + '" value="' + esc(raw || "") + '">' +
+      (unit ? '<span class="unit" aria-hidden="true">' + unit + "</span>" : "") + "</div>" +
+      (f.kind === "money" ? '<button type="button" class="pm" data-pm="' + id + '" aria-label="Cambiar signo de ' + esc(f.label) + '">±</button>' : "") +
+      "</div>";
+  }
+  return '<div class="' + cls + '">' + label + ctrl + hint + "</div>";
+}
+
+function renderFields() {
+  var def = FUNCS[state.fn], v = vals();
+  fnSel.value = state.fn;
+  $("#fn-desc").textContent = def.desc;
+  fieldsEl.innerHTML = def.fields.map(function (f) { return fieldHTML(f, v[f.key]); }).join("");
+  $("#example-note").hidden = state.example !== state.fn;
+}
+
+function readValues(def) {
+  var raw = vals(), v = { _blank: {}, _amb: [] };
+  def.fields.forEach(function (f) {
+    var r = raw[f.key];
+    if (f.kind === "select") {
+      v[f.key] = r == null ? f.def : r;
+      if (v[f.key] === "") v._blank[f.key] = true;
+      return;
+    }
+    if (f.kind === "flows") {
+      var pf = parseFlows(r);
+      if (!pf.flows.length) {
+        if (f.optional) { v[f.key] = null; v._blank[f.key] = true; return; }
+        throw new Error("Falta: " + f.label + ".");
+      }
+      v[f.key] = pf.flows;
+      v._amb = v._amb.concat(pf.ambiguous);
+      return;
+    }
+    var p = parseNum(r);
+    if (p.v === null) {
+      if (f.optional) { v[f.key] = f.kind === "money" ? 0 : null; v._blank[f.key] = true; return; }
+      throw new Error("Falta: " + f.label + (f.sym ? " (" + f.sym + ")" : "") + ".");
+    }
+    if (isNaN(p.v)) throw new Error("«" + String(r).trim() + "» no es un número válido en " + f.label + ".");
+    if (p.ambiguous) v._amb.push(p.ambiguous);
+    if (f.positive && !(p.v > 0)) throw new Error(f.label + " debe ser mayor que 0.");
+    if (f.kind === "rate" && p.v <= -100) throw new Error(f.label + " debe ser mayor que −100 %.");
+    v[f.key] = f.kind === "rate" ? p.v / 100 : p.v;
+  });
+  return v;
+}
+
+function dataLine(def, v) {
+  return def.fields.map(function (f) {
+    if (v._blank[f.key]) return null;
+    var x = v[f.key], s;
+    if (f.kind === "select") {
+      var o = f.options.filter(function (o) { return String(o[0]) === String(x); })[0];
+      s = o ? o[1].split(" · ")[0] : x;
+    } else if (f.kind === "flows") s = x.length + " flujos";
+    else if (f.kind === "rate") s = pctT(x);
+    else s = fmtT(x, 6);
+    return "<b>" + esc(f.sym || f.key) + "</b> = " + esc(s);
+  }).filter(Boolean).join(" · ");
+}
+
+function renderResult(R) {
+  resultEl.classList.remove("stale", "error");
+  var h = "";
+  if (R.error) {
+    resultEl.classList.add("error");
+    h += '<div class="res-head"><span class="res-title">Revisa los datos</span></div>';
+    h += '<div class="lcd"><output class="res-value" id="res-value"></output></div>';
+    resultEl.innerHTML = h;
+    $("#res-value").textContent = R.error;
+    resultEl.hidden = false;
+    return;
+  }
+  h += '<div class="res-head"><span class="res-title">' + R.title + "</span>" +
+    (R.tag ? '<span class="tag ' + (R.tag.cls || "") + '">' + esc(R.tag.text) + "</span>" : "") + "</div>";
+  h += '<div class="lcd"><output class="res-value" id="res-value">' + esc(R.value) + "</output>" +
+    (R.sub ? '<div class="res-sub">' + esc(R.sub) + "</div>" : "") +
+    (R.second ? '<div class="res-second">' + esc(R.second.value) + "<small>" + R.second.label + "</small></div>" : "") + "</div>";
+  h += '<p class="stale-note" id="stale-note" hidden>Cambiaste los datos: pulsa Calcular.</p>';
+  if (R.rows && R.rows.length) {
+    h += '<dl class="rows">' + R.rows.map(function (r) {
+      return '<div class="row' + (r[2] ? " hi" : "") + (r[3] ? " wide" : "") + '"><dt>' + r[0] + "</dt><dd>" + esc(r[1]) + "</dd></div>";
+    }).join("") + "</dl>";
+  }
+  if (R.formula && R.formula.length) {
+    h += '<div class="block"><h2>Fórmula</h2>' + R.formula.map(function (l) { return '<p class="fx">' + l + "</p>"; }).join("") + "</div>";
+  }
+  if (R.excel && R.excel.length) {
+    h += '<div class="block"><h2>Excel</h2>' + R.excel.map(function (x) {
+      return '<div class="xl">' + (x.label ? '<p class="xl-label">' + esc(x.label) + "</p>" : "") +
+        '<div class="xl-line"><code class="xl-es">' + esc(x.es) + '</code><button type="button" class="copy" data-copy="' + esc(x.es) + '">Copiar</button></div>' +
+        (x.en ? '<code class="xl-en">' + esc(x.en) + "</code>" : "") + "</div>";
+    }).join("") + "</div>";
+  }
+  if (R.notes && R.notes.length) h += '<ul class="notes">' + R.notes.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>";
+  (R.warns || []).forEach(function (w) { h += '<p class="warn">' + esc(w) + "</p>"; });
+  if (R.data) h += '<p class="data">Datos: ' + R.data + "</p>";
+  resultEl.innerHTML = h;
+  resultEl.hidden = false;
+}
+
+function calc(scroll) {
+  var def = FUNCS[state.fn], R;
+  try {
+    var v = readValues(def);
+    R = def.compute(v);
+    R.data = dataLine(def, v);
+    var amb = v._amb.filter(function (a, k, arr) { return arr.indexOf(a) === k; });
+    if (amb.length) {
+      R.warns = (R.warns || []).concat(amb.map(function (a) {
+        return "Leí «" + a + "» con decimales (coma o punto = decimal). Si querías miles, escríbelo sin separador: " + a.replace(/[.,]/g, "") + ".";
+      }));
+    }
+  } catch (err) {
+    R = { error: err && err.message ? err.message : String(err) };
+  }
+  renderResult(R);
+  if (scroll) {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    resultEl.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  }
+}
+
+function markStale() {
+  if (state.example === state.fn) { state.example = null; $("#example-note").hidden = true; }
+  if (!resultEl.hidden && !resultEl.classList.contains("error")) {
+    resultEl.classList.add("stale");
+    var n = $("#stale-note");
+    if (n) n.hidden = false;
+  }
+}
+
+function loadExample() {
+  state.values[state.fn] = Object.assign({}, FUNCS[state.fn].example);
+  state.example = state.fn;
+  save();
+  renderFields();
+  calc(false);
+}
+
+// Eventos
+fnSel.addEventListener("change", function () {
+  state.fn = fnSel.value;
+  if (state.example && state.example !== state.fn) state.example = null;
+  save();
+  renderFields();
+  resultEl.hidden = true;
+});
+fieldsEl.addEventListener("input", function (e) {
+  var k = e.target.getAttribute("data-key");
+  if (!k) return;
+  vals()[k] = e.target.value;
+  save();
+  markStale();
+});
+fieldsEl.addEventListener("change", function (e) {
+  if (e.target.tagName !== "SELECT") return;
+  vals()[e.target.getAttribute("data-key")] = e.target.value;
+  save();
+  markStale();
+});
+// Botones que no deben quitar el foco (ni cerrar el teclado)
+fieldsEl.addEventListener("pointerdown", function (e) {
+  var b = e.target.closest(".tool, .pm");
+  if (b) e.preventDefault();
+});
+fieldsEl.addEventListener("click", function (e) {
+  var pm = e.target.closest(".pm");
+  if (pm) {
+    var inp = document.getElementById(pm.getAttribute("data-pm"));
+    var s = inp.value.trim();
+    inp.value = s.charAt(0) === "-" || s.charAt(0) === "−" ? s.slice(1) : "-" + s;
+    inp.dispatchEvent(new Event("input", { bubbles: true }));
+    return;
+  }
+  var tool = e.target.closest(".tool");
+  if (tool) {
+    var ta = document.getElementById(tool.getAttribute("data-for"));
+    var ins = tool.getAttribute("data-ins");
+    var a = ta.selectionStart == null ? ta.value.length : ta.selectionStart;
+    var b = ta.selectionEnd == null ? ta.value.length : ta.selectionEnd;
+    ta.value = ta.value.slice(0, a) + ins + ta.value.slice(b);
+    ta.selectionStart = ta.selectionEnd = a + ins.length;
+    ta.focus();
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+});
+$("#calc").addEventListener("submit", function (e) { e.preventDefault(); calc(true); });
+$("#example").addEventListener("click", loadExample);
+$("#clear").addEventListener("click", function () {
+  state.values[state.fn] = {};
+  state.example = null;
+  save();
+  renderFields();
+  resultEl.hidden = true;
+  var first = fieldsEl.querySelector("input, textarea");
+  if (first) first.focus();
+});
+resultEl.addEventListener("click", function (e) {
+  var b = e.target.closest(".copy");
+  if (!b) return;
+  var text = b.getAttribute("data-copy");
+  var done = function () { b.textContent = "Copiado"; setTimeout(function () { b.textContent = "Copiar"; }, 1400); };
+  var fallback = function () {
+    var code = b.parentNode.querySelector(".xl-es");
+    var range = document.createRange();
+    range.selectNodeContents(code);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    b.textContent = "Seleccionado";
+    setTimeout(function () { b.textContent = "Copiar"; }, 1400);
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  } catch (err) { fallback(); }
+});
+
+// Arranque: si es la primera vez, abre con un ejemplo resuelto.
+buildMenu();
+if (load()) {
+  renderFields();
+  if (state.example === state.fn) calc(false);
+} else {
+  state.fn = "factor";
+  loadExample();
+}
+
+// Exponer el motor para pruebas automáticas (no afecta el uso normal).
+window.__calcIE = { FUNCS: FUNCS, parseNum: parseNum, parseFlows: parseFlows, rateF: rateF, pmtF: pmtF, factors: factors };
+})();
+</script>
+</body>
+</html>
