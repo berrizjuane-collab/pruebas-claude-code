@@ -1,6 +1,6 @@
 """Arma el PDF de láminas a partir de los masters PNG que genera generar.py.
 
-    python3 pdf_laminas.py <carpeta_png> <salida.pdf> [--ancho 3840] [--calidad 90]
+    python3 pdf_laminas.py <carpeta_png> <salida.pdf> [--ancho 5120] [--calidad 90]
 
 Las láminas se incrustan como JPEG (sin recomprimir dentro del PDF) para que el archivo pese poco;
 la calidad completa está en los PNG de generar.py, que se pueden rehacer a cualquier resolución.
@@ -73,7 +73,7 @@ def partir(c, texto, fuente, tam, ancho):
     return lineas
 
 
-def construir(carpeta, salida, calidad=90, ancho=3840):
+def construir(carpeta, salida, calidad=90, ancho=5120):
     c = canvas.Canvas(salida, pagesize=(PW, PH))
     c.setTitle('Dhaulagiri I · 8 167 m — seis láminas a pincel seco')
     c.setSubject('Ilustraciones del Dhaulagiri sobre el relieve real (Copernicus DEM GLO-30)')
@@ -110,16 +110,19 @@ def construir(carpeta, salida, calidad=90, ancho=3840):
         c.setFillColor(TINTA); c.rect(0, 0, PW, PH, fill=1, stroke=0)
         c.drawImage(ImageReader(jpeg(ruta, calidad, ancho)), 0, PH - IMG_H, PW, IMG_H)
         y = PH - IMG_H
+        # columna izquierda (hasta x = 556): título, subtítulo y ficha; derecha (desde x = 596): el texto
         c.setFillColor(PAPEL); c.setFont(F_SERIFB, 22)
-        c.drawString(36, y - 40, nombre)
-        nw = c.stringWidth(nombre, F_SERIFB, 22)
-        c.setFont(F_SERIF, 15); c.setFillColor(COTA)
-        c.drawString(36 + nw + 14, y - 40, resto)
-        c.setFont(F_SANS, 9.5); c.setFillColor(TENUE)
-        c.drawString(36, y - 62, FICHA[k])
+        c.drawString(36, y - 34, nombre)
+        c.setFont(F_SERIF, 13); c.setFillColor(COTA)
+        c.drawString(36, y - 54, resto)
+        tf = 9.0
+        while c.stringWidth(FICHA[k], F_SANS, tf) > 520 and tf > 7:
+            tf -= 0.25
+        c.setFont(F_SANS, tf); c.setFillColor(TENUE)
+        c.drawString(36, y - 74, FICHA[k])
         c.setFont(F_SERIF, 10.5); c.setFillColor(Color(0.82, 0.81, 0.78))
         for j, l in enumerate(partir(c, e['texto'], F_SERIF, 10.5, 520)):
-            c.drawString(PW - 36 - 520, y - 30 - j * 14.5, l)
+            c.drawString(PW - 36 - 520, y - 26 - j * 14.5, l)
         c.setFont(F_SANS, 9); c.setFillColor(TENUE)
         c.drawString(36, 14, f'Lámina {["I", "II", "III", "IV", "V", "VI"][i]}')
         c.drawRightString(PW - 36, 14, f'{i + 1} / {len(S.ORDEN)}')
@@ -133,6 +136,6 @@ if __name__ == '__main__':
     ap.add_argument('carpeta')
     ap.add_argument('salida')
     ap.add_argument('--calidad', type=int, default=90)
-    ap.add_argument('--ancho', type=int, default=3840)
+    ap.add_argument('--ancho', type=int, default=5120)
     a = ap.parse_args()
     construir(a.carpeta, a.salida, a.calidad, a.ancho)

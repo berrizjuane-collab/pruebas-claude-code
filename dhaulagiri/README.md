@@ -16,7 +16,7 @@ macizo: Copernicus DEM GLO-30, unas tres veces más fino que el GLO-90 del G II.
 ## Qué hay
 
 - `Dhaulagiri_laminas.zip`: la entrega.
-  - `Dhaulagiri_laminas.pdf`: portada y las seis láminas a 3 840 px, en JPEG de alta calidad.
+  - `Dhaulagiri_laminas.pdf`: portada y las seis láminas a su resolución completa (5 120 × 2 880), en JPEG de calidad 90.
   - `LEEME.md`: cómo reconstruirlas.
   - `codigo/`: el código para rehacerlas a 5K, 8K o cualquier tamaño, idénticas a las del PDF.
 - `codigo/`: el mismo código, sin comprimir, para trabajar en la web.
